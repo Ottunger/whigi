@@ -1,5 +1,5 @@
 # Readme
-A project to make people posess their own data again.
+A project to make people possess their own data again.
 
 # To install a Gitlab over Ubuntu 14.04:
 - sudo apt-get install vim postfix mailutils libsasl2-2 ca-certificates libsasl2-modules
