@@ -15,10 +15,4 @@ sudo apt-get install gitlab-ce
 - sudo vim /etc/gitlab/gitlab.rb to change external url first line!
 - sudo gitlab-ctl reconfigure
 
-<<<<<<< HEAD
-Then browse to your gitlab server usring HTTP to set everything up :)
-=======
-Then browse to your gitlab server usring HHTP to set everything up :)
-
-# 
->>>>>>> c9fcacb98f1d35283f289281eb5b0e6b75205b9d
+Then browse to your gitlab server using HTTP to set everything up :)
