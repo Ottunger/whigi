@@ -20,7 +20,9 @@ export class User {
     public _id: string;
     public email: string;
     public puzzle: string;
+    public encr_master_key: string;
     public data;
+    private db: any;
     
     /**
      * Create a USer from a bare database description.
@@ -28,7 +30,7 @@ export class User {
      * @public
      * @param u Description.
      */
-    constructor(u) {
+    constructor(u, db) {
         if('username' in u)
             this.username = u.username;
         if('pwd_key' in u)
@@ -43,12 +45,12 @@ export class User {
             this.salt = u.salt;
         if('_id' in u)
             this._id = u._id;
-        else
-            this._id = utils.generateRandomString(8);
         if('email' in u)
             this.email = u.email;
         if('puzzle' in u)
             this.puzzle = u.puzzle;
+        if('encr_master_key' in u)
+            this.encr_master_key = u.encr_master_key;
         if('data' in u)
             this.data = u.data;
     }
@@ -62,25 +64,82 @@ export class User {
     applyUpdate(upt) {
         if('password' in upt)
             this.password = hash.sha256(upt.password + this.salt);
-        if('username' in upt)
-            this.username = upt.username;
-        if('email' in upt)
+        if('email' in upt && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(upt.email))
             this.email = upt.email;
+    }
+
+    /**
+     * Returns a shallow copy safe for sending to the user.
+     * @function allFields
+     * @private
+     * @return Duplicated object.
+     */
+    private allFields() {
+        var ret = {
+            username: this.username,
+            pwd_key: this.pwd_key,
+            key: this.key,
+            password: this.password,
+            salt: this.salt,
+            _id: this._id,
+            email: this.email,
+            is_activated: this.is_activated,
+            puzzle: this.puzzle,
+            encr_master_key: this.encr_master_key,
+            data: this.data
+        };
+        return ret;
+    }
+
+    /**
+     * Fills data field if not already there.
+     * @function fetchData
+     * @private
+     * @return A promise to check if everything went well.
+     */
+    private fetchData() {
+        return new Promise(function(resolve, reject) {
+            if(this.data !== undefined)
+                resolve();
+            else {
+                this.db.collection('users').findOne({_id: this._id}, function(e, user) {
+                    if(e || user === undefined)
+                        reject(e);
+                    else {
+                        this.data = user.data;
+                        resolve();
+                    }
+                });
+            }
+        });
     }
 
     /**
      * Write the user to database.
      * @function persist
      * @public
+     * @return A promise to check if everything went well.
      */
     persist() {
-        //TODO Function persist
+        return new Promise(function(resolve, reject) {
+            this.fetchData().then(function() {
+                this.db.collection('users').update({_id: this._id}, this.allFields(), {upsert: true}, function(e) {
+                    if(!e)
+                        resolve();
+                    else
+                        reject(e);
+                });
+            }, function(e) {
+                reject(e);
+            });
+        });
     }
 
     /**
      * Returns a shallow copy safe for sending.
      * @function sanitarize
      * @public
+     * @return Duplicated object.
      */
     sanitarize() {
         var ret = {
@@ -96,6 +155,7 @@ export class User {
      * Returns a shallow copy safe for sending to the user.
      * @function fields
      * @public
+     * @return Duplicated object.
      */
     fields() {
         var ret = {
@@ -107,7 +167,8 @@ export class User {
             _id: this._id,
             email: this.email,
             is_activated: this.is_activated,
-            puzzle: this.puzzle
+            puzzle: this.puzzle,
+            encr_master_key: this.encr_master_key
         };
         return ret;
     }

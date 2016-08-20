@@ -15,7 +15,7 @@ var mc = require('mongodb').MongoClient;
 var utils = require('../utils/utils');
 var user = require('./user');
 var datasources = require('./datasources/datasources');
-var db, um;
+var db;
 
 //Set the running configuration
 var httpsport = parseInt(process.argv[3]) || 443;
@@ -51,7 +51,7 @@ function connect(callback) {
     mc.connect('mongodb://whigiuser:sorryMeND3dIoKwR@localhost:27017/whigi', function(e, d) {
         if(!e) {
             db = new datasources.Datasource(d);
-            um = new user.UserManager(db);
+            user.managerInit(db);
         }
         callback(e);
     });
@@ -84,7 +84,7 @@ pass.use(new BS(function(user, pwd, done) {
         }
         if(ipwd.is_activated) {
             if(hash.sha256(pwd + ipwd.salt) == ipwd.password)
-                return done(null, user);
+                return done(null, ipwd);
             else {
                 return done(null, false);
             }
@@ -98,17 +98,30 @@ pass.use(new BS(function(user, pwd, done) {
 
 //Now connect to DB then start serving requests
 connect(function(e) {
+    if(e) {
+        console.log('Bootstrap could not be completed.');
+        process.exit();
+    }
+
+    //Create the express application
     var app = express();
     app.use(helmet());
     app.use(body.json());
 
     //API use auth
-    app.use('/api/v:version/user/:id', pass.authenticate('basic', {session: false}));
+    app.get('/api/v:version/user/:id', pass.authenticate('basic', {session: false}));
+    app.get('/api/v:version/profile', pass.authenticate('basic', {session: false}));
+    app.post('/api/v:version/user/:id/update', pass.authenticate('basic', {session: false}));
+    app.delete('/api/v:version/user/:id/deactivate', pass.authenticate('basic', {session: false}));
     //API long lived commands or populating database
-    //First one is to protect our user from crawlers
     app.use('/api/v:version/user/:id', utils.checkPuzzle);
     //API routes
-    app.get('/api/v:version/user/:id', um.getUser);
+    app.get('/api/v:version/user/:id', user.getUser);
+    app.get('/api/v:version/profile', user.getProfile);
+    app.post('/api/v:version/user/:id/update', user.updateUser);
+    app.post('/api/v:version/user/create', user.regUser);
+    app.get('/api/v:version/activate/:key/:id', user.activateUser);
+    app.delete('/api/v:version/user/:id/deactivate', user.deactivateUser);
 
     //Error route
     app.use(function(req, res, next) {
@@ -120,10 +133,6 @@ connect(function(e) {
         res.type('application/json').status(404).json({error: utils.i18n('client.notFound', req)});
     });
 
-    if(e) {
-        console.log('Bootstrap could not be completed.');
-        process.exit();
-    }
     process.on('SIGTERM', close);
     process.on('SIGINT', close);
     process.on('uncaughtException', function(err) {

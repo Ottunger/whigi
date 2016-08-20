@@ -22,3 +22,10 @@ Then browse to your gitlab server usring HTTP to set everything up :)
 - Just issue node index.js over the several servers
 - Static servers are described by a nginx configuration file
 - Don't forget to prepare database using the mongoInit.sh file!
+
+# Data model
+- Whigi
+   - Users are stored in a table with their basic profile info and a data array of all id's of their own infos in documents.
+   - Documents are stored in another table, alongside.
+- Whigi-restore
+   - User_id <=> master_key bijection. This database is populated upon user creation bu Whigi, to communicate servers encrypt a welcoming message and the message. This encryption shared key is obviously of the utmost importance.

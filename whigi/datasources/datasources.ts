@@ -32,21 +32,62 @@ export class Datasource {
     }
 
     /**
+     * Returns the local DB.
+     * @function getDatabase
+     * @public
+     * @return The database.
+     */
+    getDatabase() {
+        return this.db;
+    }
+
+    /**
      * Retrieves a User from storage.
      * @function retrieveUser
      * @public
      */
-    retrieveUser(mode: string, value: any): Promise<User> {
+    retrieveUser(mode: string, value: string): Promise<User> {
+        function complete(resolve, reject, e, user) {
+            if(e) 
+                reject(e);
+            else {
+                if(user === undefined)
+                    resolve(undefined);
+                else
+                    resolve(new User(user, this.db));
+            }
+        }
+
         return new Promise(function(resolve, reject) {
-            //TODO how to retrieve user from database from different fields
-            this.db.find(function(e, u) {
-                if(!e) {
-                    var user = new User(u);
-                    resolve(user);
-                } else {
-                    reject(e);
-                }
-            });
+            switch(mode) {
+                case 'id':
+                    this.db.collection('users').findOne({_id: value}, {data: false}, function(e, user) {
+                        complete(resolve, reject, e, user);
+                    });
+                    break;
+                case 'username':
+                    this.db.collection('users').findOne({username: value}, {data: false}, function(e, user) {
+                        complete(resolve, reject, e, user);
+                    });
+                    break;
+                case 'pwd_key':
+                    this.db.collection('users').findOne({pwd_key: value}, {data: false}, function(e, user) {
+                        complete(resolve, reject, e, user);
+                    });
+                    break;
+                case 'key':
+                    this.db.collection('users').findOne({key: value}, {data: false}, function(e, user) {
+                        complete(resolve, reject, e, user);
+                    });
+                    break;
+                case 'email':
+                    this.db.collection('users').findOne({email: value}, {data: false}, function(e, user) {
+                        complete(resolve, reject, e, user);
+                    });
+                    break;
+                default:
+                    reject(true);
+            }
         });
     }
 

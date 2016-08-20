@@ -1,0 +1,16 @@
+{
+  "client.notFound": "Erreur client: Introuvable",
+  "client.auth": "Erreur client: Mauvaise identification pour accéder à cette ressource",
+  "client.missing": "Erreur client: Champ requis manquant",
+  "client.noUser": "Erreur client: Utilisateur introuvable",
+  "client.badState": "Erreur client: Utilisateur dans un état incompatible",
+  "client.userExists": "Erreur client: Utilisateur exist déjà",
+  "client.puzzle": "Erreur client: Mauvaise référence puzzle.",
+  "client.captcha": "Erreur client: Pas de robot ici!",
+  "internal.db": "Erreur interne: Pas de connexion à la base de données",
+  "internal.noStats": "Erreur interne: Pas de statistiques",
+  "internal.noTickets": "Erreur interne: Pas de tickets",
+  "internal.overload": "Erreur interne: Réessayez plus tard",
+  "internal.noPath": "Erreur interne: Impossible de trouver le chemin de ce voyage",
+  "external.down": "Erreur globale: Service extérieur offline"
+}

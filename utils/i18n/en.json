@@ -1,0 +1,16 @@
+{
+  "client.notFound": "Client error: Not found",
+  "client.auth": "Client error: Bad realm for accessing this ressource",
+  "client.missing": "Client error: Mandatory field missing",
+  "client.noUser": "Client error: No such user",
+  "client.badState": "Client error: User in wrong state for this action",
+  "client.userExists": "Client error: User already exists",
+  "client.puzzle": "Client error: Puzzle reference is corrupted.",
+  "client.captcha": "Client error: No robot here!",
+  "internal.db": "Internal error: No database connection",
+  "internal.noStats": "Internal error: No retrievable stats",
+  "internal.noTickets": "Internal error: No retrievable tickets",
+  "internal.overload": "Internal error: Retry later",
+  "internal.noPath": "Internal error: Cannot find path associated to journey",
+  "external.down": "Global error: External service down"
+}

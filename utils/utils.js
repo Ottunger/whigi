@@ -9,38 +9,8 @@ var hash = require('js-sha256').sha256;
 var querystring = require('querystring');
 var https = require('https');
 var strings = {
-    en: {
-        'client.notFound': 'Client error: Not found',
-        'client.auth': 'Client error: Bad realm for accessing this ressource',
-        'client.missing': 'Client error: Mandatory field missing',
-        'client.noUser': 'Client error: No such user',
-        'client.badState': 'Client error: User in wrong state for this action',
-        'client.userExists': 'Client error: User already exists',
-        'client.puzzle': 'Client error: Puzzle reference is corrupted.',
-        'client.captcha': 'Client error: No robot here!',
-        'internal.db': 'Internal error: No database connection',
-        'internal.noStats': 'Internal error: No retrievable stats',
-        'internal.noTickets': 'Internal error: No retrievable tickets',
-        'internal.overload': 'Internal error: Retry later',
-        'internal.noPath': 'Internal error: Cannot find path associated to journey',
-        'external.down': 'Global error: External service down'
-    },
-    fr: {
-        'client.notFound': 'Erreur client: Introuvable',
-        'client.auth': 'Erreur client: Mauvaise identification pour accéder à cette ressource',
-        'client.missing': 'Erreur client: Champ requis manquant',
-        'client.noUser': 'Erreur client: Utilisateur introuvable',
-        'client.badState': 'Erreur client: Utilisateur dans un état incompatible',
-        'client.userExists': 'Erreur client: Utilisateur exist déjà',
-        'client.puzzle': 'Erreur client: Mauvaise référence puzzle.',
-        'client.captcha': 'Erreur client: Pas de robot ici!',
-        'internal.db': 'Erreur interne: Pas de connexion à la base de données',
-        'internal.noStats': 'Erreur interne: Pas de statistiques',
-        'internal.noTickets': 'Erreur interne: Pas de tickets',
-        'internal.overload': 'Erreur interne: Réessayez plus tard',
-        'internal.noPath': 'Erreur interne: Impossible de trouver le chemin de ce voyage',
-        'external.down': 'Erreur globale: Service extérieur offline'
-    }
+    en: require('./i18n/en.json'),
+    fr: require('./i18n/fr.json')
 }
 
 /**
@@ -68,39 +38,6 @@ exports.generateRandomString = function (length) {
         randomString += characters[Math.floor(Math.random() * characters.length)];
     }
     return randomString;
-}
-
-/**
- * Returns the user field within authorization header.
- * @function authUserId
- * @public
- * @param {Request} req The request.
- * @param {Function} callback Callback to call with user's id.
- */
-exports.authUserId = function(req, callback) {
-    if(err === 'ok') {
-        entities.retrieveItem('users', 'username', exports.authUserName(req), false, function(ex, doc) {
-            if(!ex)
-                callback(doc._id);
-            else
-                callback(0);
-        });
-    } else
-        callback(0);
-}
-
-/**
- * Returns the user field within authorization header.
- * @function authUserName
- * @public
- * @param {Request} req The request.
- * @return {String} The name of the user.
- */
-exports.authUserName = function(req) {
-    var str = req.get('Authorization');
-    str = str.slice(str.indexOf('c ') + 2, str.length - 1);
-    str = atob(str).split(':').reverse().pop();
-    return str;
 }
 
 /**
@@ -136,7 +73,7 @@ exports.sendMail = function(options, callback) {
     var mail = 'MIME-Version: 1.0\n' +
         'X-Mailer: Whigi\n' +
         'Date: ' + new Date().toUTCString() + '\n' +
-        'Message-Id: <' + api.generateRandomString(16) + '@Whigi>\n' +
+        'Message-Id: <' + exports.generateRandomString(16) + '@Whigi>\n' +
         'From: ' + options.from + '\n' +
         'To: ' + options.to + '\n' +
         'Subject: ' + options.subject + '\n' +
@@ -189,25 +126,21 @@ exports.i18n = function(str, req) {
  * @param {Function} next Handler middleware.
  */
 exports.checkPuzzle = function(req, res, next) {
-    if(api.DEBUG == true) {
-        next();
-        return;
-    }
-    api.retrieveItem('users', 'username', api.authUserName(req), false, function(e, user) {
-        if(!('puzzle' in req.query)) {
-            user.puzzle = api.generateRandomString(16);
-            res.type('application/json').status(412).json({error: api.i18n('client.puzzle', req), puzzle: user.puzzle});
+    if(!('puzzle' in req.query)) {
+        req.user.puzzle = exports.generateRandomString(16);
+        req.user.persist();
+        res.type('application/json').status(412).json({error: exports.i18n('client.puzzle', req), puzzle: req.user.puzzle});
+    } else {
+        var complete = hash.sha256(req.user.puzzle + req.query.puzzle);
+        if(complete.charAt(0) == '0' && complete.charAt(1) == '0' && complete.charAt(2) == '0' && complete.charAt(3) == '0') {
+            req.user.puzzle = exports.generateRandomString(16);
+            next();
         } else {
-            var complete = hash.sha256(user.puzzle + req.query.puzzle);
-            if(complete.charAt(0) == '0' && complete.charAt(1) == '0' && complete.charAt(2) == '0' && complete.charAt(3) == '0') {
-                user.puzzle = api.generateRandomString(16);
-                next();
-            } else {
-                user.puzzle = api.generateRandomString(16);
-                res.type('application/json').status(412).json({error: api.i18n('client.puzzle', req), puzzle: user.puzzle});
-            }
+            req.user.puzzle = exports.generateRandomString(16);
+            req.user.persist();
+            res.type('application/json').status(412).json({error: exports.i18n('client.puzzle', req), puzzle: req.user.puzzle});
         }
-    });
+    }
 }
 
 /**
