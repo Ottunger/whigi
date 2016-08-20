@@ -12,7 +12,7 @@ var pass = require('passport');
 var fs = require('fs');
 var BS = require('passport-http').BasicStrategy;
 var mc = require('mongodb').MongoClient;
-var utils = require('./utils');
+var utils = require('../utils/utils');
 var user = require('./user');
 var datasources = require('./datasources/datasources');
 var db, um;
@@ -78,47 +78,48 @@ function close() {
  * @param {Function} callback A callback function to execute with true if authentication was ok.
  */
 pass.use(new BS(function(user, pwd, done) {
-    db.retrieveItem('users', 'username', user, function(e, ipwd) {
-        if(!e && ipwd != undefined) {
-            if(ipwd.is_activated) {
-                if(hash.sha256(pwd + ipwd.salt) == ipwd.password)
-                    return done(null, user);
-                else {
-                    return done(null, false);
-                }
-            } else {
+    db.retrieveUser('username', user).then(function(ipwd) {
+        if(ipwd === undefined) {
+            return done(null, false);
+        }
+        if(ipwd.is_activated) {
+            if(hash.sha256(pwd + ipwd.salt) == ipwd.password)
+                return done(null, user);
+            else {
                 return done(null, false);
             }
         } else {
-            return(e);
+            return done(null, false);
         }
+    }, function(e) {
+        return done(e);
     });
 }));
 
-var app = express();
-app.use(helmet());
-app.use(body.json());
-
-//API use auth
-app.use('/api/v:version/user/:id', pass.authenticate('basic', {session: false}));
-//API long lived commands or populating database
-//First one is to protect our user from crawlers
-app.use('/api/v:version/user/:id', utils.checkPuzzle);
-//API routes
-app.get('/api/v:version/user/:id', um.getUser);
-
-//Error route
-app.use(function(req, res, next) {
-    if(req.method == 'OPTIONS') {
-        listOptions(req.path, res, next);
-    } else
-        next();
-}, function(req, res) {
-    res.type('application/json').status(404).json({error: api.i18n('client.notFound', req)});
-});
-
 //Now connect to DB then start serving requests
 connect(function(e) {
+    var app = express();
+    app.use(helmet());
+    app.use(body.json());
+
+    //API use auth
+    app.use('/api/v:version/user/:id', pass.authenticate('basic', {session: false}));
+    //API long lived commands or populating database
+    //First one is to protect our user from crawlers
+    app.use('/api/v:version/user/:id', utils.checkPuzzle);
+    //API routes
+    app.get('/api/v:version/user/:id', um.getUser);
+
+    //Error route
+    app.use(function(req, res, next) {
+        if(req.method == 'OPTIONS') {
+            listOptions(req.path, res, next);
+        } else
+            next();
+    }, function(req, res) {
+        res.type('application/json').status(404).json({error: utils.i18n('client.notFound', req)});
+    });
+
     if(e) {
         console.log('Bootstrap could not be completed.');
         process.exit();

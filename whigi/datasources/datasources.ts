@@ -5,6 +5,7 @@
  */
 
 'use strict';
+declare var require: any
 import {User} from '../../common/models/user';
 
 export class Datasource {
@@ -37,6 +38,7 @@ export class Datasource {
      */
     retrieveUser(mode: string, value: any): Promise<User> {
         return new Promise(function(resolve, reject) {
+            //TODO how to retrieve user from database from different fields
             this.db.find(function(e, u) {
                 if(!e) {
                     var user = new User(u);

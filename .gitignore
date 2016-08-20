@@ -1,1 +1,8 @@
 /node_modules
+/.vscode
+
+/common/*.js
+/common/models/*.js
+
+/whigi/datasources/*.js
+/whigi/user.js
