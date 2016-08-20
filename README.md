@@ -1,5 +1,5 @@
 # Readme
-A project to make people posess their own data again.
+A project to make people possess their own data again.
 
 # To install a Gitlab over Ubuntu 14.04:
 - sudo apt-get install vim postfix mailutils libsasl2-2 ca-certificates libsasl2-modules
@@ -15,6 +15,7 @@ sudo apt-get install gitlab-ce
 - sudo vim /etc/gitlab/gitlab.rb to change external url first line!
 - sudo gitlab-ctl reconfigure
 
+<<<<<<< HEAD
 Then browse to your gitlab server usring HHTP to set everything up :)
 
 # Launch
@@ -22,3 +23,6 @@ Then browse to your gitlab server usring HHTP to set everything up :)
 - Just issue node index.js over the several servers
 - Static servers are described by a nginx configuration file
 - Don't forget to prepare database using the mongoInit.sh file!
+=======
+Then browse to your gitlab server using HTTP to set everything up :)
+>>>>>>> 1ec1c3ad2d2c3f3e885c34a412c6db7cd482d167
