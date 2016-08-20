@@ -17,4 +17,8 @@ sudo apt-get install gitlab-ce
 
 Then browse to your gitlab server usring HHTP to set everything up :)
 
-# 
+# Launch
+- Compile all TS files into JS files using -t ES6 option
+- Just issue node index.js over the several servers
+- Static servers are described by a nginx configuration file
+- Don't forget to prepare database using the mongoInit.sh file!
