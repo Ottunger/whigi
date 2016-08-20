@@ -1,0 +1,30 @@
+{
+  "name": "whigi",
+  "version": "0.0.1",
+  "description": "A way for users to regain control over their data",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "helmet": "^2.1.2",
+    "passport": "^0.3.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://whigi2-dev.envict.com/whigi-team/whigi.git"
+  },
+  "keywords": [
+    "privacy",
+    "shield",
+    "personnal",
+    "data",
+    "cloud",
+    "open-source"
+  ],
+  "author": "whigi-team",
+  "license": "SEE LICENSE IN LICENSE.txt"
+}
