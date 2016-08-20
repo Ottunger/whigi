@@ -1,0 +1,121 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>POST Request forger</title>
+    <style type="text/css">
+        .number {color: #dd0004;}
+        .key {color: #8d4b85; font-weight: bold;}
+        .boolean {color: #0059a4; font-style: italic;}
+        .null {color: #000; font-weight: bold; font-style: italic;}
+        .string {color: #257110;}
+        #format {
+            padding: 5px;
+            float: left;
+            border: 1px solid #CCC;
+        }
+        #error {color: #F00; font-family: Verdana;}
+        #response {
+            border: 1px solid #CCC;
+            padding: 5px;
+        }
+    </style>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript">
+        (function (window, undefined) {
+            var document = window.document;
+            var $ = window.jQuery;
+            function syntaxHighlight(json) {
+                if (typeof json === "string") {
+                    json = JSON.parse(json);
+                }
+                json = JSON.stringify(json, undefined, 4);
+                json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                    var cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+            }
+            $(document).ready(function () {
+                $("form").submit(function (event) {
+                    event.preventDefault();
+                    $("#response").text("Loading response...");
+
+                    var method = $("select").val();
+                    var username = $("#name").val();
+                    var password = $("#password").val();
+
+                    var ajaxObj = {
+                        contentType: "application/json",
+                        method: method,
+                        url: $("#url").val(),
+                        success: function (response) {
+                            $("#response").html(syntaxHighlight(response));
+                        },
+                        error: function (jqxhr) {
+                            try {
+                                $("#response").html("<h1>" + jqxhr.status + " " + jqxhr.statusText + "</h1>" + syntaxHighlight(jqxhr.responseText));
+                            } catch (e) {
+                                $("#response").html("<h1>" + jqxhr.status + " " + jqxhr.statusText + "</h1>" + jqxhr.responseText);
+                            }
+                        }
+                    };
+
+                    if (method === "POST") {
+                        ajaxObj.data = $("textarea").val();
+                    }
+                    if (username !== "" && password !== "") {
+                        ajaxObj.beforeSend = function (xhr) {
+                            xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
+                        };
+                    }
+                    $.ajax(ajaxObj);
+                });
+                $("textarea").keyup(function () {
+                    try {
+                        $("#format").html(syntaxHighlight($("textarea").val())).css("backgroundColor", "#FFF");
+                        $("#error").html("&nbsp;");
+                    } catch (e) {
+                        $("#format").css("backgroundColor", "#E8ADA0");
+                        $("#error").text(e.message);
+                    }
+                }).keyup();
+
+                $("#response").html(syntaxHighlight("1"));
+            });
+
+
+        })(window);
+    </script>
+</head>
+<body>
+<pre id="response"></pre>
+<div id="error"></div>
+<form action="/" method="post" style="float: left; display: block;margin-right: 10px;">
+    <p><input name="url" id="url" placeholder="URL" size="100"></p>
+    <p><select name="method">
+            <option value="POST">POST</option>
+            <option value="GET">GET</option>
+        </select></p>
+    <p><input id="name" placeholder="Name" type="text"></p>
+    <p><input id="password" type="password" placeholder="Password"></p>
+    <p><textarea name="data" cols="50" rows="20">[]</textarea></p>
+    <p><input type="submit" value="Submit"></p>
+</form>
+<pre id="format">
+
+</pre>
+</body>
+</html>
