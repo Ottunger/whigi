@@ -68,7 +68,10 @@ export function getProfile(req, res) {
  */
 export function listData(req, res) {
     req.user.fill().then(function() {
-        res.type('application/json').status(200).json(req.user.data);
+        res.type('application/json').status(200).json({
+            data: req.user.data,
+            shared_with_me: req.user.shared_with_me
+        });
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
@@ -140,6 +143,8 @@ export function regUser(req, res) {
         u.password = hash.sha256(hash.sha256(user.password) + u.salt);
         u.is_activated = false;
         u.key = utils.generateRandomString(64);
+        u.data = {};
+        u.shared_with_me = {};
         u.encr_master_key = aes.encrypt(user.password, pre_master_key);
         u.rsa_pub_key = key.exportKey('public');
         u.rsa_pri_key = key.exportKey('private');

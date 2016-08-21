@@ -13,7 +13,7 @@ Retrieves public data of user.
 Retrieves own data.
 
 /api/v<any>/profile/data: Get, needs auth
-Retrieves list of owned fragments.
+Retrieves list of owned fragments, and list of shared with me vaults.
 
 /api/v<any>/profile/data/new: Post, needs auth, needs puzzle
 Saves a new data fragment.

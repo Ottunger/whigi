@@ -39,7 +39,7 @@ export function managerInit(dbg: Datasource) {
  */
 export function getData(req, res) {
     db.retrieveData(req.params.id).then(function(df) {
-        if(df === undefined ||df === null) {
+        if(!df) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         } else {
             res.type('application/json').status(200).json(df.sanitarize());
@@ -77,15 +77,21 @@ export function regVault(req, res) {
                 v.persist().then(function() {
                     req.user.data[got.data_name].shared_to[got.shared_to_id] = v._id;
                     req.user.persist().then(function() {
-                        db.retrieveUser('id', v.shared_to_id).then(function(sharee) {
-                            mailer.sendMail({
-                                from: 'Whigi <whigi.com@gmail.com>',
-                                to: '<' + sharee.email + '>',
-                                subject: 'New data shared',
-                                html: 'Data named <b>' + v.data_name + '</b> was shared to you by ' + req.user.email + '.'
-                            }, function(e, i) {});
+                        db.retrieveUser('id', v.shared_to_id, true).then(function(sharee) {
+                            sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
+                            sharee.shared_with_me[req.user._id][v.data_name] = v._id;
+                            sharee.persist.then(function() {
+                                mailer.sendMail({
+                                    from: 'Whigi <whigi.com@gmail.com>',
+                                    to: '<' + sharee.email + '>',
+                                    subject: 'New data shared',
+                                    html: 'Data named <b>' + v.data_name + '</b> was shared to you by ' + req.user.email + '.'
+                                }, function(e, i) {});
+                                res.type('application/json').status(201).json({error: ''});
+                            }, function(e) {
+                                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                            });
                         });
-                        res.type('application/json').status(201).json({error: ''});
                     }, function(e) {
                         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                     });
@@ -113,10 +119,21 @@ export function removeVault(req, res) {
         } else {
             if(req.params.shared_to_id in req.user.data[req.params.data_name].shared_to) {
                 db.retrieveVault({_id: req.user.data[req.params.data_name].shared_to[req.params.shared_to_id]}).then(function(v: Vault) {
-                    v.unlink().then(function() {
-                        delete req.user.data[req.params.data_name].shared_to[req.params.shared_to_id];
-                        req.user.persist().then(function() {
-                            res.type('application/json').status(200).json({error: ''});
+                    if(!v) {
+                        res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                        return;
+                    }
+                    db.retrieveUser('id', v.shared_to_id, true).then(function(sharee) {
+                        sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
+                        delete sharee.shared_with_me[req.user._id][v.data_name];
+                        sharee.persist().then(function() {
+                            v.unlink();
+                            delete req.user.data[req.params.data_name].shared_to[req.params.shared_to_id];
+                            req.user.persist().then(function() {
+                                res.type('application/json').status(200).json({error: ''});
+                            }, function(e) {
+                                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                            });
                         }, function(e) {
                             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                         });

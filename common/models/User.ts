@@ -22,7 +22,8 @@ export var fields = {
     encr_master_key: true,
     rsa_pub_key: true,
     rsa_pri_key: true,
-    data: true
+    data: true,
+    shared_with_me: true
 }
 
 export class User extends IModel {
@@ -38,6 +39,7 @@ export class User extends IModel {
     public rsa_pub_key: string;
     public rsa_pri_key: string;
     public data;
+    public shared_with_me;
     
     /**
      * Create a User from a bare database description.
@@ -72,6 +74,8 @@ export class User extends IModel {
             this.rsa_pri_key = u.rsa_pri_key;
         if('data' in u)
             this.data = u.data;
+        if('shared_with_me' in u)
+            this.shared_with_me = u.shared_with_me;
     }
 
     /**
@@ -106,7 +110,8 @@ export class User extends IModel {
             encr_master_key: this.encr_master_key,
             rsa_pub_key : this.rsa_pub_key,
             rsa_pri_key: this.rsa_pri_key,
-            data: this.data
+            data: this.data,
+            shared_with_me: this.shared_with_me
         };
         return ret;
     }
@@ -129,6 +134,10 @@ export class User extends IModel {
                         self.data = user.data;
                     else
                         self.data = {};
+                    if(!!user && !!(user.shared_with_me))
+                        self.shared_with_me = user.shared_with_me;
+                    else
+                        self.shared_with_me = {};
                     resolve();
                 }, function(e) {
                     reject(e);
