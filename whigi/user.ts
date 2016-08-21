@@ -91,15 +91,15 @@ export function recData(req, res) {
         var frg: Datafragment = new Datafragment(newid, got.encr_data, db);
         frg.persist().then(function() {
             req.user.persist().then(function() {
-                res.type('application/json').status(201).json({error: ''});
+                res.type('application/json').status(201).json(Object.assign({puzzle: req.user.puzzle}, {error: ''}));
             }, function(e) {
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
             });
         }, function(e) {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
         });
     }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
     });
 }
 
