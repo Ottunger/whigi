@@ -134,6 +134,7 @@ exports.checkPuzzle = function(req, res, next) {
         var complete = hash.sha256(req.user.puzzle + req.query.puzzle);
         if(complete.charAt(0) == '0' && complete.charAt(1) == '0' && complete.charAt(2) == '0' && complete.charAt(3) == '0') {
             req.user.puzzle = exports.generateRandomString(16);
+            req.user.persist();
             next();
         } else {
             req.user.puzzle = exports.generateRandomString(16);

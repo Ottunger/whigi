@@ -41,9 +41,9 @@ export function managerInit(dbg: Datasource) {
  */
 export function getUser(req, res) {
     if(req.user.is_activated) {
-        res.type('application/json').status(200).json(req.user.sanitarize());
+        res.type('application/json').status(200).json(Object.assign({puzzle: req.user.puzzle}, req.user.sanitarize()));
     } else {
-        res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
+        res.type('application/json').status(404).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('client.noUser', req)}));
     }
 }
 

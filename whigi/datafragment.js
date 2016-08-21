@@ -25,7 +25,6 @@ exports.managerInit = managerInit;
  */
 function getData(req, res) {
     db.retrieveData(req.params.id).then(function (df) {
-        console.log(df);
         if (df === undefined || df === null) {
             res.type('application/json').status(404).json({ error: utils.i18n('client.noData', req) });
         }
