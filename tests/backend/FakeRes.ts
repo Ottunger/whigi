@@ -10,7 +10,8 @@ declare var require: any
 export class FakeRes {
 
     public end: number;
-    public pr: Promise;
+    public promise: Promise;
+    private onJSON: boolean;
     private resolve: Function;
     private reject: Function;
 
@@ -19,11 +20,12 @@ export class FakeRes {
      * @function constructor
      * @public
      */
-    constructor() {
+    constructor(onJSON: boolean) {
         var self = this;
 
         this.end = 0;
-        this.pr = new Promise(function(resolve, reject) {
+        this.onJSON = onJSON;
+        this.promise = new Promise(function(resolve, reject) {
             self.resolve = resolve;
             self.reject = reject;
         });
@@ -35,15 +37,21 @@ export class FakeRes {
      * @public
      * @param {String} dummy Input.
      */
-    type(dummy: string) {}
+    type(dummy: string) {
+        return this;
+    }
 
     /**
      * Useless for us.
      * @function json
      * @public
-     * @param {String} dummy Input.
+     * @param {Object} dummy Input.
      */
-    json(dummy: string) {}
+    json(dummy: any) {
+        if(this.onJSON)
+            this.resolve(dummy);
+        return this;
+    }
 
     /**
      * Saves the status.
@@ -53,7 +61,9 @@ export class FakeRes {
      */
     status(s: number) {
         this.end = s;
-        this.resolve(s);
+        if(this.onJSON == false)
+            this.resolve(s);
+        return this;
     }
 
 }
