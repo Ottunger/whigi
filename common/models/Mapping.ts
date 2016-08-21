@@ -6,8 +6,6 @@
 
 'use strict';
 declare var require: any
-var hash = require('js-sha256');
-var utils = require('../../utils/utils');
 
 export class Mapping {
 

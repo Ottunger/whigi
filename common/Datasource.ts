@@ -8,6 +8,7 @@
 declare var require: any
 import {User, fields} from './models/User';
 import {Datafragment} from './models/Datafragment';
+import {Vault} from './models/Vault';
 
 export class Datasource {
 
@@ -43,9 +44,36 @@ export class Datasource {
     }
 
     /**
+     * Retrieves an object from storage, based on its _id.
+     * @function retrieveGeneric
+     * @private
+     * @param {String} db Database name.
+     * @param {String} id _id.
+     * @return {Promise} The required item.
+     */
+    private retrieveGeneric(db: string, id: string): Promise<any> {
+        var self = this;
+
+        return new Promise(function(resolve, reject) {
+            self.db.collection(db).findOne({_id: id}).then(function(data) {
+                if(data === undefined || data == null)
+                    resolve(undefined);
+                else
+                    resolve(new Datafragment(data._id, data.encr_data, self));
+            }, function(e) {
+                reject(e);
+            });
+        });
+    }
+
+    /**
      * Retrieves a User from storage. By default does not load its data mappings.
      * @function retrieveUser
      * @public
+     * @param {String} mode Mode for retrieval.
+     * @param {String} value Value for this mode.
+     * @param {Boolean} data Whether to retrieve data array.
+     * @return {Promise} The required item.
      */
     retrieveUser(mode: string, value: string, data?: boolean): Promise<User> {
         var self = this;
@@ -71,20 +99,22 @@ export class Datasource {
      * Retrieves a Datafragment from storage.
      * @function retrieveData
      * @public
+     * @param {String} id _id.
+     * @return {Promise} The required item.
      */
     retrieveData(id: string): Promise<Datafragment> {
-        var self = this;
+        return this.retrieveGeneric('datas', id);
+    }
 
-        return new Promise(function(resolve, reject) {
-            self.db.collection('datas').findOne({_id: id}).then(function(data) {
-                if(data === undefined || data == null)
-                    resolve(undefined);
-                else
-                    resolve(new Datafragment(data._id, data.encr_data, self));
-            }, function(e) {
-                reject(e);
-            });
-        });
+    /**
+     * Retrieves a Vault from storage.
+     * @function retrieveVault
+     * @public
+     * @param {String} id _id.
+     * @return {Promise} The required item.
+     */
+    retrieveVault(id: string): Promise<Vault> {
+        return this.retrieveGeneric('vaults', id);
     }
 
 }

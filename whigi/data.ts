@@ -6,10 +6,12 @@
 
 'use strict';
 declare var require: any
+var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 import {User} from '../common/models/User';
 import {Datafragment} from '../common/models/Datafragment';
 import {Datasource} from '../common/Datasource';
+var mailer;
 var db: Datasource;
 
 /**
@@ -18,6 +20,13 @@ var db: Datasource;
  * @public
  */
 export function managerInit(dbg: Datasource) {
+    mailer = ndm.createTransport({
+        service: 'Gmail',
+        auth: {
+            user: 'whigi.com@gmail.com',
+            pass: 'nNP36gFYmMeND3dIoKwR'
+        }
+    });
     db = dbg;
 }
 

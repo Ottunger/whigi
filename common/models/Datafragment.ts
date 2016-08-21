@@ -66,11 +66,17 @@ export class Datafragment extends IModel {
      * @return Duplicated object.
      */
     sanitarize() {
-        var ret = {
-            encr_data: this.encr_data,
-            _id: this._id
-        };
-        return ret;
+        return this.allFields();
+    }
+
+    /**
+     * Removes this object.
+     * @function unlink
+     * @public
+     * @return {Promise} Whether it went OK.
+     */
+    unlink(): Promise {
+        return this.unlinkFrom('datas');
     }
 
 }

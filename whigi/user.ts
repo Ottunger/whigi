@@ -10,6 +10,7 @@ var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 var hash = require('js-sha256');
 var aes = require('nodejs-aes256');
+var RSA = require('node-rsa');
 import {User} from '../common/models/User';
 import {Datafragment} from '../common/models/Datafragment';
 import {Datasource} from '../common/Datasource';
@@ -129,6 +130,9 @@ export function regUser(req, res) {
     function complete() {
         var u: User = new User(user, db);
         var pre_master_key = utils.generateRandomString(64);
+        var key = new RSA();
+        key.generateKeyPair(4096, 65537);
+
         u._id = utils.generateRandomString(32);
         u.salt = utils.generateRandomString(64);
         u.puzzle = utils.generateRandomString(16);
@@ -136,6 +140,8 @@ export function regUser(req, res) {
         u.is_activated = false;
         u.key = utils.generateRandomString(64);
         u.encr_master_key = aes.encrypt(user.password, pre_master_key);
+        u.rsa_pub_key = key.exportKey('public');
+        u.rsa_pri_key = key.exportKey('private');
         utils.registerMapping(u.email, pre_master_key, function(err) {
             if(err) {
                 res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});

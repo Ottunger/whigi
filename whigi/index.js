@@ -15,7 +15,7 @@ var mc = require('promised-mongo');
 var BS = require('passport-http').BasicStrategy;
 var utils = require('../utils/utils');
 var user = require('./user');
-var data = require('./datafragment');
+var data = require('./data');
 var datasources = require('../common/Datasource');
 var db;
 var DEBUG = true;

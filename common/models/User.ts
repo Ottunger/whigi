@@ -7,7 +7,6 @@
 'use strict';
 declare var require: any
 var hash = require('js-sha256');
-var utils = require('../../utils/utils');
 import {Datasource} from '../Datasource';
 import {IModel} from './Imodel';
 
@@ -21,6 +20,8 @@ export var fields = {
     email: true,
     puzzle: true,
     encr_master_key: true,
+    rsa_pub_key: true,
+    rsa_pri_key: true,
     data: true
 }
 
@@ -34,10 +35,12 @@ export class User extends IModel {
     public email: string;
     public puzzle: string;
     public encr_master_key: string;
+    public rsa_pub_key: string;
+    public rsa_pri_key: string;
     public data;
     
     /**
-     * Create a USer from a bare database description.
+     * Create a User from a bare database description.
      * @function constructor
      * @public
      * @param u Description.
@@ -63,6 +66,10 @@ export class User extends IModel {
             this.puzzle = u.puzzle;
         if('encr_master_key' in u)
             this.encr_master_key = u.encr_master_key;
+        if('rsa_pub_key' in u)
+            this.rsa_pub_key = u.rsa_pub_key;
+        if('rsa_pri_key' in u)
+            this.rsa_pri_key = u.rsa_pri_key;
         if('data' in u)
             this.data = u.data;
     }
@@ -97,6 +104,8 @@ export class User extends IModel {
             is_activated: this.is_activated,
             puzzle: this.puzzle,
             encr_master_key: this.encr_master_key,
+            rsa_pub_key : this.rsa_pub_key,
+            rsa_pri_key: this.rsa_pri_key,
             data: this.data
         };
         return ret;
@@ -161,6 +170,7 @@ export class User extends IModel {
             username: this.username,
             email: this.email,
             is_activated: this.is_activated,
+            rsa_pub_key: this.rsa_pub_key,
             _id: this._id
         };
         return ret;
@@ -182,9 +192,21 @@ export class User extends IModel {
             email: this.email,
             is_activated: this.is_activated,
             puzzle: this.puzzle,
-            encr_master_key: this.encr_master_key
+            encr_master_key: this.encr_master_key,
+            rsa_pub_key: this.rsa_pub_key,
+            rsa_pri_key: this.rsa_pri_key
         };
         return ret;
+    }
+
+    /**
+     * Removes this object.
+     * @function unlink
+     * @public
+     * @return {Promise} Whether it went OK.
+     */
+    unlink(): Promise {
+        return this.unlinkFrom('users');
     }
 
 }
