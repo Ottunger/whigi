@@ -36,6 +36,13 @@ Deactivates the user.
 /api/v<any>/data/<id>: Get, needs auth
 Retrieves an encrypted piece of data.
 
+/api/v<any>/vault/new: Post, needs auth, needs puzzle
+Creates a new vault for sharing with another user.
+{"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string", "data_crypted_aes": "string"}
+
+/api/v<any>/vault/<data_name>/<shared_to_id>: Delete, needs auth
+Removes a vault from the storage, revoking access grant.
+
 
 
 Whigi-restore endpoints:

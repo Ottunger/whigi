@@ -54,6 +54,8 @@ function listOptions(path, res, next) {
     //-----
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9]+\/?/))
         res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/vault\/new\/?/))
+        res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
     //-----
     else
         next();
@@ -146,10 +148,13 @@ connect(function(e) {
     app.delete('/api/v:version/user/:id/deactivate', pass.authenticate('basic', {session: false}));
     //-----
     app.get('/api/v:version/data/:id', pass.authenticate('basic', {session: false}));
+    app.post('/api/v:version/vault/new', pass.authenticate('basic', {session: false}));
+    app.delete('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate('basic', {session: false}));
     //API LONG LIVED COMMANDS
     app.get('/api/v:version/user/:id', utils.checkPuzzle);
     app.post('/api/v:version/profile/data/new', utils.checkPuzzle);
     //-----
+    app.post('/api/v:version/vault/new', utils.checkPuzzle);
     //API ROUTES
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
@@ -161,6 +166,8 @@ connect(function(e) {
     app.delete('/api/v:version/user/:id/deactivate', user.deactivateUser);
     //------
     app.get('/api/v:version/data/:id', data.getData);
+    app.post('/api/v:version/vault/new', data.regVault);
+    app.delete('/api/v:version/vault/:data_name/:shared_to_id', data.removeVault);
 
     //Error route
     app.use(function(req, res, next) {

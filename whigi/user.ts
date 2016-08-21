@@ -87,7 +87,8 @@ export function recData(req, res) {
         var newid = utils.generateRandomString(64);
         req.user.data[got.name] = {
             id: newid,
-            length: Buffer.byteLength(got.encr_data, 'utf8')
+            length: Buffer.byteLength(got.encr_data, 'utf8'),
+            shared_to: {}
         }
         var frg: Datafragment = new Datafragment(newid, got.encr_data, db);
         frg.persist().then(function() {
