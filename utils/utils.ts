@@ -12,6 +12,7 @@ var strings = {
     en: require('./i18n/en.json'),
     fr: require('./i18n/fr.json')
 }
+export var RUNNING_ADDR = '';
 
 /**
  * Returns the decoded version of a string incoded as binary base64.

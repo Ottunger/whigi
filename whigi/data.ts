@@ -8,6 +8,7 @@
 declare var require: any
 var ndm = require('nodemailer');
 var utils = require('../utils/utils');
+import {User} from '../common/models/User';
 import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
 var mailer;
@@ -60,10 +61,10 @@ export function regVault(req, res) {
     var got = req.body;
     req.user.fill().then(function() {
         if(!(got.data_name in req.user.data)) {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+            res.type('application/json').status(404).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('client.noData', req)}));
         } else {
             if(got.shared_to_id in req.user.data[got.data_name].shared_to) {
-                res.type('application/json').status(200).json({error: ''});
+                res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
             } else {
                 var v: Vault = new Vault({
                     _id: utils.generateRandomString(64),
@@ -71,32 +72,36 @@ export function regVault(req, res) {
                     data_name: got.data_name,
                     aes_crypted_shared_pub: got.aes_crypted_shared_pub,
                     data_crypted_aes: got.data_crypted_aes,
-                    sharer_id: req.useer._id,
+                    sharer_id: req.user._id,
                     last_access: 0
                 }, db);
                 v.persist().then(function() {
                     req.user.data[got.data_name].shared_to[got.shared_to_id] = v._id;
                     req.user.persist().then(function() {
-                        db.retrieveUser('id', v.shared_to_id, true).then(function(sharee) {
+                        db.retrieveUser('id', v.shared_to_id, true).then(function(sharee: User) {
+                            if(!sharee) {
+                                res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: ''});
+                                return;
+                            }
                             sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
                             sharee.shared_with_me[req.user._id][v.data_name] = v._id;
-                            sharee.persist.then(function() {
+                            sharee.persist().then(function() {
                                 mailer.sendMail({
                                     from: 'Whigi <whigi.com@gmail.com>',
                                     to: '<' + sharee.email + '>',
                                     subject: 'New data shared',
                                     html: 'Data named <b>' + v.data_name + '</b> was shared to you by ' + req.user.email + '.'
                                 }, function(e, i) {});
-                                res.type('application/json').status(201).json({error: ''});
+                                res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: ''});
                             }, function(e) {
-                                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                                res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
                             });
                         });
                     }, function(e) {
-                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                        res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
                     });
                 }, function(e) {
-                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
                 });
             }
         }
@@ -123,7 +128,7 @@ export function removeVault(req, res) {
                         res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
                         return;
                     }
-                    db.retrieveUser('id', v.shared_to_id, true).then(function(sharee) {
+                    db.retrieveUser('id', v.shared_to_id, true).then(function(sharee: User) {
                         sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
                         delete sharee.shared_with_me[req.user._id][v.data_name];
                         sharee.persist().then(function() {
@@ -168,12 +173,12 @@ export function getVault(req, res) {
         if(!!v) {
             v.last_access = (new Date).getTime();
             v.persist();
-            res.type('application/json').status(200).json(v.sanitarize());
+            res.type('application/json').status(200).json(Object.assign({puzzle: req.user.puzzle}, v.sanitarize()));
         } else {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+            res.type('application/json').status(404).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('client.noData', req)}));
         }
     }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
     });
 }
 

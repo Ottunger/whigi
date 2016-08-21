@@ -67,7 +67,7 @@ export class Vault extends IModel {
      * @return A promise to check if everything went well.
      */
     persist() {
-        return this.db.getDatabase().collection('datas').update({_id: this._id}, this.allFields(), {upsert: true});
+        return this.db.getDatabase().collection('vaults').update({_id: this._id}, this.allFields(), {upsert: true});
     }
 
     /**

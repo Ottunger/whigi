@@ -89,8 +89,7 @@ export class Datasource {
         return new Promise<User>(function(resolve, reject) {
             self.retrieveGeneric('users', sel, decl).then(function(data) {
                 if(!!data) {
-                    console.log(data);
-                    resolve(new User(data, self.db));
+                    resolve(new User(data, self));
                 } else {
                     resolve(undefined);
                 }
@@ -113,7 +112,7 @@ export class Datasource {
         return new Promise<Datafragment>(function(resolve, reject) {
             self.retrieveGeneric('datas', {_id: id}, {none: false}).then(function(data) {
                 if(!!data) {
-                    resolve(new Datafragment(data._id, data.encr_data, self.db));
+                    resolve(new Datafragment(data._id, data.encr_data, self));
                 } else {
                     resolve(undefined);
                 }
@@ -136,7 +135,7 @@ export class Datasource {
         return new Promise<Vault>(function(resolve, reject) {
             self.retrieveGeneric('vaults', sel, {none: false}).then(function(data) {
                 if(!!data) {
-                    resolve(new Vault(data, self.db));
+                    resolve(new Vault(data, self));
                 } else {
                     resolve(undefined);
                 }

@@ -210,8 +210,11 @@ export function activateUser(req, res) {
     db.retrieveUser('key', req.params.key).then(function(user) {
         if(user != undefined) {
             user.is_activated = true;
-            user.persist();
-            res.redirect('/');
+            user.persist().then(function() {
+                res.redirect('/');
+            }, function(e) {
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            });
         } else {
             res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
         }

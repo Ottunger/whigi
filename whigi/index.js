@@ -25,7 +25,7 @@ var DEBUG = true;
 //Launch as >$ node index.js 443 whigi.envict.com for instance
 var httpsport = parseInt(process.argv[2]) || 443;
 var localhost = process.argv[3] || 'localhost';
-var httpslocal = 'https://' + localhost + ':' + httpsport;
+utils.RUNNING_ADDR = 'https://' + localhost + ':' + httpsport;
 
 /**
  * Returns the allowed HTTP vers on a ressource.
@@ -59,6 +59,8 @@ function listOptions(path, res, next) {
         res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?/))
         res.set('Allow', 'GET,DELETE').type('application/json').status(200).json({error: ''});
+        else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?/))
+        res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
     //-----
     else
         next();
@@ -154,7 +156,7 @@ connect(function(e) {
     app.post('/api/v:version/vault/new', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate('basic', {session: false}));
     app.get('/api/v:version/vault/:data_name/:sharer_id', pass.authenticate('basic', {session: false}));
-    app.get('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate('basic', {session: false}));
+    app.get('/api/v:version/vault/time/:data_name/:shared_to_id', pass.authenticate('basic', {session: false}));
     //API POST CHECKS
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data']));
     app.post('/api/v:version/user/:id/update', checks.checkBody(['password', 'encr_master_key']));
@@ -181,7 +183,7 @@ connect(function(e) {
     app.post('/api/v:version/vault/new', data.regVault);
     app.delete('/api/v:version/vault/:data_name/:shared_to_id', data.removeVault);
     app.get('/api/v:version/vault/:data_name/:sharer_id', data.getVault);
-    app.get('/api/v:version/vault/:data_name/:shared_to_id', data.accessVault);
+    app.get('/api/v:version/vault/time/:data_name/:shared_to_id', data.accessVault);
 
     //Error route
     app.use(function(req, res, next) {

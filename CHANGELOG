@@ -46,7 +46,7 @@ Removes a vault from the storage, revoking access grant.
 /api/v<any>/vault/<data_name>/<sharer_id>: Get, needs auth, needs puzzle
 Retrieves a piece of information that was shared to me.
 
-/api/v<any>/vault/<data_name>/<shared_to_id>: Get, needs auth
+/api/v<any>/vault/time/<data_name>/<shared_to_id>: Get, needs auth
 Retrieves the last time the other party accessed the vault for reading.
 
 

@@ -126,7 +126,7 @@ export class User extends IModel {
         var self = this;
 
         return new Promise(function(resolve, reject) {
-            if(self.data !== undefined) {
+            if(self.data !== undefined && self.shared_with_me !== undefined) {
                 resolve();
             } else {
                 self.db.retrieveUser('id', self._id, true).then(function(user) {
