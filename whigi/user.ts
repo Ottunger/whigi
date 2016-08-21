@@ -101,7 +101,7 @@ export function recData(req, res) {
         var frg: Datafragment = new Datafragment(newid, got.encr_data, db);
         frg.persist().then(function() {
             req.user.persist().then(function() {
-                res.type('application/json').status(201).json(Object.assign({puzzle: req.user.puzzle}, {error: ''}));
+                res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid});
             }, function(e) {
                 res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
             });
@@ -123,8 +123,11 @@ export function recData(req, res) {
 export function updateUser(req, res) {
     var upt = req.body;
     req.user.applyUpdate(upt);
-    req.user.persist();
-    res.type('application/json').status(200).json({error: ''});
+    req.user.persist().then(function() {
+        res.type('application/json').status(200).json({error: ''});
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
 }
 
 /**
@@ -237,6 +240,9 @@ export function activateUser(req, res) {
  */
 export function deactivateUser(req, res) {
     req.user.is_activated = false;
-    req.user.persist();
-    res.type('application/json').status(200).json({error: ''});
+    req.user.persist().then(function() {
+        res.type('application/json').status(200).json({error: ''});
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
 }

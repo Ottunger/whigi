@@ -16,7 +16,7 @@ Retrieves own data.
 Retrieves list of owned fragments, and list of shared with me vaults.
 
 /api/v<any>/profile/data/new: Post, needs auth, needs puzzle
-Saves a new data fragment.
+Saves a new data fragment. The API sends back the newly generated id for that data_name.
 {"name": "string", "encr_data": "string"}
 
 /api/v<any>/user/<id>/update: Post, needs auth

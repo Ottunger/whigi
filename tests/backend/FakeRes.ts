@@ -66,4 +66,15 @@ export class FakeRes {
         return this;
     }
 
+    /**
+     * Useless for us.
+     * @function redirect
+     * @public
+     * @param {String} dummy Input.
+     */
+    redirect(dummy: string) {
+        this.resolve(dummy);
+        return this;
+    }
+
 }
