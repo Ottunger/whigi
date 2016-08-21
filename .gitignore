@@ -3,6 +3,7 @@
 
 /common/*.js
 /common/models/*.js
+/tests/backend/FakeRes.js
 /utils/*.js
 /whigi/user.js
 /whigi/data.js

@@ -1,6 +1,13 @@
-for /r %%i in (utils\*.ts) do .\node_modules\.bin\tsc %%i >NUL
-for /r %%i in (whigi\*.ts) do .\node_modules\.bin\tsc %%i >NUL
-for /r %%i in (whigi-restore\*.ts) do .\node_modules\.bin\tsc %%i >NUL
-for /r %%i in (common\*.ts) do .\node_modules\.bin\tsc %%i >NUL
-for /r %%i in (common\models\*.ts) do .\node_modules\.bin\tsc %%i >NUL
+@echo off
+cd utils
+for /r %%i in (*) do (call ..\node_modules\.bin\tsc %%i)
+cd ..\whigi
+for /r %%i in (*) do (call ..\node_modules\.bin\tsc %%i)
+cd ..\whigi-restore
+for /r %%i in (*) do (call ..\node_modules\.bin\tsc %%i)
+cd ..\common
+for /r %%i in (*) do (call ..\node_modules\.bin\tsc %%i)
+cd ..\tests
+for /r %%i in (*) do (call ..\node_modules\.bin\tsc %%i)
+cd ..
 pause
