@@ -10,8 +10,9 @@ var body = require('body-parser');
 var https = require('https');
 var pass = require('passport');
 var fs = require('fs');
-var BS = require('passport-http').BasicStrategy;
+var hash = require('js-sha256');
 var mc = require('promised-mongo');
+var BS = require('passport-http').BasicStrategy;
 var utils = require('../utils/utils');
 var user = require('./user');
 var datasources = require('../common/datasources');
@@ -86,12 +87,13 @@ function close() {
  * @param {Function} callback A callback function to execute with true if authentication was ok.
  */
 pass.use(new BS(function(user, pwd, done) {
-    db.retrieveUser('username', user).then(function(ipwd) {return done(null, false);
-        if(ipwd === undefined || ipwd.is_activated == false) {
-            return done(null, false);
-        }
-        if(hash.sha256(pwd + ipwd.salt) == ipwd.password) {
-            return done(null, ipwd);
+    db.retrieveUser('username', user).then(function(ipwd) {
+        if(!!ipwd) {
+            if(ipwd.is_activated && hash.sha256(pwd + ipwd.salt) == ipwd.password) {
+                return done(null, ipwd);
+            } else {
+                return done(null, false);
+            }
         } else {
             return done(null, false);
         }

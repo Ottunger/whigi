@@ -50,61 +50,18 @@ export class Datasource {
         var self = this;
 
         return new Promise(function(resolve, reject) {
-            switch(mode) {
-                case 'id':
-                    self.db.collection('users').findOne({_id: value}, {data: false}).then(function(user) {
-                        if(user === undefined || user == null)
-                            resolve(undefined);
-                        else
-                            resolve(new User(user, self));
-                    }, function(e) {
-                        reject(e);
-                    });
-                    break;
-                case 'username':
-                    self.db.collection('users').findOne({username: value}, {data: false}).then(function(user) {
-                        if(user === undefined || user == null)
-                            resolve(undefined);
-                        else
-                            resolve(new User(user, self));
-                    }, function(e) {
-                        reject(e);
-                    });
-                    break;
-                case 'pwd_key':
-                    self.db.collection('users').findOne({pwd_key: value}, {data: false}).then(function(user) {
-                        if(user === undefined || user == null)
-                            resolve(undefined);
-                        else
-                            resolve(new User(user, self));
-                    }, function(e) {
-                        reject(e);
-                    });
-                    break;
-                case 'key':
-                    self.db.collection('users').findOne({key: value}, {data: false}).then(function(user) {
-                        if(user === undefined || user == null)
-                            resolve(undefined);
-                        else
-                            resolve(new User(user, self));
-                    }, function(e) {
-                        reject(e);
-                    });
-                    break;
-                case 'email':
-                    self.db.collection('users').findOne({email: value}, {data: false}).then(function(user) {
-                        if(user === undefined || user == null)
-                            resolve(undefined);
-                        else
-                            resolve(new User(user, self));
-                    }, function(e) {
-                        reject(e);
-                    });
-                    break;
-                default:
-                    reject(true);
-                    break;
-            }
+            if(mode === 'id')
+                mode = '_id';
+            var sel = {};
+            sel[mode] = value;
+            self.db.collection('users').findOne(sel, {data: false}).then(function(user) {
+                if(user === undefined || user == null)
+                    resolve(undefined);
+                else
+                    resolve(new User(user, self));
+            }, function(e) {
+                reject(e);
+            });
         });
     }
 
