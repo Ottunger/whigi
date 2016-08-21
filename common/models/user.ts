@@ -8,6 +8,7 @@
 declare var require: any
 var hash = require('js-sha256');
 var utils = require('../../utils/utils');
+import {Datasource} from '../datasources';
 
 export class User {
 
@@ -22,7 +23,7 @@ export class User {
     public puzzle: string;
     public encr_master_key: string;
     public data;
-    private db: any;
+    private db: Datasource;
     
     /**
      * Create a USer from a bare database description.
@@ -30,7 +31,7 @@ export class User {
      * @public
      * @param u Description.
      */
-    constructor(u, db) {
+    constructor(u, db: Datasource) {
         if('username' in u)
             this.username = u.username;
         if('pwd_key' in u)
@@ -53,6 +54,8 @@ export class User {
             this.encr_master_key = u.encr_master_key;
         if('data' in u)
             this.data = u.data;
+        
+        this.db = db;
     }
 
     /**
@@ -92,46 +95,35 @@ export class User {
     }
 
     /**
-     * Fills data field if not already there.
-     * @function fetchData
-     * @private
-     * @return A promise to check if everything went well.
-     */
-    private fetchData() {
-        return new Promise(function(resolve, reject) {
-            if(this.data !== undefined)
-                resolve();
-            else {
-                this.db.collection('users').findOne({_id: this._id}, function(e, user) {
-                    if(e || user === undefined)
-                        reject(e);
-                    else {
-                        this.data = user.data;
-                        resolve();
-                    }
-                });
-            }
-        });
-    }
-
-    /**
      * Write the user to database.
      * @function persist
      * @public
      * @return A promise to check if everything went well.
      */
     persist() {
-        return new Promise(function(resolve, reject) {
-            this.fetchData().then(function() {
-                this.db.collection('users').update({_id: this._id}, this.allFields(), {upsert: true}, function(e) {
-                    if(!e)
-                        resolve();
-                    else
-                        reject(e);
-                });
+        var self = this;
+        function towards(resolve, reject) {
+            self.db.getDatabase().collection('users').update({_id: self._id}, self.allFields(), {upsert: true}).then(function() {
+                resolve();
             }, function(e) {
                 reject(e);
             });
+        }
+        
+        return new Promise(function(resolve, reject) {
+            if(self.data !== undefined) {
+                towards(resolve, reject);
+            } else {
+                self.db.retrieveUser('id', self._id).then(function(user) {
+                    if(user !== undefined && user !== null)
+                        self.data = user.data;
+                    else
+                        self.data = [];
+                    towards(resolve, reject);
+                }, function(e) {
+                    reject(e);
+                }).catch(function(e) {console.log(e); reject(e);});
+            }
         });
     }
 

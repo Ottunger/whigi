@@ -11,11 +11,12 @@ var https = require('https');
 var pass = require('passport');
 var fs = require('fs');
 var BS = require('passport-http').BasicStrategy;
-var mc = require('mongodb').MongoClient;
+var mc = require('promised-mongo');
 var utils = require('../utils/utils');
 var user = require('./user');
-var datasources = require('./datasources/datasources');
+var datasources = require('../common/datasources');
 var db;
+var DEBUG = true;
 
 //Set the running configuration
 var httpsport = parseInt(process.argv[3]) || 443;
@@ -30,16 +31,22 @@ var httpslocal = 'https://' + localhost + ':' + httpsport;
  * @param {Response} res The response.
  * @param {Function} next 404 Handler.
  */
-/*
 function listOptions(path, res, next) {
-    if(path.match(/\/api\/v[1-9]\/user\/[0-9]+\/?/))
+    if(path.match(/\/api\/v[1-9]\/user\/create\/?/))
+        res.set('Allow', 'GET,POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/?/))
         res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/user\/[0-9]+\/ratings\/[0-9]+\/[0-9]+\/?/))
+    else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/?/))
         res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/update\/?/))
+        res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/activate\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?/))
+        res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/deactivate\/?/))
+        res.set('Allow', 'DELETE').type('application/json').status(200).json({error: ''});
     else
         next();
 }
-*/
 
 /**
  * Sets the API to connect to the database.
@@ -48,14 +55,15 @@ function listOptions(path, res, next) {
  * @param {Function} callback Callback.
  */ 
 function connect(callback) {
-    mc.connect('mongodb://whigiuser:sorryMeND3dIoKwR@localhost:27017/whigi', function(e, d) {
-        if(!e) {
-            db = new datasources.Datasource(d);
-            user.managerInit(db);
-        }
-        callback(e);
-    });
-};
+    var d = mc('localhost:27017/whigi');
+    if(d) {
+        db = new datasources.Datasource(d);
+        user.managerInit(db);
+        callback(false)
+    } else {
+        callback(true);
+    }
+}
 
 /**
  * Closes connection to the database.
@@ -78,16 +86,12 @@ function close() {
  * @param {Function} callback A callback function to execute with true if authentication was ok.
  */
 pass.use(new BS(function(user, pwd, done) {
-    db.retrieveUser('username', user).then(function(ipwd) {
-        if(ipwd === undefined) {
+    db.retrieveUser('username', user).then(function(ipwd) {return done(null, false);
+        if(ipwd === undefined || ipwd.is_activated == false) {
             return done(null, false);
         }
-        if(ipwd.is_activated) {
-            if(hash.sha256(pwd + ipwd.salt) == ipwd.password)
-                return done(null, ipwd);
-            else {
-                return done(null, false);
-            }
+        if(hash.sha256(pwd + ipwd.salt) == ipwd.password) {
+            return done(null, ipwd);
         } else {
             return done(null, false);
         }
@@ -105,7 +109,15 @@ connect(function(e) {
 
     //Create the express application
     var app = express();
-    app.use(helmet());
+    if(DEBUG == false) {
+        app.use(helmet());
+    } else {
+        app.use(function(req, res, next) {
+            res.set('Access-Control-Allow-Origin', '*');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+            next();
+        });
+    }
     app.use(body.json());
 
     //API use auth
@@ -114,7 +126,7 @@ connect(function(e) {
     app.post('/api/v:version/user/:id/update', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/user/:id/deactivate', pass.authenticate('basic', {session: false}));
     //API long lived commands or populating database
-    app.use('/api/v:version/user/:id', utils.checkPuzzle);
+    app.get('/api/v:version/user/:id', utils.checkPuzzle);
     //API routes
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
@@ -135,9 +147,11 @@ connect(function(e) {
 
     process.on('SIGTERM', close);
     process.on('SIGINT', close);
-    process.on('uncaughtException', function(err) {
-        console.log(err);
-    });
+    if(DEBUG == false) {
+        process.on('uncaughtException', function(err) {
+            console.log(err);
+        });
+    }
     
     var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-cert.pem')}, app);
     servers.listen(httpsport);

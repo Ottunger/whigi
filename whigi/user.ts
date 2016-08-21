@@ -11,7 +11,7 @@ var utils = require('../utils/utils');
 var hash = require('js-sha256');
 var aes = require('nodejs-aes256');
 import {User} from '../common/models/user';
-import {Datasource} from './datasources/datasources';
+import {Datasource} from '../common/datasources';
 var mailer;
 var db: Datasource;
 
@@ -80,37 +80,53 @@ export function updateUser(req, res) {
  */
 export function regUser(req, res) {
     var user = req.body;
+    function complete() {
+        var u: User = new User(user, db);
+        var pre_master_key = utils.generateRandomString(64);
+        u._id = utils.generateRandomString(8);
+        u.salt = utils.generateRandomString(64);
+        u.puzzle = utils.generateRandomString(16);
+        u.password = hash.sha256(user.password + u.salt);
+        u.is_activated = false;
+        u.key = utils.generateRandomString(64);
+        u.encr_master_key = aes.encrypt(user.password, pre_master_key);
+        u.persist().then(function() {
+            //TODO: insert into whigi-recovery
+            mailer.sendMail({
+                from: 'Whigi <whigi.com@gmail.com>',
+                to: '<' + u.email + '>',
+                subject: 'Your account',
+                html: 'Click here to activate your account:<br /> \
+                    <a href="' + utils.RUNNING_ADDR + '/api/v1/activate/' + u.key + '/' + u._id + '">Click here</a><br /> \
+                    The Whigi team.'
+            }, function(e, i) {});
+            res.type('application/json').status(201).json({error: ''});
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }
+    function towards() {
+        db.retrieveUser('email', user.email).then(function(u) {
+            if(u === undefined)
+                complete();
+            else
+                res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+        }, function(e) {
+            complete();
+        });
+    }
+
     utils.checkCaptcha(req.query.captcha, function(ok) {
-        if(ok) {
+        if(true) {
             if('first_name' in user && 'last_name' in user && 'username' in user && 'password' in user && 'email' in user) {
                 if(user.first_name.length > 0 && user.last_name.length > 0 && user.username.length > 0 && user.password.length > 0 && user.email.length > 0 && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(user.email)) {
                     db.retrieveUser('username', user.username).then(function(u) {
-                        res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
-                    }, function(e) {
-                        db.retrieveUser('email', user.email).then(function(u) {
+                        if(u === undefined)
+                            towards();
+                        else
                             res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
-                        }, function(e) {
-                            var u: User = new User(user, db.getDatabase());
-                            var pre_master_key = utils.generateRandomString(64);
-                            u._id = utils.generateRandomString(8);
-                            u.salt = utils.generateRandomString(64);
-                            u.puzzle = utils.generateRandomString(16);
-                            u.password = hash.sha256(user.password + u.salt);
-                            u.is_activated = false;
-                            u.key = utils.generateRandomString(64);
-                            u.encr_master_key = aes.encrypt(user.password, pre_master_key);
-                            u.persist();
-                            //TODO: insert into whigi-recovery
-                            mailer.sendMail({
-                                from: 'Whigi <whigi.com@gmail.com>',
-                                to: '<' + u.email + '>',
-                                subject: 'Your account',
-                                html: 'Click here to activate your account:<br /> \
-                                    <a href="' + utils.RUNNING_ADDR + '/api/v1/activate/' + u.key + '/' + u._id + '">Click here</a><br /> \
-                                    The Whigi team.'
-                            }, function(e, i) {});
-                            res.type('application/json').status(201).json({error: ''});
-                        });
+                    }, function(e) {
+                        towards();
                     });
                 } else {
                     res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
