@@ -1,6 +1,6 @@
 /**
  * Description of a user.
- * @module user
+ * @module User
  * @author Mathonet Grégoire
  */
 
@@ -8,7 +8,8 @@
 declare var require: any
 var hash = require('js-sha256');
 var utils = require('../../utils/utils');
-import {Datasource} from '../datasources';
+import {Datasource} from '../Datasource';
+import {IModel} from './Imodel';
 
 export var fields = {
     username: true,
@@ -24,7 +25,7 @@ export var fields = {
     data: true
 }
 
-export class User {
+export class User extends IModel {
 
     public username: string;
     public pwd_key: string;
@@ -32,12 +33,10 @@ export class User {
     public is_activated: boolean;
     public password: string;
     public salt: string;
-    public _id: string;
     public email: string;
     public puzzle: string;
     public encr_master_key: string;
     public data;
-    private db: Datasource;
     
     /**
      * Create a USer from a bare database description.
@@ -47,6 +46,7 @@ export class User {
      * @param db Datasource, usually a DB and remote servers.
      */
     constructor(u, db: Datasource) {
+        super(u._id, db);
         if('username' in u)
             this.username = u.username;
         if('pwd_key' in u)
@@ -69,7 +69,7 @@ export class User {
             this.encr_master_key = u.encr_master_key;
         if('data' in u)
             this.data = u.data;
-        
+
         this.db = db;
     }
 
@@ -89,10 +89,10 @@ export class User {
     /**
      * Returns a shallow copy safe for persisting.
      * @function allFields
-     * @private
+     * @protected
      * @return Duplicated object.
      */
-    private allFields() {
+    protected allFields() {
         var ret = {
             username: this.username,
             pwd_key: this.pwd_key,

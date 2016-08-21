@@ -1,13 +1,13 @@
 /**
  * API dealing with the getting of information from several sources
- * @module datasources
+ * @module Datasource
  * @author Mathonet Grégoire
  */
 
 'use strict';
 declare var require: any
-import {User, fields} from './models/user';
-import {Datafragment} from './models/datafragment';
+import {User, fields} from './models/User';
+import {Datafragment} from './models/Datafragment';
 
 export class Datasource {
 

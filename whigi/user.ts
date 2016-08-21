@@ -10,9 +10,9 @@ var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 var hash = require('js-sha256');
 var aes = require('nodejs-aes256');
-import {User} from '../common/models/user';
-import {Datafragment} from '../common/models/datafragment';
-import {Datasource} from '../common/datasources';
+import {User} from '../common/models/User';
+import {Datafragment} from '../common/models/Datafragment';
+import {Datasource} from '../common/Datasource';
 var mailer;
 var db: Datasource;
 
@@ -121,6 +121,7 @@ export function updateUser(req, res) {
  * Forges the response to the registration of a user. Can be HTTP 201 or 400 or 500.
  * @function regUser
  * @public
+ * @TODO Insert into whigi-recovery.
  * @param {Request} req The request.
  * @param {Response} res The response.
  */
@@ -137,7 +138,6 @@ export function regUser(req, res) {
         u.key = utils.generateRandomString(64);
         u.encr_master_key = aes.encrypt(user.password, pre_master_key);
         u.persist().then(function() {
-            //TODO: insert into whigi-recovery
             mailer.sendMail({
                 from: 'Whigi <whigi.com@gmail.com>',
                 to: '<' + u.email + '>',

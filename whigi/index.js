@@ -16,7 +16,7 @@ var BS = require('passport-http').BasicStrategy;
 var utils = require('../utils/utils');
 var user = require('./user');
 var data = require('./datafragment');
-var datasources = require('../common/datasources');
+var datasources = require('../common/Datasource');
 var db;
 var DEBUG = true;
 

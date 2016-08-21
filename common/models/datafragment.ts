@@ -1,18 +1,17 @@
 /**
  * Description of a data fragment.
- * @module datafragment
+ * @module Datafragment
  * @author Mathonet Grégoire
  */
 
 'use strict';
 declare var require: any
-import {Datasource} from '../datasources';
+import {Datasource} from '../Datasource';
+import {IModel} from './IModel';
 
-export class Datafragment {
+export class Datafragment extends IModel {
 
-    public _id: string;
     public encr_data: string;
-    private db: Datasource;
 
     /**
      * Creates a data fragment, we never know what encr_data actually is.
@@ -23,6 +22,7 @@ export class Datafragment {
      * @param db DB behind.
      */
     constructor(_id: string, encr_data: string, db: Datasource) {
+        super(_id, db);
         this._id = _id;
         this.encr_data = encr_data;
         this.db = db;
@@ -31,10 +31,10 @@ export class Datafragment {
     /**
      * Returns a shallow copy safe for persisting.
      * @function allFields
-     * @private
+     * @protected
      * @return Duplicated object.
      */
-    private allFields() {
+    protected allFields() {
         var ret = {
             _id: this._id,
             encr_data: this.encr_data

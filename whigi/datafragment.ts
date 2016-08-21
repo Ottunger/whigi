@@ -7,9 +7,9 @@
 'use strict';
 declare var require: any
 var utils = require('../utils/utils');
-import {User} from '../common/models/user';
-import {Datafragment} from '../common/models/datafragment';
-import {Datasource} from '../common/datasources';
+import {User} from '../common/models/User';
+import {Datafragment} from '../common/models/Datafragment';
+import {Datasource} from '../common/Datasource';
 var db: Datasource;
 
 /**
