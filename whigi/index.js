@@ -37,6 +37,10 @@ function listOptions(path, res, next) {
         res.set('Allow', 'GET,POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/?/))
         res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/data\/?/))
+        res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/data\/new\/?/))
+        res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/?/))
         res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/update\/?/))
@@ -56,7 +60,11 @@ function listOptions(path, res, next) {
  * @param {Function} callback Callback.
  */ 
 function connect(callback) {
-    var d = mc('localhost:27017/whigi');
+    var d;
+    if(DEBUG)
+        d = mc('localhost:27017/whigi');
+    else
+        d = mc('whigiuser:sorryMeND3dIoKwR@localhost:27017/whigi');
     if(d) {
         db = new datasources.Datasource(d);
         user.managerInit(db);
@@ -125,6 +133,8 @@ connect(function(e) {
     //API use auth
     app.get('/api/v:version/user/:id', pass.authenticate('basic', {session: false}));
     app.get('/api/v:version/profile', pass.authenticate('basic', {session: false}));
+    app.get('/api/v:version/profile/data', pass.authenticate('basic', {session: false}));
+    app.post('/api/v:version/profile/data/new', pass.authenticate('basic', {session: false}));
     app.post('/api/v:version/user/:id/update', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/user/:id/deactivate', pass.authenticate('basic', {session: false}));
     //API long lived commands or populating database
@@ -132,6 +142,8 @@ connect(function(e) {
     //API routes
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
+    app.get('/api/v:version/profile/data', user.listData);
+    app.post('/api/v:version/profile/data/new', user.recData);
     app.post('/api/v:version/user/:id/update', user.updateUser);
     app.post('/api/v:version/user/create', user.regUser);
     app.get('/api/v:version/activate/:key/:id', user.activateUser);

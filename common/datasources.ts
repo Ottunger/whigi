@@ -6,7 +6,7 @@
 
 'use strict';
 declare var require: any
-import {User} from './models/user';
+import {User, fields} from './models/user';
 
 export class Datasource {
 
@@ -42,19 +42,20 @@ export class Datasource {
     }
 
     /**
-     * Retrieves a User from storage.
+     * Retrieves a User from storage. By default does not load its data mappings.
      * @function retrieveUser
      * @public
      */
-    retrieveUser(mode: string, value: string): Promise<User> {
+    retrieveUser(mode: string, value: string, data?: boolean): Promise<User> {
         var self = this;
+        var decl = (data === true)? fields : {data: false};
 
         return new Promise(function(resolve, reject) {
             if(mode === 'id')
                 mode = '_id';
             var sel = {};
             sel[mode] = value;
-            self.db.collection('users').findOne(sel, {data: false}).then(function(user) {
+            self.db.collection('users').findOne(sel, decl).then(function(user) {
                 if(user === undefined || user == null)
                     resolve(undefined);
                 else

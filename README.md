@@ -18,7 +18,7 @@ sudo apt-get install gitlab-ce
 Then browse to your gitlab server usring HTTP to set everything up :)
 
 # Launch
-- Compile all TS files into JS files. Do not worry about non finding 'Promise', we run node v4.5, so we cannot build against ES6. Launching the compile script one Windows should do.
+- Compile all TS files into JS files. Do not worry about non finding 'Promise', we run node v4.5, so we cannot build against ES6. Launching the compile script from the Whigi directory on Windows should do.
 - Just issue node index.js over the several servers
 - Static servers are described by a nginx configuration file
 - Don't forget to prepare database using the mongoInit.sh file!

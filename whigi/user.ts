@@ -11,6 +11,7 @@ var utils = require('../utils/utils');
 var hash = require('js-sha256');
 var aes = require('nodejs-aes256');
 import {User} from '../common/models/user';
+import {Datafragment} from '../common/models/datafragment';
 import {Datasource} from '../common/datasources';
 var mailer;
 var db: Datasource;
@@ -55,6 +56,51 @@ export function getUser(req, res) {
  */
 export function getProfile(req, res) {
     res.type('application/json').status(200).json(req.user.fields());
+}
+
+/**
+ * Forges the response to list all possessed data as json, or HTTP 500 code.
+ * @function listData
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function listData(req, res) {
+    req.user.fill().then(function() {
+        res.type('application/json').status(200).json(req.user.data);
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Forges the response to record a new info. An info with the same name will be erased.
+ * @function recData
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function recData(req, res) {
+    var got = req.body;
+    req.user.fill().then(function() {
+        var newid = utils.generateRandomString(64);
+        req.user.data[got.name] = {
+            id: newid,
+            length: Buffer.byteLength(got.encr_data, 'utf8')
+        }
+        var frg: Datafragment = new Datafragment(newid, got.encr_data, db);
+        frg.persist().then(function() {
+            req.user.persist().then(function() {
+                res.type('application/json').status(201).json({error: ''});
+            }, function(e) {
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            });
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
 }
 
 /**
@@ -117,7 +163,7 @@ export function regUser(req, res) {
     }
 
     utils.checkCaptcha(req.query.captcha, function(ok) {
-        if(true) {
+        if(ok) {
             if('first_name' in user && 'last_name' in user && 'username' in user && 'password' in user && 'email' in user) {
                 if(user.first_name.length > 0 && user.last_name.length > 0 && user.username.length > 0 && user.password.length > 0 && user.email.length > 0 && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(user.email)) {
                     db.retrieveUser('username', user.username).then(function(u) {

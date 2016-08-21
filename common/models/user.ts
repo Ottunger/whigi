@@ -10,6 +10,20 @@ var hash = require('js-sha256');
 var utils = require('../../utils/utils');
 import {Datasource} from '../datasources';
 
+export var fields = {
+    username: true,
+    pwd_key: true,
+    key: true,
+    is_activated: true,
+    password: true,
+    salt: true,
+    _id: true,
+    email: true,
+    puzzle: true,
+    encr_master_key: true,
+    data: true
+}
+
 export class User {
 
     public username: string;
@@ -30,6 +44,7 @@ export class User {
      * @function constructor
      * @public
      * @param u Description.
+     * @param db Datasource, usually a DB and remote servers.
      */
     constructor(u, db: Datasource) {
         if('username' in u)
@@ -72,7 +87,7 @@ export class User {
     }
 
     /**
-     * Returns a shallow copy safe for sending to the user.
+     * Returns a shallow copy safe for persisting.
      * @function allFields
      * @private
      * @return Duplicated object.
@@ -95,6 +110,32 @@ export class User {
     }
 
     /**
+     * Fills the data in a user if not already done.
+     * @function fill
+     * @public
+     * @return A promise when ready.
+     */
+    fill() {
+        var self = this;
+
+        return new Promise(function(resolve, reject) {
+            if(self.data !== undefined) {
+                resolve();
+            } else {
+                self.db.retrieveUser('id', self._id, true).then(function(user) {
+                    if(!!user && !!(user.data))
+                        self.data = user.data;
+                    else
+                        self.data = {};
+                    resolve();
+                }, function(e) {
+                    reject(e);
+                });
+            }
+        });
+    }
+
+    /**
      * Write the user to database.
      * @function persist
      * @public
@@ -102,28 +143,17 @@ export class User {
      */
     persist() {
         var self = this;
-        function towards(resolve, reject) {
-            self.db.getDatabase().collection('users').update({_id: self._id}, self.allFields(), {upsert: true}).then(function() {
-                resolve();
+        
+        return new Promise(function(resolve, reject) {
+            self.fill().then(function() {
+                self.db.getDatabase().collection('users').update({_id: self._id}, self.allFields(), {upsert: true}).then(function() {
+                    resolve();
+                }, function(e) {
+                    reject(e);
+                });
             }, function(e) {
                 reject(e);
             });
-        }
-        
-        return new Promise(function(resolve, reject) {
-            if(self.data !== undefined) {
-                towards(resolve, reject);
-            } else {
-                self.db.retrieveUser('id', self._id).then(function(user) {
-                    if(user !== undefined && user !== null)
-                        self.data = user.data;
-                    else
-                        self.data = [];
-                    towards(resolve, reject);
-                }, function(e) {
-                    reject(e);
-                }).catch(function(e) {console.log(e); reject(e);});
-            }
         });
     }
 
