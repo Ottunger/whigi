@@ -44,18 +44,32 @@ export class Datasource {
     }
 
     /**
+     * Unlink an object, reflecting it ASAP.
+     * @function Unlink
+     * @public
+     * @TODO Propagate
+     * @param {String} name Collection name.
+     * @param {String} id _id.
+     * @return {Promise} Whether went OK locally.
+     */
+    unlink(name: string, id: string) {
+        return this.db.collection(name).remove({_id: id});
+    }
+
+    /**
      * Retrieves an object from storage, based on its _id.
      * @function retrieveGeneric
      * @private
      * @param {String} db Database name.
-     * @param {String} id _id.
+     * @param {Object} query Query projection.
+     * @param {Object} selector Projection field.
      * @return {Promise} The required item.
      */
-    private retrieveGeneric(db: string, id: string): Promise<any> {
+    private retrieveGeneric(db: string, query: any, selector: any): Promise<any> {
         var self = this;
 
         return new Promise(function(resolve, reject) {
-            self.db.collection(db).findOne({_id: id}).then(function(data) {
+            self.db.collection(db).findOne(query, selector).then(function(data) {
                 if(data === undefined || data == null)
                     resolve(undefined);
                 else
@@ -76,23 +90,12 @@ export class Datasource {
      * @return {Promise} The required item.
      */
     retrieveUser(mode: string, value: string, data?: boolean): Promise<User> {
-        var self = this;
         var decl = (data === true)? fields : {data: false};
-
-        return new Promise(function(resolve, reject) {
-            if(mode === 'id')
-                mode = '_id';
-            var sel = {};
-            sel[mode] = value;
-            self.db.collection('users').findOne(sel, decl).then(function(user) {
-                if(user === undefined || user == null)
-                    resolve(undefined);
-                else
-                    resolve(new User(user, self));
-            }, function(e) {
-                reject(e);
-            });
-        });
+        if(mode === 'id')
+            mode = '_id';
+        var sel = {};
+        sel[mode] = value;
+        return this.retrieveGeneric('users', sel, decl);
     }
 
     /**
@@ -103,18 +106,18 @@ export class Datasource {
      * @return {Promise} The required item.
      */
     retrieveData(id: string): Promise<Datafragment> {
-        return this.retrieveGeneric('datas', id);
+        return this.retrieveGeneric('datas', {_id: id}, {none: false});
     }
 
     /**
      * Retrieves a Vault from storage.
      * @function retrieveVault
      * @public
-     * @param {String} id _id.
+     * @param {Object} sel Selector.
      * @return {Promise} The required item.
      */
-    retrieveVault(id: string): Promise<Vault> {
-        return this.retrieveGeneric('vaults', id);
+    retrieveVault(sel): Promise<Vault> {
+        return this.retrieveGeneric('vaults', sel, {none: false});
     }
 
 }

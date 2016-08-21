@@ -112,7 +112,7 @@ export function removeVault(req, res) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         } else {
             if(req.params.shared_to_id in req.user.data[req.params.data_name].shared_to) {
-                db.retrieveVault(req.user.data[req.params.data_name].shared_to[req.params.shared_to_id]).then(function(v: Vault) {
+                db.retrieveVault({_id: req.user.data[req.params.data_name].shared_to[req.params.shared_to_id]}).then(function(v: Vault) {
                     v.unlink().then(function() {
                         delete req.user.data[req.params.data_name].shared_to[req.params.shared_to_id];
                         req.user.persist().then(function() {
@@ -129,6 +129,31 @@ export function removeVault(req, res) {
             } else {
                 res.type('application/json').status(200).json({error: ''});
             }
+        }
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Forges the response to retrieving a vault.
+ * @function getVault
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function getVault(req, res) {
+    db.retrieveVault({
+        data_name: req.params.data_name,
+        sharer_id: req.params.sharer_id,
+        shared_to_id: req.user._id
+    }).then(function(v: Vault) {
+        if(!!v) {
+            v.last_access = (new Date).getTime();
+            v.persist();
+            res.type('application/json').status(200).json(v.sanitarize());
+        } else {
+            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         }
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});

@@ -33,7 +33,7 @@ export abstract class IModel {
      * @return {Promise} Whether it went OK.
      */
     protected unlinkFrom(name: string): Promise {
-        return this.db.getDatabase().collection(name).remove({_id: this._id});
+        return this.db.unlink(name, this._id);
     }
 
     protected abstract allFields(): any

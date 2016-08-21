@@ -150,11 +150,13 @@ connect(function(e) {
     app.get('/api/v:version/data/:id', pass.authenticate('basic', {session: false}));
     app.post('/api/v:version/vault/new', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate('basic', {session: false}));
+    app.get('/api/v:version/vault/:data_name/:sharer_id', pass.authenticate('basic', {session: false}));
     //API LONG LIVED COMMANDS
     app.get('/api/v:version/user/:id', utils.checkPuzzle);
     app.post('/api/v:version/profile/data/new', utils.checkPuzzle);
     //-----
     app.post('/api/v:version/vault/new', utils.checkPuzzle);
+    app.get('/api/v:version/vault/:data_name/:sharer_id', utils.checkPuzzle);
     //API ROUTES
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
@@ -168,6 +170,7 @@ connect(function(e) {
     app.get('/api/v:version/data/:id', data.getData);
     app.post('/api/v:version/vault/new', data.regVault);
     app.delete('/api/v:version/vault/:data_name/:shared_to_id', data.removeVault);
+    app.get('/api/v:version/vault/:data_name/:sharer_id', data.getVault);
 
     //Error route
     app.use(function(req, res, next) {
