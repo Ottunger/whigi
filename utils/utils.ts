@@ -6,7 +6,6 @@
 
 'use strict';
 declare var require: any
-var hash = require('js-sha256').sha256;
 var querystring = require('querystring');
 var https = require('https');
 var strings = {
@@ -116,33 +115,6 @@ export function i18n(str, req) {
     if(str in strings[lang])
         return strings[lang][str];
     return str;
-}
-
-/**
- * Verifies that the client has generated an OK solution. Anyways, generate a new challenge.
- * @function checkPuzzle
- * @public
- * @param {Request} req The request.
- * @param {Response} res The response.
- * @param {Function} next Handler middleware.
- */
-export function checkPuzzle (req, res, next) {
-    if(!('puzzle' in req.query)) {
-        req.user.puzzle = generateRandomString(16);
-        req.user.persist();
-        res.type('application/json').status(412).json({error: i18n('client.puzzle', req), puzzle: req.user.puzzle});
-    } else {
-        var complete = hash.sha256(req.user.puzzle + req.query.puzzle);
-        if(complete.charAt(0) == '0' && complete.charAt(1) == '0' && complete.charAt(2) == '0' && complete.charAt(3) == '0') {
-            req.user.puzzle = generateRandomString(16);
-            req.user.persist();
-            next();
-        } else {
-            req.user.puzzle = generateRandomString(16);
-            req.user.persist();
-            res.type('application/json').status(412).json({error: i18n('client.puzzle', req), puzzle: req.user.puzzle});
-        }
-    }
 }
 
 /**

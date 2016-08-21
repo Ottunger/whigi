@@ -14,6 +14,7 @@ var hash = require('js-sha256');
 var mc = require('promised-mongo');
 var BS = require('passport-http').BasicStrategy;
 var utils = require('../utils/utils');
+var checks = require('../utils/checks');
 var user = require('./user');
 var data = require('./data');
 var datasources = require('../common/Datasource');
@@ -56,6 +57,8 @@ function listOptions(path, res, next) {
         res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/new\/?/))
         res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?/))
+        res.set('Allow', 'GET,DELETE').type('application/json').status(200).json({error: ''});
     //-----
     else
         next();
@@ -151,12 +154,19 @@ connect(function(e) {
     app.post('/api/v:version/vault/new', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate('basic', {session: false}));
     app.get('/api/v:version/vault/:data_name/:sharer_id', pass.authenticate('basic', {session: false}));
-    //API LONG LIVED COMMANDS
-    app.get('/api/v:version/user/:id', utils.checkPuzzle);
-    app.post('/api/v:version/profile/data/new', utils.checkPuzzle);
+    app.get('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate('basic', {session: false}));
+    //API POST CHECKS
+    app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data']));
+    app.post('/api/v:version/user/:id/update', checks.checkBody(['password', 'encr_master_key']));
+    app.post('/api/v:version/user/create', checks.checkBody(['first_name', 'last_name', 'username', 'email', 'password']));
     //-----
-    app.post('/api/v:version/vault/new', utils.checkPuzzle);
-    app.get('/api/v:version/vault/:data_name/:sharer_id', utils.checkPuzzle);
+    app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes']));
+    //API LONG LIVED COMMANDS
+    app.get('/api/v:version/user/:id', checks.checkPuzzle);
+    app.post('/api/v:version/profile/data/new', checks.checkPuzzle);
+    //-----
+    app.post('/api/v:version/vault/new', checks.checkPuzzle);
+    app.get('/api/v:version/vault/:data_name/:sharer_id', checks.checkPuzzle);
     //API ROUTES
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
@@ -171,6 +181,7 @@ connect(function(e) {
     app.post('/api/v:version/vault/new', data.regVault);
     app.delete('/api/v:version/vault/:data_name/:shared_to_id', data.removeVault);
     app.get('/api/v:version/vault/:data_name/:sharer_id', data.getVault);
+    app.get('/api/v:version/vault/:data_name/:shared_to_id', data.accessVault);
 
     //Error route
     app.use(function(req, res, next) {

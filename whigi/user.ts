@@ -120,7 +120,7 @@ export function updateUser(req, res) {
 }
 
 /**
- * Forges the response to the registration of a user. Can be HTTP 201 or 400 or 500.
+ * Forges the response to the registration of a user.
  * @function regUser
  * @public
  * @param {Request} req The request.
@@ -176,19 +176,15 @@ export function regUser(req, res) {
 
     utils.checkCaptcha(req.query.captcha, function(ok) {
         if(ok) {
-            if('first_name' in user && 'last_name' in user && 'username' in user && 'password' in user && 'email' in user) {
-                if(user.first_name.length > 0 && user.last_name.length > 0 && user.username.length > 0 && user.password.length > 0 && user.email.length > 0 && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(user.email)) {
-                    db.retrieveUser('username', user.username).then(function(u) {
-                        if(u === undefined)
-                            towards();
-                        else
-                            res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
-                    }, function(e) {
+            if(user.first_name.length > 0 && user.last_name.length > 0 && user.username.length > 0 && user.password.length > 0 && user.email.length > 0 && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(user.email)) {
+                db.retrieveUser('username', user.username).then(function(u) {
+                    if(u === undefined)
                         towards();
-                    });
-                } else {
-                    res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
-                }
+                    else
+                        res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+                }, function(e) {
+                    towards();
+                });
             } else {
                 res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
             }
