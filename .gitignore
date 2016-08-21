@@ -5,5 +5,5 @@
 /common/models/*.js
 /utils/*.js
 /whigi/user.js
-/whigi/datafragment.js
+/whigi/data.js
 /whigi-restore/mapping.js

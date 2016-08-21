@@ -66,18 +66,7 @@ export class Datasource {
      * @return {Promise} The required item.
      */
     private retrieveGeneric(db: string, query: any, selector: any): Promise<any> {
-        var self = this;
-
-        return new Promise(function(resolve, reject) {
-            self.db.collection(db).findOne(query, selector).then(function(data) {
-                if(data === undefined || data == null)
-                    resolve(undefined);
-                else
-                    resolve(new Datafragment(data._id, data.encr_data, self));
-            }, function(e) {
-                reject(e);
-            });
-        });
+        return this.db.collection(db).findOne(query, selector);
     }
 
     /**
@@ -90,12 +79,25 @@ export class Datasource {
      * @return {Promise} The required item.
      */
     retrieveUser(mode: string, value: string, data?: boolean): Promise<User> {
+        var self = this;
         var decl = (data === true)? fields : {data: false};
         if(mode === 'id')
             mode = '_id';
         var sel = {};
         sel[mode] = value;
-        return this.retrieveGeneric('users', sel, decl);
+
+        return new Promise<User>(function(resolve, reject) {
+            self.retrieveGeneric('users', sel, decl).then(function(data) {
+                if(!!data) {
+                    console.log(data);
+                    resolve(new User(data, self.db));
+                } else {
+                    resolve(undefined);
+                }
+            }, function(e) {
+                reject(e);
+            });
+        });
     }
 
     /**
@@ -106,7 +108,19 @@ export class Datasource {
      * @return {Promise} The required item.
      */
     retrieveData(id: string): Promise<Datafragment> {
-        return this.retrieveGeneric('datas', {_id: id}, {none: false});
+        var self = this;
+
+        return new Promise<Datafragment>(function(resolve, reject) {
+            self.retrieveGeneric('datas', {_id: id}, {none: false}).then(function(data) {
+                if(!!data) {
+                    resolve(new Datafragment(data._id, data.encr_data, self.db));
+                } else {
+                    resolve(undefined);
+                }
+            }, function(e) {
+                reject(e);
+            });
+        });
     }
 
     /**
@@ -117,7 +131,19 @@ export class Datasource {
      * @return {Promise} The required item.
      */
     retrieveVault(sel): Promise<Vault> {
-        return this.retrieveGeneric('vaults', sel, {none: false});
+        var self = this;
+
+        return new Promise<Vault>(function(resolve, reject) {
+            self.retrieveGeneric('vaults', sel, {none: false}).then(function(data) {
+                if(!!data) {
+                    resolve(new Vault(data, self.db));
+                } else {
+                    resolve(undefined);
+                }
+            }, function(e) {
+                reject(e);
+            });
+        });
     }
 
 }

@@ -48,15 +48,7 @@ export class Datafragment extends IModel {
      * @return A promise to check if everything went well.
      */
     persist() {
-        var self = this;
-        
-        return new Promise(function(resolve, reject) {
-            self.db.getDatabase().collection('datas').update({_id: self._id}, self.allFields(), {upsert: true}).then(function() {
-                resolve();
-            }, function(e) {
-                reject(e);
-            });
-        });
+        return this.db.getDatabase().collection('datas').update({_id: this._id}, this.allFields(), {upsert: true});
     }
 
     /**

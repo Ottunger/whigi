@@ -59,15 +59,7 @@ export class Mapping {
      * @return A promise to check if everything went well.
      */
     persist() {
-        var self = this;
-        
-        return new Promise(function(resolve, reject) {
-            self.db.collection('mappings').update({_id: self._id}, self.allFields(), {upsert: true}).then(function() {
-                resolve();
-            }, function(e) {
-                reject(e);
-            });
-        });
+        return this.db.getDatabase().collection('mappings').update({_id: this._id}, this.allFields(), {upsert: true});
     }
 
     /**
