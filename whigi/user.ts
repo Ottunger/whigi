@@ -132,7 +132,7 @@ export function regUser(req, res) {
         u._id = utils.generateRandomString(32);
         u.salt = utils.generateRandomString(64);
         u.puzzle = utils.generateRandomString(16);
-        u.password = hash.sha256(user.password + u.salt);
+        u.password = hash.sha256(hash.sha256(user.password) + u.salt);
         u.is_activated = false;
         u.key = utils.generateRandomString(64);
         u.encr_master_key = aes.encrypt(user.password, pre_master_key);

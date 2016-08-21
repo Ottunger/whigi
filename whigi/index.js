@@ -100,11 +100,11 @@ function close() {
  * @param {String} pwd User's password.
  * @param {Function} callback A callback function to execute with true if authentication was ok.
  */
-pass.use(new BS(function(user, pwd, done) {
-    db.retrieveUser('username', user).then(function(ipwd) {
-        if(!!ipwd) {
-            if(ipwd.is_activated && hash.sha256(pwd + ipwd.salt) == ipwd.password) {
-                return done(null, ipwd);
+pass.use(new BS(function(username, hpwd, done) {
+    db.retrieveUser('username', username).then(function(user) {
+        if(!!user) {
+            if(user.is_activated && hash.sha256(hpwd + user.salt) == user.password) {
+                return done(null, user);
             } else {
                 return done(null, false);
             }

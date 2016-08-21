@@ -20,11 +20,11 @@ Saves a new data fragment.
 {"name": "string", "encr_data": "string"}
 
 /api/v<any>/user/<id>/update: Post, needs auth
-Updates password. When updated password, needs to send the new ecrypted master key as well.
+Updates password. When updated password, can send the password hashed but needs to send the new ecrypted master key as well.
 {"password": "string", "encr_master_key": "string"}
 
 /api/v<any>/user/create: Post
-Creates a new entry if none matches.
+Creates a new entry if none matches. The password is this only time sent in clear.
 {"first_name": "string", "last_name": "string", "username": "string", "password": "string", "email": "string"}
 
 /api/v<any>/activate/<key>/<id>: Get
