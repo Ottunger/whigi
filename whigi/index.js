@@ -15,6 +15,7 @@ var mc = require('promised-mongo');
 var BS = require('passport-http').BasicStrategy;
 var utils = require('../utils/utils');
 var user = require('./user');
+var data = require('./datafragment');
 var datasources = require('../common/datasources');
 var db;
 var DEBUG = true;
@@ -49,6 +50,10 @@ function listOptions(path, res, next) {
         res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/deactivate\/?/))
         res.set('Allow', 'DELETE').type('application/json').status(200).json({error: ''});
+    //-----
+    else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9]+\/?/))
+        res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
+    //-----
     else
         next();
 }
@@ -68,6 +73,7 @@ function connect(callback) {
     if(d) {
         db = new datasources.Datasource(d);
         user.managerInit(db);
+        data.managerInit(db);
         callback(false)
     } else {
         callback(true);
@@ -130,16 +136,19 @@ connect(function(e) {
     }
     app.use(body.json());
 
-    //API use auth
+    //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pass.authenticate('basic', {session: false}));
     app.get('/api/v:version/profile', pass.authenticate('basic', {session: false}));
     app.get('/api/v:version/profile/data', pass.authenticate('basic', {session: false}));
     app.post('/api/v:version/profile/data/new', pass.authenticate('basic', {session: false}));
     app.post('/api/v:version/user/:id/update', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/user/:id/deactivate', pass.authenticate('basic', {session: false}));
-    //API long lived commands or populating database
+    //-----
+    app.get('/api/v:version/data/:id', pass.authenticate('basic', {session: false}));
+    //API LONG LIVED COMMANDS
     app.get('/api/v:version/user/:id', utils.checkPuzzle);
-    //API routes
+    //-----
+    //API ROUTES
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
     app.get('/api/v:version/profile/data', user.listData);
@@ -148,6 +157,8 @@ connect(function(e) {
     app.post('/api/v:version/user/create', user.regUser);
     app.get('/api/v:version/activate/:key/:id', user.activateUser);
     app.delete('/api/v:version/user/:id/deactivate', user.deactivateUser);
+    //------
+    app.get('/api/v:version/data/:id', data.getData);
 
     //Error route
     app.use(function(req, res, next) {

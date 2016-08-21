@@ -60,4 +60,18 @@ export class Datafragment {
         });
     }
 
+    /**
+     * Returns a shallow copy safe for sending.
+     * @function sanitarize
+     * @public
+     * @return Duplicated object.
+     */
+    sanitarize() {
+        var ret = {
+            encr_data: this.encr_data,
+            _id: this._id
+        };
+        return ret;
+    }
+
 }

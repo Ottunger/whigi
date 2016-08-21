@@ -1,5 +1,5 @@
 /**
- * API dealing with users, their profile, rating and registration.
+ * API dealing with users, their profile and registration.
  * @module user
  * @author Mathonet Grégoire
  */

@@ -3,6 +3,7 @@
   "client.auth": "Client error: Bad realm for accessing this ressource",
   "client.missing": "Client error: Mandatory field missing",
   "client.noUser": "Client error: No such user",
+  "client.noData": "Client error: No such data",
   "client.badState": "Client error: User in wrong state for this action",
   "client.userExists": "Client error: User already exists",
   "client.puzzle": "Client error: Puzzle reference is corrupted.",

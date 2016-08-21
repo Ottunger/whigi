@@ -7,6 +7,7 @@
 'use strict';
 declare var require: any
 import {User, fields} from './models/user';
+import {Datafragment} from './models/datafragment';
 
 export class Datasource {
 
@@ -60,6 +61,26 @@ export class Datasource {
                     resolve(undefined);
                 else
                     resolve(new User(user, self));
+            }, function(e) {
+                reject(e);
+            });
+        });
+    }
+
+    /**
+     * Retrieves a Datafragment from storage.
+     * @function retrieveData
+     * @public
+     */
+    retrieveData(id: string): Promise<Datafragment> {
+        var self = this;
+
+        return new Promise(function(resolve, reject) {
+            self.db.collection('datas').findOne({_id: id}).then(function(data) {
+                if(data === undefined || data == null)
+                    resolve(undefined);
+                else
+                    resolve(new Datafragment(data._id, data.encr_data, self));
             }, function(e) {
                 reject(e);
             });
