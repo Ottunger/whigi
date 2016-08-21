@@ -2,7 +2,10 @@ mongodb
 	global
 		user: admin
 		pass: highersec@envict
-	cocar db
+	whigi db
+		user: whigiuser
+		pass: sorryMeND3dIoKwR
+   whigi-restore db
 		user: whigiuser
 		pass: sorryMeND3dIoKwR
 gmail

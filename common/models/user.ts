@@ -13,7 +13,6 @@ import {IModel} from './Imodel';
 
 export var fields = {
     username: true,
-    pwd_key: true,
     key: true,
     is_activated: true,
     password: true,
@@ -28,7 +27,6 @@ export var fields = {
 export class User extends IModel {
 
     public username: string;
-    public pwd_key: string;
     public key: string;
     public is_activated: boolean;
     public password: string;
@@ -49,8 +47,6 @@ export class User extends IModel {
         super(u._id, db);
         if('username' in u)
             this.username = u.username;
-        if('pwd_key' in u)
-            this.pwd_key = u.pwd_key;
         if('key' in u)
             this.key = u.key;
         if('is_activated' in u)
@@ -69,21 +65,19 @@ export class User extends IModel {
             this.encr_master_key = u.encr_master_key;
         if('data' in u)
             this.data = u.data;
-
-        this.db = db;
     }
 
     /**
-     * Merge fields of upt into the object.
+     * Merge fields of upt into the object. Manages the key updates involved.
      * @function applyUpdate
      * @public
      * @param upt The update.
      */
     applyUpdate(upt) {
-        if('password' in upt)
+        if('password' in upt && 'encr_master_key' in upt) {
             this.password = hash.sha256(upt.password + this.salt);
-        if('email' in upt && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(upt.email))
-            this.email = upt.email;
+            this.encr_master_key = upt.encr_master_key;
+        }
     }
 
     /**
@@ -95,7 +89,6 @@ export class User extends IModel {
     protected allFields() {
         var ret = {
             username: this.username,
-            pwd_key: this.pwd_key,
             key: this.key,
             password: this.password,
             salt: this.salt,
@@ -182,7 +175,6 @@ export class User extends IModel {
     fields() {
         var ret = {
             username: this.username,
-            pwd_key: this.pwd_key,
             key: this.key,
             password: this.password,
             salt: this.salt,

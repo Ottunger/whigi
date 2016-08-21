@@ -4,6 +4,7 @@
   "client.missing": "Erreur client: Champ requis manquant",
   "client.noUser": "Erreur client: Utilisateur introuvable",
   "client.noData": "Erreur client: Donnée introuvable",
+  "client.tooSoon": "Erreur client: Demande répétée trop tôt",
   "client.badState": "Erreur client: Utilisateur dans un état incompatible",
   "client.userExists": "Erreur client: Utilisateur existe déjà",
   "client.puzzle": "Erreur client: Mauvaise référence puzzle.",

@@ -25,7 +25,6 @@ export class Datafragment extends IModel {
         super(_id, db);
         this._id = _id;
         this.encr_data = encr_data;
-        this.db = db;
     }
 
     /**

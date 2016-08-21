@@ -1,6 +1,9 @@
 # Readme
 A project to make people possess their own data again.
 
+# See CHANGELOG for a description fof API endpoints.
+Note that whigi-restore gets informed of the mappings email <=> master_key but nevers informs back whigi of the disclosure. A front-end app should therefore request the master_key then ask whigi for a password change.
+
 # To install a Gitlab over Ubuntu 14.04:
 - sudo apt-get install vim postfix mailutils libsasl2-2 ca-certificates libsasl2-modules
 - open /etc/postfix/main.cf to add relayhost = [smtp.gmail.com]:587; smtp_sasl_auth_enable = yes; smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd; smtp_sasl_security_options = noanonymous; smtp_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem; smtp_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key; smtp_use_tls=yes

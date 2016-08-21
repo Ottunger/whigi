@@ -121,7 +121,6 @@ export function updateUser(req, res) {
  * Forges the response to the registration of a user. Can be HTTP 201 or 400 or 500.
  * @function regUser
  * @public
- * @TODO Insert into whigi-recovery.
  * @param {Request} req The request.
  * @param {Response} res The response.
  */
@@ -130,25 +129,31 @@ export function regUser(req, res) {
     function complete() {
         var u: User = new User(user, db);
         var pre_master_key = utils.generateRandomString(64);
-        u._id = utils.generateRandomString(8);
+        u._id = utils.generateRandomString(32);
         u.salt = utils.generateRandomString(64);
         u.puzzle = utils.generateRandomString(16);
         u.password = hash.sha256(user.password + u.salt);
         u.is_activated = false;
         u.key = utils.generateRandomString(64);
         u.encr_master_key = aes.encrypt(user.password, pre_master_key);
-        u.persist().then(function() {
-            mailer.sendMail({
-                from: 'Whigi <whigi.com@gmail.com>',
-                to: '<' + u.email + '>',
-                subject: 'Your account',
-                html: 'Click here to activate your account:<br /> \
-                    <a href="' + utils.RUNNING_ADDR + '/api/v1/activate/' + u.key + '/' + u._id + '">Click here</a><br /> \
-                    The Whigi team.'
-            }, function(e, i) {});
-            res.type('application/json').status(201).json({error: ''});
-        }, function(e) {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        utils.registerMapping(u.email, pre_master_key, function(err) {
+            if(err) {
+                res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+            } else {
+                u.persist().then(function() {
+                    mailer.sendMail({
+                        from: 'Whigi <whigi.com@gmail.com>',
+                        to: '<' + u.email + '>',
+                        subject: 'Your account',
+                        html: 'Click here to activate your account:<br /> \
+                            <a href="' + utils.RUNNING_ADDR + '/api/v1/activate/' + u.key + '/' + u._id + '">Click here</a><br /> \
+                            The Whigi team.'
+                    }, function(e, i) {});
+                    res.type('application/json').status(201).json({error: ''});
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            }
         });
     }
     function towards() {

@@ -4,6 +4,7 @@
   "client.missing": "Client error: Mandatory field missing",
   "client.noUser": "Client error: No such user",
   "client.noData": "Client error: No such data",
+  "client.tooSoon": "Client error: Request sent twice too fast",
   "client.badState": "Client error: User in wrong state for this action",
   "client.userExists": "Client error: User already exists",
   "client.puzzle": "Client error: Puzzle reference is corrupted.",

@@ -147,6 +147,7 @@ connect(function(e) {
     app.get('/api/v:version/data/:id', pass.authenticate('basic', {session: false}));
     //API LONG LIVED COMMANDS
     app.get('/api/v:version/user/:id', utils.checkPuzzle);
+    app.post('/api/v:version/profile/data/new', utils.checkPuzzle);
     //-----
     //API ROUTES
     app.get('/api/v:version/user/:id', user.getUser);

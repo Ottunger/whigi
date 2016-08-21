@@ -3,6 +3,7 @@
 
 /common/*.js
 /common/models/*.js
-
-/whigi/datasources/*.js
+/utils/*.js
 /whigi/user.js
+/whigi/datafragment.js
+/whigi-restore/mapping.js
