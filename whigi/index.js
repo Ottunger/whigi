@@ -21,8 +21,9 @@ var db;
 var DEBUG = true;
 
 //Set the running configuration
-var httpsport = parseInt(process.argv[3]) || 443;
-var localhost = process.argv[4] || 'localhost';
+//Launch as >$ node index.js 443 whigi.envict.com for instance
+var httpsport = parseInt(process.argv[2]) || 443;
+var localhost = process.argv[3] || 'localhost';
 var httpslocal = 'https://' + localhost + ':' + httpsport;
 
 /**
