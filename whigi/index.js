@@ -137,6 +137,7 @@ pass.use(new BS(function(username, hpwd, done) {
  * @param {Function} callback A callback function to execute with true if authentication was ok.
  */
 pass.use(new TS(function(token, done) {
+    token = utils.atob(token.split(' ')[1]);
     db.retrieveToken({_id: token}).then(function(ticket) {
         if(!!ticket) {
             if(ticket.is_eternal == false && ticket.last_refresh < (new Date).getTime() - 30*60*1000) {

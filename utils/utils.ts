@@ -21,7 +21,7 @@ export var RUNNING_ADDR = '';
  * @param {String} str Encoded string.
  * @return {String} Decoded string.
  */
-function atob(str) {
+export function atob(str) {
     return new Buffer(str, 'base64').toString('binary');
 }
 

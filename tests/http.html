@@ -81,6 +81,10 @@
                         ajaxObj.beforeSend = function (xhr) {
                             xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
                         };
+                    } else if (password !== "") {
+                        ajaxObj.beforeSend = function (xhr) {
+                            xhr.setRequestHeader("Authorization", "Bearer " + btoa(password));
+                        };
                     }
                     $.ajax(ajaxObj);
                 });
@@ -110,6 +114,7 @@
             <option value="POST">POST</option>
             <option value="GET">GET</option>
         </select></p>
+    <p>Input only password for use a Token Auth, or user/password for HTTP Basic Auth.</p>
     <p><input id="name" placeholder="Name" type="text"></p>
     <p><input id="password" type="password" placeholder="Password"></p>
     <p><textarea name="data" cols="50" rows="20">[]</textarea></p>
