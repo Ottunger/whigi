@@ -13,6 +13,7 @@ var fs = require('fs');
 var hash = require('js-sha256');
 var mc = require('promised-mongo');
 var BS = require('passport-http').BasicStrategy;
+var TS = require('passport-token-auth');
 var utils = require('../utils/utils');
 var checks = require('../utils/checks');
 var user = require('./user');
@@ -51,6 +52,10 @@ function listOptions(path, res, next) {
     else if(path.match(/\/api\/v[1-9]\/activate\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?/))
         res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/deactivate\/?/))
+        res.set('Allow', 'DELETE').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/token\/new\/?/))
+        res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/token\/?/))
         res.set('Allow', 'DELETE').type('application/json').status(200).json({error: ''});
     //-----
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9]+\/?/))
@@ -124,6 +129,36 @@ pass.use(new BS(function(username, hpwd, done) {
     });
 }));
 
+/**
+ * Authenticates a user.
+ * @function auth
+ * @public
+ * @param {String} token Token.
+ * @param {Function} callback A callback function to execute with true if authentication was ok.
+ */
+pass.use(new TS(function(token, done) {
+    db.retrieveToken({_id: token}).then(function(ticket) {
+        if(!!ticket) {
+            if(ticket.is_eternal == false && ticket.last_refresh < (new Date).getTime() - 30*60*1000) {
+                ticket.unlink();
+                return done(null, false);
+            } else {
+                db.retrieveUser('id', ticket.bearer_id).then(function(user) {
+                    ticket.last_refresh = (new Date).getTime();
+                    ticket.persist();
+                    return done(null, user);
+                }, function(e) {
+                    return done(e);
+                });
+            }
+        } else {
+            return done(null, false);
+        }
+    }, function(e) {
+        return done(e);
+    });
+}));
+
 //Now connect to DB then start serving requests
 connect(function(e) {
     if(e) {
@@ -145,27 +180,31 @@ connect(function(e) {
     app.use(body.json());
 
     //API AUTH DECLARATIONS
-    app.get('/api/v:version/user/:id', pass.authenticate('basic', {session: false}));
-    app.get('/api/v:version/profile', pass.authenticate('basic', {session: false}));
-    app.get('/api/v:version/profile/data', pass.authenticate('basic', {session: false}));
-    app.post('/api/v:version/profile/data/new', pass.authenticate('basic', {session: false}));
-    app.post('/api/v:version/user/:id/update', pass.authenticate('basic', {session: false}));
-    app.delete('/api/v:version/user/:id/deactivate', pass.authenticate('basic', {session: false}));
+    app.get('/api/v:version/user/:id', pass.authenticate(['basic', 'token'], {session: false}));
+    app.get('/api/v:version/profile', pass.authenticate(['basic', 'token'], {session: false}));
+    app.get('/api/v:version/profile/data', pass.authenticate(['basic', 'token'], {session: false}));
+    app.post('/api/v:version/profile/data/new', pass.authenticate(['basic', 'token'], {session: false}));
+    app.post('/api/v:version/user/:id/update', pass.authenticate(['basic', 'token'], {session: false}));
+    app.delete('/api/v:version/user/:id/deactivate', pass.authenticate(['basic', 'token'], {session: false}));
+    app.post('/api/v:version/profile/token/new', pass.authenticate('basic', {session: false}));
+    app.delete('/api/v:version/profile/token', pass.authenticate(['basic', 'token'], {session: false}));
     //-----
-    app.get('/api/v:version/data/:id', pass.authenticate('basic', {session: false}));
-    app.post('/api/v:version/vault/new', pass.authenticate('basic', {session: false}));
-    app.delete('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate('basic', {session: false}));
-    app.get('/api/v:version/vault/:data_name/:sharer_id', pass.authenticate('basic', {session: false}));
-    app.get('/api/v:version/vault/time/:data_name/:shared_to_id', pass.authenticate('basic', {session: false}));
+    app.get('/api/v:version/data/:id', pass.authenticate(['basic', 'token'], {session: false}));
+    app.post('/api/v:version/vault/new', pass.authenticate(['basic', 'token'], {session: false}));
+    app.delete('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate(['basic', 'token'], {session: false}));
+    app.get('/api/v:version/vault/:data_name/:sharer_id', pass.authenticate(['basic', 'token'], {session: false}));
+    app.get('/api/v:version/vault/time/:data_name/:shared_to_id', pass.authenticate(['basic', 'token'], {session: false}));
     //API POST CHECKS
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data']));
     app.post('/api/v:version/user/:id/update', checks.checkBody(['password', 'encr_master_key']));
     app.post('/api/v:version/user/create', checks.checkBody(['first_name', 'last_name', 'username', 'email', 'password']));
+    app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     //-----
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes']));
     //API LONG LIVED COMMANDS
     app.get('/api/v:version/user/:id', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/new', checks.checkPuzzle);
+    app.post('/api/v:version/profile/token/new', checks.checkPuzzle);
     //-----
     app.post('/api/v:version/vault/new', checks.checkPuzzle);
     app.get('/api/v:version/vault/:data_name/:sharer_id', checks.checkPuzzle);
@@ -178,6 +217,8 @@ connect(function(e) {
     app.post('/api/v:version/user/create', user.regUser);
     app.get('/api/v:version/activate/:key/:id', user.activateUser);
     app.delete('/api/v:version/user/:id/deactivate', user.deactivateUser);
+    app.post('/api/v:version/profile/token/new', user.newToken);
+    app.delete('/api/v:version/profile/token', user.removeToken);
     //------
     app.get('/api/v:version/data/:id', data.getData);
     app.post('/api/v:version/vault/new', data.regVault);

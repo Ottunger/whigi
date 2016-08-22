@@ -13,6 +13,7 @@ var aes = require('nodejs-aes256');
 var RSA = require('node-rsa');
 import {User} from '../common/models/User';
 import {Datafragment} from '../common/models/Datafragment';
+import {Token} from '../common/models/Token';
 import {Datasource} from '../common/Datasource';
 var mailer;
 var db: Datasource;
@@ -242,6 +243,46 @@ export function deactivateUser(req, res) {
     req.user.is_activated = false;
     req.user.persist().then(function() {
         res.type('application/json').status(200).json({error: ''});
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Creates a new token for the user to log in.
+ * @function newToken
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function newToken(req, res) {
+    var newid = utils.generateRandomString(64);
+    var t: Token = new Token(newid, req.user._id, (new Date).getTime(), req.body.is_eternal, db);
+    t.persist().then(function() {
+        res.type('application/json').status(201).json({error: '', _id: newid});
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Removes tokens for the bearer.
+ * @function removeToken
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function removeToken(req, res) {
+    db.retrieveToken({bearer_id: req.user._id}).then(function(t: Token) {
+        if(!!t) {
+            t.unlink().then(function() {
+                removeToken(req, res);
+            }, function(e) {
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            });
+        } else {
+            res.type('application/json').status(200).json({error: ''});
+        }
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });

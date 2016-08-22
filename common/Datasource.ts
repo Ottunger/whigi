@@ -8,6 +8,7 @@
 declare var require: any
 import {User, fields} from './models/User';
 import {Datafragment} from './models/Datafragment';
+import {Token} from './models/Token';
 import {Vault} from './models/Vault';
 
 export class Datasource {
@@ -136,6 +137,29 @@ export class Datasource {
             self.retrieveGeneric('vaults', sel, {none: false}).then(function(data) {
                 if(!!data) {
                     resolve(new Vault(data, self));
+                } else {
+                    resolve(undefined);
+                }
+            }, function(e) {
+                reject(e);
+            });
+        });
+    }
+
+    /**
+     * Retrieves a Token from storage.
+     * @function retrieveToken
+     * @public
+     * @param {Object} sel Selector.
+     * @return {Promise} The required item.
+     */
+    retrieveToken(sel): Promise<Token> {
+        var self = this;
+
+        return new Promise<Token>(function(resolve, reject) {
+            self.retrieveGeneric('tokens', sel, {none: false}).then(function(data) {
+                if(!!data) {
+                    resolve(new Token(data._id, data.bearer_id, data.last_refresh, data.is_eternal, self));
                 } else {
                     resolve(undefined);
                 }

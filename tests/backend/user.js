@@ -31,6 +31,14 @@ exports.test = function() {
             IIS: {id: 'fsdn', length: 8, shared_to: {}}
         }
     }
+    var dummy_token0 = {
+        _id: 'dummy0',
+        bearer_id: dummy_user._id
+    }
+    var dummy_token1 = {
+        _id: 'dummy1',
+        bearer_id: dummy_user._id
+    }
     var ds = new datasources.Datasource(db);
     me.managerInit(ds);
 
@@ -40,8 +48,12 @@ exports.test = function() {
             db.collection('users').drop().then(function() {
                 db.collection('datas').drop().then(function() {
                     db.collection('vaults').drop().then(function() {
-                        db.collection('users').insert(dummy_user).then(function() {
-                            done();
+                        db.collection('tokens').drop().then(function() {
+                            db.collection('users').insert(dummy_user).then(function() {
+                                db.collection('tokens').insert([dummy_token0, dummy_token1]).then(function() {
+                                    done();
+                                });
+                            });
                         });
                     });
                 });
@@ -151,6 +163,31 @@ exports.test = function() {
                         _id: dummy_user._id,
                         is_activated: false
                     }).notify(done);
+                }, function(e) {
+                    done(e);
+                });
+            });
+        });
+
+        describe('#newToken()', function() {
+            it('should accept the creation', function(done) {
+                var f = new fk.FakeRes(false);
+                me.newToken({
+                    user: new user.User(dummy_user, ds),
+                    body: {is_eternal: false}
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(201).notify(done);
+            });
+        });
+
+        describe('#removeToken()', function() {
+            it('should remove all tokens', function(done) {
+                var f = new fk.FakeRes(true);
+                me.removeToken({
+                    user: new user.User(dummy_user, ds)
+                }, f);
+                f.promise.then(function() {
+                    chai.expect(db.collection('tokens').findOne({bearer_id: dummy_user._id})).to.eventually.become(null).notify(done);
                 }, function(e) {
                     done(e);
                 });

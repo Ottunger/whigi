@@ -33,6 +33,13 @@ Activates the user whose activation key is given.
 /api/v<any>/user/<id>/deactivate: Delete, needs auth
 Deactivates the user.
 
+/api/v<any>/profile/token/new: Post, needs auth (basic only), needs puzzle
+Creates a new token for the logged in user to connect without credentials.
+{"is_eternal": "boolean"}
+
+/api/v<any>/profile/token: Delete, needs auth
+Removes all granted bearer tokens.
+
 /api/v<any>/data/<id>: Get, needs auth
 Retrieves an encrypted piece of data.
 
