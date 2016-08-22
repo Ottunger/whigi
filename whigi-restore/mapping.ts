@@ -37,9 +37,10 @@ export function managerInit(dbg) {
 export function newMapping(req, res) {
     var got = req.body;
     if(got.key == require('../common/key.json').key) {
-        var m: Mapping = new Mapping(utils.generateRandomString(32), got.email, got.master_key, 0, '', db);
+        var newid = utils.generateRandomString(32);
+        var m: Mapping = new Mapping(newid, got.email, got.master_key, 0, '', db);
         m.persist().then(function() {
-            res.type('application/json').status(201).json({error: ''});
+            res.type('application/json').status(201).json({error: '', _id: newid});
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });

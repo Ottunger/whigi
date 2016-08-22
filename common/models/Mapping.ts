@@ -33,6 +33,7 @@ export class Mapping {
         this.master_key = master_key;
         this.time_changed = time_changed;
         this.pwd_key = pwd_key;
+        this.db = db;
     }
 
     /**
@@ -59,7 +60,7 @@ export class Mapping {
      * @return A promise to check if everything went well.
      */
     persist() {
-        return this.db.getDatabase().collection('mappings').update({_id: this._id}, this.allFields(), {upsert: true});
+        return this.db.collection('mappings').update({_id: this._id}, this.allFields(), {upsert: true});
     }
 
     /**
