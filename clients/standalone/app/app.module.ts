@@ -10,6 +10,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TranslateModule} from 'ng2-translate/ng2-translate';
+import {Application} from './app.component';
 import {Logging} from './logging.component';
 
 @NgModule({
@@ -19,8 +20,8 @@ import {Logging} from './logging.component';
         HttpModule,
         TranslateModule.forRoot()
     ],
-    declarations: [Logging],
-    bootstrap: [Logging]
+    declarations: [Application, Logging],
+    bootstrap: [Application]
 })
 export class AppModule {
 

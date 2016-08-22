@@ -10,7 +10,6 @@ import {TranslateService} from 'ng2-translate/ng2-translate';
 enableProdMode();
 
 @Component({
-    selector: 'my-app',
     template: `
         <form class="form-signin">
             <div class="heading">
