@@ -8,7 +8,6 @@
   var map = {
     'app': 'app',
     '@angular': 'node_modules/@angular',
-    'angular2-in-memory-web-api': 'node_modules/angular2-in-memory-web-api',
     'rxjs': 'node_modules/rxjs',
     'ng2-translate': 'node_modules/ng2-translate',
     'bootstrap': 'node_modules/bootstrap'
@@ -17,7 +16,6 @@
     'app': {main: 'main.js', defaultExtension: 'js'},
     'rxjs': {defaultExtension: 'js'},
     'ng2-translate': {main: 'ng2-translate.js', defaultExtension: 'js'},
-    'angular2-in-memory-web-api': {main: 'index.js', defaultExtension: 'js'},
     'bootstrap': {defaultExtension: 'js'},
   };
   var ngPackageNames = [

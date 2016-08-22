@@ -1,6 +1,6 @@
 /**
- * Component displaying the main page.
- * @module app.component
+ * Component displaying an error screen.
+ * @module logging.component
  * @author Mathonet Grégoire
  */
 
@@ -10,16 +10,11 @@ import {TranslateService} from 'ng2-translate/ng2-translate';
 enableProdMode();
 
 @Component({
-    selector: 'my-app',
     template: `
-        <div class="row bottom-border">
-            <div class="col-sm-offset-3 col-sm-4">
-                <router-outlet></router-outlet>
-            </div>
-        </div>
+        <h2>{{ 'error.notfound' | translate }}</h2>
     `
 })
-export class Application {
+export class Notfound {
 
     /**
      * Creates the component.

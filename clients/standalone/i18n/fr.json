@@ -1,5 +1,7 @@
 {
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",
-   "login.goOn": "Continuer"
+   "login.goOn": "Continuer",
+
+   "error.notfound": "Introuvable"
 }

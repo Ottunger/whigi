@@ -5,8 +5,9 @@
  */
 
 'use strict';
-import {Component, enableProdMode} from '@angular/core';
+import {Component, enableProdMode, OnInit} from '@angular/core';
 import {TranslateService} from 'ng2-translate/ng2-translate';
+import {Backend} from './app.service';
 enableProdMode();
 
 @Component({
@@ -30,22 +31,50 @@ enableProdMode();
         </form>
     `
 })
-export class Logging {
+export class Logging implements OnInit {
 
     public username: string;
     public password: string;
     public persistent: boolean;
 
-    constructor(private translate: TranslateService) {
+    /**
+     * Creates the component.
+     * @function constructor
+     * @public
+     * @param translate Translation service.
+     */
+    constructor(private translate: TranslateService, private backend: Backend) {
         translate.addLangs(['en', 'fr']);
         translate.setDefaultLang('en');
         let browserLang = translate.getBrowserLang();
         translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
-
     }
 
+    /**
+     * Called upon display.
+     * @function ngOnInit
+     * @public
+     */
+    ngOnInit(): void {
+        if('token' in localStorage) {
+            //Router.go...
+        }
+    }
+
+    /**
+     * Tries to log in.
+     * @function enter
+     * @public
+     * @param event Click event.
+     */
     enter(event) {
-        alert('click');
+        this.backend.getProfile(this.username, this.password).then(function() {
+            //Router.go...
+            alert("ok");
+        }, function(e) {
+            //Display...
+            console.trace();
+        });
     }
     
 }
