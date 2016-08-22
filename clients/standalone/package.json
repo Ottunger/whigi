@@ -1,0 +1,35 @@
+{
+  "name": "whigi-standalone",
+  "version": "0.0.1",
+  "description": "A front-end for Whigi and Whigi-restore",
+  "main": ".",
+  "repository": {
+    "type": "git",
+    "url": "http://whigi2-dev.envict.com/whigi-team/whigi.git"
+  },
+  "author": "Whigi-team",
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "dependencies": {
+    "@angular/common": "^2.0.0-rc.5",
+    "@angular/compiler": "^2.0.0-rc.5",
+    "@angular/core": "^2.0.0-rc.5",
+    "@angular/forms": "^0.3.0",
+    "@angular/http": "^2.0.0-rc.5",
+    "@angular/platform-browser": "^2.0.0-rc.5",
+    "@angular/platform-browser-dynamic": "^2.0.0-rc.5",
+    "@angular/router": "^3.0.0-rc.1",
+    "@angular/router-deprecated": "^2.0.0-rc.2",
+    "@angular/upgrade": "^2.0.0-rc.5",
+    "angular2-in-memory-web-api": "0.0.17",
+    "bootstrap": "^3.3.7",
+    "core-js": "^2.4.1",
+    "ng2-translate": "^2.4.2",
+    "reflect-metadata": "^0.1.8",
+    "rxjs": "^5.0.0-beta.6",
+    "systemjs": "^0.19.37",
+    "zone.js": "^0.6.15"
+  },
+  "devDependencies": {
+    "lite-server": "^2.2.2"
+  }
+}
