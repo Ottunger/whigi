@@ -180,20 +180,20 @@ connect(function(e) {
     app.use(body.json());
 
     //API AUTH DECLARATIONS
-    app.get('/api/v:version/user/:id', pass.authenticate(['basic', 'token'], {session: false}));
-    app.get('/api/v:version/profile', pass.authenticate(['basic', 'token'], {session: false}));
-    app.get('/api/v:version/profile/data', pass.authenticate(['basic', 'token'], {session: false}));
-    app.post('/api/v:version/profile/data/new', pass.authenticate(['basic', 'token'], {session: false}));
-    app.post('/api/v:version/user/:id/update', pass.authenticate(['basic', 'token'], {session: false}));
-    app.delete('/api/v:version/user/:id/deactivate', pass.authenticate(['basic', 'token'], {session: false}));
+    app.get('/api/v:version/user/:id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/profile', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/profile/data', pass.authenticate(['token', 'basic'], {session: false}));
+    app.post('/api/v:version/profile/data/new', pass.authenticate(['token', 'basic'], {session: false}));
+    app.post('/api/v:version/user/:id/update', pass.authenticate(['token', 'basic'], {session: false}));
+    app.delete('/api/v:version/user/:id/deactivate', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/profile/token/new', pass.authenticate('basic', {session: false}));
-    app.delete('/api/v:version/profile/token', pass.authenticate(['basic', 'token'], {session: false}));
+    app.delete('/api/v:version/profile/token', pass.authenticate(['token', 'basic'], {session: false}));
     //-----
-    app.get('/api/v:version/data/:id', pass.authenticate(['basic', 'token'], {session: false}));
-    app.post('/api/v:version/vault/new', pass.authenticate(['basic', 'token'], {session: false}));
-    app.delete('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate(['basic', 'token'], {session: false}));
-    app.get('/api/v:version/vault/:data_name/:sharer_id', pass.authenticate(['basic', 'token'], {session: false}));
-    app.get('/api/v:version/vault/time/:data_name/:shared_to_id', pass.authenticate(['basic', 'token'], {session: false}));
+    app.get('/api/v:version/data/:id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.post('/api/v:version/vault/new', pass.authenticate(['token', 'basic'], {session: false}));
+    app.delete('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/vault/:data_name/:sharer_id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/vault/time/:data_name/:shared_to_id', pass.authenticate(['token', 'basic'], {session: false}));
     //API POST CHECKS
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data']));
     app.post('/api/v:version/user/:id/update', checks.checkBody(['password', 'encr_master_key']));

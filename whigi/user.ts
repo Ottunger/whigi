@@ -259,9 +259,9 @@ export function newToken(req, res) {
     var newid = utils.generateRandomString(64);
     var t: Token = new Token(newid, req.user._id, (new Date).getTime(), req.body.is_eternal, db);
     t.persist().then(function() {
-        res.type('application/json').status(201).json({error: '', _id: newid});
+        res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid});
     }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
     });
 }
 
