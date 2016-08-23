@@ -127,7 +127,7 @@ export function i18n(str, req) {
  */
 export function toBytes(data: string): number[] {
     function num(e) {
-        if(e > 65)
+        if(e >= 65)
             return e - 55;
         else
             return e - 48;

@@ -30,7 +30,8 @@ exports.test = function() {
         is_activated: true,
         data: {
             IIS: {id: 'fsdn', length: 8, shared_to: {somebody: 'avault'}}
-        }
+        },
+        encr_master_key: [239, 123, 142, 200, 135, 148, 97, 195, 15, 136, 33, 213, 99, 247, 45, 48, 254, 68, 67, 217, 90, 3, 20, 67, 122, 205, 43, 212, 97, 213, 141, 220]
     }
     var dummy_data = {
         _id: 'fsdn',

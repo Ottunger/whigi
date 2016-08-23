@@ -37,7 +37,7 @@ export class Backend {
      */
     private toBytes(data: string): number[] {
         function num(e) {
-            if(e > 65)
+            if(e >= 65)
                 return e - 55;
             else
                 return e - 48;
@@ -61,14 +61,14 @@ export class Backend {
      * @param {String} data Data to encrypt.
      * @return {Bytes} Encrypted data.
      */
-    encryptAES(data: string): string {
+    encryptAES(data: string): number[] {
         if(!this.master_key) {
             var key = this.toBytes(sessionStorage.getItem('key_decryption'));
             var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
             this.master_key = decrypter.decrypt(this.profile.encr_master_key);
         }
-        return new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0))
-                .encrypt(window.aesjs.util.convertStringToBytes(data));
+        var encrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
+        return encrypter.encrypt(window.aesjs.util.convertStringToBytes(data));
     }
 
     /**
@@ -255,7 +255,7 @@ export class Backend {
      * @param {String} encr_data Locally crypted data.
      * @return {Promise} JSON response from backend.
      */
-    postData(name: string, encr_data: string): Promise {
+    postData(name: string, encr_data: number[]): Promise {
         return this.backend(true, 'POST', {
             name: name,
             encr_data: encr_data
@@ -267,10 +267,10 @@ export class Backend {
      * @function updateProfile
      * @public
      * @param {String} password New password.
-     * @param {String} encr_master_key Master key locally encrypted.
+     * @param {Bytes} encr_master_key Master key locally encrypted.
      * @return {Promise} JSON response from backend.
      */
-    updateProfile(password: string, encr_master_key: string): Promise {
+    updateProfile(password: string, encr_master_key: number[]): Promise {
         return this.backend(true, 'POST', {
             password: window.sha256(password),
             encr_master_key: encr_master_key
@@ -363,11 +363,11 @@ export class Backend {
      * @public
      * @param {String} data_name Data name.
      * @param {String} shared_to_id Id of person with who to share.
-     * @param {String} data_crypted_aes Locally crypted data using a freshly generated AES key.
+     * @param {Bytes} data_crypted_aes Locally crypted data using a freshly generated AES key.
      * @param {String} aes_crypted_shared_pub Locally crypted new AES key using remote public RSA key.
      * @return {Promise} JSON response from backend.
      */
-    createVault(data_name: string, shared_to_id: string, data_crypted_aes: string, aes_crypted_shared_pub: string): Promise {
+    createVault(data_name: string, shared_to_id: string, data_crypted_aes: number[], aes_crypted_shared_pub: string): Promise {
         return this.backend(true, 'POST', {
             data_name: data_name,
             shared_to_id: shared_to_id,

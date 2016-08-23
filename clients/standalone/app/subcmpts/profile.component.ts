@@ -99,7 +99,7 @@ export class Profile implements OnInit {
     register() {
         var self = this;
         var garbled = this.backend.encryptAES(this.data_value);
-        this.backend.postData(this.data_name,garbled).then(function(res) {
+        this.backend.postData(this.data_name, garbled).then(function(res) {
             self.backend.profile.data[self.data_name] = {
                 id: res._id,
                 length: 0,
