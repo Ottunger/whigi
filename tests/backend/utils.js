@@ -27,6 +27,13 @@ exports.test = function() {
                 chai.expect(str).not.to.equal(str2);
             });
         });
+
+        describe('#toBytes()', function() {
+            it('should give expected answer', function() {
+                var arr = me.toBytes('aa00');
+                chai.expect(arr).to.deeply.equal([170, 0]);
+            });
+        });
         
     });
 }

@@ -119,6 +119,32 @@ export function i18n(str, req) {
 }
 
 /**
+ * Return an array from the first values of a string giving an AES key.
+ * @function toBytes
+ * @private
+ * @param {String} data String.
+ * @return {Bytes} Bytes.
+ */
+export function toBytes(data: string): number[] {
+    function num(e) {
+        if(e > 65)
+            return e - 55;
+        else
+            return e - 48;
+    }
+
+    var ret: number[] = [];
+    try {
+        for(var i = 0; i < 32; i++) {
+            ret.push((num(data.charCodeAt(2*i)) * 16 + num(data.charCodeAt(2*i + 1))) % 256);
+        }
+    } catch(e) {
+        return ret;
+    }
+    return ret;
+}
+
+/**
  * Checks the captcha and returns whether ko or not to callback.
  * @function checkCaptcha
  * @public

@@ -29,6 +29,32 @@ export class Backend {
     }
 
     /**
+     * Return an array from the first values of a string giving an AES key.
+     * @function toBytes
+     * @private
+     * @param {String} data String.
+     * @return {Bytes} Bytes.
+     */
+    private toBytes(data: string): number[] {
+        function num(e) {
+            if(e > 65)
+                return e - 55;
+            else
+                return e - 48;
+        }
+
+        var ret: number[] = [];
+        try {
+            for(var i = 0; i < 32; i++) {
+                ret.push((num(data.charCodeAt(2*i)) * 16 + num(data.charCodeAt(2*i + 1))) % 256);
+            }
+        } catch(e) {
+            return ret;
+        }
+        return ret;
+    }
+
+    /**
      * Encrypt a string using master_key in AES.
      * @function encryptAES
      * @public
@@ -37,10 +63,10 @@ export class Backend {
      */
     encryptAES(data: string): string {
         if(!this.master_key) {
-            this.master_key = new window.aesjs.ModeOfOperation.ctr(window.aesjs.util.convertStringToBytes(sessionStorage.getItem('key_decyption')), new window.aesjs.Counter(0))
-                .decrypt(this.profile.encr_master_key);
+            var key = this.toBytes(sessionStorage.getItem('key_decryption'));
+            var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
+            this.master_key = decrypter.decrypt(this.profile.encr_master_key);
         }
-        console.log('here');
         return new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0))
                 .encrypt(window.aesjs.util.convertStringToBytes(data));
     }

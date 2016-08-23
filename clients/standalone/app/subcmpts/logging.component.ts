@@ -108,13 +108,17 @@ export class Logging implements OnInit {
      * Called upon display.
      * @function ngOnInit
      * @public
+     * @param {Boolean} set Set the decryption key.
      */
-    ngOnInit(): void {
+    ngOnInit(set: boolean): void {
         var self = this;
         if('token' in sessionStorage) {
             this.backend.getProfile().then(function(profile) {
                 //Router.go...
                 self.backend.profile = profile;
+                if(set) {
+                    sessionStorage.setItem('key_decryption', window.sha256(self.password + profile.salt));
+                }
                 self.router.navigate(['profile']);
             }, function(e) {
                 sessionStorage.removeItem('token');
@@ -131,8 +135,7 @@ export class Logging implements OnInit {
         var self = this;
         this.backend.createToken(this.username, this.password, this.persistent).then(function(ticket) {
             sessionStorage.setItem('token', ticket._id);
-            sessionStorage.setItem('key_decryption', window.sha256(self.password + 'key'));
-            self.ngOnInit();
+            self.ngOnInit(true);
         }, function(e) {
             console.log("Cannot log in.");
         });

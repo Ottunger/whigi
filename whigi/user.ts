@@ -154,8 +154,8 @@ export function regUser(req, res) {
         u.key = utils.generateRandomString(64);
         u.data = {};
         u.shared_with_me = {};
-        u.encr_master_key = new aes.ModeOfOperation.ctr(aes.util.convertStringToBytes(hash.sha256(user.password + 'key')), new aes.Counter(0))
-            .encrypt(aes.util.convertStringToBytes(pre_master_key));
+        u.encr_master_key = new aes.ModeOfOperation.ctr(utils.ToBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
+            .encrypt(utils.toBytes(pre_master_key));
         u.rsa_pub_key = key.exportKey('public');
         u.rsa_pri_key = key.exportKey('private');
         utils.registerMapping(u.email, pre_master_key, function(err) {
