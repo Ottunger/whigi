@@ -14,6 +14,7 @@ import * as toPromise from 'rxjs/add/operator/toPromise';
 export class Backend {
 
     public profile: any;
+    private master_key: any;
     private BASE_URL = 'https://localhost/api/v1/';
     private RESTORE_URL = 'https://localhost/api/v1';
 
@@ -25,6 +26,23 @@ export class Backend {
      */
     constructor(private http: Http) {
 
+    }
+
+    /**
+     * Encrypt a string using master_key in AES.
+     * @function encryptAES
+     * @public
+     * @param {String} data Data to encrypt.
+     * @return {Bytes} Encrypted data.
+     */
+    encryptAES(data: string): string {
+        if(!this.master_key) {
+            this.master_key = new window.aesjs.ModeOfOperation.ctr(window.aesjs.util.convertStringToBytes(sessionStorage.getItem('key_decyption')), new window.aesjs.Counter(0))
+                .decrypt(this.profile.encr_master_key);
+        }
+        console.log('here');
+        return new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0))
+                .encrypt(window.aesjs.util.convertStringToBytes(data));
     }
 
     /**

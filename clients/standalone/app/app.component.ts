@@ -13,12 +13,12 @@ enableProdMode();
     selector: 'my-app',
     template: `
         <div class="row bottom-border">
-            <div class="col-sm-offset-3 col-sm-4">
+            <div class="col-sm-offset-1 col-sm-10">
                 <router-outlet></router-outlet>
             </div>
         </div>
         <div class="row bottom-border">
-            <div class="col-sm-offset-3 col-sm-4">
+            <div class="col-sm-offset-1 col-sm-10">
                 <div class="btn-toolbar" role="toolbar" aria-label="">
                     <div class="btn-group" role="group" aria-label="">
                         <button type="button" class="btn btn-small" (click)="setLang('en')">English</button>
@@ -42,7 +42,7 @@ export class Application {
         translate.setDefaultLang('en');
 
         if('lang' in sessionStorage) {
-            translate.setDefaultLang(sessionStorage.getItem('lang'));
+            translate.use(sessionStorage.getItem('lang'));
         } else {
             var browserLang = translate.getBrowserLang();
             translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');

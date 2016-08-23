@@ -2,8 +2,21 @@
    "login.title": "Time to log in",
    "login.remember": "Remember me",
    "login.goOn": "Continue",
+   "login.register": "Time to sign up",
+   "login.send": "Send me an activation link!",
+   "login.username": "Username",
+   "login.password": "Password",
+   "login.email": "Email",
+   "login.first_name": "First name",
+   "login.last_name": "Last name",
+   "login.forgot": "I forgot my password",
+   "login.sendForgot": "Send me a reset link, please!",
 
    "profile.logout": "Log out",
+   "profile.data_name": "Data name",
+   "profile.action": "Action",
+   "profile.record": "Record",
+   "profile.data": "Data",
 
    "error.notfound": "Not found"
 }

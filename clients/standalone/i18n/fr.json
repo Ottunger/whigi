@@ -2,8 +2,21 @@
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",
    "login.goOn": "Continuer",
+   "login.register": "Heure de s'enregistrer",
+   "login.send": "Envoyez moi un lien!",
+   "login.username": "Nom de compte",
+   "login.password": "Mot de passe",
+   "login.email": "Email",
+   "login.first_name": "Prénom",
+   "login.last_name": "Nom de famille",
+   "login.forgot": "Mot de passe oublié",
+   "login.sendForgot": "Envoyez moi un lien de réactivation, merci!",
 
    "profile.logout": "Déconnecter",
+   "profile.data_name": "Nom de donnée",
+   "profile.action": "Action",
+   "profile.record": "Enregistrer",
+   "profile.data": "Valeur",
 
    "error.notfound": "Introuvable"
 }

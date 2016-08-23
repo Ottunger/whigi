@@ -9,7 +9,7 @@ declare var require: any
 var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 var hash = require('js-sha256');
-var aes = require('nodejs-aes256');
+var aes = require('aes-js');
 var RSA = require('node-rsa');
 import {User} from '../common/models/User';
 import {Datafragment} from '../common/models/Datafragment';
@@ -154,7 +154,8 @@ export function regUser(req, res) {
         u.key = utils.generateRandomString(64);
         u.data = {};
         u.shared_with_me = {};
-        u.encr_master_key = aes.encrypt(user.password, pre_master_key);
+        u.encr_master_key = new aes.ModeOfOperation.ctr(aes.util.convertStringToBytes(hash.sha256(user.password + 'key')), new aes.Counter(0))
+            .encrypt(aes.util.convertStringToBytes(pre_master_key));
         u.rsa_pub_key = key.exportKey('public');
         u.rsa_pri_key = key.exportKey('private');
         utils.registerMapping(u.email, pre_master_key, function(err) {
