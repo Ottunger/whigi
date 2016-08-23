@@ -30,8 +30,13 @@ export class Application {
     constructor(private translate: TranslateService) {
         translate.addLangs(['en', 'fr']);
         translate.setDefaultLang('en');
-        let browserLang = translate.getBrowserLang();
-        translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
+
+        if('lang' in sessionStorage) {
+            translate.setDefaultLang(sessionStorage.getItem('lang'));
+        } else {
+            var browserLang = translate.getBrowserLang();
+            translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
+        }
     }
     
 }

@@ -6,6 +6,7 @@
 
 'use strict';
 import {Component, enableProdMode, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {Backend} from './app.service';
 enableProdMode();
@@ -42,12 +43,11 @@ export class Logging implements OnInit {
      * @function constructor
      * @public
      * @param translate Translation service.
+     * @param backend App service.
+     * @param router Routing service.
      */
-    constructor(private translate: TranslateService, private backend: Backend) {
-        translate.addLangs(['en', 'fr']);
-        translate.setDefaultLang('en');
-        let browserLang = translate.getBrowserLang();
-        translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
+    constructor(private translate: TranslateService, private backend: Backend, private router: Router) {
+        this.persistent = false;
     }
 
     /**
@@ -56,8 +56,15 @@ export class Logging implements OnInit {
      * @public
      */
     ngOnInit(): void {
-        if('token' in localStorage) {
-            //Router.go...
+        var self = this;
+        if('token' in sessionStorage) {
+            this.backend.getProfile().then(function(profile) {
+                //Router.go...
+                self.backend.profile = profile;
+                self.router.navigate(['profile']);
+            }, function(e) {
+                sessionStorage.removeItem('token');
+            });
         }
     }
 
@@ -68,12 +75,12 @@ export class Logging implements OnInit {
      * @param event Click event.
      */
     enter(event) {
-        this.backend.getProfile(this.username, this.password).then(function() {
-            //Router.go...
-            alert("ok");
+        var self = this;
+        this.backend.createToken(this.username, this.password, this.persistent).then(function(ticket) {
+            sessionStorage.setItem('token', ticket._id);
+            self.ngOnInit();
         }, function(e) {
-            //Display...
-            console.trace();
+            console.log("Cannot log in.");
         });
     }
     

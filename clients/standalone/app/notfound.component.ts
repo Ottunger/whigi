@@ -23,10 +23,7 @@ export class Notfound {
      * @param translate Translation service.
      */
     constructor(private translate: TranslateService) {
-        translate.addLangs(['en', 'fr']);
-        translate.setDefaultLang('en');
-        let browserLang = translate.getBrowserLang();
-        translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
+        
     }
     
 }

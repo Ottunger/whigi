@@ -47,11 +47,11 @@ function listOptions(path, res, next) {
         res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/?/))
         res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/update\/?/))
+    else if(path.match(/\/api\/v[1-9]\/profile\/update\/?/))
         res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/activate\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?/))
+    else if(path.match(/\/api\/v[1-9]\/activate\/[a-zA-Z0-9]+\/?/))
         res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/deactivate\/?/))
+    else if(path.match(/\/api\/v[1-9]\/profile\/deactivate\/?/))
         res.set('Allow', 'DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/token\/new\/?/))
         res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
@@ -185,8 +185,8 @@ connect(function(e) {
     app.get('/api/v:version/profile', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/profile/data', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/profile/data/new', pass.authenticate(['token', 'basic'], {session: false}));
-    app.post('/api/v:version/user/:id/update', pass.authenticate(['token', 'basic'], {session: false}));
-    app.delete('/api/v:version/user/:id/deactivate', pass.authenticate(['token', 'basic'], {session: false}));
+    app.post('/api/v:version/profile/update', pass.authenticate(['token', 'basic'], {session: false}));
+    app.delete('/api/v:version/profile/deactivate', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/profile/token/new', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/profile/token', pass.authenticate(['token', 'basic'], {session: false}));
     //-----
@@ -197,7 +197,7 @@ connect(function(e) {
     app.get('/api/v:version/vault/time/:data_name/:shared_to_id', pass.authenticate(['token', 'basic'], {session: false}));
     //API POST CHECKS
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data']));
-    app.post('/api/v:version/user/:id/update', checks.checkBody(['password', 'encr_master_key']));
+    app.post('/api/v:version/profile/update', checks.checkBody(['password', 'encr_master_key']));
     app.post('/api/v:version/user/create', checks.checkBody(['first_name', 'last_name', 'username', 'email', 'password']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     //-----
@@ -214,10 +214,10 @@ connect(function(e) {
     app.get('/api/v:version/profile', user.getProfile);
     app.get('/api/v:version/profile/data', user.listData);
     app.post('/api/v:version/profile/data/new', user.recData);
-    app.post('/api/v:version/user/:id/update', user.updateUser);
+    app.post('/api/v:version/profile/update', user.updateUser);
     app.post('/api/v:version/user/create', user.regUser);
-    app.get('/api/v:version/activate/:key/:id', user.activateUser);
-    app.delete('/api/v:version/user/:id/deactivate', user.deactivateUser);
+    app.get('/api/v:version/activate/:key', user.activateUser);
+    app.delete('/api/v:version/profile/deactivate', user.deactivateUser);
     app.post('/api/v:version/profile/token/new', user.newToken);
     app.delete('/api/v:version/profile/token', user.removeToken);
     //------

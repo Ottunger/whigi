@@ -19,7 +19,7 @@ Retrieves list of owned fragments, and list of shared with me vaults.
 Saves a new data fragment. The API sends back the newly generated id for that data_name.
 {"name": "string", "encr_data": "string"}
 
-/api/v<any>/user/<id>/update: Post, needs auth
+/api/v<any>/profile/update: Post, needs auth
 Updates password. When updated password, can send the password hashed but needs to send the new ecrypted master key as well.
 {"password": "string", "encr_master_key": "string"}
 
@@ -27,10 +27,10 @@ Updates password. When updated password, can send the password hashed but needs 
 Creates a new entry if none matches. The password is this only time sent in clear.
 {"first_name": "string", "last_name": "string", "username": "string", "password": "string", "email": "string"}
 
-/api/v<any>/activate/<key>/<id>: Get
+/api/v<any>/activate/<key>: Get
 Activates the user whose activation key is given.
 
-/api/v<any>/user/<id>/deactivate: Delete, needs auth
+/api/v<any>/profile/deactivate: Delete, needs auth
 Deactivates the user.
 
 /api/v<any>/profile/token/new: Post, needs auth (basic only), needs puzzle
