@@ -27,9 +27,25 @@ enableProdMode();
                 </div>
             </div>
         </div>
+        <simple-notifications [options]="options"></simple-notifications>
     `
 })
 export class Application {
+
+    public options = {
+        timeOut: 4000,
+        lastOnBottom: true,
+        clickToClose: true,
+        maxLength: 0,
+        maxStack: 4,
+        showProgressBar: true,
+        pauseOnHover: true,
+        preventDuplicates: false,
+        preventLastDuplicates: "visible",
+        rtl: false,
+        animate: "scale",
+        position: ["right", "bottom"]
+    };
 
     /**
      * Creates the component.

@@ -9,6 +9,7 @@ declare var window: any
 import {Component, enableProdMode, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
+import {NotificationsService} from 'notifications';
 import {Backend} from '../app.service';
 enableProdMode();
 
@@ -29,7 +30,7 @@ enableProdMode();
             <tbody>
                 <tr *ngFor="let d of dataNames()">
                     <td>{{ d }}</td>
-                    <td></td>
+                    <td><i>{{ 'profile.mix' | translate }}</i></td>
                     <td></td>
                 </tr>
                 <tr>
@@ -54,7 +55,7 @@ export class Profile implements OnInit {
      * @param backend App service.
      * @param router Routing service.
      */
-    constructor(private translate: TranslateService, private backend: Backend, private router: Router) {
+    constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService) {
         
     }
 
@@ -71,7 +72,7 @@ export class Profile implements OnInit {
             self.backend.profile.data = add.data;
             self.backend.profile.shared_with_me = add.shared_with_me;
         }, function(e) {
-            console.log("Cannot retrieve data");
+            self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noData'));
         });
     }
 
@@ -87,7 +88,7 @@ export class Profile implements OnInit {
             sessionStorage.removeItem('key_decryption');
             self.router.navigate(['']);
         }, function(e) {
-            console.log("Cannot log out.");
+            self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noLogout'));
         });
     }
 
@@ -108,7 +109,7 @@ export class Profile implements OnInit {
             self.data_name = '';
             self.data_value = '';
         }, function(e) {
-            console.log("Cannot register new value.");
+            self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noRef'));
         });
     }
 

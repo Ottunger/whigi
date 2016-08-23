@@ -84,8 +84,9 @@ export class Datasource {
         var decl = (data === true)? fields : {data: false};
         if(mode === 'id')
             mode = '_id';
-        var sel = {};
-        sel[mode] = value;
+        var sel = {$or: [{email: value}]}, inside = {};
+        inside[mode] = value;
+        sel.$or.push(inside);
 
         return new Promise<User>(function(resolve, reject) {
             self.retrieveGeneric('users', sel, decl).then(function(data) {

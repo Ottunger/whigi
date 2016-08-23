@@ -1,4 +1,7 @@
 {
+   "error": "Erreur!",
+   "success": "Succès!",
+
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",
    "login.goOn": "Continuer",
@@ -11,12 +14,19 @@
    "login.last_name": "Nom de famille",
    "login.forgot": "Mot de passe oublié",
    "login.sendForgot": "Envoyez moi un lien de réactivation, merci!",
+   "login.noLogin": "Impossible de se logger. Vérifiez vos données",
+   "login.noSignup": "Impossible de créer le compte. Essayez un autre nom d'utilisateur / email?",
+   "login.noReset": "Impossible de ocntacter le serveur de récupération",
 
    "profile.logout": "Déconnecter",
    "profile.data_name": "Nom de donnée",
    "profile.action": "Action",
    "profile.record": "Enregistrer",
    "profile.data": "Valeur",
+   "profile.mix": "Données brouillées",
+   "profile.noData": "Impossible de lire vos données",
+   "profile.noLogout": "Impossible de quitter avec précautions",
+   "profile.noReg": "Impossible d'enregistrer une nouvelle donnée",
 
    "error.notfound": "Introuvable"
 }

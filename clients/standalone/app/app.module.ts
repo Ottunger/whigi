@@ -10,6 +10,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TranslateModule} from 'ng2-translate/ng2-translate';
+import {SimpleNotificationsModule} from 'notifications';
 import {routing, appRoutingProviders} from './app.routing';
 
 import {Backend} from './app.service';
@@ -25,6 +26,7 @@ import {Notfound} from './subcmpts/notfound.component';
         FormsModule,
         HttpModule,
         TranslateModule.forRoot(),
+        SimpleNotificationsModule,
         routing
     ],
     declarations: [

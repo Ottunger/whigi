@@ -10,13 +10,15 @@
     '@angular': 'node_modules/@angular',
     'rxjs': 'node_modules/rxjs',
     'ng2-translate': 'node_modules/ng2-translate',
-    'bootstrap': 'node_modules/bootstrap'
+    'bootstrap': 'node_modules/bootstrap',
+    'notifications': 'node_modules/angular2-notifications'
   };
   var packages = {
     'app': {main: 'main.js', defaultExtension: 'js'},
     'rxjs': {defaultExtension: 'js'},
     'ng2-translate': {main: 'ng2-translate.js', defaultExtension: 'js'},
     'bootstrap': {defaultExtension: 'js'},
+    'notifications': {main: 'components.js', defaultExtension: 'js'}
   };
   var ngPackageNames = [
     'common',

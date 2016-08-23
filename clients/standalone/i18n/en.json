@@ -1,4 +1,7 @@
 {
+   "error": "Error!",
+   "success": "Success!",
+
    "login.title": "Time to log in",
    "login.remember": "Remember me",
    "login.goOn": "Continue",
@@ -11,12 +14,19 @@
    "login.last_name": "Last name",
    "login.forgot": "I forgot my password",
    "login.sendForgot": "Send me a reset link, please!",
+   "login.noLogin": "Cannot log in. Verify your credentials",
+   "login.noSignup": "Cannot register account. Try another name / email?",
+   "login.noReset": "Cannot contact recovery server",
 
    "profile.logout": "Log out",
    "profile.data_name": "Data name",
    "profile.action": "Action",
    "profile.record": "Record",
    "profile.data": "Data",
+   "profile.mix": "Garbled data",
+   "profile.noData": "Cannot retrieve your data",
+   "profile.noLogout": "Cannot log out safely",
+   "profile.noReg": "Cannot register new data",
 
    "error.notfound": "Not found"
 }

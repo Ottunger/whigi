@@ -9,6 +9,7 @@ declare var window : any
 import {Component, enableProdMode, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
+import {NotificationsService} from 'notifications';
 import {Backend} from '../app.service';
 enableProdMode();
 
@@ -100,7 +101,7 @@ export class Logging implements OnInit {
      * @param backend App service.
      * @param router Routing service.
      */
-    constructor(private translate: TranslateService, private backend: Backend, private router: Router) {
+    constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService) {
         this.persistent = false;
     }
 
@@ -137,7 +138,7 @@ export class Logging implements OnInit {
             sessionStorage.setItem('token', ticket._id);
             self.ngOnInit(true);
         }, function(e) {
-            console.log("Cannot log in.");
+            self.notif.error(self.translate.instant('error'), self.translate.instant('login.noLogin'));
         });
     }
 
@@ -147,11 +148,12 @@ export class Logging implements OnInit {
      * @public
      */
     signUp() {
+        var self = this;
         if(this.password == this.password2 && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(this.email)) {
             this.backend.createUser(this.first_name, this.last_name, this.username, this.password, this.email).then(function() {
-                console.log("Link sent");
+                self.notif.success(self.translate.instant('success'), self.translate.instant('login.sent'));
             }, function(e) {
-                console.log("Cannot sign up.");
+                self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
             });
         }
     }
@@ -162,11 +164,12 @@ export class Logging implements OnInit {
      * @public
      */
     forgot() {
+        var self = this;
         if(/^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(this.email)) {
             this.backend.requestRestore(this.email).then(function() {
-                console.log("Link sent");
+                self.notif.success(self.translate.instant('success'), self.translate.instant('login.sent'));
             }, function(e) {
-                console.log("Cannot sign up.");
+                self.notif.error(self.translate.instant('error'), self.translate.instant('login.noReset'));
             });
         }
     }

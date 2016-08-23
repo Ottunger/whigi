@@ -6,8 +6,8 @@ Updated on 21-08-16, 13:30
 Whigi endpoints:
 ****************
 
-/api/v<any>/user/<id>: Get, needs auth, needs puzzle
-Retrieves public data of user.
+/api/v<any>/user/<id-email>: Get, needs auth, needs puzzle
+Retrieves public data of user. Can also use email as key.
 
 /api/v<any>/profile: Get, needs auth
 Retrieves own data.
