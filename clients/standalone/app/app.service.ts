@@ -91,7 +91,7 @@ export class Backend {
      * Returns the result of a call to the backend.
      * @function backend
      * @private
-     * @param {Boolean} whigi True to come from Whigi base.
+     * @param {Boolean} whigi True to come from Whigi base. Otherwise, use Whigi-restore.
      * @param {String} method Method to use.
      * @param {Object} data JSON body.
      * @param {String} url URL suffix.

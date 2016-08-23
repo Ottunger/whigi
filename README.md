@@ -1,7 +1,7 @@
 # Readme
 A project to make people possess their own data again.
 The clients should log in using generated token, for ease of unlogging all other clients.
-The clients that remember a token should also remmeber a combination hash(password + salt), that is able to decrypt the encrypted master key.
+The clients that remember a token should also remember a combination hash(password + salt), that is able to decrypt the encrypted master key.
 Remember that clients aure authenticated using a match on hash(hash(password) + salt)
 
 # See CHANGELOG for a description fof API endpoints.

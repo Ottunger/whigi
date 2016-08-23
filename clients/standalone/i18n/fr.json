@@ -27,6 +27,7 @@
    "profile.noData": "Impossible de lire vos données",
    "profile.noLogout": "Impossible de quitter avec précautions",
    "profile.noReg": "Impossible d'enregistrer une nouvelle donnée",
+   "profile.goTo": "Voir",
 
    "error.notfound": "Introuvable"
 }

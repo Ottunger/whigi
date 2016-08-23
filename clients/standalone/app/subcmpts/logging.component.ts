@@ -100,6 +100,7 @@ export class Logging implements OnInit {
      * @param translate Translation service.
      * @param backend App service.
      * @param router Routing service.
+     * @param notif Notification service.
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService) {
         this.persistent = false;
@@ -120,7 +121,7 @@ export class Logging implements OnInit {
                 if(set) {
                     sessionStorage.setItem('key_decryption', window.sha256(self.password + profile.salt));
                 }
-                self.router.navigate(['profile']);
+                self.router.navigate(['/profile']);
             }, function(e) {
                 sessionStorage.removeItem('token');
             });

@@ -27,6 +27,7 @@
    "profile.noData": "Cannot retrieve your data",
    "profile.noLogout": "Cannot log out safely",
    "profile.noReg": "Cannot register new data",
+   "profile.goTo": "View",
 
    "error.notfound": "Not found"
 }

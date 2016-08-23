@@ -31,7 +31,7 @@ enableProdMode();
                 <tr *ngFor="let d of dataNames()">
                     <td>{{ d }}</td>
                     <td><i>{{ 'profile.mix' | translate }}</i></td>
-                    <td></td>
+                    <td><button type="button" class="btn btn-default" (click)="view(backend.profile.data[d].id)">{{ 'profile.goTo' | translate }}</button></td>
                 </tr>
                 <tr>
                     <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
@@ -54,6 +54,7 @@ export class Profile implements OnInit {
      * @param translate Translation service.
      * @param backend App service.
      * @param router Routing service.
+     * @param notif Notification service.
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService) {
         
@@ -86,7 +87,7 @@ export class Profile implements OnInit {
         this.backend.removeTokens().then(function() {
             sessionStorage.removeItem('token');
             sessionStorage.removeItem('key_decryption');
-            self.router.navigate(['']);
+            self.router.navigate(['/']);
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noLogout'));
         });
@@ -129,6 +130,16 @@ export class Profile implements OnInit {
             }
         }
         return keys;
+    }
+
+    /**
+     * Navigate to details panel.
+     * @function view
+     * @public
+     * @return {String} id Id of data.
+     */
+    view(id: string) {
+        this.router.navigate(['/data', id]);
     }
     
 }
