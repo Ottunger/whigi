@@ -3,5 +3,7 @@
    "login.remember": "Gardez moi connecté",
    "login.goOn": "Continuer",
 
+   "profile.logout": "Déconnecter",
+
    "error.notfound": "Introuvable"
 }

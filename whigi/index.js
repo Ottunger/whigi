@@ -37,35 +37,35 @@ utils.RUNNING_ADDR = 'https://' + localhost + ':' + httpsport;
  * @param {Function} next 404 Handler.
  */
 function listOptions(path, res, next) {
-    if(path.match(/\/api\/v[1-9]\/user\/create\/?/))
-        res.set('Allow', 'GET,POST').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/profile\/?/))
-        res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/profile\/data\/?/))
-        res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/profile\/data\/new\/?/))
-        res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/?/))
-        res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/profile\/update\/?/))
-        res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/activate\/[a-zA-Z0-9]+\/?/))
-        res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/profile\/deactivate\/?/))
-        res.set('Allow', 'DELETE').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/profile\/token\/new\/?/))
-        res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/profile\/token\/?/))
-        res.set('Allow', 'DELETE').type('application/json').status(200).json({error: ''});
+    if(path.match(/\/api\/v[1-9]\/user\/create\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET,POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/data\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/data\/new\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/user\/[a-zA-Z0-9]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/update\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/activate\/[a-zA-Z0-9]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/deactivate\/?$/))
+        res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/token\/new\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/token\/?$/))
+        res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
     //-----
-    else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9]+\/?/))
-        res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/vault\/new\/?/))
-        res.set('Allow', 'POST').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?/))
-        res.set('Allow', 'GET,DELETE').type('application/json').status(200).json({error: ''});
-        else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?/))
-        res.set('Allow', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/vault\/new\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
+        else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     //-----
     else
         next();

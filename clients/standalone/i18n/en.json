@@ -3,5 +3,7 @@
    "login.remember": "Remember me",
    "login.goOn": "Continue",
 
+   "profile.logout": "Log out",
+
    "error.notfound": "Not found"
 }

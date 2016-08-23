@@ -77,7 +77,7 @@ connect(function(e) {
     //API ROUTES
     app.post('/api/v:version/new', mapping.newMapping);
     app.get('/api/v:version/request/:email', mapping.requestMapping);
-    app.get('/api/v:version:/key/:token', mapping.retrieveMapping);
+    app.get('/api/v:version/key/:token', mapping.retrieveMapping);
 
     //Error route
     app.use(function(req, res) {

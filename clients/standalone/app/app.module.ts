@@ -15,9 +15,9 @@ import {routing, appRoutingProviders} from './app.routing';
 import {Backend} from './app.service';
 
 import {Application} from './app.component';
-import {Logging} from './logging.component';
+import {Logging} from './subcmpts/logging.component';
 import {Profile} from './subcmpts/profile.component';
-import {Notfound} from './notfound.component';
+import {Notfound} from './subcmpts/notfound.component';
 
 @NgModule({
     imports: [

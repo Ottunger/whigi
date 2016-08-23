@@ -15,6 +15,7 @@ export class Backend {
 
     public profile: any;
     private BASE_URL = 'https://localhost/api/v1/';
+    private RESTORE_URL = 'https://localhost/api/v1';
 
     /**
      * Creates the service.
@@ -46,6 +47,7 @@ export class Backend {
      * Returns the result of a call to the backend.
      * @function backend
      * @private
+     * @param {Boolean} whigi True to come from Whigi base.
      * @param {String} method Method to use.
      * @param {Object} data JSON body.
      * @param {String} url URL suffix.
@@ -57,7 +59,7 @@ export class Backend {
      * @param {function} nok Reject method for retry.
      * @return {Promise} The result. On error, a description can be found in e.msg.
      */
-    private backend(method: string, data: any, url: string, auth: boolean, token: boolean, puzzle?: boolean, nd?: boolean, ok?: Function, nok?: Function): Promise {
+    private backend(whigi: boolean, method: string, data: any, url: string, auth: boolean, token: boolean, puzzle?: boolean, nd?: boolean, ok?: Function, nok?: Function): Promise {
         var call, puzzle = puzzle || false, self = this, dest;
         var headers: Headers = new Headers();
 
@@ -70,7 +72,7 @@ export class Backend {
         }
         function retry(e, resolve, reject) {
             self.recordPuzzle(e);
-            self.backend(method, data, url, auth, token, puzzle, true, resolve, reject);
+            self.backend(whigi, method, data, url, auth, token, puzzle, true, resolve, reject);
         }
         function deny(reject, e) {
             self.recordPuzzle(e);
@@ -83,7 +85,7 @@ export class Backend {
             headers.append('Authorization', 'Basic ' + btoa(data.username + ':' + data.password));
         }
         headers.append('Accept-Language', (('lang' in sessionStorage)? sessionStorage.getItem('lang') : 'en') + ';q=1');
-        dest = this.BASE_URL + url + (puzzle? this.regPuzzle() : '');
+        dest = (whigi? this.BASE_URL : this.RESTORE_URL) + url + (puzzle? this.regPuzzle() : '');
 
         switch(method) {
             case 'post':
@@ -178,7 +180,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     getUser(userid: string): Promise {
-        return this.backend('GET', {}, 'user/' + userid, true, true, true);
+        return this.backend(true, 'GET', {}, 'user/' + userid, true, true, true);
     }
 
     /**
@@ -188,7 +190,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     getProfile(): Promise {
-        return this.backend('GET', {}, 'profile', true, true);
+        return this.backend(true, 'GET', {}, 'profile', true, true);
     }
 
     /**
@@ -198,7 +200,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     listData(): Promise {
-        return this.backend('GET', {}, 'profile/data', true, true);
+        return this.backend(true, 'GET', {}, 'profile/data', true, true);
     }
 
     /**
@@ -210,7 +212,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     postData(name: string, encr_data: string): Promise {
-        return this.backend('POST', {
+        return this.backend(true, 'POST', {
             name: name,
             encr_data: encr_data
         }, 'profile/data/new', true, true, true);
@@ -225,7 +227,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     updateProfile(password: string, encr_master_key: string): Promise {
-        return this.backend('POST', {
+        return this.backend(true, 'POST', {
             password: window.sha256(password),
             encr_master_key: encr_master_key
         }, 'profile/update', true, true);
@@ -243,7 +245,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     createUser(first_name: string, last_name: string, username: string, password: string, email: string): Promise {
-        return this.backend('POST', {
+        return this.backend(true, 'POST', {
             first_name: first_name,
             last_name: last_name,
             username: username,
@@ -260,7 +262,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     activateUser(key: string): Promise {
-        return this.backend('GET', {}, 'activate/' + key, false, false);
+        return this.backend(true, 'GET', {}, 'activate/' + key, false, false);
     }
 
     /**
@@ -270,7 +272,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     deactivateUser(): Promise {
-        return this.backend('DELETE', {}, 'profile/deactivate', true, true);
+        return this.backend(true, 'DELETE', {}, 'profile/deactivate', true, true);
     }
 
     /**
@@ -283,7 +285,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     createToken(username: string, password: string, is_eternal: boolean): Promise {
-        return this.backend('POST', {
+        return this.backend(true, 'POST', {
             username: username,
             password: window.sha256(password),
             is_eternal: is_eternal
@@ -297,7 +299,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     removeTokens(): Promise {
-        return this.backend('DELETE', {}, 'profile/token', true, true);
+        return this.backend(true, 'DELETE', {}, 'profile/token', true, true);
     }
 
     /**
@@ -308,7 +310,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     getData(dataid: string): Promise {
-        return this.backend('GET', {}, 'data/' + dataid, true, true);
+        return this.backend(true, 'GET', {}, 'data/' + dataid, true, true);
     }
 
     /**
@@ -322,7 +324,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     createVault(data_name: string, shared_to_id: string, data_crypted_aes: string, aes_crypted_shared_pub: string): Promise {
-        return this.backend('POST', {
+        return this.backend(true, 'POST', {
             data_name: data_name,
             shared_to_id: shared_to_id,
             data_crypted_aes: data_crypted_aes,
@@ -339,7 +341,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     revokeVault(data_name: string, shared_to_id: string): Promise {
-        return this.backend('DELETE', {}, 'vault/' + data_name + '/' + shared_to_id, true, true);
+        return this.backend(true, 'DELETE', {}, 'vault/' + data_name + '/' + shared_to_id, true, true);
     }
 
     /**
@@ -351,7 +353,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     getVault(data_name: string, sharer_id: string): Promise {
-        return this.backend('GET', {}, 'vault/' + data_name + '/' + sharer_id, true, true, true);
+        return this.backend(true, 'GET', {}, 'vault/' + data_name + '/' + sharer_id, true, true, true);
     }
 
     /**
@@ -363,7 +365,29 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     getAccessVault(data_name: string, shared_to_id: string): Promise {
-        return this.backend('GET', {}, 'vault/time/' + data_name + '/' + shared_to_id, true, true);
+        return this.backend(true, 'GET', {}, 'vault/time/' + data_name + '/' + shared_to_id, true, true);
+    }
+
+    /**
+     * Asks for a reset link.
+     * @function requestRestore
+     * @public
+     * @param {String} email Email.
+     * @return {Promise} JSON response from backend.
+     */
+    requestRestore(email: string): Promise {
+        return this.backend(false, 'GET', {}, 'request/' + email, false, false);
+    }
+
+    /**
+     * Use a reset link.
+     * @function getRestore
+     * @public
+     * @param {String} token Token.
+     * @return {Promise} JSON response from backend.
+     */
+    getRestore(token: string): Promise {
+        return this.backend(false, 'GET', {}, 'key/' + token, false, false);
     }
 
 }

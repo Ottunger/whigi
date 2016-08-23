@@ -8,7 +8,7 @@
 import {Component, enableProdMode, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
-import {Backend} from './app.service';
+import {Backend} from '../app.service';
 enableProdMode();
 
 @Component({
@@ -72,9 +72,8 @@ export class Logging implements OnInit {
      * Tries to log in.
      * @function enter
      * @public
-     * @param event Click event.
      */
-    enter(event) {
+    enter() {
         var self = this;
         this.backend.createToken(this.username, this.password, this.persistent).then(function(ticket) {
             sessionStorage.setItem('token', ticket._id);
