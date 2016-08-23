@@ -10,11 +10,12 @@ import {Logging} from './subcmpts/logging.component';
 import {Profile} from './subcmpts/profile.component';
 import {Dataview} from './subcmpts/dataview.component';
 import {Notfound} from './subcmpts/notfound.component';
+import {Authguard, Profileguard, Fullguard} from './guards.service';
 
 const appRoutes: Routes = [
     {path: '', component: Logging},
-    {path: 'profile', component: Profile},
-    {path: 'data/:id', component: Dataview},
+    {path: 'profile', component: Profile, canActivate: [Profileguard], canDeactivate: [Profileguard]},
+    {path: 'data/:id', component: Dataview, canActivate: [Fullguard]},
     {path: '**', component: Notfound}
 ];
 export const appRoutingProviders: any[] = [

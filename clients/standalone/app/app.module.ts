@@ -14,6 +14,7 @@ import {SimpleNotificationsModule} from 'notifications';
 import {routing, appRoutingProviders} from './app.routing';
 
 import {Backend} from './app.service';
+import {Authguard, Profileguard, Fullguard} from './guards.service';
 
 import {Application} from './app.component';
 import {Logging} from './subcmpts/logging.component';
@@ -39,7 +40,10 @@ import {Notfound} from './subcmpts/notfound.component';
     ],
     providers: [
         appRoutingProviders,
-        Backend
+        Backend,
+        Authguard,
+        Profileguard,
+        Fullguard
     ],
     bootstrap: [Application]
 })

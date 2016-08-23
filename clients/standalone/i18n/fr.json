@@ -1,6 +1,7 @@
 {
    "error": "Erreur!",
    "success": "Succès!",
+   "confirmation": "Êtes-vous sur de vouloir partir maintenant?",
 
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",

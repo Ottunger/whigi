@@ -57,7 +57,7 @@ export class Profile implements OnInit {
      * @param notif Notification service.
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService) {
-        
+
     }
 
     /**
@@ -67,8 +67,6 @@ export class Profile implements OnInit {
      */
     ngOnInit(): void {
         var self = this;
-        if(!this.backend.profile)
-            this.router.navigate(['']);
         this.backend.listData().then(function(add) {
             self.backend.profile.data = add.data;
             self.backend.profile.shared_with_me = add.shared_with_me;
@@ -140,6 +138,19 @@ export class Profile implements OnInit {
      */
     view(id: string) {
         this.router.navigate(['/data', id]);
+    }
+
+    /**
+     * Create a confirmation.
+     * @function dialog
+     * @public
+     * @param {String} msg Message.
+     * @return {Promise} OK or not.
+     */
+    dialog(msg: string): Promise {
+        return new Promise<boolean>(function(resolve, reject) {
+            resolve(window.confirm(msg));
+        });
     }
     
 }

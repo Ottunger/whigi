@@ -6,10 +6,11 @@
 
 'use strict';
 declare var window : any
-import {Component, enableProdMode, OnInit} from '@angular/core';
+import {Component, enableProdMode, OnInit, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'notifications';
+import {Subscription} from 'rxjs/Subscription';
 import {Backend} from '../app.service';
 enableProdMode();
 
@@ -19,6 +20,8 @@ enableProdMode();
     `
 })
 export class Dataview implements OnInit {
+
+    private sub: Subscription;
 
     /**
      * Creates the component.
@@ -41,8 +44,18 @@ export class Dataview implements OnInit {
      * @public
      */
     ngOnInit(): void {
-        if(!this.backend.profile ||!this.backend.profile.data)
-            this.router.navigate(['']);
+        this.sub = this.routed.params.subscribe(function(params) {
+            //Use params.id as key
+        });
+    }
+
+    /**
+     * Called upon destroy.
+     * @function ngOnInit
+     * @public
+     */
+    ngOnDestroy(): void {
+        this.sub.unsubscribe();
     }
     
 }
