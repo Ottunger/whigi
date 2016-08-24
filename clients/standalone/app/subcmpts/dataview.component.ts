@@ -28,7 +28,7 @@ enableProdMode();
             <thead>
                 <tr>
                     <th>{{ 'dataview.shared_to' | translate }}</th>
-                    <th>{{ 'dataview.action' | translate }}</th>
+                    <th>{{ 'action' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -77,15 +77,17 @@ export class Dataview implements OnInit {
     ngOnInit(): void {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
-            //Use params.id as key
+            //Use params.name as key
             self.data_name = params['name'];
             self.link = self.backend.profile.data[params['name']];
             self.shared_profiles = {};
+
             self.sharedIds().forEach(function(id) {
                 self.backend.getUser(id).then(function(data) {
                     self.shared_profiles[data.id] = data;
                 });
             });
+
             self.backend.getData(self.link.id).then(function(data) {
                 self.data = data;
                 self.decr_data = (self.link.length < 100)? self.backend.decryptAES(self.data.encr_data) : self.translate.instant('dataview.long');
@@ -151,9 +153,18 @@ export class Dataview implements OnInit {
      */
     register() {
         var self = this;
-        //TODO: crypt the whole fucking thing client side
-        this.backend.createVault(this.data_name, shared_to_id, data_crypted_aes, aes_crypted_shared_pub).then(function(res) {
-            self.link.shared_to[shared_to_id] = res._id;
+        this.backend.getUser(this.new_email).then(function(user) {
+            var aesKey: number[] = self.backend.newAES();
+            if(!self.decr_data)
+                self.decr_data = self.backend.decryptAES(self.data.encr_data);
+            var data_crypted_aes: number[] = self.backend.encryptAES(self.decr_data, aesKey);
+            var aes_crypted_shared_pub: string = self.backend.encryptRSA(aesKey, user.rsa_pub_key);
+
+            self.backend.createVault(self.data_name, user._id, data_crypted_aes, aes_crypted_shared_pub).then(function(res) {
+                self.link.shared_to[user._id] = res._id;
+            }, function(e) {
+                self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));
+            });
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));
         });

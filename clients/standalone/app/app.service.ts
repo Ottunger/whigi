@@ -55,19 +55,56 @@ export class Backend {
     }
 
     /**
+     * Generates a random string.
+     * @function generateRandomString
+     * @private
+     * @param {Number} length The length.
+     * @return {String} The string.
+     */
+    private generateRandomString(length) {
+        var characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var randomString = '';
+        for (var i = 0; i < length; i++) {
+            randomString += characters[Math.floor(Math.random() * characters.length)];
+        }
+        return randomString;
+    }
+
+    /**
+     * Decrypts the master key once and for all.
+     * @function decryptMaster
+     * @private
+     */
+    private decryptMaster() {
+        var key = this.toBytes(sessionStorage.getItem('key_decryption'));
+        var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
+        this.master_key = decrypter.decrypt(this.profile.encr_master_key);
+    }
+
+    /**
+     * Create a new AES key suitable after.
+     * @function newAES
+     * @public
+     * @return {Bytes} Key.
+     */
+    newAES(): number[] {
+        return this.toBytes(this.generateRandomString(64));
+    }
+
+    /**
      * Encrypt a string using master_key in AES.
      * @function encryptAES
      * @public
      * @param {String} data Data to encrypt.
+     * @param {Bytes} key Key to use.
      * @return {Bytes} Encrypted data.
      */
-    encryptAES(data: string): number[] {
-        if(!this.master_key) {
-            var key = this.toBytes(sessionStorage.getItem('key_decryption'));
-            var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
-            this.master_key = decrypter.decrypt(this.profile.encr_master_key);
+    encryptAES(data: string, key?: number[]): number[] {
+        if(!this.master_key && !key) {
+            this.decryptMaster();
         }
-        var encrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
+        key = key || this.master_key;
+        var encrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
         return encrypter.encrypt(window.aesjs.util.convertStringToBytes(data));
     }
 
@@ -76,16 +113,44 @@ export class Backend {
      * @function decryptAES
      * @public
      * @param {Bytes} data Data to decrypt.
+     * @param {Bytes} key Key to use.
      * @return {String} Decrypted data.
      */
-    decryptAES(data: number[]): string {
-        if(!this.master_key) {
-            var key = this.toBytes(sessionStorage.getItem('key_decryption'));
-            var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
-            this.master_key = decrypter.decrypt(this.profile.encr_master_key);
+    decryptAES(data: number[], key?: number[]): string {
+        if(!this.master_key && !key) {
+            this.decryptMaster();
         }
-        var decrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
+        key = key || this.master_key;
+        var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
         return window.aesjs.util.convertBytesToString(decrypter.decrypt(data));
+    }
+
+    /**
+     * Encrypt an AES key using RSA.
+     * @function encryptRSA
+     * @public
+     * @param {Bytes} AES key to be encrypted.
+     * @param {String} RSA public key.
+     * @return {String} Encrypted data.
+     */
+    encryptRSA(data: number[], key: string): string {
+        var enc = new window.JSEncrypt();
+        enc.setPublicKey(key);
+        return enc.encrypt(window.aesjs.util.convertBytesToString(data));
+    }
+
+    /**
+     * Decrypt an AES key using RSA.
+     * @function decryptRSA
+     * @public
+     * @param {String} Encrypted data.
+     * @param {String} RSA private key.
+     * @return {Bytes} Decrypted data, we use AES keys.
+     */
+    decryptRSA(data: string, key: string): number[] {
+        var dec = new window.JSEncrypt();
+        dec.setPrivateKey(key);
+        return dec.decrypt(window.aesjs.util.convertStringToBytes(data));
     }
 
     /**

@@ -15,7 +15,7 @@ import {Authguard, Profileguard, Fullguard} from './guards.service';
 const appRoutes: Routes = [
     {path: '', component: Logging},
     {path: 'profile', component: Profile, canActivate: [Profileguard], canDeactivate: [Profileguard]},
-    {path: 'data/:name', component: Dataview, canActivate: [Fullguard], canDeactivate: [Profileguard]},
+    {path: 'data/:name', component: Dataview, canActivate: [Fullguard], canDeactivate: [Fullguard]},
     {path: '**', component: Notfound}
 ];
 export const appRoutingProviders: any[] = [

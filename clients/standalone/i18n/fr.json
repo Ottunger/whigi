@@ -37,7 +37,7 @@
    "dataview.back": "Revenir au profil",
    "dataview.shared_to": "Email partagé",
    "dataview.noRevoke": "Impossible de supprimer l'accès",
-   "dataview.noGrant": "Impossible de fournir l'accès. Vérifiez l'email?"
+   "dataview.noGrant": "Impossible de fournir l'accès. Vérifiez l'email?",
 
    "error.notfound": "Introuvable"
 }

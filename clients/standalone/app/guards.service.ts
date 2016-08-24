@@ -11,6 +11,7 @@ import {Router, CanDeactivate} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {Backend} from './app.service';
 import {Profile} from './subcmpts/profile.component';
+import {Dataview} from './subcmpts/dataview.component';
 
 @Injectable()
 export class Authguard implements CanActivate {
@@ -78,19 +79,17 @@ export class Profileguard implements CanActivate, CanDeactivate<Profile> {
      * @return {Boolean} Can go through.
      */
     canDeactivate(component: Profile, route: any, state: any): Observable<boolean> | Promise<boolean> | boolean {
-        if((!!component.data_name && component.data_name.length == 0) &&
-            (!!component.data_value && component.data_value.length == 0)) {
+        if((!component.data_name || component.data_name.length == 0) &&
+            (!component.data_value || component.data_value.length == 0)) {
             return true;
         }
-        if(!!component.new_email && component.new_email.length == 0)
-            return true;
         return component.dialog(this.translate.instant('confirmation'));
     }
 
 }
 
 @Injectable()
-export class Fullguard implements CanActivate {
+export class Fullguard implements CanActivate, CanDeactivate<Dataview> {
 
     /**
      * Creates the service.
@@ -98,8 +97,9 @@ export class Fullguard implements CanActivate {
      * @public
      * @param backend App service.
      * @param router Router.
+     * @param translate Translation service.
      */
-    constructor(private backend: Backend, private router: Router) {
+    constructor(private backend: Backend, private router: Router, private translate: TranslateService) {
 
     }
 
@@ -115,6 +115,21 @@ export class Fullguard implements CanActivate {
             return true;
         this.router.navigate(['/profile']);
         return false;
+    }
+
+    /**
+     * Checks the guard.
+     * @function canDeactivate
+     * @public
+     * @param component Component.
+     * @param route Actual route.
+     * @param state Actual state.
+     * @return {Boolean} Can go through.
+     */
+    canDeactivate(component: Dataview, route: any, state: any): Observable<boolean> | Promise<boolean> | boolean {
+        if(!component.new_email || component.new_email.length == 0)
+            return true;
+        return component.dialog(this.translate.instant('confirmation'));
     }
 
 }
