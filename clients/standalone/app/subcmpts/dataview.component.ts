@@ -19,7 +19,7 @@ enableProdMode();
         <h2>{{ data_name }}</h2>
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
-        <p>{{ 'dataview.actual' | translate }}</p>
+        <p>{{ 'actual' | translate }}</p>
         <input type="text" [(ngModel)]="decr_data" class="form-control" readonly>
         <br />
 

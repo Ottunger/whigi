@@ -46,10 +46,10 @@ export function getUser(req, res) {
         if(!!user && !!(user.is_activated)) {
             res.type('application/json').status(200).json(Object.assign({puzzle: req.user.puzzle}, user.sanitarize()));
         } else {
-            res.type('application/json').status(404).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('client.noUser', req)}));
+            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
         }
     }, function(e) {
-        res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
+        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
     });
 
 }

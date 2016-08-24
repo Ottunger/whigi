@@ -6,6 +6,7 @@
    "record": "Enregistrer",
    "remove": "Supprimer",
    "back": "Revenir au profil",
+   "actual": "Données en clair",
 
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",
@@ -34,11 +35,12 @@
    "profile.lookUp": "A la recherche d'une donnée partagée? Entrez son nom et l'email associé",
 
    "dataview.noData": "Impossible d'avoir les détails de la donnée",
-   "dataview.actual": "Données en clair",
    "dataview.long": "Trop long pour récupérer en prévisualisation",
    "dataview.shared_to": "Email partagé",
    "dataview.noRevoke": "Impossible de supprimer l'accès",
    "dataview.noGrant": "Impossible de fournir l'accès. Vérifiez l'email?",
+
+   "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
 
    "error.notfound": "Introuvable"
 }

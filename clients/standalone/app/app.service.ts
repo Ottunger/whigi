@@ -183,12 +183,11 @@ export class Backend {
      * @param {Boolean} auth Whether auth is needed.
      * @param {Boolean} token Consider auth using token. Else expect data.username and data.password to be set.
      * @param {Boolean} puzzle Require puzzle.
-     * @param {Boolean} nd Is it last time to try.
      * @param {Function} ok Resolve method for retry.
      * @param {function} nok Reject method for retry.
      * @return {Promise} The result. On error, a description can be found in e.msg.
      */
-    private backend(whigi: boolean, method: string, data: any, url: string, auth: boolean, token: boolean, puzzle?: boolean, nd?: boolean, ok?: Function, nok?: Function): Promise {
+    private backend(whigi: boolean, method: string, data: any, url: string, auth: boolean, token: boolean, puzzle?: boolean, ok?: Function, nok?: Function): Promise {
         var call, puzzle = puzzle || false, self = this, dest;
         var headers: Headers = new Headers();
 
@@ -201,11 +200,10 @@ export class Backend {
         }
         function retry(e, resolve, reject) {
             self.recordPuzzle(e);
-            self.backend(whigi, method, data, url, auth, token, puzzle, true, resolve, reject);
-        }
-        function deny(reject, e) {
-            self.recordPuzzle(e);
-            reject(e);
+            if(e.status == 412)
+                self.backend(whigi, method, data, url, auth, token, puzzle, resolve, reject);
+            else
+                reject(e);
         }
 
         if(auth && token) {
@@ -220,14 +218,6 @@ export class Backend {
             case 'post':
             case 'POST':
                 headers.append('Content-Type', 'application/json');
-                if(nd) {
-                    self.http.post(dest, JSON.stringify(data), {headers: headers}).toPromise().then(function(response) {
-                        accept(ok, response);
-                    }).catch(function(e) {
-                        deny(nok, e);
-                    });
-                    return;
-                }
                 return new Promise(function(resolve, reject) {
                     self.http.post(dest, JSON.stringify(data), {headers: headers}).toPromise().then(function(response) {
                         accept(resolve, response);
@@ -237,14 +227,6 @@ export class Backend {
                 });
             case 'delete':
             case 'DELETE':
-                if(nd) {
-                    self.http.delete(dest, {headers: headers}).toPromise().then(function(response) {
-                        accept(ok, response);
-                    }).catch(function(e) {
-                        deny(nok, e);
-                    });
-                    return;
-                }
                return new Promise(function(resolve, reject) {
                     self.http.delete(dest, {headers: headers}).toPromise().then(function(response) {
                         accept(resolve, response);
@@ -255,14 +237,6 @@ export class Backend {
             case 'get':
             case 'GET':
             default:
-                if(nd) {
-                    self.http.get(dest, {headers: headers}).toPromise().then(function(response) {
-                        accept(ok, response);
-                    }).catch(function(e) {
-                        deny(nok, e);
-                    });
-                    return;
-                }
                 return new Promise(function(resolve, reject) {
                     self.http.get(dest, {headers: headers}).toPromise().then(function(response) {
                         accept(resolve, response);
