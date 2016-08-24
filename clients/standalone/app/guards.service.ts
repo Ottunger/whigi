@@ -78,10 +78,12 @@ export class Profileguard implements CanActivate, CanDeactivate<Profile> {
      * @return {Boolean} Can go through.
      */
     canDeactivate(component: Profile, route: any, state: any): Observable<boolean> | Promise<boolean> | boolean {
-        if((!component.data_name || component.data_name.length == 0) &&
-            (!component.data_value || component.data_value.length == 0)) {
+        if((!!component.data_name && component.data_name.length == 0) &&
+            (!!component.data_value && component.data_value.length == 0)) {
             return true;
         }
+        if(!!component.new_email && component.new_email.length == 0)
+            return true;
         return component.dialog(this.translate.instant('confirmation'));
     }
 

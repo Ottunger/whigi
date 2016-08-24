@@ -2,6 +2,9 @@
    "error": "Erreur!",
    "success": "Succès!",
    "confirmation": "Êtes-vous sur de vouloir partir maintenant?",
+   "action": "Action",
+   "record": "Enregistrer",
+   "remove": "Supprimer",
 
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",
@@ -21,14 +24,20 @@
 
    "profile.logout": "Déconnecter",
    "profile.data_name": "Nom de donnée",
-   "profile.action": "Action",
-   "profile.record": "Enregistrer",
    "profile.data": "Valeur",
    "profile.mix": "Données brouillées",
    "profile.noData": "Impossible de lire vos données",
    "profile.noLogout": "Impossible de quitter avec précautions",
    "profile.noReg": "Impossible d'enregistrer une nouvelle donnée",
    "profile.goTo": "Voir",
+
+   "dataview.noData": "Impossible d'avoir les détails de la donnée",
+   "dataview.actual": "Données en clair",
+   "dataview.long": "Trop long pour récupérer en prévisualisation",
+   "dataview.back": "Revenir au profil",
+   "dataview.shared_to": "Email partagé",
+   "dataview.noRevoke": "Impossible de supprimer l'accès",
+   "dataview.noGrant": "Impossible de fournir l'accès. Vérifiez l'email?"
 
    "error.notfound": "Introuvable"
 }

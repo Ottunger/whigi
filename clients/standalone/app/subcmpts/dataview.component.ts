@@ -16,11 +16,42 @@ enableProdMode();
 
 @Component({
     template: `
-        <h2>Details</h2>
+        <h2>{{ data_name }}</h2>
+        <button type="button" class="btn btn-primary" (click)="back()">{{ 'dataview.back' | translate }}</button>
+        <br />
+        <p>{{ 'dataview.actual' | translate }}</p>
+        <input type="text" [(ngModel)]="decr_data" class="form-control" readonly>
+        <br />
+
+        <div class="table-responsive">
+        <table class="table table-condensed table-bordered">
+            <thead>
+                <tr>
+                    <th>{{ 'dataview.shared_to' | translate }}</th>
+                    <th>{{ 'dataview.action' | translate }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let d of sharedIds()">
+                    <td>{{ shared_profiles[d].email }}</td>
+                    <td><button type="button" class="btn btn-default" (click)="revoke(d)">{{ 'remove' | translate }}</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" [(ngModel)]="new_email" name="y0" class="form-control"></td>
+                    <td><button type="button" class="btn btn-default" (click)="register()">{{ 'record' | translate }}</button></td>
+                </tr>
+            </tbody>
+        </table>
     `
 })
 export class Dataview implements OnInit {
 
+    public data: any;
+    public link: any;
+    public data_name: string;
+    public decr_data: string;
+    public shared_profiles: any;
+    public new_email: string;
     private sub: Subscription;
 
     /**
@@ -35,7 +66,7 @@ export class Dataview implements OnInit {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
         private notif: NotificationsService, private routed: ActivatedRoute) {
-
+        this.new_email = '';
     }
 
     /**
@@ -44,8 +75,23 @@ export class Dataview implements OnInit {
      * @public
      */
     ngOnInit(): void {
+        var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
             //Use params.id as key
+            self.data_name = params['name'];
+            self.link = self.backend.profile.data[params['name']];
+            self.shared_profiles = {};
+            self.sharedIds().forEach(function(id) {
+                self.backend.getUser(id).then(function(data) {
+                    self.shared_profiles[data.id] = data;
+                });
+            });
+            self.backend.getData(self.link.id).then(function(data) {
+                self.data = data;
+                self.decr_data = (self.link.length < 100)? self.backend.decryptAES(self.data.encr_data) : self.translate.instant('dataview.long');
+            }, function(e) {
+                self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noData'));
+            });
         });
     }
 
@@ -56,6 +102,74 @@ export class Dataview implements OnInit {
      */
     ngOnDestroy(): void {
         this.sub.unsubscribe();
+    }
+
+    /**
+     * Keys of shared people.
+     * @function sharedIds
+     * @public
+     * @return {Array} Known fields.
+     */
+    sharedIds(): string[] {
+        var keys = [];
+        for (var key in this.link.shared_to) {
+            if (this.link.shared_to.hasOwnProperty(key)) {
+                keys.push(key);
+            }
+        }
+        return keys;
+    }
+
+    /**
+     * Back to profile.
+     * @function back
+     * @public
+     */
+    back() {
+        this.router.navigate(['/profile']);
+    }
+
+    /**
+     * Revoke an access.
+     * @function revoke
+     * @public
+     * @param {String} shared_to_id Id of sharee.
+     */
+    revoke(shared_to_id: string) {
+        var self = this;
+        this.backend.revokeVault(this.data_name, shared_to_id).then(function() {
+            delete self.link[shared_to_id];
+        }, function(e) {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noRevoke'));
+        });
+    }
+
+    /**
+     * Register a new grant.
+     * @function register
+     * @public
+     */
+    register() {
+        var self = this;
+        //TODO: crypt the whole fucking thing client side
+        this.backend.createVault(this.data_name, shared_to_id, data_crypted_aes, aes_crypted_shared_pub).then(function(res) {
+            self.link.shared_to[shared_to_id] = res._id;
+        }, function(e) {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));
+        });
+    }
+
+    /**
+     * Create a confirmation.
+     * @function dialog
+     * @public
+     * @param {String} msg Message.
+     * @return {Promise} OK or not.
+     */
+    dialog(msg: string): Promise {
+        return new Promise<boolean>(function(resolve, reject) {
+            resolve(window.confirm(msg));
+        });
     }
     
 }

@@ -2,6 +2,9 @@
    "error": "Error!",
    "success": "Success!",
    "confirmation": "Are you sure tou want to move now?",
+   "action": "Action",
+   "record": "Record",
+   "remove": "Remove",
 
    "login.title": "Time to log in",
    "login.remember": "Remember me",
@@ -21,14 +24,20 @@
 
    "profile.logout": "Log out",
    "profile.data_name": "Data name",
-   "profile.action": "Action",
-   "profile.record": "Record",
    "profile.data": "Data",
    "profile.mix": "Garbled data",
    "profile.noData": "Cannot retrieve your data",
    "profile.noLogout": "Cannot log out safely",
    "profile.noReg": "Cannot register new data",
    "profile.goTo": "View",
+
+   "dataview.noData": "Cannot fetch data details",
+   "dataview.actual": "Actual data",
+   "dataview.long": "Too long for decrypting in preview",
+   "dataview.back": "Back to profile",
+   "dataview.shared_to": "Email of shared with",
+   "dataview.noRevoke": "Could not revoke access",
+   "dataview.noGrant": "Could not register grant. Check email?",
 
    "error.notfound": "Not found"
 }

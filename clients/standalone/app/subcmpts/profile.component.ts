@@ -17,6 +17,7 @@ enableProdMode();
     template: `
         <h2>{{ backend.profile.username }}</h2>
         <button type="button" class="btn btn-primary" (click)="logout()">{{ 'profile.logout' | translate }}</button>
+        <br />
 
         <div class="table-responsive">
         <table class="table table-condensed table-bordered">
@@ -24,14 +25,14 @@ enableProdMode();
                 <tr>
                     <th>{{ 'profile.data_name' | translate }}</th>
                     <th>{{ 'profile.data' | translate }}</th>
-                    <th>{{ 'profile.action' | translate }}</th>
+                    <th>{{ 'action' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let d of dataNames()">
                     <td>{{ d }}</td>
                     <td><i>{{ 'profile.mix' | translate }}</i></td>
-                    <td><button type="button" class="btn btn-default" (click)="view(backend.profile.data[d].id)">{{ 'profile.goTo' | translate }}</button></td>
+                    <td><button type="button" class="btn btn-default" (click)="view(d)">{{ 'profile.goTo' | translate }}</button></td>
                 </tr>
                 <tr>
                     <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
@@ -57,7 +58,8 @@ export class Profile implements OnInit {
      * @param notif Notification service.
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService) {
-
+        this.data_name = '';
+        this.data_value = '';
     }
 
     /**
@@ -118,13 +120,11 @@ export class Profile implements OnInit {
      * @public
      * @return {Array} Known fields.
      */
-    dataNames() {
+    dataNames(): string[] {
         var keys = [];
-        if(!!this.backend.profile) {
-            for (var key in this.backend.profile.data) {
-                if (this.backend.profile.data.hasOwnProperty(key)) {
-                    keys.push(key);
-                }
+        for (var key in this.backend.profile.data) {
+            if (this.backend.profile.data.hasOwnProperty(key)) {
+                keys.push(key);
             }
         }
         return keys;
@@ -134,10 +134,10 @@ export class Profile implements OnInit {
      * Navigate to details panel.
      * @function view
      * @public
-     * @return {String} id Id of data.
+     * @return {String} name Name of data.
      */
-    view(id: string) {
-        this.router.navigate(['/data', id]);
+    view(name: string) {
+        this.router.navigate(['/data', name]);
     }
 
     /**

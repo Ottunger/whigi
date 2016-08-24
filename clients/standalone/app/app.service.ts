@@ -72,6 +72,23 @@ export class Backend {
     }
 
     /**
+     * Decrypt a string using master_key in AES.
+     * @function decryptAES
+     * @public
+     * @param {Bytes} data Data to decrypt.
+     * @return {String} Decrypted data.
+     */
+    decryptAES(data: number[]): string {
+        if(!this.master_key) {
+            var key = this.toBytes(sessionStorage.getItem('key_decryption'));
+            var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
+            this.master_key = decrypter.decrypt(this.profile.encr_master_key);
+        }
+        var decrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
+        return window.aesjs.util.convertBytesToString(decrypter.decrypt(data));
+    }
+
+    /**
      * Saves the current puzzle returned from server.
      * @function recordPuzzle
      * @private
