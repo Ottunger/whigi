@@ -5,6 +5,7 @@
    "action": "Action",
    "record": "Enregistrer",
    "remove": "Supprimer",
+   "back": "Revenir au profil",
 
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",
@@ -30,11 +31,11 @@
    "profile.noLogout": "Impossible de quitter avec précautions",
    "profile.noReg": "Impossible d'enregistrer une nouvelle donnée",
    "profile.goTo": "Voir",
+   "profile.lookUp": "A la recherche d'une donnée partagée? Entrez son nom et l'email associé",
 
    "dataview.noData": "Impossible d'avoir les détails de la donnée",
    "dataview.actual": "Données en clair",
    "dataview.long": "Trop long pour récupérer en prévisualisation",
-   "dataview.back": "Revenir au profil",
    "dataview.shared_to": "Email partagé",
    "dataview.noRevoke": "Impossible de supprimer l'accès",
    "dataview.noGrant": "Impossible de fournir l'accès. Vérifiez l'email?",

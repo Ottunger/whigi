@@ -157,7 +157,8 @@ export function regUser(req, res) {
         u.encr_master_key = new aes.ModeOfOperation.ctr(utils.ToBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
             .encrypt(utils.toBytes(pre_master_key));
         u.rsa_pub_key = key.exportKey('public');
-        u.rsa_pri_key = key.exportKey('private');
+        u.rsa_pri_key = new aes.ModeOfOperation.ctr(utils.ToBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
+            .encrypt(aes.util.convertStringToBytes(key.exportKey('private')));
         utils.registerMapping(u.email, pre_master_key, function(err) {
             if(err) {
                 res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});

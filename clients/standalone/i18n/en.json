@@ -5,6 +5,7 @@
    "action": "Action",
    "record": "Record",
    "remove": "Remove",
+   "back": "Back to profile",
 
    "login.title": "Time to log in",
    "login.remember": "Remember me",
@@ -30,11 +31,11 @@
    "profile.noLogout": "Cannot log out safely",
    "profile.noReg": "Cannot register new data",
    "profile.goTo": "View",
+   "profile.lookUp": "Look for a vault? Enter data name and email",
 
    "dataview.noData": "Cannot fetch data details",
    "dataview.actual": "Actual data",
    "dataview.long": "Too long for decrypting in preview",
-   "dataview.back": "Back to profile",
    "dataview.shared_to": "Email of shared with",
    "dataview.noRevoke": "Could not revoke access",
    "dataview.noGrant": "Could not register grant. Check email?",

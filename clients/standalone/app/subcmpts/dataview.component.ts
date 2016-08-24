@@ -17,31 +17,32 @@ enableProdMode();
 @Component({
     template: `
         <h2>{{ data_name }}</h2>
-        <button type="button" class="btn btn-primary" (click)="back()">{{ 'dataview.back' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
         <p>{{ 'dataview.actual' | translate }}</p>
         <input type="text" [(ngModel)]="decr_data" class="form-control" readonly>
         <br />
 
         <div class="table-responsive">
-        <table class="table table-condensed table-bordered">
-            <thead>
-                <tr>
-                    <th>{{ 'dataview.shared_to' | translate }}</th>
-                    <th>{{ 'action' | translate }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let d of sharedIds()">
-                    <td>{{ shared_profiles[d].email }}</td>
-                    <td><button type="button" class="btn btn-default" (click)="revoke(d)">{{ 'remove' | translate }}</button></td>
-                </tr>
-                <tr>
-                    <td><input type="text" [(ngModel)]="new_email" name="y0" class="form-control"></td>
-                    <td><button type="button" class="btn btn-default" (click)="register()">{{ 'record' | translate }}</button></td>
-                </tr>
-            </tbody>
-        </table>
+            <table class="table table-condensed table-bordered">
+                <thead>
+                    <tr>
+                        <th>{{ 'dataview.shared_to' | translate }}</th>
+                        <th>{{ 'action' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let d of sharedIds()">
+                        <td>{{ shared_profiles[d].email }}</td>
+                        <td><button type="button" class="btn btn-default" (click)="revoke(d)">{{ 'remove' | translate }}</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" [(ngModel)]="new_email" name="y0" class="form-control"></td>
+                        <td><button type="button" class="btn btn-default" (click)="register()">{{ 'record' | translate }}</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     `
 })
 export class Dataview implements OnInit {
@@ -66,7 +67,7 @@ export class Dataview implements OnInit {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
         private notif: NotificationsService, private routed: ActivatedRoute) {
-        this.new_email = '';
+        
     }
 
     /**

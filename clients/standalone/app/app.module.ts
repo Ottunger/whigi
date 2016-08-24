@@ -20,6 +20,7 @@ import {Application} from './app.component';
 import {Logging} from './subcmpts/logging.component';
 import {Profile} from './subcmpts/profile.component';
 import {Dataview} from './subcmpts/dataview.component';
+import {Vaultview} from './subcmpts/vaultview.component';
 import {Notfound} from './subcmpts/notfound.component';
 
 @NgModule({
@@ -36,6 +37,7 @@ import {Notfound} from './subcmpts/notfound.component';
         Logging,
         Profile,
         Dataview,
+        Vaultview,
         Notfound
     ],
     providers: [

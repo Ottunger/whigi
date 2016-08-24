@@ -20,33 +20,41 @@ enableProdMode();
         <br />
 
         <div class="table-responsive">
-        <table class="table table-condensed table-bordered">
-            <thead>
-                <tr>
-                    <th>{{ 'profile.data_name' | translate }}</th>
-                    <th>{{ 'profile.data' | translate }}</th>
-                    <th>{{ 'action' | translate }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let d of dataNames()">
-                    <td>{{ d }}</td>
-                    <td><i>{{ 'profile.mix' | translate }}</i></td>
-                    <td><button type="button" class="btn btn-default" (click)="view(d)">{{ 'profile.goTo' | translate }}</button></td>
-                </tr>
-                <tr>
-                    <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
-                    <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
-                    <td><button type="button" class="btn btn-default" (click)="register()">{{ 'profile.record' | translate }}</button></td>
-                </tr>
-            </tbody>
-        </table>
+            <table class="table table-condensed table-bordered">
+                <thead>
+                    <tr>
+                        <th>{{ 'profile.data_name' | translate }}</th>
+                        <th>{{ 'profile.data' | translate }}</th>
+                        <th>{{ 'action' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let d of dataNames()">
+                        <td>{{ d }}</td>
+                        <td><i>{{ 'profile.mix' | translate }}</i></td>
+                        <td><button type="button" class="btn btn-default" (click)="view(d)">{{ 'profile.goTo' | translate }}</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
+                        <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
+                        <td><button type="button" class="btn btn-default" (click)="register()">{{ 'record' | translate }}</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p>{{ 'profile.lookUp' | translate }}</p>
+        <input type="text" [(ngModel)]="vault_name" name="u0" class="form-control">
+        <input type="text" [(ngModel)]="vault_email" name="u1" class="form-control">
+        <button type="button" class="btn btn-default" (click)="seeVault()">{{ 'profile.goTo' | translate }}</button>
     `
 })
 export class Profile implements OnInit {
 
     public data_name: string;
     public data_value: string;
+    public vault_name: string;
+    public vault_email: string;
 
     /**
      * Creates the component.
@@ -58,8 +66,7 @@ export class Profile implements OnInit {
      * @param notif Notification service.
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService) {
-        this.data_name = '';
-        this.data_value = '';
+
     }
 
     /**
@@ -138,6 +145,15 @@ export class Profile implements OnInit {
      */
     view(name: string) {
         this.router.navigate(['/data', name]);
+    }
+
+    /**
+     * Navigate to vault panel.
+     * @function seeVault
+     * @public
+     */
+    seeVault() {
+        this.router.navigate(['/vault', this.vault_email, this.vault_name]);
     }
 
     /**

@@ -14,7 +14,8 @@ import * as toPromise from 'rxjs/add/operator/toPromise';
 export class Backend {
 
     public profile: any;
-    private master_key: any;
+    private master_key: number[];
+    private rsa_key: string;
     private BASE_URL = 'https://localhost/api/v1/';
     private RESTORE_URL = 'https://localhost/api/v1';
 
@@ -79,6 +80,9 @@ export class Backend {
         var key = this.toBytes(sessionStorage.getItem('key_decryption'));
         var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
         this.master_key = decrypter.decrypt(this.profile.encr_master_key);
+
+        decrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
+        this.rsa_key = window.aesjs.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
     }
 
     /**
@@ -144,13 +148,12 @@ export class Backend {
      * @function decryptRSA
      * @public
      * @param {String} Encrypted data.
-     * @param {String} RSA private key.
      * @return {Bytes} Decrypted data, we use AES keys.
      */
-    decryptRSA(data: string, key: string): number[] {
+    decryptRSA(data: string): number[] {
         var dec = new window.JSEncrypt();
-        dec.setPrivateKey(key);
-        return dec.decrypt(window.aesjs.util.convertStringToBytes(data));
+        dec.setPrivateKey(this.rsa_key);
+        return window.aesjs.util.convertStringToBytes(dec.decrypt(data));
     }
 
     /**
