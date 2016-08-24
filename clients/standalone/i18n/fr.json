@@ -7,6 +7,8 @@
    "remove": "Supprimer",
    "back": "Revenir au profil",
    "actual": "Données en clair",
+   "copy": "Copier dans le presse-papier",
+   "makeCopy": "Ctrl+C pour copier",
 
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",

@@ -7,6 +7,8 @@
    "remove": "Remove",
    "back": "Back to profile",
    "actual": "Actual data",
+   "copy": "Copy to clipboard",
+   "makeCopy": "Ctrl+C to copy",
 
    "login.title": "Time to log in",
    "login.remember": "Remember me",

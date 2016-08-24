@@ -22,6 +22,7 @@ enableProdMode();
 
         <p>{{ 'actual' | translate }}</p>
         <input type="text" [(ngModel)]="decr_data" class="form-control" readonly>
+        <button type="button" class="btn btn-primary" (click)="copy()">{{ 'copy' | translate }}</button>
         <br />
     `
 })
@@ -89,6 +90,15 @@ export class Vaultview implements OnInit {
      */
     back() {
         this.router.navigate(['/profile']);
+    }
+
+    /**
+     * Prompt for copy.
+     * @function copy
+     * @public
+     */
+    copy() {
+        window.prompt(this.translate.instant('makeCopy'), this.decr_data);
     }
     
 }
