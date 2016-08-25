@@ -72,7 +72,7 @@ exports.test = function() {
         });
 
         describe('#requestMapping()', function() {
-            it('should create a recovery key for a known user', function(done) {
+            it('should declnine creation because unable to reach other API', function(done) {
                 var f = new fk.FakeRes(false);
                 me.requestMapping({
                     params: {
@@ -80,7 +80,7 @@ exports.test = function() {
                     },
                     get: function() {return 'fr'}
                 }, f);
-                chai.expect(f.promise).to.eventually.equal(201).notify(done);
+                chai.expect(f.promise).to.eventually.equal(500).notify(done);
             });
             it('should decline a unrecognized one', function(done) {
                 var f = new fk.FakeRes(false);

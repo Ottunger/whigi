@@ -80,7 +80,7 @@ export class Mapping {
      */
     sanitarize(key: boolean) {
         var ret = {
-            bearer_id: this.bearer_id;
+            bearer_id: this.bearer_id,
             email: this.email,
             _id: this._id,
             time_changed: this.time_changed

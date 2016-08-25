@@ -9,7 +9,7 @@ declare var window : any
 import {Component, enableProdMode, OnInit, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
-import {NotificationsService} from 'notifications';
+import {NotificationsService} from 'angular2-notifications';
 import {Subscription} from 'rxjs/Subscription';
 import {Backend} from '../app.service';
 enableProdMode();
@@ -34,7 +34,7 @@ enableProdMode();
         </form>
     `
 })
-export class Reset implements OnInit {
+export class Reset implements OnInit, OnDestroy {
 
     public password: string;
     public password2: string;

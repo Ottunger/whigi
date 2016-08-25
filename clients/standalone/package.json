@@ -30,6 +30,16 @@
     "zone.js": "^0.6.15"
   },
   "devDependencies": {
-    "lite-server": "^2.2.2"
+    "browserify": "^13.1.0",
+    "lite-server": "^2.2.2",
+    "uglifyjs": "^2.4.10"
+  },
+  "scripts": {
+    "serve": "lite-server index.html",
+    "build_module": "call ../../node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/app.module.ts && echo ok || echo not ok",
+    "build_main": "call ../../node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/main.ts && echo ok || echo not ok",
+    "build-prod": "npm run build && browserify -s main app/main.js > app/bundle.js && npm run minify",
+    "build": "npm run build_module && npm run build_main",
+    "minify": "uglifyjs app/bundle.js --screw-ie8 --compress --mangle --output app/bundle.min.js"
   }
 }

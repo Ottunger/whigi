@@ -25,9 +25,6 @@
     "typescript-require": "^0.2.9-1"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "http://whigi2-dev.envict.com/whigi-team/whigi.git"
@@ -41,5 +38,17 @@
     "open-source"
   ],
   "author": "whigi-team",
-  "license": "SEE LICENSE IN LICENSE.txt"
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "scripts": {
+    "whigi": "node whigi/index.js",
+    "whigi-restore": "node whigi-restore/index.js",
+    "build_whigi_data": "call node_modules/.bin/tsc --removeComments whigi/data.ts && echo ok || echo not ok",
+    "build_whigi_user": "call node_modules/.bin/tsc --removeComments whigi/user.ts && echo ok || echo not ok",
+    "build_whigi-restore_mapping": "call node_modules/.bin/tsc --removeComments whigi-restore/mapping.ts && echo ok || echo not ok",
+    "build_utils_checks": "call node_modules/.bin/tsc --removeComments utils/checks.ts && echo ok || echo not ok",
+    "build_utils_utils": "call node_modules/.bin/tsc --removeComments utils/utils.ts && echo ok || echo not ok",
+    "build_tests_fakeres": "call node_modules/.bin/tsc --removeComments tests/backend/FakeRes.ts && echo ok || echo not ok",
+    "build": "npm run build_whigi_data && npm run build_whigi_user && npm run build_whigi-restore_mapping && npm run build_utils_checks && npm run build_utils_utils && npm run build_tests_fakeres",
+    "test": "mocha tests/backend/units.js"
+  }
 }

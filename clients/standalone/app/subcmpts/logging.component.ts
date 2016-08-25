@@ -9,7 +9,7 @@ declare var window : any
 import {Component, enableProdMode, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
-import {NotificationsService} from 'notifications';
+import {NotificationsService} from 'angular2-notifications';
 import {Backend} from '../app.service';
 enableProdMode();
 
