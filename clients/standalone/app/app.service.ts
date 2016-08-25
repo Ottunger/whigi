@@ -8,6 +8,9 @@
 declare var window: any
 import {Injectable} from '@angular/core';
 import {Headers, Http, Response} from '@angular/http';
+import {Router} from '@angular/router';
+import {NotificationsService} from 'notifications';
+import {TranslateService} from 'ng2-translate/ng2-translate';
 import * as toPromise from 'rxjs/add/operator/toPromise';
 
 @Injectable()
@@ -24,8 +27,10 @@ export class Backend {
      * @function constructor
      * @public
      * @param http HTTP service.
+     * @param router Routing service.
+     * @param notif: Notification service.
      */
-    constructor(private http: Http) {
+    constructor(private http: Http, private router: Router, private notif: NotificationsService, private translate: TranslateService) {
 
     }
 
@@ -77,12 +82,16 @@ export class Backend {
      * @private
      */
     private decryptMaster() {
-        var key = this.toBytes(sessionStorage.getItem('key_decryption'));
-        var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
-        this.master_key = decrypter.decrypt(this.profile.encr_master_key);
+        try {
+            var key = this.toBytes(sessionStorage.getItem('key_decryption'));
+            var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
+            this.master_key = decrypter.decrypt(this.profile.encr_master_key);
 
-        decrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
-        this.rsa_key = window.aesjs.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
+            decrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
+            this.rsa_key = window.aesjs.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
+        } catch(e) {
+            this.notif.alert(this.translate.instant('error'), this.translate.instant('noKey'));
+        }
     }
 
     /**
@@ -200,10 +209,18 @@ export class Backend {
         }
         function retry(e, resolve, reject) {
             self.recordPuzzle(e);
-            if(e.status == 412)
+            if(e.status == 412) {
                 self.backend(whigi, method, data, url, auth, token, puzzle, resolve, reject);
-            else
+            } else {
+                if(e.status == 401 && token) {
+                    //Session has expired
+                    sessionStorage.removeItem('token');
+                    sessionStorage.removeItem('key_decryption');
+                    self.notif.alert(self.translate.instant('error'), self.translate.instant('sessionExpired'));
+                    self.router.navigate(['']);
+                }
                 reject(e);
+            }
         }
 
         if(auth && token) {
@@ -218,6 +235,14 @@ export class Backend {
             case 'post':
             case 'POST':
                 headers.append('Content-Type', 'application/json');
+                if(!!ok && !!nok) {
+                    self.http.post(dest, JSON.stringify(data), {headers: headers}).toPromise().then(function(response) {
+                        accept(ok, response);
+                    }).catch(function(e) {
+                        retry(e, ok, nok);
+                    });
+                    return;
+                }
                 return new Promise(function(resolve, reject) {
                     self.http.post(dest, JSON.stringify(data), {headers: headers}).toPromise().then(function(response) {
                         accept(resolve, response);
@@ -227,6 +252,14 @@ export class Backend {
                 });
             case 'delete':
             case 'DELETE':
+                if(!!ok && !!nok) {
+                    self.http.delete(dest, {headers: headers}).toPromise().then(function(response) {
+                        accept(ok, response);
+                    }).catch(function(e) {
+                        retry(e, ok, nok);
+                    });
+                    return;
+                }
                return new Promise(function(resolve, reject) {
                     self.http.delete(dest, {headers: headers}).toPromise().then(function(response) {
                         accept(resolve, response);
@@ -237,6 +270,14 @@ export class Backend {
             case 'get':
             case 'GET':
             default:
+                if(!!ok && !!nok) {
+                    self.http.get(dest, {headers: headers}).toPromise().then(function(response) {
+                        accept(ok, response);
+                    }).catch(function(e) {
+                        retry(e, ok, nok);
+                    });
+                    return;
+                }
                 return new Promise(function(resolve, reject) {
                     self.http.get(dest, {headers: headers}).toPromise().then(function(response) {
                         accept(resolve, response);

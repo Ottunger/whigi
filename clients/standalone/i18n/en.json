@@ -9,6 +9,8 @@
    "actual": "Actual data",
    "copy": "Copy to clipboard",
    "makeCopy": "Ctrl+C to copy",
+   "sessionExpired": "Your session has expired",
+   "noKey": "Cannot read your master key...",
 
    "login.title": "Time to log in",
    "login.remember": "Remember me",

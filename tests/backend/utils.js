@@ -29,9 +29,9 @@ exports.test = function() {
         });
 
         describe('#toBytes()', function() {
-            it('should give expected answer', function() {
-                var arr = me.toBytes('aa00');
-                chai.expect(arr).to.deeply.equal([170, 0]);
+            it('should produce an array of length for AES key', function() {
+                var arr = me.toBytes(me.generateRandomString(64));
+                chai.expect(arr).to.have.length(32);
             });
         });
         

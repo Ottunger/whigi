@@ -1,15 +1,17 @@
 @echo off
-cd clients
-for /r %%i in (*) do (call ..\node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments %%i)
-cd ..\utils
-for /r %%i in (*) do (call ..\node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments %%i)
-cd ..\whigi
-for /r %%i in (*) do (call ..\node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments %%i)
-cd ..\whigi-restore
-for /r %%i in (*) do (call ..\node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments %%i)
-cd ..\common
-for /r %%i in (*) do (call ..\node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments %%i)
-cd ..\tests
-for /r %%i in (*) do (call ..\node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments %%i)
-cd ..
+
+call node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments clients\standalone\app\app.module.ts
+call node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments clients\standalone\app\main.ts
+
+call node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments whigi\data.ts
+call node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments whigi\user.ts
+
+call node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments whigi-restore\mapping.ts
+
+call node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments utils\checks.ts
+call node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments utils\utils.ts
+
+call node_modules\.bin\tsc --experimentalDecorators --emitDecoratorMetadata --removeComments tests\backend\FakeRes.ts
+
+
 pause
