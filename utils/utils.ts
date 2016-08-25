@@ -153,7 +153,7 @@ export function toBytes(data: string): number[] {
  */
 export function checkCaptcha(c, callback) {
     var data = querystring.stringify({
-        secret: '6Leh9xkTAAAAADWHU8UCfIER8ztoD6tyreGNJYM4',
+        secret: '6LfleigTAAAAAG_-AGX7NOMgfchlIbzuBtdD5qmw',
         response: c
     });
     var options = {

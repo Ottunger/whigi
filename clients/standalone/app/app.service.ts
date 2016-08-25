@@ -320,11 +320,11 @@ export class Backend {
      * Returns the public info of a user.
      * @function getUser
      * @public
-     * @param {String} userid Request id.
+     * @param {String} known Request id or email.
      * @return {Promise} JSON response from backend.
      */
-    getUser(userid: string): Promise {
-        return this.backend(true, 'GET', {}, 'user/' + userid, true, true, true);
+    getUser(known: string): Promise {
+        return this.backend(true, 'GET', {}, 'user/' + window.encodeURIComponent(known), true, true, true);
     }
 
     /**

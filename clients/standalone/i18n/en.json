@@ -11,6 +11,7 @@
    "makeCopy": "Ctrl+C to copy",
    "sessionExpired": "Your session has expired",
    "noKey": "Cannot read your master key...",
+   "unknown": "Unknown data",
 
    "login.title": "Time to log in",
    "login.remember": "Remember me",

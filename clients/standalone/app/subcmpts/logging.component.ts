@@ -77,7 +77,7 @@ enableProdMode();
                 <input type="text" [(ngModel)]="last_name" name="n8" class="form-control" required>
             </div>
             <div class="form-group">
-                <div id="grecaptcha" data-sitekey="6Leh9xkTAAAAAKP8N7TfkDZHCBCR2DJhDjZica5u"></div>
+                <div id="grecaptcha"></div>
                 <button type="submit" class="btn btn-primary" (click)="signUp()">{{ 'login.send' | translate }}</button>
             </div>
         </form>
@@ -92,6 +92,7 @@ export class Logging implements OnInit {
     public first_name: string;
     public last_name: string;
     public persistent: boolean;
+    private createCaptcha: boolean;
 
     /**
      * Creates the component.
@@ -104,6 +105,7 @@ export class Logging implements OnInit {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService) {
         this.persistent = false;
+        this.createCaptcha = true;
     }
 
     /**
@@ -124,6 +126,12 @@ export class Logging implements OnInit {
                 self.router.navigate(['/profile']);
             }, function(e) {
                 sessionStorage.removeItem('token');
+            });
+        }
+        if(this.createCaptcha) {
+            this.createCaptcha = false;
+            window.grecaptcha.render('grecaptcha', {
+                sitekey: '6LfleigTAAAAALOtJgNBGWu4A0ZiHRvetRorXkDx'
             });
         }
     }

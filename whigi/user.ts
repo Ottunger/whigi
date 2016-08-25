@@ -42,7 +42,8 @@ export function managerInit(dbg: Datasource) {
  * @param {Response} res The response.
  */
 export function getUser(req, res) {
-    db.retrieveUser('id', req.params.id).then(function(user) {
+    var dec = decodeURIComponent(req.params.id);
+    db.retrieveUser('id', dec).then(function(user) {
         if(!!user && !!(user.is_activated)) {
             res.type('application/json').status(200).json(Object.assign({puzzle: req.user.puzzle}, user.sanitarize()));
         } else {

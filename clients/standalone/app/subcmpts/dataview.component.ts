@@ -33,7 +33,7 @@ enableProdMode();
                 </thead>
                 <tbody>
                     <tr *ngFor="let d of sharedIds()">
-                        <td>{{ shared_profiles[d].email }}</td>
+                        <td>{{ emailOf(d) }}</td>
                         <td><button type="button" class="btn btn-default" (click)="revoke(d)">{{ 'remove' | translate }}</button></td>
                     </tr>
                     <tr>
@@ -67,7 +67,7 @@ export class Dataview implements OnInit {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
         private notif: NotificationsService, private routed: ActivatedRoute) {
-        
+
     }
 
     /**
@@ -85,7 +85,7 @@ export class Dataview implements OnInit {
 
             self.sharedIds().forEach(function(id) {
                 self.backend.getUser(id).then(function(data) {
-                    self.shared_profiles[data.id] = data;
+                    self.shared_profiles[data._id] = data;
                 });
             });
 
@@ -161,6 +161,8 @@ export class Dataview implements OnInit {
             var data_crypted_aes: number[] = self.backend.encryptAES(self.decr_data, aesKey);
             var aes_crypted_shared_pub: string = self.backend.encryptRSA(aesKey, user.rsa_pub_key);
 
+            self.shared_profiles[user._id] = user;
+
             self.backend.createVault(self.data_name, user._id, data_crypted_aes, aes_crypted_shared_pub).then(function(res) {
                 self.link.shared_to[user._id] = res._id;
             }, function(e) {
@@ -182,6 +184,19 @@ export class Dataview implements OnInit {
         return new Promise<boolean>(function(resolve, reject) {
             resolve(window.confirm(msg));
         });
+    }
+
+    /**
+     * Return the email from an id as we know it.
+     * @function emailOf
+     * @public
+     * @param {String} id Id.
+     * @return {String} Email.
+     */
+    emailOf(id: string): string {
+        if(!!this.shared_profiles[id])
+            return this.shared_profiles[id].email;
+        return this.translate.instant('unknown');
     }
     
 }
