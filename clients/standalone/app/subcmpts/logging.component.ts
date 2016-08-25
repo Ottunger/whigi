@@ -164,6 +164,8 @@ export class Logging implements OnInit {
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
             });
+        } else {
+            self.notif.alert(self.translate.instant('error'), self.translate.instant('login.noMatch'));
         }
     }
 

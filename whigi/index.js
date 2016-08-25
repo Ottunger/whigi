@@ -26,6 +26,7 @@ var DEBUG = true;
 //Launch as >$ node index.js 443 whigi.envict.com for instance
 var httpsport = parseInt(process.argv[2]) || 443;
 var localhost = process.argv[3] || 'localhost';
+utils.RESTOREHOST = 'localhost'; 
 utils.RUNNING_ADDR = 'https://' + localhost + ':' + httpsport;
 utils.MAIL_ADDR = "whigi.com@gmail.com";
 
@@ -58,6 +59,8 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/token\/?$/))
         res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/restore-token\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     //-----
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
@@ -221,6 +224,7 @@ connect(function(e) {
     app.delete('/api/v:version/profile/deactivate', user.deactivateUser);
     app.post('/api/v:version/profile/token/new', user.newToken);
     app.delete('/api/v:version/profile/token', user.removeToken);
+    app.post('/api/v:version/profile/restore-token', user.restoreToken);
     //------
     app.get('/api/v:version/data/:id', data.getData);
     app.post('/api/v:version/vault/new', data.regVault);

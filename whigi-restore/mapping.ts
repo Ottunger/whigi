@@ -38,7 +38,7 @@ export function newMapping(req, res) {
     var got = req.body;
     if(got.key == require('../common/key.json').key) {
         var newid = utils.generateRandomString(32);
-        var m: Mapping = new Mapping(newid, got.email, got.master_key, 0, '', db);
+        var m: Mapping = new Mapping(newid, got.email, got.master_key, 0, '', '', got.id, db);
         m.persist().then(function() {
             res.type('application/json').status(201).json({error: '', _id: newid});
         }, function(e) {
@@ -61,25 +61,32 @@ export function requestMapping(req, res) {
         if(map === undefined || map == null) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
         } else {
-            var m: Mapping = new Mapping(map._id, map.email, map.master_key, map.time_changed, map.pwd_key, db);
+            var m: Mapping = new Mapping(map._id, map.email, map.master_key, map.time_changed, map.pwd_key, map.token, map.bearer_id, db);
             if((new Date).getTime() - m.time_changed > 30*60*1000) {
-                m.time_changed = (new Date).getTime();
-                m.pwd_key = utils.generateRandomString(64);
-                m.persist().then(function() {
-                    mailer.sendMail({
-                        from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                        to: '<' + m.email + '>',
-                        subject: utils.i18n('mail.subject.account', req),
-                        html: utils.i18n('mail.body.reset', req) + '<br /> \
-                            <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + m.pwd_key + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
-                            utils.i18n('mail.signature', req)
-                    }, function(e, i) {});
-                    res.type('application/json').status(201).json({error: ''});
+                //Create a token
+                var newid = utils.generateRandomString(64);
+                utils.persistToken(newid, m.bearer_id).then(function() {
+                    m.time_changed = (new Date).getTime();
+                    m.pwd_key = utils.generateRandomString(64);
+                    m.token = newid;
+                    m.persist().then(function() {
+                        mailer.sendMail({
+                            from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                            to: '<' + m.email + '>',
+                            subject: utils.i18n('mail.subject.account', req),
+                            html: utils.i18n('mail.body.reset', req) + '<br /> \
+                                <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + m.pwd_key + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
+                                utils.i18n('mail.signature', req)
+                        }, function(e, i) {});
+                        res.type('application/json').status(201).json({error: ''});
+                    }, function(e) {
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    });
                 }, function(e) {
                     res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                 });
             } else {
-                res.type('application/json').status(412).json({error: utils.i18n('client.tooSoon', req)});
+                res.type('application/json').status(400).json({error: utils.i18n('client.tooSoon', req)});
             }
         }
     }, function(e) {
@@ -99,7 +106,7 @@ export function retrieveMapping(req, res) {
         if(map === undefined || map == null) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
         } else {
-            var m: Mapping = new Mapping(map._id, map.email, map.master_key, map.time_changed, map.pwd_key, db);
+            var m: Mapping = new Mapping(map._id, map.email, map.master_key, map.time_changed, map.pwd_key, map.token, map.bearer_id, db);
             if((new Date).getTime() - m.time_changed < 30*60*1000) {
                 m.time_changed = 0;
                 m.pwd_key = "";

@@ -122,6 +122,20 @@ export class Backend {
     }
 
     /**
+     * Encrypt the master AES key using password derivated AES key.
+     * @function encryptMasterAES
+     * @public
+     * @param {String} pwd Password.
+     * @param {String} salt User salt.
+     * @param {String} master_key Master key.
+     * @return {Bytes} Encrypted master key.
+     */
+    encryptMasterAES(pwd: string, salt: string, master_key: string): number[] {
+        return new window.aesjs.ModeOfOperation.ctr(this.toBytes(window.sha256(pwd + salt)), new window.aesjs.Counter(0))
+            .encrypt(this.toBytes(master_key));
+    }
+
+    /**
      * Decrypt a string using master_key in AES.
      * @function decryptAES
      * @public

@@ -28,6 +28,7 @@
    "login.noLogin": "Impossible de se logger. Vérifiez vos données",
    "login.noSignup": "Impossible de créer le compte. Essayez un autre nom d'utilisateur / email?",
    "login.noReset": "Impossible de ocntacter le serveur de récupération",
+   "login.noMatch": "Mot de passes différents / Mauvais format d'email",
 
    "profile.logout": "Déconnecter",
    "profile.data_name": "Nom de donnée",
@@ -46,6 +47,12 @@
    "dataview.noGrant": "Impossible de fournir l'accès. Vérifiez l'email?",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
+
+   "reset.reset": "Changez votre mot de passe ici",
+   "reset.password": "Nouveau mot de passe",
+   "reset.send": "Je suis prêt!",
+   "reset.noReset": "Impossible d'utiliser ce jeton de récupération",
+   "reset.noMatch": "Mots de passe différents",
 
    "error.notfound": "Introuvable"
 }

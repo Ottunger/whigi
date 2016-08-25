@@ -12,6 +12,8 @@ var strings = {
     en: require('./i18n/en.json'),
     fr: require('./i18n/fr.json')
 }
+export var WHIGIHOST = '';
+export var RESTOREHOST = '';
 export var RUNNING_ADDR = '';
 export var MAIL_ADDR = '';
 
@@ -188,18 +190,20 @@ export function checkCaptcha(c, callback) {
  * Calls Whigi-restore to create a new mapping.
  * @function registerMapping
  * @public
+ * @param {String} id Id.
  * @param {String} email Email.
  * @param {String} master_key Master key.
  * @param {Function} callback Callback will be called with true if error occured.
  */
-export function registerMapping(email, master_key, callback) {
+export function registerMapping(id, email, master_key, callback) {
     var data = querystring.stringify({
+        id: id,
         email: email,
         master_key: master_key,
         key: require('../common/key.json').key
     });
     var options = {
-        host: 'www.google.com',
+        host: RESTOREHOST,
         port: 443,
         path: '/api/v1/new',
         method: 'POST',
@@ -221,4 +225,45 @@ export function registerMapping(email, master_key, callback) {
     });
     ht.write(data);
     ht.end();
+}
+
+/**
+ * Ask Whigi to create a token on behalf of Whigi-restore.
+ * @function persistToken
+ * @public
+ * @param {String} newid The token.
+ * @param {String} bearer_id Bearer id.
+ * @return {Promise} Promise that resolves when Whigi has saved the token.
+ */
+export function persistToken(newid, bearer_id) {
+    var data = querystring.stringify({
+        token_id: newid,
+        bearer_id: bearer_id,
+        key: require('../common/key.json').key
+    });
+    var options = {
+        host: WHIGIHOST,
+        port: 443,
+        path: '/api/v1/new',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': Buffer.byteLength(data)
+        }
+    };
+    return new Promise(function(resolve, reject) {
+        var ht = https.request(options, function(res) {
+            var r = '';
+            res.on('data', function(chunk) {
+                r += chunk;
+            });
+            res.on('end', function() {
+                resolve();
+            });
+        }).on('error', function(err) {
+            reject(err);
+        });
+        ht.write(data);
+        ht.end();
+    });
 }

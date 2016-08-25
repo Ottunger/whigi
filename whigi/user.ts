@@ -155,12 +155,12 @@ export function regUser(req, res) {
         u.key = utils.generateRandomString(64);
         u.data = {};
         u.shared_with_me = {};
-        u.encr_master_key = new aes.ModeOfOperation.ctr(utils.ToBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
+        u.encr_master_key = new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
             .encrypt(utils.toBytes(pre_master_key));
         u.rsa_pub_key = key.exportKey('public');
-        u.rsa_pri_key = new aes.ModeOfOperation.ctr(utils.ToBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
+        u.rsa_pri_key = new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
             .encrypt(aes.util.convertStringToBytes(key.exportKey('private')));
-        utils.registerMapping(u.email, pre_master_key, function(err) {
+        utils.registerMapping(u._id, u.email, pre_master_key, function(err) {
             if(err) {
                 res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
             } else {
@@ -289,4 +289,25 @@ export function removeToken(req, res) {
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
+}
+
+/**
+ * Creates a auth token on behalf of Whigi restore.
+ * @function restoreToken
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function restoreToken(req, res) {
+    var got = req.body;
+    if(got.key == require('../common/key.json').key) {
+        var t: Token = new Token(got.token_id, got.bearer_id, (new Date).getTime(), false, db);
+        t.persist().then(function() {
+            res.type('application/json').status(201).json({error: '', _id: got.token_id});
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    } else {
+        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+    }
 }

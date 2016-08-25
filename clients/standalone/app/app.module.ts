@@ -21,6 +21,7 @@ import {Logging} from './subcmpts/logging.component';
 import {Profile} from './subcmpts/profile.component';
 import {Dataview} from './subcmpts/dataview.component';
 import {Vaultview} from './subcmpts/vaultview.component';
+import {Reset} from './subcmpts/reset.component';
 import {Notfound} from './subcmpts/notfound.component';
 
 @NgModule({
@@ -38,6 +39,7 @@ import {Notfound} from './subcmpts/notfound.component';
         Profile,
         Dataview,
         Vaultview,
+        Reset,
         Notfound
     ],
     providers: [

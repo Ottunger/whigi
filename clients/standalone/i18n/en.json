@@ -28,6 +28,7 @@
    "login.noLogin": "Cannot log in. Verify your credentials",
    "login.noSignup": "Cannot register account. Try another name / email?",
    "login.noReset": "Cannot contact recovery server",
+   "login.noMatch": "Passwords no do not match or email in wrong format",
 
    "profile.logout": "Log out",
    "profile.data_name": "Data name",
@@ -46,6 +47,12 @@
    "dataview.noGrant": "Could not register grant. Check email?",
 
    "vaultview.noData": "Cannot retrieve such vault. Maybe access was revoked...",
+
+   "reset.reset": "Reset your password here",
+   "reset.password": "New password",
+   "reset.send": "I'm ready!",
+   "reset.noReset": "Cannot reset password using this token",
+   "reset.noMatch": "Passwords no dot match",
 
    "error.notfound": "Not found"
 }
