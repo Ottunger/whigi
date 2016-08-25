@@ -12,6 +12,9 @@
    "sessionExpired": "Votre session a expiré",
    "noKey": "Impossible de lire la clé maître...",
    "unknown": "Donnée inconnue",
+   "modify": "Modifier la valeur",
+   "noData": "Impossible de lire vos données",
+   "server": "Le serveur a refusé la commande",
 
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",
@@ -34,17 +37,17 @@
    "profile.data_name": "Nom de donnée",
    "profile.data": "Valeur",
    "profile.mix": "Données brouillées",
-   "profile.noData": "Impossible de lire vos données",
    "profile.noLogout": "Impossible de quitter avec précautions",
-   "profile.noReg": "Impossible d'enregistrer une nouvelle donnée",
    "profile.goTo": "Voir",
    "profile.lookUp": "A la recherche d'une donnée partagée? Entrez son nom et l'email associé",
+   "profile.exists": "Cette donnée existe déjà, modifiez-la",
 
    "dataview.noData": "Impossible d'avoir les détails de la donnée",
    "dataview.long": "Trop long pour récupérer en prévisualisation",
    "dataview.shared_to": "Email partagé",
    "dataview.noRevoke": "Impossible de supprimer l'accès",
    "dataview.noGrant": "Impossible de fournir l'accès. Vérifiez l'email?",
+   "dataview.meOnly": "Donnée changée mais pas les coffres-forts...",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
 

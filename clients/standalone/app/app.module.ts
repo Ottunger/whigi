@@ -14,6 +14,7 @@ import {SimpleNotificationsModule} from 'angular2-notifications';
 import {routing, appRoutingProviders} from './app.routing';
 
 import {Backend} from './app.service';
+import {Data} from './data.service';
 import {Authguard, Profileguard, Fullguard} from './guards.service';
 
 import {Application} from './app.component';
@@ -45,6 +46,7 @@ import {Notfound} from './subcmpts/notfound.component';
     providers: [
         appRoutingProviders,
         Backend,
+        Data,
         Authguard,
         Profileguard,
         Fullguard

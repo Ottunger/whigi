@@ -11,6 +11,7 @@ import {Router} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
 import {Backend} from '../app.service';
+import {Data} from '../data.service';
 enableProdMode();
 
 @Component({
@@ -64,8 +65,10 @@ export class Profile implements OnInit {
      * @param backend App service.
      * @param router Routing service.
      * @param notif Notification service.
+     * @param dataservice Data service.
      */
-    constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService) {
+    constructor(private translate: TranslateService, private backend: Backend, private router: Router,
+        private notif: NotificationsService, private dataservice: Data) {
 
     }
 
@@ -75,13 +78,7 @@ export class Profile implements OnInit {
      * @public
      */
     ngOnInit(): void {
-        var self = this;
-        this.backend.listData().then(function(add) {
-            self.backend.profile.data = add.data;
-            self.backend.profile.shared_with_me = add.shared_with_me;
-        }, function(e) {
-            self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noData'));
-        });
+        this.dataservice.listData();
     }
 
     /**
@@ -107,19 +104,26 @@ export class Profile implements OnInit {
      */
     register() {
         var self = this;
-        var garbled = this.backend.encryptAES(this.data_value);
-        this.backend.postData(this.data_name, garbled).then(function(res) {
-            self.backend.profile.data[self.data_name] = {
-                id: res._id,
-                length: 0,
-                shared_to: {}
-            }
+        this.dataservice.newData(this.completeName(), this.data_value).then(function() {
             self.data_name = '';
             self.data_value = '';
-        }, function(e) {
-            self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noRef'));
+        }, function(err) {
+            if(err == 'server')
+                self.notif.error(self.translate.instant('error'), self.translate.instant('server'));
+            else
+                self.notif.error(self.translate.instant('error'), self.translate.instant('profile.exists'));
         });
     }
+
+    /**
+     * Returns a name based on directory structure.
+     * @function completeName
+     * @private
+     * @return {String} Describing name.
+     */
+    private completeName(): string {
+        return this.data_name.replace(';', ':');
+    } 
 
     /**
      * Keys of data names known.

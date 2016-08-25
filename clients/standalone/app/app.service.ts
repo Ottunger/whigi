@@ -28,7 +28,8 @@ export class Backend {
      * @public
      * @param http HTTP service.
      * @param router Routing service.
-     * @param notif: Notification service.
+     * @param notif Notification service.
+     * @param translate Translation service.
      */
     constructor(private http: Http, private router: Router, private notif: NotificationsService, private translate: TranslateService) {
 

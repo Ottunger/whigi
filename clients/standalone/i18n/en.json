@@ -12,6 +12,9 @@
    "sessionExpired": "Your session has expired",
    "noKey": "Cannot read your master key...",
    "unknown": "Unknown data",
+   "modify": "Modify value",
+   "noData": "Cannot retrieve your data",
+   "server": "The server refused the command",
 
    "login.title": "Time to log in",
    "login.remember": "Remember me",
@@ -34,17 +37,17 @@
    "profile.data_name": "Data name",
    "profile.data": "Data",
    "profile.mix": "Garbled data",
-   "profile.noData": "Cannot retrieve your data",
    "profile.noLogout": "Cannot log out safely",
-   "profile.noReg": "Cannot register new data",
    "profile.goTo": "View",
    "profile.lookUp": "Look for a vault? Enter data name and email",
+   "profile.exists": "This data already exists, edit it instead",
 
    "dataview.noData": "Cannot fetch data details",
    "dataview.long": "Too long for decrypting in preview",
    "dataview.shared_to": "Email of shared with",
    "dataview.noRevoke": "Could not revoke access",
    "dataview.noGrant": "Could not register grant. Check email?",
+   "dataview.meOnly": "Data changed for you but not in vaults...",
 
    "vaultview.noData": "Cannot retrieve such vault. Maybe access was revoked...",
 

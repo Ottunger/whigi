@@ -61,7 +61,7 @@ export function regVault(req, res) {
     var got = req.body;
     req.user.fill().then(function() {
         if(!(got.data_name in req.user.data)) {
-            res.type('application/json').status(404).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('client.noData', req)}));
+            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
         } else {
             if(got.shared_to_id in req.user.data[got.data_name].shared_to) {
                 res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.data_name].shared_to[got.shared_to_id]});
@@ -96,14 +96,14 @@ export function regVault(req, res) {
                                 }, function(e, i) {});
                                 res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
                             }, function(e) {
-                                res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
+                                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                             });
                         });
                     }, function(e) {
-                        res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
+                        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                     });
                 }, function(e) {
-                    res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
+                    res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                 });
             }
         }

@@ -12,15 +12,20 @@ import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
 import {Subscription} from 'rxjs/Subscription';
 import {Backend} from '../app.service';
+import {Data} from '../data.service';
 enableProdMode();
 
 @Component({
     template: `
-        <h2>{{ data_name }}</h2>
+        <h2>{{ sanitarize(data_name) }}</h2>
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
         <p>{{ 'actual' | translate }}</p>
         <input type="text" [(ngModel)]="decr_data" class="form-control" readonly>
+        <br />
+        <p>{{ 'modify' | translate }}</p>
+        <input type="text" [(ngModel)]="new_data" class="form-control">
+        <button type="button" class="btn btn-primary" (click)="modify()">{{ 'record' | translate }}</button>
         <br />
 
         <div class="table-responsive">
@@ -51,6 +56,7 @@ export class Dataview implements OnInit, OnDestroy {
     public link: any;
     public data_name: string;
     public decr_data: string;
+    public new_data: string;
     public shared_profiles: any;
     public new_email: string;
     private sub: Subscription;
@@ -66,7 +72,7 @@ export class Dataview implements OnInit, OnDestroy {
      * @param routed Parameters service.
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
-        private notif: NotificationsService, private routed: ActivatedRoute) {
+        private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data) {
 
     }
 
@@ -81,12 +87,8 @@ export class Dataview implements OnInit, OnDestroy {
             //Use params.name as key
             self.data_name = params['name'];
             self.link = self.backend.profile.data[params['name']];
-            self.shared_profiles = {};
-
-            self.sharedIds().forEach(function(id) {
-                self.backend.getUser(id).then(function(data) {
-                    self.shared_profiles[data._id] = data;
-                });
+            self.dataservice.populateUsers(self.sharedIds()).then(function(dict) {
+                self.shared_profiles = dict;
             });
 
             self.backend.getData(self.link.id).then(function(data) {
@@ -108,7 +110,28 @@ export class Dataview implements OnInit, OnDestroy {
     }
 
     /**
-     * Keys of shared people.
+     * Modifies the data.
+     * @function modify
+     * @public
+     */
+    modify() {
+        var self = this, names = this.sharedIds();
+
+        for(var i = 0; i < names.length; i++) {
+            this.link.shared_to[names[i]] = this.shared_profiles[names[i]].email;
+        }
+        this.dataservice.modifyData(this.data_name, this.new_data, this.link.shared_to).then(function() {
+            //Already populated
+        }, function(err) {
+            if(err == 'server')
+                self.notif.error(self.translate.instant('error'), self.translate.instant('server'));
+            else
+                self.notif.error(self.translate.instant('error'), self.translate.instant('profile.exists'));
+        });
+    }
+
+    /**
+     * Keys of shared people array, which are user id's.
      * @function sharedIds
      * @public
      * @return {Array} Known fields.
@@ -154,21 +177,12 @@ export class Dataview implements OnInit, OnDestroy {
      */
     register() {
         var self = this;
-        this.backend.getUser(this.new_email).then(function(user) {
-            var aesKey: number[] = self.backend.newAES();
-            if(!self.decr_data)
-                self.decr_data = self.backend.decryptAES(self.data.encr_data);
-            var data_crypted_aes: number[] = self.backend.encryptAES(self.decr_data, aesKey);
-            var aes_crypted_shared_pub: string = self.backend.encryptRSA(aesKey, user.rsa_pub_key);
-
+        if(!this.decr_data)
+            this.decr_data = this.backend.decryptAES(this.data.encr_data);
+        this.dataservice.grantVault(this.new_email, this.data_name, this.data.encr_data).then(function(user, id) {
             self.shared_profiles[user._id] = user;
-
-            self.backend.createVault(self.data_name, user._id, data_crypted_aes, aes_crypted_shared_pub).then(function(res) {
-                self.link.shared_to[user._id] = res._id;
-            }, function(e) {
-                self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));
-            });
-        }, function(e) {
+            self.link.shared_to[user._id] = id;
+        }, function() {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));
         });
     }
@@ -197,6 +211,20 @@ export class Dataview implements OnInit, OnDestroy {
         if(!!this.shared_profiles[id])
             return this.shared_profiles[id].email;
         return this.translate.instant('unknown');
+    }
+
+    /**
+     * Return the structure directory of the data.
+     * @function sanitarize
+     * @public
+     * @param {String} name Name of data.
+     * @return {String} Displayable string.
+     */
+    sanitarize(name: string): string {
+        var parts: string[] = name.split(';');
+        parts.unshift('/');
+        var last = parts.pop();
+        return parts.join(' > ') + ' >> ' + last;
     }
     
 }

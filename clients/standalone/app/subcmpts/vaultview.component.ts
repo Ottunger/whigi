@@ -11,7 +11,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
 import {Subscription} from 'rxjs/Subscription';
-import {Backend} from '../app.service';
+import {Data} from '../data.service';
 enableProdMode();
 
 @Component({
@@ -38,13 +38,12 @@ export class Vaultview implements OnInit, OnDestroy {
      * @function constructor
      * @public
      * @param translate Translation service.
-     * @param backend App service.
      * @param router Routing service.
      * @param notif Notifications service.
      * @param routed Parameters service.
      */
-    constructor(private translate: TranslateService, private backend: Backend, private router: Router,
-        private notif: NotificationsService, private routed: ActivatedRoute) {
+    constructor(private translate: TranslateService, private router: Router,
+        private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data) {
         this.vault = {data_name: ''};
     }
 
@@ -56,18 +55,11 @@ export class Vaultview implements OnInit, OnDestroy {
     ngOnInit(): void {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
-            //Use params.email and params.name as key
-            self.backend.getUser(params['email']).then(function(user) {
+            self.dataservice.getVaultAndUser(params['email'], params['name']).then(function(user, vault, decr_data) {
                 self.sharer = user;
-                self.backend.getVault(params['name'], user._id).then(function(vault) {
-                    self.vault = vault;
-                    var aesKey: number[] = self.backend.decryptRSA(vault.aes_crypted_shared_pub);
-                    self.decr_data = self.backend.decryptAES(vault.data_rypted_aes, aesKey);
-                }, function(e) {
-                    self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.noData'));
-                    self.back();
-                });
-            }, function(e) {
+                self.vault = vault;
+                self.decr_data = decr_data;
+            }, function() {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.noData'));
                 self.back();
             });
