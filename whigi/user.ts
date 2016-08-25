@@ -166,12 +166,12 @@ export function regUser(req, res) {
             } else {
                 u.persist().then(function() {
                     mailer.sendMail({
-                        from: 'Whigi <whigi.com@gmail.com>',
+                        from: 'Whigi <' + utils.MAIL_ADDR + '>',
                         to: '<' + u.email + '>',
-                        subject: 'Your account',
-                        html: 'Click here to activate your account:<br /> \
-                            <a href="' + utils.RUNNING_ADDR + '/api/v1/activate/' + u.key + '/' + u._id + '">Click here</a><br /> \
-                            The Whigi team.'
+                        subject: utils.i18n('mail.subject.account', req),
+                        html: utils.i18n('mail.body.account', req) + '<br /> \
+                            <a href="' + utils.RUNNING_ADDR + '/api/v1/activate/' + u.key + '/' + u._id + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
+                            utils.i18n('mail.signature', req)
                     }, function(e, i) {});
                     res.type('application/json').status(201).json({error: ''});
                 }, function(e) {

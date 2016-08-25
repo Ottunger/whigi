@@ -27,6 +27,7 @@ var DEBUG = true;
 var httpsport = parseInt(process.argv[2]) || 443;
 var localhost = process.argv[3] || 'localhost';
 utils.RUNNING_ADDR = 'https://' + localhost + ':' + httpsport;
+utils.MAIL_ADDR = "whigi.com@gmail.com";
 
 /**
  * Returns the allowed HTTP vers on a ressource.

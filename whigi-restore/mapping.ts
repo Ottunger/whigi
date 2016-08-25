@@ -67,12 +67,12 @@ export function requestMapping(req, res) {
                 m.pwd_key = utils.generateRandomString(64);
                 m.persist().then(function() {
                     mailer.sendMail({
-                        from: 'Whigi <whigi.com@gmail.com>',
+                        from: 'Whigi <' + utils.MAIL_ADDR + '>',
                         to: '<' + m.email + '>',
-                        subject: 'Your account',
-                        html: 'Click here to change your password:<br /> \
-                            <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + m.pwd_key + '">Click here</a><br /> \
-                            The Whigi team.'
+                        subject: utils.i18n('mail.subject.account', req),
+                        html: utils.i18n('mail.body.reset', req) + '<br /> \
+                            <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + m.pwd_key + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
+                            utils.i18n('mail.signature', req)
                     }, function(e, i) {});
                     res.type('application/json').status(201).json({error: ''});
                 }, function(e) {

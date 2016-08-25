@@ -14,5 +14,13 @@
   "internal.noTickets": "Erreur interne: Pas de tickets",
   "internal.overload": "Erreur interne: Réessayez plus tard",
   "internal.noPath": "Erreur interne: Impossible de trouver le chemin de ce voyage",
-  "external.down": "Erreur globale: Service extérieur offline"
+  "external.down": "Erreur globale: Service extérieur offline",
+
+  "mail.subject.newData": "Nouvelle donnée partagée sur Whigi!",
+  "mail.subject.account": "Votre compte Whigi",
+  "mail.body.shared": " vous est partagé par ",
+  "mail.body.click": "Cliquez ici!",
+  "mail.body.account": "Suivez le lien pour activer votre compte:",
+  "mail.body.reset": "Suivez le lien pour changer de mot de passe:",
+  "mail.signature": "La Whigi team."
 }

@@ -21,7 +21,8 @@ var DEBUG = true;
 //Launch as >$ node index.js 443 whigi-restore.envict.com for instance
 var httpsport = parseInt(process.argv[2]) || 443;
 var localhost = process.argv[3] || 'localhost';
-var httpslocal = 'https://' + localhost + ':' + httpsport;
+utils.RUNNING_ADDR = 'https://' + localhost + ':' + httpsport;
+utils.MAIL_ADDR = "whigi.com@gmail.com";
 
 /**
  * Sets the API to connect to the database.

@@ -153,7 +153,7 @@ export class Profile implements OnInit {
      * @public
      */
     seeVault() {
-        this.router.navigate(['/vault', this.vault_email, this.vault_name]);
+        this.router.navigate(['/vault', window.encodeURIComponent(this.vault_email), this.vault_name]);
     }
 
     /**

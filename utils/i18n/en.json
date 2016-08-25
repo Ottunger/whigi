@@ -14,5 +14,13 @@
   "internal.noTickets": "Internal error: No retrievable tickets",
   "internal.overload": "Internal error: Retry later",
   "internal.noPath": "Internal error: Cannot find path associated to journey",
-  "external.down": "Global error: External service down"
+  "external.down": "Global error: External service down",
+
+  "mail.subject.newData": "New data shared on Whigi!",
+  "mail.subject.account": "Your account on Whigi",
+  "mail.body.shared": " was shared to you by ",
+  "mail.body.click": "Click here!",
+  "mail.body.account": "Click here to activate your account:",
+  "mail.body.reset": "Click here to change your password:",
+  "mail.signature": "The Whigi team."
 }

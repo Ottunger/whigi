@@ -87,10 +87,12 @@ export function regVault(req, res) {
                             sharee.shared_with_me[req.user._id][v.data_name] = v._id;
                             sharee.persist().then(function() {
                                 mailer.sendMail({
-                                    from: 'Whigi <whigi.com@gmail.com>',
+                                    from: 'Whigi <' + utils.MAIL_ADDR + '>',
                                     to: '<' + sharee.email + '>',
-                                    subject: 'New data shared',
-                                    html: 'Data named <b>' + v.data_name + '</b> was shared to you by ' + req.user.email + '.'
+                                    subject: utils.i18n('mail.subject.newData', req),
+                                    html: '<b>' + v.data_name + '</b>' + utils.i18n('mail.body.shared', req) + req.user.email + '.<br /> \
+                                        <a href="' + utils.RUNNING_ADDR + '/vault/' + encodeURIComponent(req.user.email) + '/' + v.data_name + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
+                                        utils.i18n('mail.signature', req)
                                 }, function(e, i) {});
                                 res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
                             }, function(e) {
