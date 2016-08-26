@@ -21,6 +21,7 @@
    "login.goOn": "Continue",
    "login.register": "Time to sign up",
    "login.send": "Send me an activation link!",
+   "login.sent": "Link sent!",
    "login.username": "Username",
    "login.password": "Password",
    "login.email": "Email",

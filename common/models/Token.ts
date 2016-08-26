@@ -7,7 +7,7 @@
 'use strict';
 declare var require: any
 import {Datasource} from '../Datasource';
-import {IModel} from './Imodel';
+import {IModel} from './IModel';
 
 export class Token extends IModel {
 

@@ -36,8 +36,8 @@
   },
   "scripts": {
     "serve": "lite-server index.html",
-    "build_module": "call ../../node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/app.module.ts && echo ok || echo not ok",
-    "build_main": "call ../../node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/main.ts && echo ok || echo not ok",
+    "build_module": "../../node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/app.module.ts && echo ok || echo not ok",
+    "build_main": "../../node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/main.ts && echo ok || echo not ok",
     "build-prod": "npm run build && browserify -s main app/main.js > app/bundle.js && npm run minify",
     "build": "npm run build_module && npm run build_main",
     "minify": "uglifyjs app/bundle.js --screw-ie8 --compress --mangle --output app/bundle.min.js"

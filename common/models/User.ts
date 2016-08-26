@@ -8,7 +8,7 @@
 declare var require: any
 var hash = require('js-sha256');
 import {Datasource} from '../Datasource';
-import {IModel} from './Imodel';
+import {IModel} from './IModel';
 
 export var fields = {
     username: true,
