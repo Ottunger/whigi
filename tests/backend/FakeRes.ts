@@ -1,5 +1,5 @@
 /**
- * Class for simulating a response and monitor it
+ * Class for simulating a response and monitor it.
  * @module FakeRes
  * @author Mathonet Grégoire
  */
@@ -11,7 +11,6 @@ export class FakeRes {
 
     public end: number;
     public promise: Promise;
-    private onJSON: boolean;
     private resolve: Function;
     private reject: Function;
 
@@ -19,12 +18,12 @@ export class FakeRes {
      * Creates a non determined FakeRes.
      * @function constructor
      * @public
+     * @param {Boolean} onJSON Return on JSON.
      */
-    constructor(onJSON: boolean) {
+    constructor(private onJSON: boolean) {
         var self = this;
 
         this.end = 0;
-        this.onJSON = onJSON;
         this.promise = new Promise(function(resolve, reject) {
             self.resolve = resolve;
             self.reject = reject;

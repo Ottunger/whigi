@@ -67,7 +67,7 @@ export function regVault(req, res) {
                 res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.data_name].shared_to[got.shared_to_id]});
             } else {
                 var v: Vault = new Vault({
-                    _id: utils.generateRandomString(64),
+                    _id: utils.generateRandomString(128),
                     shared_to_id: got.shared_to_id,
                     data_name: got.data_name,
                     aes_crypted_shared_pub: got.aes_crypted_shared_pub,

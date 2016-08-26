@@ -36,3 +36,13 @@ Best practice now is to use npm, issuing npm run build, npm run whigi, npm run w
    - Documents are stored in another table, alongside.
 - Whigi-restore
    - User\_id <=> master\_key bijection. This database is populated upon user creation bu Whigi, to communicate servers encrypt a welcoming message and the message. This encryption shared key is obviously of the utmost importance.
+
+# To have a possibly growing website
+Whigi is based on a CDN for data architecture, or Data-Grid.
+All Whigi instances are nodes that periodically update RLI's (Resource Location Indices) about the data they have. These RLI's are hard coded in a JSON file, but as
+the file is reloaded each time an update is made, it can change on the server without reboot.
+It is the responsibility of the RLI's to accept and process updates. They stamp incoming modifications with a timestamp in order to resolve
+newer version of data and push those updates to the otherWhigi instances they know to have it.
+All the information the RLI's have are soft-stated: they disappear if not refreshed by the updater that we assumed to have died.
+If you want to modify/rebuild the message definitions, you will need to download protoc for Google Protobufs v3.0.0 manually, from GitHub.
+The source and compiled messages definitions are stored in common/cdn.

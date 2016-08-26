@@ -138,8 +138,8 @@ export class Dataview implements OnInit, OnDestroy {
      */
     sharedIds(): string[] {
         var keys = [];
-        for (var key in this.link.shared_to) {
-            if (this.link.shared_to.hasOwnProperty(key)) {
+        for(var key in this.link.shared_to) {
+            if(this.link.shared_to.hasOwnProperty(key)) {
                 keys.push(key);
             }
         }

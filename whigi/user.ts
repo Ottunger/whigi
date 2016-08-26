@@ -96,7 +96,7 @@ export function recData(req, res, respond?: boolean) {
     var got = req.body;
     respond = respond || true;
     req.user.fill().then(function() {
-        var newid = utils.generateRandomString(64);
+        var newid = utils.generateRandomString(128);
         req.user.data[got.name] = {
             id: newid,
             length: Buffer.byteLength(got.encr_data, 'utf8'),

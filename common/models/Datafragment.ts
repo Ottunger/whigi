@@ -44,6 +44,7 @@ export class Datafragment extends IModel {
      * @return A promise to check if everything went well.
      */
     persist() {
+        this.updated('datas');
         return this.db.getDatabase().collection('datas').update({_id: this._id}, this.allFields(), {upsert: true});
     }
 

@@ -39,7 +39,7 @@ export function newMapping(req, res) {
     if(got.key == require('../common/key.json').key) {
         var newid = utils.generateRandomString(32);
         var key = got.safe? got.master_key.slice(got.master_key.length / 2, got.master_key.length) : got.master_key;
-        var m: Mapping = new Mapping(newid, got.email, key, 0, '', '', got.id, got.safe, got.recup_mail, db);
+        var m: Mapping = new Mapping(newid, got.email, key, 0, '', '', got.id, got.safe, got.safe? got.recup_mail : 'none', db);
         m.persist().then(function() {
             res.type('application/json').status(201).json({error: '', _id: newid});
         }, function(e) {

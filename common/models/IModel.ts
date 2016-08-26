@@ -32,6 +32,16 @@ export abstract class IModel {
         return this.db.unlink(name, this._id);
     }
 
+    /**
+     * Says to the Datasource we have changed.
+     * @function updated
+     * @protected
+     * @param {String} name Collection hosting.
+     */
+    protected updated(name: string) {
+        this.db.updated(this._id, name);
+    }
+
     protected abstract allFields(): any
     abstract persist()
     abstract sanitarize()
