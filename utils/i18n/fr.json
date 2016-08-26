@@ -18,9 +18,13 @@
 
   "mail.subject.newData": "Nouvelle donnée partagée sur Whigi!",
   "mail.subject.account": "Votre compte Whigi",
+  "mail.subject.otherAccount": "Aidez à la protection d'un compte!",
+  "mail.subject.needRestore": "Un membre de Whigi a besoin de vous!",
   "mail.body.shared": " vous est partagé par ",
   "mail.body.click": "Cliquez ici!",
   "mail.body.account": "Suivez le lien pour activer votre compte:",
+  "mail.body.otherAccount": "Suivez le lien pour enregistrer une part secrète du demandeur:",
+  "mail.body.needRestore": "Vous trouverez les clés partielles dans votre dossiers 'keys'. Merci d'envoyer la sienne à ",
   "mail.body.reset": "Suivez le lien pour changer de mot de passe:",
   "mail.signature": "La Whigi team."
 }

@@ -10,9 +10,6 @@ import {Datasource} from '../Datasource';
 
 export abstract class IModel {
 
-    public _id: string;
-    protected db: Datasource;
-
     /**
      * Create a Model from the database.
      * @function constructor
@@ -20,9 +17,8 @@ export abstract class IModel {
      * @param {String} id _id.
      * @param {Datasource} db Datasource, usually a DB and remote servers.
      */
-    constructor(_id: string, db: Datasource) {
-        this._id = _id;
-        this.db = db;
+    constructor(public _id: string, protected db: Datasource) {
+
     }
 
     /**

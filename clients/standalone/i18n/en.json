@@ -33,6 +33,9 @@
    "login.noSignup": "Cannot register account. Try another name / email?",
    "login.noReset": "Cannot contact recovery server",
    "login.noMatch": "Passwords no do not match or email in wrong format",
+   "login.recuperable": "Create an account whose password can be recovered later",
+   "login.safe": "Refer to a friend for password recovery. This is the safest method",
+   "login.recMail": "The system cannot find the user identified by this mail",
 
    "profile.logout": "Log out",
    "profile.data_name": "Data name",
@@ -57,6 +60,9 @@
    "reset.send": "I'm ready!",
    "reset.noReset": "Cannot reset password using this token",
    "reset.noMatch": "Passwords no dot match",
+   "reset.received": "Paste here the token you received from ",
+
+   "savekey.rec": "Key imported correctly",
 
    "error.notfound": "Not found"
 }

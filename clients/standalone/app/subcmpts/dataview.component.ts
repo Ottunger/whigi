@@ -85,8 +85,8 @@ export class Dataview implements OnInit, OnDestroy {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
             //Use params.name as key
-            self.data_name = params['name'];
-            self.link = self.backend.profile.data[params['name']];
+            self.data_name = window.decodeURIComponent(params['name']);
+            self.link = self.backend.profile.data[self.data_name];
             self.dataservice.populateUsers(self.sharedIds()).then(function(dict) {
                 self.shared_profiles = dict;
             });

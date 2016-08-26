@@ -23,6 +23,7 @@ import {Profile} from './subcmpts/profile.component';
 import {Dataview} from './subcmpts/dataview.component';
 import {Vaultview} from './subcmpts/vaultview.component';
 import {Reset} from './subcmpts/reset.component';
+import {Savekey} from './subcmpts/savekey.component';
 import {Notfound} from './subcmpts/notfound.component';
 
 @NgModule({
@@ -41,6 +42,7 @@ import {Notfound} from './subcmpts/notfound.component';
         Dataview,
         Vaultview,
         Reset,
+        Savekey,
         Notfound
     ],
     providers: [

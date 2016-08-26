@@ -401,15 +401,22 @@ export class Backend {
      * @param {String} username Username.
      * @param {String} password Password.
      * @param {String} email Email.
+     * @param {Boolean} recuperable Will be recuperable.
+     * @param {Boolean} safe Use recup_mail.
+     * @param {String} recup_mail Recup mail.
      * @return {Promise} JSON response from backend.
      */
-    createUser(first_name: string, last_name: string, username: string, password: string, email: string): Promise {
+    createUser(first_name: string, last_name: string, username: string, password: string, email: string, recuperable: boolean,
+        safe: boolean, recup_mail: string): Promise {
         return this.backend(true, 'POST', {
             first_name: first_name,
             last_name: last_name,
             username: username,
             password: password,
-            email: email
+            email: email,
+            recuperable: recuperable,
+            safe: safe,
+            recup_mail: recup_mail
         }, 'user/create' + this.regCaptcha(), false, false);
     }
 

@@ -8,15 +8,6 @@
 declare var require: any
 
 export class Mapping {
-
-    public email: string;
-    public master_key: string;
-    public pwd_key: string;
-    public _id: string;
-    public time_changed: number;
-    public token: string;
-    public bearer_id: string;
-    private db: any;
     
     /**
      * Create a USer from a bare database description.
@@ -29,17 +20,13 @@ export class Mapping {
      * @param pwd_key Password key.
      * @param token A token suitable for logging on behalf of the user specified by this email.
      * @param bearer_id Id of owner.
+     * @param safe Safe mapping.
+     * @param recup_mail Recuperation mail for safe mappings.
      * @param db Database.
      */
-    constructor(id: string, email: string, master_key: string, time_changed: number, pwd_key: string, token: string, bearer_id: string, db: any) {
-        this._id = id;
-        this.email = email;
-        this.master_key = master_key;
-        this.time_changed = time_changed;
-        this.pwd_key = pwd_key;
-        this.token = token;
-        this.bearer_id = bearer_id;
-        this.db = db;
+    constructor(public _id: string, public email: string, public master_key: string, public time_changed: number, public pwd_key: string,
+        public token: string, public bearer_id: string, public safe: boolean, public recup_mail: string, private db: any) {
+
     }
 
     /**
@@ -56,7 +43,9 @@ export class Mapping {
             pwd_key: this.pwd_key,
             time_changed: this.time_changed,
             token: this.token,
-            bearer_id: this.bearer_id
+            bearer_id: this.bearer_id,
+            safe: this.safe,
+            recup_mail: this.recup_mail
         };
         return ret;
     }
@@ -83,7 +72,9 @@ export class Mapping {
             bearer_id: this.bearer_id,
             email: this.email,
             _id: this._id,
-            time_changed: this.time_changed
+            time_changed: this.time_changed,
+            safe: this.safe,
+            recup_mail: this.recup_mail
         };
         if(key) {
             ret['pwd_key'] = this.pwd_key;

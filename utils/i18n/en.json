@@ -18,9 +18,13 @@
 
   "mail.subject.newData": "New data shared on Whigi!",
   "mail.subject.account": "Your account on Whigi",
+  "mail.subject.otherAccount": "Help save an account!",
+  "mail.subject.needRestore": "A Whigi member needs you!",
   "mail.body.shared": " was shared to you by ",
   "mail.body.click": "Click here!",
   "mail.body.account": "Click here to activate your account:",
+  "mail.body.otherAccount": "Click here to save a referant's secret part:",
+  "mail.body.needRestore": "You will find your referants' keys in your 'keys' folder. Please send his partial key to ",
   "mail.body.reset": "Click here to change your password:",
   "mail.signature": "The Whigi team."
 }

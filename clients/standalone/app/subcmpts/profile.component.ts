@@ -148,7 +148,7 @@ export class Profile implements OnInit {
      * @return {String} name Name of data.
      */
     view(name: string) {
-        this.router.navigate(['/data', name]);
+        this.router.navigate(['/data', window.encodeURIComponent(name)]);
     }
 
     /**
@@ -157,7 +157,7 @@ export class Profile implements OnInit {
      * @public
      */
     seeVault() {
-        this.router.navigate(['/vault', window.encodeURIComponent(this.vault_email), this.vault_name]);
+        this.router.navigate(['/vault', window.encodeURIComponent(this.vault_email), window.encodeURIComponent(this.vault_name)]);
     }
 
     /**

@@ -77,6 +77,15 @@ enableProdMode();
                 <input type="text" [(ngModel)]="last_name" name="n8" class="form-control" required>
             </div>
             <div class="form-group">
+                <div class="checkbox">
+                    <label><input type="checkbox" name="n9" [(ngModel)]="recuperable" checked> {{ 'login.recuperable' | translate }}</label>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" name="n10" [(ngModel)]="safe"> {{ 'login.safe' | translate }}</label>
+                </div>
+                <input type="text" [(ngModel)]="recup_mail" name="n11" class="form-control" [readonly]="!recuperable || !safe">
+            </div>
+            <div class="form-group">
                 <div id="grecaptcha"></div>
                 <button type="submit" class="btn btn-primary" (click)="signUp()">{{ 'login.send' | translate }}</button>
             </div>
@@ -91,7 +100,10 @@ export class Logging implements OnInit {
     public email: string;
     public first_name: string;
     public last_name: string;
+    public recup_mail: string;
     public persistent: boolean;
+    public recuperable: boolean;
+    public safe: boolean;
     private createCaptcha: boolean;
 
     /**
@@ -105,6 +117,8 @@ export class Logging implements OnInit {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService) {
         this.persistent = false;
+        this.recuperable = true;
+        this.safe = false;
         this.createCaptcha = true;
     }
 
@@ -158,12 +172,30 @@ export class Logging implements OnInit {
      */
     signUp() {
         var self = this;
-        if(this.password == this.password2 && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(this.email)) {
-            this.backend.createUser(this.first_name, this.last_name, this.username, this.password, this.email).then(function() {
+
+        function complete() {
+            this.backend.createUser(this.first_name, this.last_name, this.username, this.password, this.email, this.recuperable,
+                this.safe, this.recup_mail).then(function() {
                 self.notif.success(self.translate.instant('success'), self.translate.instant('login.sent'));
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
             });
+        }
+
+        if(this.password == this.password2 && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(this.email)) {
+            if(this.recuperable && this.safe) {
+                if(!/^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(this.recup_mail)) {
+                    self.notif.alert(self.translate.instant('error'), self.translate.instant('login.recMail'));
+                } else {
+                    this.backend.getUser(this.recup_mail).then(function() {
+                        complete();
+                    }, function(e) {
+                        self.notif.alert(self.translate.instant('error'), self.translate.instant('login.recMail'));
+                    });
+                }
+            } else {
+                complete()
+            }
         } else {
             self.notif.alert(self.translate.instant('error'), self.translate.instant('login.noMatch'));
         }

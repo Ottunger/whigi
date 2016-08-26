@@ -90,9 +90,11 @@ export function listData(req, res) {
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.
+ * @param {Boolean} respond Whether to answer in res.
  */
-export function recData(req, res) {
+export function recData(req, res, respond?: boolean) {
     var got = req.body;
+    respond = respond || true;
     req.user.fill().then(function() {
         var newid = utils.generateRandomString(64);
         req.user.data[got.name] = {
@@ -103,15 +105,19 @@ export function recData(req, res) {
         var frg: Datafragment = new Datafragment(newid, got.encr_data, db);
         frg.persist().then(function() {
             req.user.persist().then(function() {
-                res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid});
+                if(!!respond)
+                    res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid});
             }, function(e) {
-                res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
+                if(!!respond)
+                    res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
             });
         }, function(e) {
-            res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
+            if(!!respond)
+                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
         });
     }, function(e) {
-        res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
+        if(!!respond)
+            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
     });
 }
 
@@ -141,9 +147,24 @@ export function updateUser(req, res) {
  */
 export function regUser(req, res) {
     var user = req.body;
+    function end(u: User) {
+        u.persist().then(function() {
+            mailer.sendMail({
+                from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                to: '<' + u.email + '>',
+                subject: utils.i18n('mail.subject.account', req),
+                html: utils.i18n('mail.body.account', req) + '<br /> \
+                    <a href="' + utils.RUNNING_ADDR + '/api/v1/activate/' + u.key + '/' + u._id + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
+                    utils.i18n('mail.signature', req)
+            }, function(e, i) {});
+            res.type('application/json').status(201).json({error: ''});
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }
     function complete() {
         var u: User = new User(user, db);
-        var pre_master_key = utils.generateRandomString(64);
+        var pre_master_key: string = utils.generateRandomString(64);
         var key = new RSA();
         key.generateKeyPair(4096, 65537);
 
@@ -160,25 +181,29 @@ export function regUser(req, res) {
         u.rsa_pub_key = key.exportKey('public');
         u.rsa_pri_key = new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
             .encrypt(aes.util.convertStringToBytes(key.exportKey('private')));
-        utils.registerMapping(u._id, u.email, pre_master_key, function(err) {
-            if(err) {
-                res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
-            } else {
-                u.persist().then(function() {
-                    mailer.sendMail({
-                        from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                        to: '<' + u.email + '>',
-                        subject: utils.i18n('mail.subject.account', req),
-                        html: utils.i18n('mail.body.account', req) + '<br /> \
-                            <a href="' + utils.RUNNING_ADDR + '/api/v1/activate/' + u.key + '/' + u._id + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
-                            utils.i18n('mail.signature', req)
-                    }, function(e, i) {});
-                    res.type('application/json').status(201).json({error: ''});
-                }, function(e) {
-                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-                });
-            }
-        });
+        if(user.recuperable) {
+            utils.registerMapping(u._id, u.email, user.safe, user.recup_mail, pre_master_key, function(err) {
+                if(err) {
+                    res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+                } else {
+                    if(user.safe) {
+                        mailer.sendMail({
+                            from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                            to: '<' + user.recup_mail + '>',
+                            subject: utils.i18n('mail.subject.otherAccount', req),
+                            html: utils.i18n('mail.body.account', req) + '<br /> \
+                                <a href="' + utils.RUNNING_ADDR + '/save-key/' + encodeURIComponent(u.email) + '/' + pre_master_key.slice(0, pre_master_key.length / 2) + '">' +
+                                utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
+                        }, function(e, i) {});
+                        end(u);
+                    } else {
+                        end(u);
+                    }
+                }
+            });
+        } else {
+            end(u);
+        }
     }
     function towards() {
         db.retrieveUser('email', user.email).then(function(u) {
@@ -194,14 +219,18 @@ export function regUser(req, res) {
     utils.checkCaptcha(req.query.captcha, function(ok) {
         if(ok) {
             if(user.first_name.length > 0 && user.last_name.length > 0 && user.username.length > 0 && user.password.length > 0 && user.email.length > 0 && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(user.email)) {
-                db.retrieveUser('username', user.username).then(function(u) {
-                    if(u === undefined)
+                if(user.recuperable && user.safe && !/^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(user.recup_mail)) {
+                    res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
+                } else {
+                    db.retrieveUser('username', user.username).then(function(u) {
+                        if(u == undefined)
+                            towards();
+                        else
+                            res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+                    }, function(e) {
                         towards();
-                    else
-                        res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
-                }, function(e) {
-                    towards();
-                });
+                    });
+                }
             } else {
                 res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
             }

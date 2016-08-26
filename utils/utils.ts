@@ -24,7 +24,7 @@ export var MAIL_ADDR = '';
  * @param {String} str Encoded string.
  * @return {String} Decoded string.
  */
-export function atob(str) {
+export function atob(str: string): string {
     return new Buffer(str, 'base64').toString('binary');
 }
 
@@ -35,7 +35,7 @@ export function atob(str) {
  * @param {Number} length The length.
  * @return {String} The string.
  */
-export function generateRandomString(length) {
+export function generateRandomString(length: number): string {
     var characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     var randomString = '';
     for (var i = 0; i < length; i++) {
@@ -53,7 +53,7 @@ export function generateRandomString(length) {
  * @param {Function} callin A function that runs as a callback to each asynchrnous "apply" call.
  * @param {Function} callback Global callback.
  */
-export function loopOn(array, apply, callin, callback) {
+export function loopOn(array: any[], apply: Function, callin: Function, callback: Function) {
     var ct = 0;
     array.forEach(function(item, i) {
         apply(item, function(a, b, c) {
@@ -72,7 +72,7 @@ export function loopOn(array, apply, callin, callback) {
  * @param {Object} options The options and subject.
  * @param {Function} callback Function to be called with a boolean indicating an error.
  */
-export function sendMail(options, callback) {
+export function sendMail(options: any, callback: Function) {
     var spawn = require('child_process').spawn;
     var mail = 'MIME-Version: 1.0\n' +
         'X-Mailer: Whigi\n' +
@@ -106,7 +106,7 @@ export function sendMail(options, callback) {
  * @param {Request} req The language as a IANA code.
  * @return {String} The translated string or itself if no match.
  */
-export function i18n(str, req) {
+export function i18n(str: string, req: any) {
     var lang = req.get('Accept-Language');
     if(lang == undefined)
         lang = 'en';
@@ -154,7 +154,7 @@ export function toBytes(data: string): number[] {
  * @param {String} c Challenge.
  * @param {Function} callback Callback.
  */
-export function checkCaptcha(c, callback) {
+export function checkCaptcha(c: string, callback: Function) {
     var data = querystring.stringify({
         secret: '6LfleigTAAAAAG_-AGX7NOMgfchlIbzuBtdD5qmw',
         response: c
@@ -193,13 +193,17 @@ export function checkCaptcha(c, callback) {
  * @param {String} id Id.
  * @param {String} email Email.
  * @param {String} master_key Master key.
+ * @param {Boolean} safe Whether to use recup_mail.
+ * @param {String} recup_mail Recup mail to use.
  * @param {Function} callback Callback will be called with true if error occured.
  */
-export function registerMapping(id, email, master_key, callback) {
+export function registerMapping(id: string, email: string, master_key: string, safe: boolean, recup_mail: string, callback) {
     var data = querystring.stringify({
         id: id,
         email: email,
         master_key: master_key,
+        safe: safe,
+        recup_mail: recup_mail,
         key: require('../common/key.json').key
     });
     var options = {
@@ -235,7 +239,7 @@ export function registerMapping(id, email, master_key, callback) {
  * @param {String} bearer_id Bearer id.
  * @return {Promise} Promise that resolves when Whigi has saved the token.
  */
-export function persistToken(newid, bearer_id) {
+export function persistToken(newid: string, bearer_id: string): Promise {
     var data = querystring.stringify({
         token_id: newid,
         bearer_id: bearer_id,

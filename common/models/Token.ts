@@ -11,10 +11,6 @@ import {IModel} from './IModel';
 
 export class Token extends IModel {
 
-    public bearer_id: string;
-    public last_refresh: number;
-    public is_eternal: boolean;
-
     /**
      * Create a Token from a bare database description.
      * @function constructor
@@ -25,11 +21,8 @@ export class Token extends IModel {
      * @param is_eternal Is ticket alsways valid.
      * @param db Datasource, usually a DB and remote servers.
      */
-    constructor(id: string, bearer_id: string, last_refresh: number, is_eternal: boolean, db: Datasource) {
+    constructor(id: string, public bearer_id: string, public last_refresh: number, public is_eternal: boolean, db: Datasource) {
         super(id, db);
-        this.bearer_id = bearer_id;
-        this.last_refresh = last_refresh;
-        this.is_eternal = is_eternal;
     }
 
     /**

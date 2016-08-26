@@ -11,8 +11,6 @@ import {IModel} from './IModel';
 
 export class Datafragment extends IModel {
 
-    public encr_data: string;
-
     /**
      * Creates a data fragment, we never know what encr_data actually is.
      * @function constructor
@@ -21,10 +19,8 @@ export class Datafragment extends IModel {
      * @param encr_data Data.
      * @param db DB behind.
      */
-    constructor(_id: string, encr_data: string, db: Datasource) {
+    constructor(_id: string, public encr_data: string, db: Datasource) {
         super(_id, db);
-        this._id = _id;
-        this.encr_data = encr_data;
     }
 
     /**

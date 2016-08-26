@@ -20,6 +20,10 @@ enableProdMode();
             <div class="heading">
                 <h3 class="form-signin-heading">{{ 'reset.reset' | translate }}</h3>
             </div>
+            <div class="form-group" *ngIf="use_recup">
+                {{ 'reset.received' | translate }}{{ recup_mail }}<br />
+                <input type="text" [(ngModel)]="first_half" name="n0" class="form-control" required>
+            </div>
             <div class="form-group">
                 {{ 'reset.password' | translate }}<br />
                 <input type="password" [(ngModel)]="password" name="n4" class="form-control" required>
@@ -38,7 +42,10 @@ export class Reset implements OnInit, OnDestroy {
 
     public password: string;
     public password2: string;
+    public first_half: string;
+    public use_recup: boolean;
     private key: string;
+    private recup_mail: string;
     private sub: Subscription;
 
     /**
@@ -64,6 +71,8 @@ export class Reset implements OnInit, OnDestroy {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
             self.key = params['key'];
+            self.recup_mail = window.decodeURIComponent(params['recup_mail']);
+            self.use_recup = !!self.recup_mail && self.recup_mail.indexOf('@') > -1;
         });
     }
 
@@ -83,11 +92,20 @@ export class Reset implements OnInit, OnDestroy {
      */
     enter() {
         var self = this;
+        if(this.use_recup && (!this.first_half || this.first_half.length < 2)) {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('reset.noReset'));
+            return;
+        }
         if(this.password == this.password2) {
             this.backend.getRestore(this.key).then(function(data) {
                 sessionStorage.setItem('token', data.token);
                 self.backend.getProfile().then(function(user) {
-                    self.backend.updateProfile(self.password, self.backend.encryptMasterAES(self.password, user.salt, data.master_key)).then(function() {
+                    var encr_master_key;
+                    if(self.use_recup)
+                        self.backend.encryptMasterAES(self.password, user.salt, self.first_half + data.master_key);
+                    else
+                        self.backend.encryptMasterAES(self.password, user.salt, data.master_key)
+                    self.backend.updateProfile(self.password, encr_master_key).then(function() {
                         self.router.navigate(['']);
                     }, function(e) {
                         self.notif.error(self.translate.instant('error'), self.translate.instant('reset.noReset'));
