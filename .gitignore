@@ -4,6 +4,7 @@
 
 /common/*.js
 /common/models/*.js
+/common/cdnize/Uploader.js
 /tests/backend/FakeRes.js
 /utils/*.js
 /whigi/user.js

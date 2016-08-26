@@ -9,7 +9,7 @@ declare var require: any
 var scd = require('node-schedule');
 var querystring = require('querystring');
 var https = require('https');
-var fupt = require('../../common/cdn/full-update');
+var fupt = require('./full-update');
 import {BloomFilter} from '../../utils/BloomFilter';
 var db: any;
 var collections: string[];
@@ -68,16 +68,17 @@ function full() {
         done++;
         if(done == collections.length) {
             var msg = new fupt.FullUpdate();
+            var mappings = [];
             for(var key in ids) {
                 if(ids.hasOwnProperty(key)) {
-                    //TODO Check how protobuf does this
-                    msg.addMapping();
-                    msg.setPartial(false);
-                    msg.mapping.setName(key);
-                    msg.mapping.setIds(ids[key]);
+                    var m = new fupt.Mapping();
+                    m.setName(key);
+                    m.setIdsList(ids[key]);
+                    mappings.push(m);
                     delete ids[key];
                 }
             }
+            msg.setMappingsList(mappings);
             end(msg, false);
         }
     }
@@ -103,18 +104,22 @@ function full() {
  */
 function partial() {
     var msg = new fupt.FullUpdate();
+    var mappings = [];
     for(var key in updates) {
         if(updates.hasOwnProperty(key)) {
-            //TODO Check how protobuf does this
-            msg.addMapping();
-            msg.setPartial(true);
-            msg.mapping.setName(key);
-            msg.mapping.setIds(updates[key]);
+            var m = new fupt.Mapping();
+            m.setName(key);
+            m.setIdsList(updates[key]);
+            mappings.push(m);
             delete updates[key];
         }
     }
+    msg.setMappingsList(mappings);
+
+    //Refresh updates
     updates = {};
     filter = new BloomFilter(Math.pow(2, 20), 1000000);
+
     end(msg, true);
 }
 

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message FullUpdate {
+    repeated Mapping mappings = 1;
+}
+
+message Mapping {
+    string name = 1;
+    repeated string ids = 2;
+}
