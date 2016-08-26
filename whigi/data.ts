@@ -11,6 +11,7 @@ var utils = require('../utils/utils');
 import {User} from '../common/models/User';
 import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
+import {IModel} from '../common/models/IModel';
 var mailer;
 var db: Datasource;
 
@@ -217,4 +218,43 @@ export function accessVault(req, res) {
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
+}
+
+/**
+ * Deletes a data on behalf of Whigi RLI.
+ * @function removeAny
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function removeAny(req, res) {
+    function ok(data: IModel) {
+        data.unlink();
+        nok();
+    }
+    function nok() {
+        res.type('application/json').status(200).json({error: ''});
+    }
+
+    if(req.params.key == require('../common/key.json').key) {
+        switch(req.params.collection) {
+            case 'users':
+                db.retrieveUser('id', req.params.id).then(ok, nok);
+                break;
+            case 'datas':
+                db.retrieveData(req.params.id).then(ok, nok);
+                break;
+            case 'tokens':
+                db.retrieveToken({_id: req.params.id}).then(ok, nok);
+                break;
+            case 'vaults':
+                db.retrieveVault({_id: req.params.id}).then(ok, nok);
+                break;
+            default:
+                nok();
+                break;
+        }
+    } else {
+        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+    }
 }

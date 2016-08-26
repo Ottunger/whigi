@@ -1,5 +1,5 @@
 /**
- * Class for uploadinginformation about known data.
+ * Class for uploading information about known data.
  * @module Uploader
  * @author Mathonet Grégoire
  */
@@ -10,9 +10,11 @@ var scd = require('node-schedule');
 var querystring = require('querystring');
 var https = require('https');
 var fupt = require('../../common/cdn/full-update');
+import {BloomFilter} from '../../utils/BloomFilter';
 var db: any;
 var collections: string[];
 var updates: any;
+var filter: BloomFilter;
 
 /**
  * Actually sends the message to the endpoints.
@@ -112,6 +114,7 @@ function partial() {
         }
     }
     updates = {};
+    filter = new BloomFilter(Math.pow(2, 20), 1000000);
     end(msg, true);
 }
 
@@ -121,14 +124,16 @@ export class Uploader {
      * Creates an uploader.
      * @function constructor
      * @public
-     * @param {Number} full hours between full exports. Should be 2, 4, 6, 12. Defaults to 12.
-     * @param {Number} partial Time between partial updates.
+     * @param {Number} full hours between full exports. Should be 1, 2, 4, 6, 12, 24. Defaults to 24.
+     * @param {Number} partial Time between partial updates. Should be 1, 2, 4, 6, 12, 24. Defaults to 24.
      * @param {Object} conn Connection to local database.
      * @param {String[]} coll Collections.
      */
     constructor(private full: number, private partial: number, conn: any, coll: string[]) {
         var rule = new scd.RecurrenceRule();
         switch(full) {
+            case 1:
+                break;
             case 2:
                 rule.hour = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
                 break;
@@ -139,8 +144,11 @@ export class Uploader {
                 rule.hour = [0, 6, 12, 18];
                 break;
             case 12:
-            default:
                 rule.hour = [0, 12];
+                break;
+            case 24:
+            default:
+                rule.hour = [0];
                 break;
         }
         rule.minute = Math.floor(Math.random() * 59);
@@ -148,6 +156,8 @@ export class Uploader {
 
         rule = new scd.RecurrenceRule();
         switch(full) {
+            case 1:
+                break;
             case 2:
                 rule.hour = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
                 break;
@@ -158,8 +168,11 @@ export class Uploader {
                 rule.hour = [0, 6, 12, 18];
                 break;
             case 12:
-            default:
                 rule.hour = [0, 12];
+                break;
+            case 24:
+            default:
+                rule.hour = [0];
                 break;
         }
         rule.minute = Math.floor(Math.random() * 59);
@@ -168,6 +181,7 @@ export class Uploader {
         db = conn;
         collections = coll;
         updates = {};
+        filter = new BloomFilter(Math.pow(2, 20), 1000000);
     }
 
     /**
@@ -178,9 +192,12 @@ export class Uploader {
      * @param {String} name collection name.
      */
     markUpdated(id: string, name: string) {
-        updates[name] = updates[name] || [];
-        if(updates[name].indexOf(id) == -1)
-            updates[name].push(id);
+        if(filter.contains(id)) {
+            updates[name] = updates[name] || [];
+            if(updates[name].indexOf(id) == -1)
+                updates[name].push(id);
+        }
+        filter.add(id);
     }
 
 }

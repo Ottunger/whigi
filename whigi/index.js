@@ -68,8 +68,10 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
-        else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?$/))
+    else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/any\/[a-zA-Z0-9]+\/[a-z]+\/[a-zA-Z0-9]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
     //-----
     else
         next();
@@ -231,6 +233,7 @@ connect(function(e) {
     app.delete('/api/v:version/vault/:data_name/:shared_to_id', data.removeVault);
     app.get('/api/v:version/vault/:data_name/:sharer_id', data.getVault);
     app.get('/api/v:version/vault/time/:data_name/:shared_to_id', data.accessVault);
+    app.delete('/api/v:version/any/:key/:collection/:id', data.removeAny);
 
     //Error route
     app.use(function(req, res, next) {

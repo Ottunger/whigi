@@ -26,7 +26,7 @@ export class Datasource {
     constructor(private db: any, private useCDN?: boolean) {
         this.useCDN = this.useCDN || false;
         if(this.useCDN) {
-            this.up = new Uploader(12, 2, this.db, ['datas', 'tokens', 'users', 'vaults']);
+            this.up = new Uploader(24, 1, this.db, ['datas', 'tokens', 'users', 'vaults']);
         }
     }
 

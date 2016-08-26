@@ -60,6 +60,9 @@ Retrieves a piece of information that was shared to me.
 /api/v<any>/vault/time/<data_name>/<shared_to_id>: Get, needs auth
 Retrieves the last time the other party accessed the vault for reading.
 
+/api/v<any>/any/<shared_key>/<collection>/<id>: Delete, needs auth of whigi
+Delete from local database the specified resource.
+
 
 
 Whigi-restore endpoints:
