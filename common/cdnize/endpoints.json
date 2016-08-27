@@ -4,7 +4,8 @@
             "host": "localhost",
             "port": 443,
             "pathFull": "/full",
-            "pathPartial": "/partial"
+            "pathPartial": "/partial",
+            "pathQuestion": "/question"
         }
     ]
 }

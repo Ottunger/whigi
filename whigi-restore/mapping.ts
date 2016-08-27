@@ -1,6 +1,6 @@
 /**
  * API dealing with users, for restoring their password.
- * @module user
+ * @module mapping
  * @author Mathonet Grégoire
  */
 

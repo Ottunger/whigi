@@ -81,3 +81,21 @@ Creates a token sent by mail to retrieve master_key, lag protected. The page poi
 
 /api/v<any>/key/<token>: Get
 Retrieves the master key if token is valid and clear the token. The page that calls this method *should* inform Whigi of a password change.
+
+
+
+Whigi-RLI endpoints:
+************************
+
+/full: Post, needs auth of Whigi
+Saves what a Whigi knows.
+{"payload": "protobuf", "key": "string"}
+
+/partial: Post, needs auth of Whigi
+Saves what a Whigi has changed.
+{"payload": "protobuf", "key": "string"}
+
+/question: Post, needs auth of Whigi
+Answers which Whigi's have some data. The response is a JSON object containing a "points" object whose keys
+    are the "host" property and which each have thus a "host" property.
+{"collection": "string", "id": "string", "key": "string"}
