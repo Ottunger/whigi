@@ -134,14 +134,15 @@ export class Logging implements OnInit {
             this.backend.getProfile().then(function(profile) {
                 //Router.go...
                 self.backend.profile = profile;
-                if(set) {
+                if(!!set) {
                     sessionStorage.setItem('key_decryption', window.sha256(self.password + profile.salt));
                 }
-                if('return_url' in localStorage) {
+                if('return_url' in localStorage && localStorage.getItem('return_url') != '/') {
                     var ret: string = localStorage.getItem('return_url');
                     localStorage.removeItem('return_url');
                     self.router.navigate([ret]);
                 } else {
+                    localStorage.removeItem('return_url');
                     self.router.navigate(['/profile']);
                 }
             }, function(e) {

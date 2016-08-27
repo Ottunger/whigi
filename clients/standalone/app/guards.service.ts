@@ -7,7 +7,7 @@
 'use strict';
 import {Injectable} from '@angular/core';
 import {CanActivate} from '@angular/router';
-import {Router, CanDeactivate, RouterStateSnapshot} from '@angular/router';
+import {Router, CanDeactivate} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {Backend} from './app.service';
 import {Profile} from './subcmpts/profile.component';
@@ -22,7 +22,7 @@ export class Authguard implements CanActivate {
      * @public
      * @param router Router.
      */
-    constructor(private router: Router, private state: RouterStateSnapshot) {
+    constructor(private router: Router) {
 
     }
 
@@ -35,7 +35,8 @@ export class Authguard implements CanActivate {
     canActivate() {
         if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption'))
             return true;
-        localStorage.setItem('return_url', this.state.url);
+        if(!('return_url' in localStorage))
+            localStorage.setItem('return_url', this.router.routerState.snapshot.url);
         this.router.navigate(['/']);
         return false;
     }
@@ -53,7 +54,7 @@ export class Profileguard implements CanActivate, CanDeactivate<Profile> {
      * @param router Router.
      * @param translate Translation service.
      */
-    constructor(private backend: Backend, private router: Router, private translate: TranslateService, private state: RouterStateSnapshot) {
+    constructor(private backend: Backend, private router: Router, private translate: TranslateService) {
 
     }
 
@@ -66,7 +67,8 @@ export class Profileguard implements CanActivate, CanDeactivate<Profile> {
     canActivate() {
         if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption') && !!this.backend.profile)
             return true;
-        localStorage.setItem('return_url', this.state.url);
+        if(!('return_url' in localStorage))
+            localStorage.setItem('return_url', this.router.routerState.snapshot.url);
         this.router.navigate(['/']);
         return false;
     }
@@ -101,7 +103,7 @@ export class Fullguard implements CanActivate, CanDeactivate<Dataview> {
      * @param router Router.
      * @param translate Translation service.
      */
-    constructor(private backend: Backend, private router: Router, private translate: TranslateService, private state: RouterStateSnapshot) {
+    constructor(private backend: Backend, private router: Router, private translate: TranslateService) {
 
     }
 

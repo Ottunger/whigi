@@ -9,7 +9,7 @@ declare var require: any
 var scd = require('node-schedule');
 var querystring = require('querystring');
 var https = require('https');
-var fupt = require('./full-update');
+var fupt = require('./full-update_pb');
 import {BloomFilter} from '../../utils/BloomFilter';
 var db: any;
 var collections: string[];

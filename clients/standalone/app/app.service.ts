@@ -106,23 +106,6 @@ export class Backend {
     }
 
     /**
-     * Encrypt a string using master_key in AES.
-     * @function encryptAES
-     * @public
-     * @param {String} data Data to encrypt.
-     * @param {Bytes} key Key to use.
-     * @return {Bytes} Encrypted data.
-     */
-    encryptAES(data: string, key?: number[]): number[] {
-        if(!this.master_key && !key) {
-            this.decryptMaster();
-        }
-        key = key || this.master_key;
-        var encrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
-        return encrypter.encrypt(window.aesjs.util.convertStringToBytes(data));
-    }
-
-    /**
      * Encrypt the master AES key using password derivated AES key.
      * @function encryptMasterAES
      * @public
@@ -137,20 +120,39 @@ export class Backend {
     }
 
     /**
+     * Encrypt a string using master_key in AES.
+     * @function encryptAES
+     * @public
+     * @param {String} data Data to encrypt.
+     * @param {Bytes} key Key to use.
+     * @return {Worker} Worker object.
+     */
+    encryptAES(data: string, key?: number[]): Worker {
+        if(!this.master_key && !key) {
+            this.decryptMaster();
+        }
+        key = key || this.master_key;
+        var w = new Worker('/js/worker.js');
+        w.postMessage([data, key, true]);
+        return w;
+    }
+
+    /**
      * Decrypt a string using master_key in AES.
      * @function decryptAES
      * @public
      * @param {Bytes} data Data to decrypt.
      * @param {Bytes} key Key to use.
-     * @return {String} Decrypted data.
+     * @return {Worker} Worker object.
      */
-    decryptAES(data: number[], key?: number[]): string {
+    decryptAES(data: number[], key?: number[]): Worker {
         if(!this.master_key && !key) {
             this.decryptMaster();
         }
         key = key || this.master_key;
-        var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
-        return window.aesjs.util.convertBytesToString(decrypter.decrypt(data));
+        var w = new Worker('/js/worker.js');
+        w.postMessage([data, key, false]);
+        return w;
     }
 
     /**
@@ -208,12 +210,14 @@ export class Backend {
      * @param {Boolean} token Consider auth using token. Else expect data.username and data.password to be set.
      * @param {Boolean} puzzle Require puzzle.
      * @param {Function} ok Resolve method for retry.
-     * @param {function} nok Reject method for retry.
+     * @param {Function} nok Reject method for retry.
+     * @param {Number} num Number of retries.
      * @return {Promise} The result. On error, a description can be found in e.msg.
      */
-    private backend(whigi: boolean, method: string, data: any, url: string, auth: boolean, token: boolean, puzzle?: boolean, ok?: Function, nok?: Function): Promise {
+    private backend(whigi: boolean, method: string, data: any, url: string, auth: boolean, token: boolean, puzzle?: boolean, ok?: Function, nok?: Function, num?: number): Promise {
         var call, puzzle = puzzle || false, self = this, dest;
         var headers: Headers = new Headers();
+        num = num || 0;
 
         function accept(resolve, response) {
             var res = response.json();
@@ -224,10 +228,10 @@ export class Backend {
         }
         function retry(e, resolve, reject) {
             self.recordPuzzle(e);
-            if(e.status == 412) {
-                self.backend(whigi, method, data, url, auth, token, puzzle, resolve, reject);
+            if(e.status == 412 && num < 4) {
+                self.backend(whigi, method, data, url, auth, token, puzzle, resolve, reject, num + 1);
             } else {
-                if(e.status == 401 && token) {
+                if(e.status == 401 && token) { 
                     //Session has expired
                     sessionStorage.removeItem('token');
                     sessionStorage.removeItem('key_decryption');

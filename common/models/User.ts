@@ -157,7 +157,7 @@ export class User extends IModel {
         
         return new Promise(function(resolve, reject) {
             self.fill().then(function() {
-                this.updated('users');
+                self.updated('users');
                 self.db.getDatabase().collection('users').update({_id: self._id}, self.allFields(), {upsert: true}).then(function() {
                     resolve();
                 }, function(e) {
