@@ -58,10 +58,11 @@ export class Datasource {
      * @public
      * @param {String} id Id.
      * @param {String} name collection name.
+     * @param {Boolean} deleted Deleted or not.
      */
-    updated(id: string, name: string) {
+    updated(id: string, name: string, deleted: boolean) {
         if(this.useCDN) {
-            this.up.markUpdated(id, name);
+            this.up.markUpdated(id, name, deleted);
         }
     }
 

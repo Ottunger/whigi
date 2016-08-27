@@ -64,8 +64,9 @@ Retrieves the last time the other party accessed the vault for reading.
 /api/v<any>/any/<shared_key>/<collection>/<id>: Get, needs auth of whigi
 Retrieves from local database the specified resource.
 
-/api/v<any>/any/<shared_key>/<collection>/<id>: Delete, needs auth of whigi
+/api/v<any>/any/remove: Post, needs auth of whigi
 Delete from local database the specified resource.
+{"payload": "protobuf", "key": "string"}
 
 
 
@@ -97,5 +98,5 @@ Saves what a Whigi has changed.
 
 /question: Post, needs auth of Whigi
 Answers which Whigi's have some data. The response is a JSON object containing a "points" object whose keys
-    are the "host" property and which each have thus a "host" property.
+    are the "host" property and which map to true.
 {"collection": "string", "id": "string", "key": "string"}

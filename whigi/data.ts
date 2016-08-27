@@ -12,6 +12,7 @@ import {User} from '../common/models/User';
 import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
 import {IModel} from '../common/models/IModel';
+var fupt = require('../common/cdnize/full-update_pb');
 var mailer;
 var db: Datasource;
 
@@ -274,32 +275,32 @@ export function getAny(req, res) {
  * @param {Response} res The response.
  */
 export function removeAny(req, res) {
-    function ok(data: IModel) {
-        data.unlink();
-        nok();
-    }
-    function nok() {
-        res.type('application/json').status(200).json({error: ''});
+    var got = req.body;
+
+    function rem(name, ids) {
+        switch(name) {
+            case 'users':
+                db.getDatabase().collection('users').remove({
+                    $or: [{_id: {$in: ids}}, {email: {$in: ids}}]
+                });
+                break;
+            default:
+                db.getDatabase().collection(name).remove({_id: {$in: ids}});
+                break;
+        }
     }
 
     if(req.params.key == require('../common/key.json').key) {
-        switch(req.params.collection) {
-            case 'users':
-                db.retrieveUser('id', req.params.id).then(ok, nok);
-                break;
-            case 'datas':
-                db.retrieveData(req.params.id).then(ok, nok);
-                break;
-            case 'tokens':
-                db.retrieveToken({_id: req.params.id}).then(ok, nok);
-                break;
-            case 'vaults':
-                db.retrieveVault(req.params.id).then(ok, nok);
-                break;
-            default:
-                nok();
-                break;
+        var load = fupt.FullUpdate.deserializeBinary(got.payload);
+        var coll = load.getMappingsList();
+        for(var i = 0; i < coll.length; i++) {
+            var name = coll[i].getName();
+            var del = coll[i].getDeletedList();
+            rem(name, del);
+            del = coll[i].getIdsList();
+            rem(name, del);
         }
+        res.type('application/json').status(200).json({error: ''});
     } else {
         res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
     }

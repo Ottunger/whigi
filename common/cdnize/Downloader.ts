@@ -49,7 +49,7 @@ export class Downloader {
                     keys = Object.getOwnPropertyNames(points);
                     for(var i = 0; i < keys.length; i++) {
                         var options = {
-                            host: keys[i].host,
+                            host: keys[i],
                             port: 443,
                             path: '/api/v1/' + require('../../common/key.json').key + '/' + name + '/' + id,
                             method: 'GET'

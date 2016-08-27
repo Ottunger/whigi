@@ -11,9 +11,8 @@ var querystring = require('querystring');
 var https = require('https');
 var fupt = require('./full-update_pb');
 import {BloomFilter} from '../../utils/BloomFilter';
-var db: any;
 var collections: string[];
-var updates: any;
+var db: any, updates: any, deleted: any;
 var filter: BloomFilter;
 
 /**
@@ -124,6 +123,7 @@ function partial() {
             var m = new fupt.Mapping();
             m.setName(key);
             m.setIdsList(updates[key]);
+            m.setDeletedList(deleted[key]);
             mappings.push(m);
             delete updates[key];
         }
@@ -132,6 +132,7 @@ function partial() {
 
     //Refresh updates
     updates = {};
+    deleted = {}
     filter = new BloomFilter(Math.pow(2, 20), 1000000);
 
     end(msg, true);
@@ -200,6 +201,7 @@ export class Uploader {
         db = conn;
         collections = coll;
         updates = {};
+        deleted = {}
         filter = new BloomFilter(Math.pow(2, 20), 1000000);
     }
 
@@ -209,12 +211,19 @@ export class Uploader {
      * @public
      * @param {String} id Id.
      * @param {String} name collection name.
+     * @param {Boolean} deleted Deleted or not.
      */
-    markUpdated(id: string, name: string) {
+    markUpdated(id: string, name: string, deleted: boolean) {
         if(filter.contains(id)) {
-            updates[name] = updates[name] || [];
-            if(updates[name].indexOf(id) == -1)
-                updates[name].push(id);
+            if(deleted) {
+                deleted[name] = deleted[name] || [];
+                if(deleted[name].indexOf(id) == -1)
+                    deleted[name].push(id);
+            } else {
+                updates[name] = updates[name] || [];
+                if(updates[name].indexOf(id) == -1)
+                    updates[name].push(id);
+            }
         }
         filter.add(id);
     }

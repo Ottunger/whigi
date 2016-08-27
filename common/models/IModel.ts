@@ -29,6 +29,7 @@ export abstract class IModel {
      * @return {Promise} Whether it went OK.
      */
     protected unlinkFrom(name: string): Promise {
+        this.updated(name, true);
         return this.db.unlink(name, this._id);
     }
 
@@ -37,9 +38,11 @@ export abstract class IModel {
      * @function updated
      * @protected
      * @param {String} name Collection hosting.
+     * @param {Boolean} deleted Deleted or not.
      */
-    protected updated(name: string) {
-        this.db.updated(this._id, name);
+    protected updated(name: string, deleted?: boolean) {
+        deleted = deleted || false;
+        this.db.updated(this._id, name, deleted);
     }
 
     protected abstract allFields(): any

@@ -212,7 +212,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.Mapping.repeatedFields_ = [2];
+proto.Mapping.repeatedFields_ = [2,3];
 
 
 
@@ -243,7 +243,8 @@ proto.Mapping.prototype.toObject = function(opt_includeInstance) {
 proto.Mapping.toObject = function(includeInstance, msg) {
   var f, obj = {
     name: msg.getName(),
-    idsList: jspb.Message.getField(msg, 2)
+    idsList: jspb.Message.getField(msg, 2),
+    deletedList: jspb.Message.getField(msg, 3)
   };
 
   if (includeInstance) {
@@ -288,6 +289,11 @@ proto.Mapping.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.getIdsList().push(value);
       msg.setIdsList(msg.getIdsList());
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.getDeletedList().push(value);
+      msg.setDeletedList(msg.getDeletedList());
       break;
     default:
       reader.skipField();
@@ -341,6 +347,13 @@ proto.Mapping.prototype.serializeBinaryToWriter = function (writer) {
       f
     );
   }
+  f = this.getDeletedList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -387,6 +400,28 @@ proto.Mapping.prototype.setIdsList = function(value) {
 
 proto.Mapping.prototype.clearIdsList = function() {
   jspb.Message.setField(this, 2, []);
+};
+
+
+/**
+ * repeated string deleted = 3;
+ * If you change this array by adding, removing or replacing elements, or if you
+ * replace the array itself, then you must call the setter to update it.
+ * @return {!Array.<string>}
+ */
+proto.Mapping.prototype.getDeletedList = function() {
+  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 3));
+};
+
+
+/** @param {Array.<string>} value  */
+proto.Mapping.prototype.setDeletedList = function(value) {
+  jspb.Message.setField(this, 3, value || []);
+};
+
+
+proto.Mapping.prototype.clearDeletedList = function() {
+  jspb.Message.setField(this, 3, []);
 };
 
 

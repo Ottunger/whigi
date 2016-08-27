@@ -6,8 +6,48 @@
 
 'use strict';
 declare var require: any
+var querystring = require('querystring');
+var https = require('https');
 var utils = require('../utils/utils');
 var fupt = require('../common/cdnize/full-update_pb');
+var known = {};
+
+/**
+ * Asks a Whigi to remove known data.
+ * @function sendDelete
+ * @private
+ * @param {String} host Host.
+ * @param {String} buf Serialized message.
+ */
+function sendDelete(host: string, buf: string) {
+    var data = querystring.stringify({
+        payload: buf,
+        key: require('../../common/key.json').key
+    });
+    var options = {
+        host: host,
+        port: 443,
+        path: '/api/v1/any/remove',
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(data)
+        }
+    };
+    var ht = https.request(options, function(res) {
+        var r = '';
+        res.on('data', function(chunk) {
+            r += chunk;
+        });
+        res.on('end', function() {
+            console.log('Ask for removal to ' + host + ' ended with answer "' + r + '"');
+        });
+    }).on('error', function(err) {
+        console.log('Cannot ask for removal to ' + host);
+    });
+    ht.write(data);
+    ht.end();
+}
 
 /**
  * Takes whole state from a whigi.
@@ -17,7 +57,24 @@ var fupt = require('../common/cdnize/full-update_pb');
  * @param {Response} res The response.
  */
 export function full(req, res) {
-    
+    var got = req.body;
+    var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+    if(got.key == require('../common/key.json').key) {
+        known[ip] = {
+            at: (new Date).getTime(),
+            collections: {}
+        };
+        res.type('application/json').status(200).json({error: ''});
+
+        var load = fupt.FullUpdate.deserializeBinary(got.payload);
+        var coll = load.getMappingsList();
+        for(var i = 0; i < coll.length; i++) {
+            var name = coll[i].getName();
+            known[ip].collections[name] = coll[i].getIdsList();
+        }
+    } else {
+        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+    }
 }
 
 /**
@@ -28,7 +85,35 @@ export function full(req, res) {
  * @param {Response} res The response.
  */
 export function partial(req, res) {
-    
+    var got = req.body;
+    var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+    if(got.key == require('../common/key.json').key) {
+        known[ip] = known[ip] || {};
+        known[ip].at = (new Date).getTime();
+        res.type('application/json').status(200).json({error: ''});
+
+        var load = fupt.FullUpdate.deserializeBinary(got.payload);
+        var coll = load.getMappingsList();
+        for(var i = 0; i < coll.length; i++) {
+            var name = coll[i].getName();
+            var del = coll[i].getDeletedList();
+            known[ip].collections[name] = known[ip].collections[name] || [];
+            known[ip].collections[name] = known[ip].collections[name].filter(function(el) {
+                return del.indexOf(el) == -1;
+            });
+        }
+
+        var ips = Object.getOwnPropertyNames(known);
+        for(var i = 0; i < ips.length; i++) {
+            if(known[ips[i]].at < (new Date).getTime() - 4*60*60*1000) {
+                delete known[ips[i]];
+            } else if(known[ips[i]].at < known[ip].at) {
+                sendDelete(ips[i], req.payload);
+            }
+        }
+    } else {
+        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+    }
 }
 
 /**
@@ -39,5 +124,20 @@ export function partial(req, res) {
  * @param {Response} res The response.
  */
 export function question(req, res) {
-    
+    var got = req.body;
+    if(got.key == require('../common/key.json').key) {
+        var ret = {points: {}}, ips = Object.getOwnPropertyNames(known);
+        for(var i = 0; i < ips.length; i++) {
+            if(known[ips[i]].at < (new Date).getTime() - 4*60*60*1000) {
+                delete known[ips[i]];
+            } else {
+                if(!!known[ips[i]].collections[got.collection] && known[ips[i]].collections[got.collection].indexOf(got.id) > -1) {
+                    ret.points[ips[i]] = true;
+                }
+            }
+        }
+        res.type('application/json').status(200).json(ret);
+    } else {
+        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+    }
 }

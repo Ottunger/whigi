@@ -7,4 +7,5 @@ message FullUpdate {
 message Mapping {
     string name = 1;
     repeated string ids = 2;
+    repeated string deleted = 3;
 }
