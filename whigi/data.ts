@@ -229,6 +229,44 @@ export function accessVault(req, res) {
 }
 
 /**
+ * Gets any data on behalf of Whigi.
+ * @function getAny
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function getAny(req, res) {
+    function ok(data: IModel) {
+        res.type('application/json').status(200).json(data.sanitarize());
+    }
+    function nok() {
+        res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+    }
+
+    if(req.params.key == require('../common/key.json').key) {
+        switch(req.params.collection) {
+            case 'users':
+                db.retrieveUser('id', req.params.id).then(ok, nok);
+                break;
+            case 'datas':
+                db.retrieveData(req.params.id).then(ok, nok);
+                break;
+            case 'tokens':
+                db.retrieveToken({_id: req.params.id}).then(ok, nok);
+                break;
+            case 'vaults':
+                db.retrieveVault(req.params.id).then(ok, nok);
+                break;
+            default:
+                nok();
+                break;
+        }
+    } else {
+        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+    }
+}
+
+/**
  * Deletes a data on behalf of Whigi RLI.
  * @function removeAny
  * @public

@@ -71,7 +71,7 @@ function listOptions(path, res, next) {
     else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/any\/[a-zA-Z0-9]+\/[a-z]+\/[a-zA-Z0-9]+\/?$/))
-        res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
+        res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
     //-----
     else
         next();
@@ -233,6 +233,7 @@ connect(function(e) {
     app.delete('/api/v:version/vault/:vault_id', data.removeVault);
     app.get('/api/v:version/vault/:vault_id', data.getVault);
     app.get('/api/v:version/vault/time/:vault_id', data.accessVault);
+    app.get('/api/v:version/any/:key/:collection/:id', data.getAny);
     app.delete('/api/v:version/any/:key/:collection/:id', data.removeAny);
 
     //Error route

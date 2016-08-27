@@ -14,36 +14,6 @@ import {Profile} from './subcmpts/profile.component';
 import {Dataview} from './subcmpts/dataview.component';
 
 @Injectable()
-export class Authguard implements CanActivate {
-
-    /**
-     * Creates the service.
-     * @function constructor
-     * @public
-     * @param router Router.
-     */
-    constructor(private router: Router) {
-
-    }
-
-    /**
-     * Checks the guard.
-     * @function canActivate
-     * @public
-     * @return {Boolean} Can go through.
-     */
-    canActivate() {
-        if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption'))
-            return true;
-        if(!('return_url' in localStorage))
-            localStorage.setItem('return_url', this.router.routerState.snapshot.url);
-        this.router.navigate(['/']);
-        return false;
-    }
-
-}
-
-@Injectable()
 export class Profileguard implements CanActivate, CanDeactivate<Profile> {
 
     /**
@@ -134,6 +104,37 @@ export class Fullguard implements CanActivate, CanDeactivate<Dataview> {
         if(!component.new_email || component.new_email.length == 0)
             return true;
         return component.dialog(this.translate.instant('confirmation'));
+    }
+
+}
+
+@Injectable()
+export class Vaultguard implements CanActivate {
+
+    /**
+     * Creates the service.
+     * @function constructor
+     * @public
+     * @param backend App service.
+     * @param router Router.
+     * @param translate Translation service.
+     */
+    constructor(private backend: Backend, private router: Router, private translate: TranslateService) {
+
+    }
+
+    /**
+     * Checks the guard.
+     * @function canActivate
+     * @public
+     * @return {Boolean} Can go through.
+     */
+    canActivate() {
+        if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption') && !!this.backend.profile
+            && !!this.backend.profile.data && !!this.backend.profile.shared_with_me && !!this.backend.profile.sharer)
+            return true;
+        this.router.navigate(['/profile']);
+        return false;
     }
 
 }

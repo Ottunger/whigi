@@ -11,6 +11,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
 import {Subscription} from 'rxjs/Subscription';
+import {Backend} from '../app.service';
 import {Data} from '../data.service';
 enableProdMode();
 
@@ -42,7 +43,7 @@ export class Vaultview implements OnInit, OnDestroy {
      * @param notif Notifications service.
      * @param routed Parameters service.
      */
-    constructor(private translate: TranslateService, private router: Router,
+    constructor(private translate: TranslateService, private router: Router, private backend: Backend,
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data) {
         this.vault = {data_name: ''};
     }
@@ -55,8 +56,8 @@ export class Vaultview implements OnInit, OnDestroy {
     ngOnInit(): void {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
-            self.dataservice.getVaultAndUser(window.decodeURIComponent(params['email']), params['id']).then(function(user, vault, decr_data) {
-                self.sharer = user;
+            self.dataservice.getVault(params['id']).then(function(vault, decr_data) {
+                self.sharer = self.backend.profile.sharer;
                 self.vault = vault;
                 self.decr_data = decr_data;
             }, function() {

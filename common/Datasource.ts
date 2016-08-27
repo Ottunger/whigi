@@ -11,10 +11,12 @@ import {Datafragment} from './models/Datafragment';
 import {Token} from './models/Token';
 import {Vault} from './models/Vault';
 import {Uploader} from './cdnize/Uploader';
+import {Downloader} from './cdnize/Downloader';
 
 export class Datasource {
 
     private up: Uploader;
+    private down: Downloader;
 
     /**
      * Saves the database for later use by the connector.
@@ -27,6 +29,7 @@ export class Datasource {
         this.useCDN = this.useCDN || false;
         if(this.useCDN) {
             this.up = new Uploader(24, 1, this.db, ['datas', 'tokens', 'users', 'vaults']);
+            this.down = new Downloader();
         }
     }
 
@@ -86,7 +89,30 @@ export class Datasource {
      * @return {Promise} The required item.
      */
     private retrieveGeneric(db: string, query: any, selector: any): Promise<any> {
-        return this.db.collection(db).findOne(query, selector);
+        var self = this;
+        if(this.useCDN) {
+            return new Promise(function(resolve, reject) {
+                self.db.collection(db).findOne(query, selector).then(function(data) {
+                    if(!!data) {
+                        resolve(data);
+                    } else {
+                        self.down.fetch(query._id, db).then(function(data) {
+                            resolve(data);
+                        }, function(e) {
+                            reject(e);
+                        });
+                    }
+                }, function(e) {
+                    self.down.fetch(query._id, db).then(function(data) {
+                        resolve(data);
+                    }, function(e) {
+                        reject(e);
+                    });
+                });
+            });
+        } else {
+            return this.db.collection(db).findOne(query, selector);
+        }
     }
 
     /**

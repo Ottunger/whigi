@@ -47,6 +47,11 @@ export class Data {
                     self.check.tick();
                     break;
                 case 2:
+                    self.notif.remove();
+                    self.notif.info(self.translate.instant(encrypt? 'encrypting' : 'decrypting'), '100 %', {
+                        timeout: 300,
+                        showProgressBar: false
+                    });
                     callback(msg.data[1]);
                     break;
                 case 0:
@@ -154,25 +159,20 @@ export class Data {
     }
 
     /**
-     * Retrieve a vault a the associated user.
-     * @function getVaultAndUser
+     * Retrieve a vault.
+     * @function getVault
      * @public
-     * @param {String} email User email.
      * @param {String} id Vault id.
      * @return {Promise} Responses decrypted.
      */
-    getVaultAndUser(email: string, id: string): Promise {
+    getVault(id: string): Promise {
         var self = this;
         return new Promise(function(resolve, reject) {
-            self.backend.getUser(email).then(function(user) {
-                self.backend.getVault(id).then(function(vault) {
-                    var aesKey: number[] = self.backend.decryptRSA(vault.aes_crypted_shared_pub);
-                    self.backend.decryptAES(vault.data_crypted_aes, self.workerMgt(false, function(got) {
-                        resolve(user, vault, got);
-                    }), aesKey);
-                }, function(e) {
-                    reject();
-                });
+            self.backend.getVault(id).then(function(vault) {
+                var aesKey: number[] = self.backend.decryptRSA(vault.aes_crypted_shared_pub);
+                self.backend.decryptAES(vault.data_crypted_aes, self.workerMgt(false, function(got) {
+                    resolve(vault, got);
+                }), aesKey);
             }, function(e) {
                 reject();
             });

@@ -61,6 +61,9 @@ Retrieves a piece of information that was shared to me.
 /api/v<any>/vault/time/<vault_id>: Get, needs auth
 Retrieves the last time the other party accessed the vault for reading.
 
+/api/v<any>/any/<shared_key>/<collection>/<id>: Get, needs auth of whigi
+Retrieves from local database the specified resource.
+
 /api/v<any>/any/<shared_key>/<collection>/<id>: Delete, needs auth of whigi
 Delete from local database the specified resource.
 

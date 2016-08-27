@@ -85,12 +85,11 @@ function full() {
 
     for(var i = 0; i < collections.length; i++) {
         if(collections[i] == 'users') {
-            db.collection('users').find({}, {_id: true, email: true, key: true}).toArray().then(function(data) {
-                var ret = new Array(3 * data.length);
-                for(var j = 0; j < data.length; j += 3) {
+            db.collection('users').find({}, {_id: true, email: true}).toArray().then(function(data) {
+                var ret = new Array(2 * data.length);
+                for(var j = 0; j < data.length; j += 2) {
                     ret[j] = data[j]._id;
                     ret[j+1] = data[j].email;
-                    ret[j+2] = data[j].key;
                 }
                 ids['users'] = ret;
                 complete();

@@ -160,7 +160,8 @@ export class Profile implements OnInit {
         var self = this;
         this.backend.getUser(this.vault_email).then(function(user) {
             if(!!this.backend.profile.shared_with_me[user._id] && !!this.backend.profile.shared_with_me[user._id][self.vault_name]) {
-                this.router.navigate(['/vault', window.encodeURIComponent(self.vault_email), this.backend.profile.shared_with_me[user._id][self.vault_name]]);
+                self.backend.profile.sharer = user;
+                self.router.navigate(['/vault', window.encodeURIComponent(self.vault_email), self.backend.profile.shared_with_me[user._id][self.vault_name]]);
             } else {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.noData'));
             }
