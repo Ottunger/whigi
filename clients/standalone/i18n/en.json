@@ -54,6 +54,7 @@
    "dataview.noRevoke": "Could not revoke access",
    "dataview.noGrant": "Could not register grant. Check email?",
    "dataview.meOnly": "Data changed for you but not in vaults...",
+   "dataview.wait": "Wait for decryption before sharing",
 
    "vaultview.noData": "Cannot retrieve such vault. Maybe access was revoked...",
 

@@ -45,4 +45,4 @@ It is the responsibility of the RLI's to accept and process updates. They stamp 
 newer version of data and push those updates to the otherWhigi instances they know to have it.
 All the information the RLI's have are soft-stated: they disappear if not refreshed by the updater that we assumed to have died.
 If you want to modify/rebuild the message definitions, you will need to download protoc for Google Protobufs v3.0.0 manually, from GitHub.
-The source and compiled messages definitions are stored in common/cdn.
+The source and compiled messages definitions are stored in common/cdnize.

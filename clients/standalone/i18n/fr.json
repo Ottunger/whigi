@@ -54,6 +54,7 @@
    "dataview.noRevoke": "Impossible de supprimer l'accès",
    "dataview.noGrant": "Impossible de fournir l'accès. Vérifiez l'email?",
    "dataview.meOnly": "Donnée changée mais pas les coffres-forts...",
+   "dataview.wait": "attendez la décryption avant de partager",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
 

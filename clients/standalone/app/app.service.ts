@@ -124,15 +124,17 @@ export class Backend {
      * @function encryptAES
      * @public
      * @param {String} data Data to encrypt.
+     * @param {Function} onmsg Worker handler.
      * @param {Bytes} key Key to use.
      * @return {Worker} Worker object.
      */
-    encryptAES(data: string, key?: number[]): Worker {
+    encryptAES(data: string, onmsg: any,  key?: number[]): Worker {
         if(!this.master_key && !key) {
             this.decryptMaster();
         }
         key = key || this.master_key;
         var w = new Worker('/js/worker.js');
+        w.onmessage = onmsg;
         w.postMessage([data, key, true]);
         return w;
     }
@@ -142,15 +144,17 @@ export class Backend {
      * @function decryptAES
      * @public
      * @param {Bytes} data Data to decrypt.
+     * @param {Function} onmsg Worker handler.
      * @param {Bytes} key Key to use.
      * @return {Worker} Worker object.
      */
-    decryptAES(data: number[], key?: number[]): Worker {
+    decryptAES(data: number[], onmsg: any, key?: number[]): Worker {
         if(!this.master_key && !key) {
             this.decryptMaster();
         }
         key = key || this.master_key;
         var w = new Worker('/js/worker.js');
+        w.onmessage = onmsg;
         w.postMessage([data, key, false]);
         return w;
     }

@@ -26,6 +26,38 @@ export class Data {
     }
 
     /**
+     * Manages a worker.
+     * @function workerMgt
+     * @public
+     * @param {Object} holder An object whose property notifid should exist.
+     * @param {Boolean} encrypt Encryption or not.
+     * @param {Function} callback Callback to call with result.
+     * @return {Function} Worker onmessage implementation.
+     */
+    workerMgt(holder: any, encrypt: boolean, callback: Function) {
+        var self = this;
+        return function(msg) {
+            switch(msg.data[0]) {
+                case 1:
+                    if(!!holder.notifid)
+                        self.notif.remove(holder.notifid);
+                    holder.notifid = self.notif.info(self.translate.instant(encrypt? 'encrypting' : 'decrypting'), msg.data[1] + '%', {
+                        timeout: 0,
+                        showProgressBar: false,
+                        clickToClose: false
+                    });
+                    break;
+                case 2:
+                    callback(msg.data[1]);
+                    break;
+                case 0:
+                default:
+                    break;
+            }
+        }
+    }
+
+    /**
      * Store the user data's.
      * @function listData
      * @public
@@ -50,7 +82,7 @@ export class Data {
      * @return {Promise} Whether it went OK.
      */
     newData(name: string, value: string, ignore?: boolean): Promise {
-        var self = this, notifid;
+        var self = this;
         ignore = ignore || false;
 
         return new Promise(function(resolve, reject) {
@@ -58,35 +90,18 @@ export class Data {
                 reject('exists');
                 return;
             }
-            var worker: Worker = self.backend.encryptAES(value);
-            worker.onmessage = function(msg) {
-                switch(msg.data[0]) {
-                    case 1:
-                        if(!!notifid)
-                            self.notif.remove(notifid);
-                        notifid = self.notif.info(self.translate.instant('encrypting'), msg.data[1] + '%', {
-                            timeout: 0,
-                            showProgressBar: false,
-                            clickToClose: false
-                        });
-                        break;
-                    case 2:
-                        self.backend.postData(name, msg.data[1]).then(function(res) {
-                            self.backend.profile.data[name] = {
-                                id: res._id,
-                                length: 0,
-                                shared_to: {}
-                            }
-                            resolve();
-                        }, function(e) {
-                            reject('server');
-                        });
-                        break;
-                    case 0:
-                    default:
-                        break;
-                }
-            }
+            self.backend.encryptAES(value, self.workerMgt({data: undefined}, true, function(got) {
+                self.backend.postData(name, got).then(function(res) {
+                    self.backend.profile.data[name] = {
+                        id: res._id,
+                        length: 0,
+                        shared_to: {}
+                    }
+                    resolve();
+                }, function(e) {
+                    reject('server');
+                });
+            }));
         });
     }
 
@@ -153,8 +168,9 @@ export class Data {
             self.backend.getUser(email).then(function(user) {
                 self.backend.getVault(name, user._id).then(function(vault) {
                     var aesKey: number[] = self.backend.decryptRSA(vault.aes_crypted_shared_pub);
-                    var decr_data = self.backend.decryptAES(vault.data_crypted_aes, aesKey);
-                    resolve(user, vault, decr_data);
+                    self.backend.decryptAES(vault.data_crypted_aes, self.workerMgt({data: undefined}, false, function(got) {
+                        resolve(user, vault, got);
+                    }), aesKey);
                 }, function(e) {
                     reject();
                 });
@@ -178,14 +194,15 @@ export class Data {
         return new Promise(function(resolve, reject) {
             self.backend.getUser(email).then(function(user) {
                 var aesKey: number[] = self.backend.newAES();
-                var data_crypted_aes: number[] = self.backend.encryptAES(decr_data, aesKey);
                 var aes_crypted_shared_pub: string = self.backend.encryptRSA(aesKey, user.rsa_pub_key);
 
-                self.backend.createVault(name, user._id, data_crypted_aes, aes_crypted_shared_pub).then(function(res) {
-                    resolve(user, res._id);
-                }, function(e) {
-                    reject();
-                });
+                self.backend.encryptAES(decr_data, self.workerMgt({data: undefined}, true, function(got) {
+                    self.backend.createVault(name, user._id, got, aes_crypted_shared_pub).then(function(res) {
+                        resolve(user, res._id);
+                    }, function(e) {
+                        reject();
+                    });
+                }), aesKey);
             }, function(e) {
                 reject();
             });

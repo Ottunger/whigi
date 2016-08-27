@@ -21,11 +21,11 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
         <p>{{ 'actual' | translate }}</p>
-        <input type="text" [(ngModel)]="decr_data" class="form-control" readonly>
+        <input type="text" [ngModel]="decr_data" class="form-control" readonly>
         <br />
         <p>{{ 'modify' | translate }}</p>
         <input type="text" [(ngModel)]="new_data" class="form-control">
-        <button type="button" class="btn btn-primary" (click)="modify()">{{ 'record' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'record' | translate }}</button>
         <br />
 
         <div class="table-responsive">
@@ -43,7 +43,7 @@ enableProdMode();
                     </tr>
                     <tr>
                         <td><input type="text" [(ngModel)]="new_email" name="y0" class="form-control"></td>
-                        <td><button type="button" class="btn btn-default" (click)="register()">{{ 'record' | translate }}</button></td>
+                        <td><button type="button" class="btn btn-default" (click)="register()" [disabled]="!decr_data">{{ 'record' | translate }}</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -93,7 +93,9 @@ export class Dataview implements OnInit, OnDestroy {
 
             self.backend.getData(self.link.id).then(function(data) {
                 self.data = data;
-                self.decr_data = (self.link.length < 100)? self.backend.decryptAES(self.data.encr_data) : self.translate.instant('dataview.long');
+                self.backend.decryptAES(self.data.encr_data, self.dataservice.workerMgt({data: undefined}, false, function(got) {
+                    self.decr_data = got;
+                }));
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noData'));
             });
@@ -177,8 +179,6 @@ export class Dataview implements OnInit, OnDestroy {
      */
     register() {
         var self = this;
-        if(!this.decr_data)
-            this.decr_data = this.backend.decryptAES(this.data.encr_data);
         this.dataservice.grantVault(this.new_email, this.data_name, this.data.encr_data).then(function(user, id) {
             self.shared_profiles[user._id] = user;
             self.link.shared_to[user._id] = id;
