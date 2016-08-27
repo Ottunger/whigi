@@ -35,6 +35,7 @@ app.use(body.json());
 app.post('/full', mapping.full);
 app.post('/partial', mapping.partial);
 app.post('/question', mapping.question);
+app.post('/flag', mapping.flag);
 
 //Error route
 app.use(function(req, res) {

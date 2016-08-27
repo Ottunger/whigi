@@ -100,3 +100,7 @@ Saves what a Whigi has changed.
 Answers which Whigi's have some data. The response is a JSON object containing a "points" object whose keys
     are the "host" property and which map to true.
 {"collection": "string", "id": "string", "key": "string"}
+
+/flag: Post, needs auth of Whigi
+Flag the host as corrupted. Two flags equals a ban from service.
+{"host": "string", "key": "string"}

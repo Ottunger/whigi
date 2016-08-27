@@ -10,7 +10,7 @@ var querystring = require('querystring');
 var https = require('https');
 var utils = require('../utils/utils');
 var fupt = require('../common/cdnize/full-update_pb');
-var known = {};
+var known = {}, flags = {};
 
 /**
  * Asks a Whigi to remove known data.
@@ -59,7 +59,7 @@ function sendDelete(host: string, buf: string) {
 export function full(req, res) {
     var got = req.body;
     var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-    if(got.key == require('../common/key.json').key) {
+    if(got.key == require('../common/key.json').key && flags[ip] < 2) {
         known[ip] = {
             at: (new Date).getTime(),
             collections: {}
@@ -87,7 +87,7 @@ export function full(req, res) {
 export function partial(req, res) {
     var got = req.body;
     var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-    if(got.key == require('../common/key.json').key) {
+    if(got.key == require('../common/key.json').key && flags[ip] < 2) {
         known[ip] = known[ip] || {};
         known[ip].at = (new Date).getTime();
         res.type('application/json').status(200).json({error: ''});
@@ -137,6 +137,27 @@ export function question(req, res) {
             }
         }
         res.type('application/json').status(200).json(ret);
+    } else {
+        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+    }
+}
+
+/**
+ * Flag a host as corrupted.
+ * @function flag
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function flag(req, res) {
+    var got = req.body;
+    if(got.key == require('../common/key.json').key) {
+        flags[got.host] = flags[got.host] || 0;
+        flags[got.host]++;
+        if(flags[got.host] >= 2) {
+            known[got.host] = {};
+        }
+        res.type('application/json').status(200).json({error: ''});
     } else {
         res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
     }

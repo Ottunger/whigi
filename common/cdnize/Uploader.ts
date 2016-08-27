@@ -144,7 +144,7 @@ export class Uploader {
      * Creates an uploader.
      * @function constructor
      * @public
-     * @param {Number} full hours between full exports. Should be 1, 2, 4, 6, 12, 24. Defaults to 24.
+     * @param {Number} full Hours between full exports. Should be 1, 2, 4, 6, 12, 24. Defaults to 24.
      * @param {Number} partial Time between partial updates. Should be 1, 2, 4, 6, 12, 24. Defaults to 24.
      * @param {Object} conn Connection to local database.
      * @param {String[]} coll Collections.

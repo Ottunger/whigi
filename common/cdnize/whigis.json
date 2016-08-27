@@ -1,0 +1,10 @@
+{
+    "whigis": [
+        {
+            "host": "127.0.0.1",
+            "cmd": "/root/Whigi/common/cdnize/ftp/127.0.0.1.ftp",
+            "check": "/root/Whigi/common/cdnize/ftp/127.0.0.1.check.sh",
+            "tmpdir": "/tmp/127.0.0.1"
+        }
+    ]
+}

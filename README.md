@@ -46,3 +46,16 @@ newer version of data and push those updates to the otherWhigi instances they kn
 All the information the RLI's have are soft-stated: they disappear if not refreshed by the updater that we assumed to have died.
 If you want to modify/rebuild the message definitions, you will need to download protoc for Google Protobufs v3.0.0 manually, from GitHub.
 The source and compiled messages definitions are stored in common/cdnize.
+
+# Peer monitoring
+Peer monitoring is enabled in the following way: all Whigi instances are reuired to run an FTP daemon, we would recommend vsFTPd.
+The daemon must listen on the standard FTP port (ie, 21), and allow anyone to connect securely (ie, using SSL) in read only mode to the directory
+containing the server files (ie, this level). All Whigi instances can then retrieve this counterpart and hash the files to their owns to check
+for differences. Should any be spotted, they are entitled to inform RLI's. When an instance is flagged by two others at least, RLI's will
+consider it biaised, and not advertise it anymore.
+
+Please be careful, as this technique is not perfect: node_modules can still be changed at the moment, and if the attacker is able to forge FTP responses,
+he could make sure the answers are always good... A better technique would be to allow SSH for only a predefined set of commands, among which:
+- netstat to see if it's the good server answering
+- a diff checker on site
+Even though, those commands could have been replaced. The goal is thus to monitor soon enough for the attacker not to have the time to tamper this way.

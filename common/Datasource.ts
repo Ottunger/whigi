@@ -12,11 +12,13 @@ import {Token} from './models/Token';
 import {Vault} from './models/Vault';
 import {Uploader} from './cdnize/Uploader';
 import {Downloader} from './cdnize/Downloader';
+import {Integrity} from './cdnize/Integrity';
 
 export class Datasource {
 
     private up: Uploader;
     private down: Downloader;
+    private int: Integrity;
 
     /**
      * Saves the database for later use by the connector.
@@ -30,6 +32,7 @@ export class Datasource {
         if(this.useCDN) {
             this.up = new Uploader(24, 1, this.db, ['datas', 'tokens', 'users', 'vaults']);
             this.down = new Downloader();
+            this.int = new Integrity(12);
         }
     }
 
@@ -70,13 +73,11 @@ export class Datasource {
      * Unlink an object, reflecting it ASAP.
      * @function Unlink
      * @public
-     * @TODO Propagate
      * @param {String} name Collection name.
      * @param {String} id _id.
      * @return {Promise} Whether went OK locally.
      */
     unlink(name: string, id: string) {
-        this.updated(id, name);
         return this.db.collection(name).remove({_id: id});
     }
 
