@@ -136,9 +136,13 @@ export function removeVault(req, res) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         } else {
             if(req.params.shared_to_id in req.user.data[req.params.data_name].shared_to) {
-                db.retrieveVault({_id: req.user.data[req.params.data_name].shared_to[req.params.shared_to_id]}).then(function(v: Vault) {
+                db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
                     if(!v) {
                         res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                        return;
+                    }
+                    if(v.sharer_id != req.user._id) {
+                        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                         return;
                     }
                     db.retrieveUser('id', v.shared_to_id, true).then(function(sharee: User) {
@@ -176,20 +180,20 @@ export function removeVault(req, res) {
  * @param {Response} res The response.
  */
 export function getVault(req, res) {
-    db.retrieveVault({
-        data_name: req.params.data_name,
-        sharer_id: req.params.sharer_id,
-        shared_to_id: req.user._id
-    }).then(function(v: Vault) {
+    db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
         if(!!v) {
+            if(v.sharer_id != req.user._id && v.shared_to_id != req.user._id) {
+                res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
+                return;
+            }
             v.last_access = (new Date).getTime();
             v.persist();
             res.type('application/json').status(200).json(Object.assign({puzzle: req.user.puzzle}, v.sanitarize()));
         } else {
-            res.type('application/json').status(404).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('client.noData', req)}));
+            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
         }
     }, function(e) {
-        res.type('application/json').status(500).json(Object.assign({puzzle: req.user.puzzle}, {error: utils.i18n('internal.db', req)}));
+        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
     });
 }
 
@@ -206,7 +210,11 @@ export function accessVault(req, res) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         } else {
             if(req.params.shared_to_id in req.user.data[req.params.data_name].shared_to) {
-                db.retrieveVault({_id: req.user.data[req.params.data_name].shared_to[req.params.shared_to_id]}).then(function(v: Vault) {
+                db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
+                    if(v.sharer_id != req.user._id) {
+                        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                        return;
+                    }
                     res.type('application/json').status(200).json({last_access: v.last_access});
                 }, function(e) {
                     res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
@@ -248,7 +256,7 @@ export function removeAny(req, res) {
                 db.retrieveToken({_id: req.params.id}).then(ok, nok);
                 break;
             case 'vaults':
-                db.retrieveVault({_id: req.params.id}).then(ok, nok);
+                db.retrieveVault(req.params.id).then(ok, nok);
                 break;
             default:
                 nok();

@@ -55,8 +55,7 @@ export class Vaultview implements OnInit, OnDestroy {
     ngOnInit(): void {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
-            self.dataservice.getVaultAndUser(window.decodeURIComponent(params['email']), window.decodeURIComponent(params['name']))
-                .then(function(user, vault, decr_data) {
+            self.dataservice.getVaultAndUser(window.decodeURIComponent(params['email']), params['id']).then(function(user, vault, decr_data) {
                 self.sharer = user;
                 self.vault = vault;
                 self.decr_data = decr_data;

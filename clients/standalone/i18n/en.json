@@ -47,6 +47,7 @@
    "profile.goTo": "View",
    "profile.lookUp": "Look for a vault? Enter data name and email",
    "profile.exists": "This data already exists, edit it instead",
+   "profile.noUser": "no such user registered",
 
    "dataview.noData": "Cannot fetch data details",
    "dataview.long": "Too long for decrypting in preview",

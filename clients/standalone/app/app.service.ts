@@ -510,36 +510,33 @@ export class Backend {
      * Revokes an access granted to a vault.
      * @function revokeVault
      * @public
-     * @param {String} data_name Data name.
-     * @param {String} shared_to_id Person with who we shared.
+     * @param {String} vault_id Vault id.
      * @return {Promise} JSON response from backend.
      */
-    revokeVault(data_name: string, shared_to_id: string): Promise {
-        return this.backend(true, 'DELETE', {}, 'vault/' + data_name + '/' + shared_to_id, true, true);
+    revokeVault(vault_id: string): Promise {
+        return this.backend(true, 'DELETE', {}, 'vault/' + vault_id, true, true);
     }
 
     /**
      * Retrieves a data shared.
      * @function getVault
      * @public
-     * @param {String} data_name Data name.
-     * @param {String} sharer_id Person who shares.
+     * @param {String} vault_id Vault id.
      * @return {Promise} JSON response from backend.
      */
-    getVault(data_name: string, sharer_id: string): Promise {
-        return this.backend(true, 'GET', {}, 'vault/' + data_name + '/' + sharer_id, true, true, true);
+    getVault(vault_id: string): Promise {
+        return this.backend(true, 'GET', {}, 'vault/' + vault_id, true, true, true);
     }
 
     /**
      * Returns the time the remote person accessed the vault.
      * @function getAccessVault
      * @public
-     * @param {String} data_name Data name.
-     * @param {String} shared_to_id Person with who we shared.
+     * @param {String} vault_id Vault id.
      * @return {Promise} JSON response from backend.
      */
-    getAccessVault(data_name: string, shared_to_id: string): Promise {
-        return this.backend(true, 'GET', {}, 'vault/time/' + data_name + '/' + shared_to_id, true, true);
+    getAccessVault(vault_id: string): Promise {
+        return this.backend(true, 'GET', {}, 'vault/time/' + vault_id, true, true);
     }
 
     /**

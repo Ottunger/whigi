@@ -47,6 +47,7 @@
    "profile.goTo": "Voir",
    "profile.lookUp": "A la recherche d'une donnée partagée? Entrez son nom et l'email associé",
    "profile.exists": "Cette donnée existe déjà, modifiez-la",
+   "profile.noUser": "Pas de tel utilisateur",
 
    "dataview.noData": "Impossible d'avoir les détails de la donnée",
    "dataview.long": "Trop long pour récupérer en prévisualisation",

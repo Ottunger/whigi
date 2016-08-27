@@ -19,7 +19,7 @@ const appRoutes: Routes = [
     {path: '', component: Logging},
     {path: 'profile', component: Profile, canActivate: [Profileguard], canDeactivate: [Profileguard]},
     {path: 'data/:name', component: Dataview, canActivate: [Fullguard], canDeactivate: [Fullguard]},
-    {path: 'vault/:email/:name', component: Vaultview, canActivate: [Fullguard]},
+    {path: 'vault/:email/:id', component: Vaultview, canActivate: [Fullguard]},
     {path: 'password-recovery/:key/:recup_mail', component: Reset},
     {path: 'save-key/:mail/:key_frg', component: Savekey, canActivate: [Profileguard]},
     {path: '**', component: Notfound}

@@ -84,16 +84,31 @@ function full() {
     }
 
     for(var i = 0; i < collections.length; i++) {
-        db.collection(collections[i]).find().toArray().then(function(data) {
-            var ret = new Array(data.length);
-            for(var j = 0; j < data.length; j++) {
-                ret[i] = data[i]._id;
-            }
-            ids[collections[i]] = ret;
-            complete();
-        }, function() {
-            complete();
-        });
+        if(collections[i] == 'users') {
+            db.collection('users').find({}, {_id: true, email: true, key: true}).toArray().then(function(data) {
+                var ret = new Array(3 * data.length);
+                for(var j = 0; j < data.length; j += 3) {
+                    ret[j] = data[j]._id;
+                    ret[j+1] = data[j].email;
+                    ret[j+2] = data[j].key;
+                }
+                ids['users'] = ret;
+                complete();
+            }, function() {
+                complete();
+            });
+        } else {
+            db.collection(collections[i]).find({}, {_id: true}).toArray().then(function(data) {
+                var ret = new Array(data.length);
+                for(var j = 0; j < data.length; j++) {
+                    ret[j] = data[j]._id;
+                }
+                ids[collections[i]] = ret;
+                complete();
+            }, function() {
+                complete();
+            });
+        }
     }
 }
 

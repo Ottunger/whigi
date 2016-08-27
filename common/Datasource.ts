@@ -147,14 +147,14 @@ export class Datasource {
      * Retrieves a Vault from storage.
      * @function retrieveVault
      * @public
-     * @param {Object} sel Selector.
+     * @param {String} id Id.
      * @return {Promise} The required item.
      */
-    retrieveVault(sel): Promise<Vault> {
+    retrieveVault(id: string): Promise<Vault> {
         var self = this;
 
         return new Promise<Vault>(function(resolve, reject) {
-            self.retrieveGeneric('vaults', sel, {none: false}).then(function(data) {
+            self.retrieveGeneric('vaults', {_id: id}, {none: false}).then(function(data) {
                 if(!!data) {
                     resolve(new Vault(data, self));
                 } else {
@@ -173,7 +173,7 @@ export class Datasource {
      * @param {Object} sel Selector.
      * @return {Promise} The required item.
      */
-    retrieveToken(sel): Promise<Token> {
+    retrieveToken(sel: any): Promise<Token> {
         var self = this;
 
         return new Promise<Token>(function(resolve, reject) {

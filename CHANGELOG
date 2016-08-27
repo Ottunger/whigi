@@ -52,13 +52,13 @@ Retrieves an encrypted piece of data.
 Creates a new vault for sharing with another user.
 {"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string", "data_crypted_aes": "string"}
 
-/api/v<any>/vault/<data_name>/<shared_to_id>: Delete, needs auth
+/api/v<any>/vault/<vault_id>: Delete, needs auth
 Removes a vault from the storage, revoking access grant.
 
-/api/v<any>/vault/<data_name>/<sharer_id>: Get, needs auth, needs puzzle
+/api/v<any>/vault/<vault_id>: Get, needs auth, needs puzzle
 Retrieves a piece of information that was shared to me.
 
-/api/v<any>/vault/time/<data_name>/<shared_to_id>: Get, needs auth
+/api/v<any>/vault/time/<vault_id>: Get, needs auth
 Retrieves the last time the other party accessed the vault for reading.
 
 /api/v<any>/any/<shared_key>/<collection>/<id>: Delete, needs auth of whigi

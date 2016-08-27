@@ -6,7 +6,7 @@
 
 'use strict';
 declare var window : any
-import {Component, enableProdMode, OnInit, OnDestroy} from '@angular/core';
+import {Component, enableProdMode, OnInit, OnDestroy, ApplicationRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
@@ -72,7 +72,7 @@ export class Dataview implements OnInit, OnDestroy {
      * @param routed Parameters service.
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
-        private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data) {
+        private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data, private check: ApplicationRef) {
 
     }
 
@@ -93,8 +93,9 @@ export class Dataview implements OnInit, OnDestroy {
 
             self.backend.getData(self.link.id).then(function(data) {
                 self.data = data;
-                self.backend.decryptAES(self.data.encr_data, self.dataservice.workerMgt({data: undefined}, false, function(got) {
+                self.backend.decryptAES(self.data.encr_data, self.dataservice.workerMgt(false, function(got) {
                     self.decr_data = got;
+                    self.check.tick();
                 }));
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noData'));
@@ -165,11 +166,15 @@ export class Dataview implements OnInit, OnDestroy {
      */
     revoke(shared_to_id: string) {
         var self = this;
-        this.backend.revokeVault(this.data_name, shared_to_id).then(function() {
-            delete self.link[shared_to_id];
-        }, function(e) {
+        if(!!this.backend.profile.data[this.data_name] && !!this.backend.profile.data[this.data_name].shared_to[shared_to_id]) {
+            this.backend.revokeVault(this.backend.profile.data[this.data_name].shared_to[shared_to_id]).then(function() {
+                delete self.link[shared_to_id];
+            }, function(e) {
+                self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noRevoke'));
+            });
+        } else {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noRevoke'));
-        });
+        }
     }
 
     /**

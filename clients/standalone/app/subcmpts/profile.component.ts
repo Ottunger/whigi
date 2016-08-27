@@ -47,7 +47,7 @@ enableProdMode();
         <p>{{ 'profile.lookUp' | translate }}</p>
         <input type="text" [(ngModel)]="vault_name" name="u0" class="form-control">
         <input type="text" [(ngModel)]="vault_email" name="u1" class="form-control">
-        <button type="button" class="btn btn-default" (click)="seeVault()">{{ 'profile.goTo' | translate }}</button>
+        <button type="button" class="btn btn-default" (click)="seeVault()" [disabled]="!backend.profile.shared_with_me">{{ 'profile.goTo' | translate }}</button>
     `
 })
 export class Profile implements OnInit {
@@ -157,7 +157,16 @@ export class Profile implements OnInit {
      * @public
      */
     seeVault() {
-        this.router.navigate(['/vault', window.encodeURIComponent(this.vault_email), window.encodeURIComponent(this.vault_name)]);
+        var self = this;
+        this.backend.getUser(this.vault_email).then(function(user) {
+            if(!!this.backend.profile.shared_with_me[user._id] && !!this.backend.profile.shared_with_me[user._id][self.vault_name]) {
+                this.router.navigate(['/vault', window.encodeURIComponent(self.vault_email), this.backend.profile.shared_with_me[user._id][self.vault_name]]);
+            } else {
+                self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.noData'));
+            }
+        }, function() {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noUser'));
+        });
     }
 
     /**

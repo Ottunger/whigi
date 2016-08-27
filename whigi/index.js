@@ -66,9 +66,9 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/new\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?$/))
+    else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+\/?$/))
+    else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/any\/[a-zA-Z0-9]+\/[a-z]+\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
@@ -144,7 +144,7 @@ pass.use(new BS(function(username, hpwd, done) {
  */
 pass.use(new TS(function(token, done) {
     token = utils.atob(token.split(' ')[1]);
-    db.retrieveToken({_id: token}).then(function(ticket) {
+    db.retrieveToken(token).then(function(ticket) {
         if(!!ticket) {
             if(ticket.is_eternal == false && ticket.last_refresh < (new Date).getTime() - 30*60*1000) {
                 ticket.unlink();
@@ -198,9 +198,9 @@ connect(function(e) {
     //-----
     app.get('/api/v:version/data/:id', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/vault/new', pass.authenticate(['token', 'basic'], {session: false}));
-    app.delete('/api/v:version/vault/:data_name/:shared_to_id', pass.authenticate(['token', 'basic'], {session: false}));
-    app.get('/api/v:version/vault/:data_name/:sharer_id', pass.authenticate(['token', 'basic'], {session: false}));
-    app.get('/api/v:version/vault/time/:data_name/:shared_to_id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.delete('/api/v:version/vault/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/vault/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/vault/time/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
     //API POST CHECKS
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data']));
     app.post('/api/v:version/profile/update', checks.checkBody(['password', 'encr_master_key']));
@@ -214,7 +214,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/token/new', checks.checkPuzzle);
     //-----
     app.post('/api/v:version/vault/new', checks.checkPuzzle);
-    app.get('/api/v:version/vault/:data_name/:sharer_id', checks.checkPuzzle);
+    app.get('/api/v:version/vault/:vault_id', checks.checkPuzzle);
     //API ROUTES
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
@@ -230,9 +230,9 @@ connect(function(e) {
     //------
     app.get('/api/v:version/data/:id', data.getData);
     app.post('/api/v:version/vault/new', data.regVault);
-    app.delete('/api/v:version/vault/:data_name/:shared_to_id', data.removeVault);
-    app.get('/api/v:version/vault/:data_name/:sharer_id', data.getVault);
-    app.get('/api/v:version/vault/time/:data_name/:shared_to_id', data.accessVault);
+    app.delete('/api/v:version/vault/:vault_id', data.removeVault);
+    app.get('/api/v:version/vault/:vault_id', data.getVault);
+    app.get('/api/v:version/vault/time/:vault_id', data.accessVault);
     app.delete('/api/v:version/any/:key/:collection/:id', data.removeAny);
 
     //Error route

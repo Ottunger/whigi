@@ -5,7 +5,7 @@
  */
 
 'use strict';
-import {Injectable} from '@angular/core';
+import {Injectable, ApplicationRef} from '@angular/core';
 import {NotificationsService} from 'angular2-notifications';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {Backend} from './app.service';
@@ -21,7 +21,8 @@ export class Data {
      * @param router Routing service.
      * @param backend Backend service.
      */
-    constructor(private notif: NotificationsService, private translate: TranslateService, private backend: Backend) {
+    constructor(private notif: NotificationsService, private translate: TranslateService, private backend: Backend,
+        private check: ApplicationRef) {
 
     }
 
@@ -29,23 +30,21 @@ export class Data {
      * Manages a worker.
      * @function workerMgt
      * @public
-     * @param {Object} holder An object whose property notifid should exist.
      * @param {Boolean} encrypt Encryption or not.
      * @param {Function} callback Callback to call with result.
      * @return {Function} Worker onmessage implementation.
      */
-    workerMgt(holder: any, encrypt: boolean, callback: Function) {
+    workerMgt(encrypt: boolean, callback: Function) {
         var self = this;
         return function(msg) {
             switch(msg.data[0]) {
                 case 1:
-                    if(!!holder.notifid)
-                        self.notif.remove(holder.notifid);
-                    holder.notifid = self.notif.info(self.translate.instant(encrypt? 'encrypting' : 'decrypting'), msg.data[1] + '%', {
-                        timeout: 0,
-                        showProgressBar: false,
-                        clickToClose: false
+                    self.notif.remove();
+                    self.notif.info(self.translate.instant(encrypt? 'encrypting' : 'decrypting'), msg.data[1] + ' %', {
+                        timeout: 300,
+                        showProgressBar: false
                     });
+                    self.check.tick();
                     break;
                 case 2:
                     callback(msg.data[1]);
@@ -90,7 +89,7 @@ export class Data {
                 reject('exists');
                 return;
             }
-            self.backend.encryptAES(value, self.workerMgt({data: undefined}, true, function(got) {
+            self.backend.encryptAES(value, self.workerMgt(true, function(got) {
                 self.backend.postData(name, got).then(function(res) {
                     self.backend.profile.data[name] = {
                         id: res._id,
@@ -159,16 +158,16 @@ export class Data {
      * @function getVaultAndUser
      * @public
      * @param {String} email User email.
-     * @param {String} name Data name.
+     * @param {String} id Vault id.
      * @return {Promise} Responses decrypted.
      */
-    getVaultAndUser(email: string, name: string): Promise {
+    getVaultAndUser(email: string, id: string): Promise {
         var self = this;
         return new Promise(function(resolve, reject) {
             self.backend.getUser(email).then(function(user) {
-                self.backend.getVault(name, user._id).then(function(vault) {
+                self.backend.getVault(id).then(function(vault) {
                     var aesKey: number[] = self.backend.decryptRSA(vault.aes_crypted_shared_pub);
-                    self.backend.decryptAES(vault.data_crypted_aes, self.workerMgt({data: undefined}, false, function(got) {
+                    self.backend.decryptAES(vault.data_crypted_aes, self.workerMgt(false, function(got) {
                         resolve(user, vault, got);
                     }), aesKey);
                 }, function(e) {
@@ -196,7 +195,7 @@ export class Data {
                 var aesKey: number[] = self.backend.newAES();
                 var aes_crypted_shared_pub: string = self.backend.encryptRSA(aesKey, user.rsa_pub_key);
 
-                self.backend.encryptAES(decr_data, self.workerMgt({data: undefined}, true, function(got) {
+                self.backend.encryptAES(decr_data, self.workerMgt(true, function(got) {
                     self.backend.createVault(name, user._id, got, aes_crypted_shared_pub).then(function(res) {
                         resolve(user, res._id);
                     }, function(e) {
