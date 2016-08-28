@@ -49,7 +49,7 @@ export class Savekey implements OnInit, OnDestroy {
         this.sub = this.routed.params.subscribe(function(params) {
             self.mail = window.decodeURIComponent(params['mail']);
             self.key_frg = params['key_frg'];
-            self.dataservice.newData('keys;' + self.mail, self.key_frg).then(function() {
+            self.dataservice.newData('keys/' + self.mail, self.key_frg).then(function() {
                 self.notif.success(self.translate.instant('success'), self.translate.instant('savekey.rec'));
                 self.router.navigate(['/profile']);
             }, function(err) {

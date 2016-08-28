@@ -30,6 +30,16 @@ enableProdMode();
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td></td>
+                        <td>{{ 'profile.folder' | translate }}</td>
+                        <td><button type="button" class="btn btn-default" (click)="getUp()" [disabled]="folders==''">{{ 'profile.getUp' | translate }}</button></td>
+                    </tr>
+                    <tr *ngFor="let d of folderNames()">
+                        <td>{{ d }}</td>
+                        <td>{{ 'profile.folder' | translate }}</td>
+                        <td><button type="button" class="btn btn-default" (click)="select(d)">{{ 'profile.goTo' | translate }}</button></td>
+                    </tr>
                     <tr *ngFor="let d of dataNames()">
                         <td>{{ d }}</td>
                         <td><i>{{ 'profile.mix' | translate }}</i></td>
@@ -56,6 +66,7 @@ export class Profile implements OnInit {
     public data_value: string;
     public vault_name: string;
     public vault_email: string;
+    private folders: string;
 
     /**
      * Creates the component.
@@ -69,7 +80,7 @@ export class Profile implements OnInit {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
         private notif: NotificationsService, private dataservice: Data) {
-
+        this.folders = '';
     }
 
     /**
@@ -116,29 +127,22 @@ export class Profile implements OnInit {
     }
 
     /**
-     * Returns a name based on directory structure.
-     * @function completeName
-     * @private
-     * @return {String} Describing name.
+     * Get a folder up.
+     * @function getUp
+     * @public
      */
-    private completeName(): string {
-        return this.data_name.replace('/', ':');
-    } 
+    getUp() {
+        this.folders.replace(/[^\/]+\/$/, '');
+    }
 
     /**
-     * Keys of data names known.
-     * @function dataNames
+     * Access a folder.
+     * @function select
      * @public
-     * @return {Array} Known fields.
+     * @param {String} name Folder name.
      */
-    dataNames(): string[] {
-        var keys = [];
-        for (var key in this.backend.profile.data) {
-            if (this.backend.profile.data.hasOwnProperty(key)) {
-                keys.push(key);
-            }
-        }
-        return keys;
+    select(name: string) {
+        this.folders += name + '/';
     }
 
     /**
@@ -148,7 +152,47 @@ export class Profile implements OnInit {
      * @return {String} name Name of data.
      */
     view(name: string) {
-        this.router.navigate(['/data', window.encodeURIComponent(name)]);
+        this.router.navigate(['/data', window.encodeURIComponent(this.folders + name)]);
+    }
+
+    /**
+     * List this level.
+     * @function listLevel
+     * @public
+     * @return {Array} Known fields.
+     */
+    listLevel(): string[] {
+        return this.backend.data_trie.suggestions(this.folders, '/');
+    }
+
+    /**
+     * Keys of data names known.
+     * @function dataNames
+     * @public
+     * @return {Array} Known fields.
+     */
+    dataNames(): string[] {
+        var self = this;
+        return this.listLevel().filter(function(el: string): boolean {
+            return el.charAt(el.length - 1) != '/';
+        }).map(function(el: string): string {
+            return el.replace(/.+\//, '');
+        });;
+    }
+
+    /**
+     * Keys of folder names known.
+     * @function folderNames
+     * @public
+     * @return {Array} Known fields.
+     */
+    folderNames(): string[] {
+        var self = this;
+        return this.listLevel().filter(function(el: string): boolean {
+            return el.charAt(el.length - 1) == '/';
+        }).map(function(el: string): string {
+            return el.slice(0, -1).replace(/.+\//, '');
+        });;
     }
 
     /**
@@ -169,6 +213,16 @@ export class Profile implements OnInit {
             self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noUser'));
         });
     }
+
+    /**
+     * Returns a name based on directory structure.
+     * @function completeName
+     * @private
+     * @return {String} Describing name.
+     */
+    private completeName(): string {
+        return this.folders + this.data_name.replace('/', ':');
+    } 
 
     /**
      * Create a confirmation.

@@ -82,8 +82,9 @@ export class Data {
             for(var i = 0; i < keys.length; i++) {
                 var parts = keys[i].split('/'), j, init = parts[0];
                 for(j = 0; j < parts.length - 1; j++) {
+                    init += '/';
                     self.backend.data_trie.add(init, undefined);
-                    init = init + '/' + parts[j + 1];
+                    init += parts[j + 1];
                 }
                 self.backend.data_trie.add(keys[i], self.backend.profile.data[keys[i]]);
             }
@@ -91,8 +92,9 @@ export class Data {
             for(var i = 0; i < keys.length; i++) {
                 var parts = keys[i].split('/'), j, init = parts[0];
                 for(j = 0; j < parts.length - 1; j++) {
+                    init += '/';
                     self.backend.shared_with_me_trie.add(init, undefined);
-                    init = init + '/' + parts[j + 1];
+                    init += parts[j + 1];
                 }
                 self.backend.shared_with_me_trie.add(keys[i], self.backend.profile.shared_with_me[keys[i]]);
             }
