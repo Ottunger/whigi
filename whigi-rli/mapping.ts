@@ -59,7 +59,7 @@ function sendDelete(host: string, buf: string) {
 export function full(req, res) {
     var got = req.body;
     var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-    if(got.key == require('../common/key.json').key && flags[ip] < 2) {
+    if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
         known[ip] = {
             at: (new Date).getTime(),
             collections: {}
@@ -87,7 +87,7 @@ export function full(req, res) {
 export function partial(req, res) {
     var got = req.body;
     var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-    if(got.key == require('../common/key.json').key && flags[ip] < 2) {
+    if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
         known[ip] = known[ip] || {};
         known[ip].at = (new Date).getTime();
         res.type('application/json').status(200).json({error: ''});
@@ -151,10 +151,12 @@ export function question(req, res) {
  */
 export function flag(req, res) {
     var got = req.body;
-    if(got.key == require('../common/key.json').key) {
-        flags[got.host] = flags[got.host] || 0;
-        flags[got.host]++;
-        if(flags[got.host] >= 2) {
+    var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+    if(got.key == require('../common/key.json').key && ip in known) {
+        flags[got.host] = flags[got.host] || {date: 0};
+        if(flags[got.host].date < (new Date).getTime() - 2*60*60*1000)
+            flags[got.host][ip] = true;
+        if(Object.getOwnPropertyNames(flags[got.host][ip]).length >= 2) {
             known[got.host] = {};
         }
         res.type('application/json').status(200).json({error: ''});

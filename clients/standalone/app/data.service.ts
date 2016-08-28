@@ -9,6 +9,7 @@ import {Injectable, ApplicationRef} from '@angular/core';
 import {NotificationsService} from 'angular2-notifications';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {Backend} from './app.service';
+import {Trie} from '../utils/Trie.js';
 
 @Injectable()
 export class Data {
@@ -68,10 +69,26 @@ export class Data {
      */
     listData(): void {
         var self = this;
+        if(!!this.backend.profile.data && !!this.backend.profile.shared_with_me)
+            return;
+
+        this.backend.data_trie = new Trie();
+        this.backend.shared_with_me_trie = new Trie();
         this.backend.listData().then(function(add) {
             self.backend.profile.data = add.data;
             self.backend.profile.shared_with_me = add.shared_with_me;
+            
+            var keys = Object.getOwnPropertyNames(add.data);
+            for(var i = 0; i < keys.length; i++) {
+                self.backend.data_trie.add(keys[i], add.data[keys[i]]);
+            }
+            keys = Object.getOwnPropertyNames(add.shared_with_me);
+            for(var i = 0; i < keys.length; i++) {
+                self.backend.shared_with_me_trie.add(keys[i], add.shared_with_me[keys[i]]);
+            }
         }, function(e) {
+            self.backend.profile.data = {};
+            self.backend.profile.shared_with_me = {};
             self.notif.error(self.translate.instant('error'), self.translate.instant('noData'));
         });
     }
