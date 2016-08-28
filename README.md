@@ -7,6 +7,11 @@ Remember that clients aure authenticated using a match on hash(hash(password) + 
 # See CHANGELOG for a description fof API endpoints.
 Note that whigi-restore gets informed of the mappings email <=> master\_key but nevers informs back whigi of the disclosure. A front-end app should therefore request the master\_key then ask whigi for a password change.
 
+# Third parties
+In order to not polute the namespace of applications data names if you have a plugin that needs specific data, please record data as named
+/apps/[your-specific-app-name]/whatever . Please note that we plan on having generic information that a user might usually share stored in
+a standardized path, we suppose profile/often-shared-data
+
 # To install a Gitlab over Ubuntu 14.04:
 - sudo apt-get install vim postfix mailutils libsasl2-2 ca-certificates libsasl2-modules
 - open /etc/postfix/main.cf to add relayhost = [smtp.gmail.com]:587; smtp\_sasl\_auth\_enable = yes; smtp\_sasl\_password\_maps = hash:/etc/postfix/sasl\_passwd; smtp\_sasl\_security\_options = noanonymous; smtp\_tls\_cert\_file=/etc/ssl/certs/ssl-cert-snakeoil.pem; smtp\_tls\_key\_file=/etc/ssl/private/ssl-cert-snakeoil.key; smtp\_use\_tls=yes
@@ -42,7 +47,7 @@ Whigi is based on a CDN for data architecture, or Data-Grid.
 All Whigi instances are nodes that periodically update RLI's (Resource Location Indices) about the data they have. These RLI's are hard coded in a JSON file, but as
 the file is reloaded each time an update is made, it can change on the server without reboot.
 It is the responsibility of the RLI's to accept and process updates. They stamp incoming modifications with a timestamp in order to resolve
-newer version of data and push those updates to the otherWhigi instances they know to have it.
+newer version of data and push those updates to the other Whigi instances they know to have it.
 All the information the RLI's have are soft-stated: they disappear if not refreshed by the updater that we assumed to have died.
 If you want to modify/rebuild the message definitions, you will need to download protoc for Google Protobufs v3.0.0 manually, from GitHub.
 The source and compiled messages definitions are stored in common/cdnize.
