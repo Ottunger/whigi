@@ -10,11 +10,11 @@ import {CanActivate} from '@angular/router';
 import {Router, CanDeactivate} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {Backend} from './app.service';
-import {Profile} from './subcmpts/profile.component';
+import {Filesystem} from './subcmpts/filesystem.component';
 import {Dataview} from './subcmpts/dataview.component';
 
 @Injectable()
-export class Profileguard implements CanActivate, CanDeactivate<Profile> {
+export class Profileguard implements CanActivate, CanDeactivate<Filesystem> {
 
     /**
      * Creates the service.
@@ -52,7 +52,7 @@ export class Profileguard implements CanActivate, CanDeactivate<Profile> {
      * @param state Actual state.
      * @return {Boolean} Can go through.
      */
-    canDeactivate(component: Profile, route: any, state: any): Observable<boolean> | Promise<boolean> | boolean {
+    canDeactivate(component: Filesystem, route: any, state: any): Observable<boolean> | Promise<boolean> | boolean {
         if((!component.data_name || component.data_name.length == 0) &&
             (!component.data_value || component.data_value.length == 0)) {
             return true;

@@ -20,7 +20,7 @@ export class Backend {
     public profile: any;
     public data_trie: Trie;
     public shared_with_me_trie: Trie;
-    public sharer_mapping: {[id: string]: string};
+    public sharer_mapping: {[id: string]: any};
     public data_loaded: boolean;
     private master_key: number[];
     private rsa_key: string;

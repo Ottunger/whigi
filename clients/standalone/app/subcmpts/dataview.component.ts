@@ -17,7 +17,7 @@ enableProdMode();
 
 @Component({
     template: `
-        <h2>{{ sanitarize(data_name) }}</h2>
+        <h2>{{ dataservice.sanitarize(data_name) }}</h2>
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
         <p>{{ 'actual' | translate }}</p>
@@ -153,7 +153,7 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     back() {
-        this.router.navigate(['/profile', {folders: this.data_name.replace(/[^\/]+$/, '')}]);
+        this.router.navigate(['/filesystem', 'data', {folders: this.data_name.replace(/[^\/]+$/, '')}]);
     }
 
     /**
@@ -214,20 +214,6 @@ export class Dataview implements OnInit, OnDestroy {
         if(!!this.shared_profiles[id])
             return this.shared_profiles[id].email;
         return this.translate.instant('unknown');
-    }
-
-    /**
-     * Return the structure directory of the data.
-     * @function sanitarize
-     * @public
-     * @param {String} name Name of data.
-     * @return {String} Displayable string.
-     */
-    sanitarize(name: string): string {
-        var parts: string[] = name.split('/');
-        parts.unshift('/');
-        var last = parts.pop();
-        return parts.join(' > ') + ' >> ' + last;
     }
     
 }

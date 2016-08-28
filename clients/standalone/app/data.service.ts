@@ -28,6 +28,21 @@ export class Data {
     }
 
     /**
+     * Return the structure directory of a data.
+     * @function sanitarize
+     * @public
+     * @param {String} name Name of data.
+     * @param {Boolean} folder If folder, not display end separator.
+     * @return {String} Displayable string.
+     */
+    sanitarize(name: string, folder?: boolean): string {
+        var parts: string[] = name.split('/');
+        parts.unshift('/');
+        var last = parts.pop();
+        return parts.join(' > ') + (folder? '' : (' >> ' + last));
+    }
+
+    /**
      * Manages a worker.
      * @function workerMgt
      * @public
@@ -89,8 +104,9 @@ export class Data {
                 for(var i = 0; i < keys.length; i++) {
                     var insides = Object.getOwnPropertyNames(add.shared_with_me[keys[i]]);
                     for(var j = 0; j < insides.length; j++) {
-                        self.backend.shared_with_me_trie.addMilestones(dict[keys[i]] + '/' + insides[j], '/');
-                        self.backend.shared_with_me_trie.add(dict[keys[i]] + '/' + insides[j], self.backend.profile.shared_with_me[keys[i]][insides[j]]);
+                        self.backend.shared_with_me_trie.addMilestones(dict[keys[i]].email + '/' + insides[j], '/');
+                        self.backend.shared_with_me_trie.add(dict[keys[i]].email + '/' + insides[j], self.backend.profile.shared_with_me[keys[i]][insides[j]]);
+                        self.backend.shared_with_me_trie.addMilestones(dict[keys[i]].email, dict[keys[i]]);
                     }
                 }
             });
