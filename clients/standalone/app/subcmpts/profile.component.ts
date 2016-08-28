@@ -7,9 +7,10 @@
 'use strict';
 declare var window: any
 import {Component, enableProdMode, OnInit, ApplicationRef} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
+import {Subscription} from 'rxjs/Subscription';
 import {Backend} from '../app.service';
 import {Data} from '../data.service';
 enableProdMode();
@@ -72,6 +73,7 @@ export class Profile implements OnInit {
     public vault_name: string;
     public vault_email: string;
     private folders: string;
+    private sub: Subscription;
 
     /**
      * Creates the component.
@@ -83,7 +85,7 @@ export class Profile implements OnInit {
      * @param notif Notification service.
      * @param dataservice Data service.
      */
-    constructor(private translate: TranslateService, private backend: Backend, private router: Router,
+    constructor(private translate: TranslateService, private backend: Backend, private router: Router, private routed: ActivatedRoute,
         private notif: NotificationsService, private dataservice: Data, private check: ApplicationRef) {
         this.folders = '';
     }
@@ -94,7 +96,12 @@ export class Profile implements OnInit {
      * @public
      */
     ngOnInit(): void {
-        this.dataservice.listData();
+        var self = this;
+        this.sub = this.routed.params.subscribe(function(params) {
+            self.dataservice.listData();
+            if(!!params['folders'])
+                self.folders = params['folders'];
+        });
     }
 
     /**

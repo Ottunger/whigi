@@ -153,7 +153,7 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     back() {
-        this.router.navigate(['/profile']);
+        this.router.navigate(['/profile', {folders: this.data_name.replace(/[^\/]+$/, '')}]);
     }
 
     /**
