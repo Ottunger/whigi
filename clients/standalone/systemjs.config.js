@@ -7,6 +7,7 @@
 (function(global) {
   var map = {
     'app': 'app',
+    'utils': 'utils',
     '@angular': 'node_modules/@angular',
     'rxjs': 'node_modules/rxjs',
     'ng2-translate': 'node_modules/ng2-translate',
@@ -15,6 +16,7 @@
   };
   var packages = {
     'app': {main: 'main.js', defaultExtension: 'js'},
+    'utils': {defaultExtension: 'js'},
     'rxjs': {defaultExtension: 'js'},
     'ng2-translate': {main: 'ng2-translate.js', defaultExtension: 'js'},
     'bootstrap': {defaultExtension: 'js'},

@@ -81,18 +81,32 @@ export class Trie {
     }
 
     /**
+     * Finds an element.
+     * @function find
+     * @public
+     * @param {String} str String value.
+     * @return {Boolean} Has or not.
+     */
+    has(str: string): boolean {
+        return !!this.find(str);
+    }
+
+    /**
      * Populate an array with all the nodes beyond one.
      * @function explore
      * @private
      * @param {Node} cur Current node.
      * @param {String} str Current string.
      * @param {String[]} arr Current strings.
+     * @param {String} until Optional delimiter.
      * @return {String[]} Populated array.
      */
-    private explore(cur: Node, str: string, arr: string[]): string[] {
+    private explore(cur: Node, str: string, arr: string[], until?: string): string[] {
         var keys = Object.getOwnPropertyNames(cur.children);
         for(var i = 0; i < keys.length; i++) {
             var k = keys[i];
+            if(!!until && until == k)
+                continue;
             var next = cur.children[k];
             var nstr = str + k;
             if(next.end)
@@ -107,13 +121,19 @@ export class Trie {
      * @function suggestions
      * @public
      * @param {String} str String value.
+     * @param {String} until Optional limiter.
      * @return {String[]} Values.
      */
-    suggestions(str: string): string[] {
-        var cur = this.find(str);
-        if(!cur)
-            return [];
-        return this.explore(cur, str, []);
+    suggestions(str: string, until?: string): string[] {
+        var cur;
+        if(!!str && str.length > 0) {
+            cur = this.find(str);
+            if(!cur)
+                return [];
+        } else {
+            cur = this.rootObj;
+        }
+        return this.explore(cur, str, [], until);
     }
 
     /**

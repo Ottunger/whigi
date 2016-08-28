@@ -9,7 +9,7 @@ import {Injectable, ApplicationRef} from '@angular/core';
 import {NotificationsService} from 'angular2-notifications';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {Backend} from './app.service';
-import {Trie} from '../utils/Trie.js';
+import {Trie} from '../utils/Trie';
 
 @Injectable()
 export class Data {
@@ -69,7 +69,7 @@ export class Data {
      */
     listData(): void {
         var self = this;
-        if(!!this.backend.profile.data && !!this.backend.profile.shared_with_me)
+        if(this.backend.data_loaded)
             return;
 
         this.backend.data_trie = new Trie();
@@ -80,15 +80,27 @@ export class Data {
             
             var keys = Object.getOwnPropertyNames(add.data);
             for(var i = 0; i < keys.length; i++) {
-                self.backend.data_trie.add(keys[i], add.data[keys[i]]);
+                var parts = keys[i].split('/'), j, init = parts[0];
+                for(j = 0; j < parts.length - 1; j++) {
+                    self.backend.data_trie.add(init, undefined);
+                    init = init + '/' + parts[j + 1];
+                }
+                self.backend.data_trie.add(keys[i], self.backend.profile.data[keys[i]]);
             }
             keys = Object.getOwnPropertyNames(add.shared_with_me);
             for(var i = 0; i < keys.length; i++) {
-                self.backend.shared_with_me_trie.add(keys[i], add.shared_with_me[keys[i]]);
+                var parts = keys[i].split('/'), j, init = parts[0];
+                for(j = 0; j < parts.length - 1; j++) {
+                    self.backend.shared_with_me_trie.add(init, undefined);
+                    init = init + '/' + parts[j + 1];
+                }
+                self.backend.shared_with_me_trie.add(keys[i], self.backend.profile.shared_with_me[keys[i]]);
             }
+            self.backend.data_loaded = true;
         }, function(e) {
             self.backend.profile.data = {};
             self.backend.profile.shared_with_me = {};
+            self.backend.data_loaded = true;
             self.notif.error(self.translate.instant('error'), self.translate.instant('noData'));
         });
     }
@@ -107,7 +119,7 @@ export class Data {
         ignore = ignore || false;
 
         return new Promise(function(resolve, reject) {
-            if(!ignore && name in self.backend.profile.data) {
+            if(!ignore && self.backend.data_trie.has(name)) {
                 reject('exists');
                 return;
             }
@@ -118,6 +130,7 @@ export class Data {
                         length: 0,
                         shared_to: {}
                     }
+                    self.backend.data_trie.add(name, self.backend.profile.data[name]);
                     resolve();
                 }, function(e) {
                     reject('server');
@@ -132,17 +145,17 @@ export class Data {
      * @public
      * @param {String} name Complete name, directory prefixed.
      * @param {String} value Value.
-     * @param {Object} vault_ids A dictionary to fill user id => vault id. Must contain user id => email.
+     * @param {Object} users_mapping A dictionary that must contain user id => email.
      * @return {Promise} Whether it went OK.
      */
-    modifyData(name: string, value: string, vault_ids: any): Promise {
+    modifyData(name: string, value: string, users_mapping: any): Promise {
         var i = 0, names = keys(), max = names.length, went = true;
         var self = this;
 
         function keys(): string[] {
             var keys = [];
-            for (var key in vault_ids) {
-                if (vault_ids.hasOwnProperty(key)) {
+            for (var key in users_mapping) {
+                if (users_mapping.hasOwnProperty(key)) {
                     keys.push(key);
                 }
             }
@@ -151,6 +164,7 @@ export class Data {
         function check(ok, nok) {
             i++;
             if(i >= max) {
+                self.listData();
                 if(went)
                     ok();
                 else
@@ -161,8 +175,7 @@ export class Data {
         return new Promise(function(resolve, reject) {
             self.newData(name, value, true).then(function() {
                 names.forEach(function(id) {
-                    self.grantVault(vault_ids[id], name, value).then(function(user, newid) {
-                        vault_ids[id] = newid;
+                    self.grantVault(users_mapping[id], name, value).then(function(user, newid) {
                         check(resolve, reject);
                     }, function() {
                         went = false;

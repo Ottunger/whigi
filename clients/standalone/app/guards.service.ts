@@ -85,7 +85,7 @@ export class Fullguard implements CanActivate, CanDeactivate<Dataview> {
      */
     canActivate() {
         if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption') && !!this.backend.profile
-            && !!this.backend.profile.data && !!this.backend.profile.shared_with_me)
+            && !!this.backend.data_loaded)
             return true;
         this.router.navigate(['/profile']);
         return false;
@@ -131,7 +131,7 @@ export class Vaultguard implements CanActivate {
      */
     canActivate() {
         if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption') && !!this.backend.profile
-            && !!this.backend.profile.data && !!this.backend.profile.shared_with_me && !!this.backend.profile.sharer)
+            && !!this.backend.data_loaded && !!this.backend.profile.sharer)
             return true;
         this.router.navigate(['/profile']);
         return false;

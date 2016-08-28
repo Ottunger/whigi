@@ -12,7 +12,7 @@ import {Router} from '@angular/router';
 import {NotificationsService} from 'angular2-notifications';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import * as toPromise from 'rxjs/add/operator/toPromise';
-import {Trie} from '../utils/Trie.js';
+import {Trie} from '../utils/Trie';
 
 @Injectable()
 export class Backend {
@@ -20,6 +20,7 @@ export class Backend {
     public profile: any;
     public data_trie: Trie;
     public shared_with_me_trie: Trie;
+    public data_loaded: boolean;
     private master_key: number[];
     private rsa_key: string;
     private BASE_URL = 'https://localhost/api/v1/';
@@ -35,8 +36,7 @@ export class Backend {
      * @param translate Translation service.
      */
     constructor(private http: Http, private router: Router, private notif: NotificationsService, private translate: TranslateService) {
-        this.data_trie = new Trie();
-        this.shared_with_me_trie = new Trie();
+        this.data_loaded = false;
     }
 
     /**

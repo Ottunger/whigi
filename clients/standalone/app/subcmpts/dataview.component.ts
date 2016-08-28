@@ -53,7 +53,6 @@ enableProdMode();
 export class Dataview implements OnInit, OnDestroy {
 
     public data: any;
-    public link: any;
     public data_name: string;
     public decr_data: string;
     public new_data: string;
@@ -86,12 +85,11 @@ export class Dataview implements OnInit, OnDestroy {
         this.sub = this.routed.params.subscribe(function(params) {
             //Use params.name as key
             self.data_name = window.decodeURIComponent(params['name']);
-            self.link = self.backend.profile.data[self.data_name];
             self.dataservice.populateUsers(self.sharedIds()).then(function(dict) {
                 self.shared_profiles = dict;
             });
 
-            self.backend.getData(self.link.id).then(function(data) {
+            self.backend.getData(self.backend.profile.data[self.data_name].id).then(function(data) {
                 self.data = data;
                 self.backend.decryptAES(self.data.encr_data, self.dataservice.workerMgt(false, function(got) {
                     self.decr_data = got;
@@ -118,12 +116,12 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     modify() {
-        var self = this, names = this.sharedIds();
+        var self = this, names = this.sharedIds(), dict = {};
 
         for(var i = 0; i < names.length; i++) {
-            this.link.shared_to[names[i]] = this.shared_profiles[names[i]].email;
+            dict[names[i]] = this.shared_profiles[names[i]].email;
         }
-        this.dataservice.modifyData(this.data_name, this.new_data, this.link.shared_to).then(function() {
+        this.dataservice.modifyData(this.data_name, this.new_data, dict).then(function() {
             //Already populated
         }, function(err) {
             if(err == 'server')
@@ -141,8 +139,8 @@ export class Dataview implements OnInit, OnDestroy {
      */
     sharedIds(): string[] {
         var keys = [];
-        for(var key in this.link.shared_to) {
-            if(this.link.shared_to.hasOwnProperty(key)) {
+        for(var key in this.backend.profile.data[this.data_name].shared_to) {
+            if(this.backend.profile.data[this.data_name].shared_to.hasOwnProperty(key)) {
                 keys.push(key);
             }
         }
@@ -168,7 +166,7 @@ export class Dataview implements OnInit, OnDestroy {
         var self = this;
         if(!!this.backend.profile.data[this.data_name] && !!this.backend.profile.data[this.data_name].shared_to[shared_to_id]) {
             this.backend.revokeVault(this.backend.profile.data[this.data_name].shared_to[shared_to_id]).then(function() {
-                delete self.link[shared_to_id];
+                delete self.backend.profile.data[self.data_name][shared_to_id];
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noRevoke'));
             });
@@ -186,7 +184,7 @@ export class Dataview implements OnInit, OnDestroy {
         var self = this;
         this.dataservice.grantVault(this.new_email, this.data_name, this.data.encr_data).then(function(user, id) {
             self.shared_profiles[user._id] = user;
-            self.link.shared_to[user._id] = id;
+            self.backend.profile.data[self.data_name].shared_to[user._id] = id;
         }, function() {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));
         });
@@ -226,7 +224,7 @@ export class Dataview implements OnInit, OnDestroy {
      * @return {String} Displayable string.
      */
     sanitarize(name: string): string {
-        var parts: string[] = name.split(';');
+        var parts: string[] = name.split('/');
         parts.unshift('/');
         var last = parts.pop();
         return parts.join(' > ') + ' >> ' + last;

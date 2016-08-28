@@ -122,7 +122,7 @@ export class Profile implements OnInit {
      * @return {String} Describing name.
      */
     private completeName(): string {
-        return this.data_name.replace(';', ':');
+        return this.data_name.replace('/', ':');
     } 
 
     /**
