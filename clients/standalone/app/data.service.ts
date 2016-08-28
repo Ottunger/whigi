@@ -63,7 +63,7 @@ export class Data {
     }
 
     /**
-     * Store the user data's.
+     * Store the user data's. Build the trie's for data and whared_with_me.
      * @function listData
      * @public
      */
@@ -84,10 +84,16 @@ export class Data {
                 self.backend.data_trie.add(keys[i], self.backend.profile.data[keys[i]]);
             }
             keys = Object.getOwnPropertyNames(add.shared_with_me);
-            for(var i = 0; i < keys.length; i++) {
-                self.backend.shared_with_me_trie.addMilestones(keys[i], '/');
-                self.backend.shared_with_me_trie.add(keys[i], self.backend.profile.shared_with_me[keys[i]]);
-            }
+            self.populateUsers(keys).then(function(dict) {
+                self.backend.sharer_mapping = dict;
+                for(var i = 0; i < keys.length; i++) {
+                    var insides = Object.getOwnPropertyNames(add.shared_with_me[keys[i]]);
+                    for(var j = 0; j < insides.length; j++) {
+                        self.backend.shared_with_me_trie.addMilestones(dict[keys[i]] + '/' + insides[j], '/');
+                        self.backend.shared_with_me_trie.add(dict[keys[i]] + '/' + insides[j], self.backend.profile.shared_with_me[keys[i]][insides[j]]);
+                    }
+                }
+            });
             self.backend.data_loaded = true;
         }, function(e) {
             self.backend.profile.data = {};

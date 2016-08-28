@@ -91,24 +91,24 @@ export class Integrity {
         switch(spacing) {
             case 1:
                 break;
-            case 2:
-                rule.hour = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
+             case 2:
+                rule.hour = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(function(el) { return el + Math.floor(Math.random() * 2) });
                 break;
             case 4:
-                rule.hour = [0, 4, 8, 12, 16, 20];
+                rule.hour = [0, 4, 8, 12, 16, 20].map(function(el) { return el + Math.floor(Math.random() * 4) });
                 break;
             case 6:
-                rule.hour = [0, 6, 12, 18];
+                rule.hour = [0, 6, 12, 18].map(function(el) { return el + Math.floor(Math.random() * 6) });
                 break;
             case 12:
-                rule.hour = [0, 12];
+                rule.hour = [0, 12].map(function(el) { return el + Math.floor(Math.random() * 12) });
                 break;
             case 24:
             default:
-                rule.hour = [0];
+                rule.hour = [Math.floor(Math.random() * 24)];
                 break;
         }
-        rule.minute = Math.floor(Math.random() * 59);
+        rule.minute = Math.floor(Math.random() * 60);
         scd.scheduleJob(rule, check);
     }
 
