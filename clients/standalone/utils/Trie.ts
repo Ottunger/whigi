@@ -59,6 +59,27 @@ export class Trie {
     }
 
     /**
+     * Adds all milestones in string at sequence character. Does not record what is beyond the last milestone, so no milestone in string does not record anything.
+     * @function addMilestones
+     * @public
+     * @param {String} str String value.
+     * @param {String} sep Milestone.
+     */
+    addMilestones(str: string, sel: string) {
+        if(sel == '0')
+            str = str + '1';
+        else
+            str = str + '0';
+
+        var parts = str.split(sel), j, init = parts[0];
+        for(j = 0; j < parts.length - 1; j++) {
+            init += sel;
+            this.add(init, undefined);
+            init += parts[j + 1];
+        }
+    }
+
+    /**
      * Finds an element.
      * @function find
      * @public
@@ -101,17 +122,17 @@ export class Trie {
      * @param {String} until Optional delimiter.
      * @return {String[]} Populated array.
      */
-    private explore(cur: Node, str: string, arr: string[], until?: string): string[] {
+    private explore(cur: Node, str: string, arr: string[], until: string): string[] {
         var keys = Object.getOwnPropertyNames(cur.children);
         for(var i = 0; i < keys.length; i++) {
             var k = keys[i];
-            if(!!until && until == k)
-                continue;
             var next = cur.children[k];
             var nstr = str + k;
             if(next.end)
                 arr.push(nstr);
-            arr.concat(this.explore(next, nstr, arr));
+            if(!!until && until == k)
+                continue;
+            arr.concat(this.explore(next, nstr, arr, until));
         }
         return arr;
     }

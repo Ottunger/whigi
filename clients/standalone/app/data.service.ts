@@ -80,22 +80,12 @@ export class Data {
             
             var keys = Object.getOwnPropertyNames(add.data);
             for(var i = 0; i < keys.length; i++) {
-                var parts = keys[i].split('/'), j, init = parts[0];
-                for(j = 0; j < parts.length - 1; j++) {
-                    init += '/';
-                    self.backend.data_trie.add(init, undefined);
-                    init += parts[j + 1];
-                }
+                self.backend.data_trie.addMilestones(keys[i], '/');
                 self.backend.data_trie.add(keys[i], self.backend.profile.data[keys[i]]);
             }
             keys = Object.getOwnPropertyNames(add.shared_with_me);
             for(var i = 0; i < keys.length; i++) {
-                var parts = keys[i].split('/'), j, init = parts[0];
-                for(j = 0; j < parts.length - 1; j++) {
-                    init += '/';
-                    self.backend.shared_with_me_trie.add(init, undefined);
-                    init += parts[j + 1];
-                }
+                self.backend.shared_with_me_trie.addMilestones(keys[i], '/');
                 self.backend.shared_with_me_trie.add(keys[i], self.backend.profile.shared_with_me[keys[i]]);
             }
             self.backend.data_loaded = true;
@@ -132,6 +122,7 @@ export class Data {
                         length: 0,
                         shared_to: {}
                     }
+                    self.backend.data_trie.addMilestones(name, '/');
                     self.backend.data_trie.add(name, self.backend.profile.data[name]);
                     resolve();
                 }, function(e) {

@@ -6,7 +6,7 @@
 
 'use strict';
 declare var window: any
-import {Component, enableProdMode, OnInit} from '@angular/core';
+import {Component, enableProdMode, OnInit, ApplicationRef} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
@@ -47,6 +47,11 @@ enableProdMode();
                     </tr>
                     <tr>
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
+                        <td>{{ 'profile.folder' | translate }}</td>
+                        <td><button type="button" class="btn btn-default" (click)="select(data_name); data_name=''">{{ 'record' | translate }}</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
                         <td><button type="button" class="btn btn-default" (click)="register()">{{ 'record' | translate }}</button></td>
                     </tr>
@@ -79,7 +84,7 @@ export class Profile implements OnInit {
      * @param dataservice Data service.
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
-        private notif: NotificationsService, private dataservice: Data) {
+        private notif: NotificationsService, private dataservice: Data, private check: ApplicationRef) {
         this.folders = '';
     }
 
@@ -118,6 +123,7 @@ export class Profile implements OnInit {
         this.dataservice.newData(this.completeName(), this.data_value).then(function() {
             self.data_name = '';
             self.data_value = '';
+            self.check.tick();
         }, function(err) {
             if(err == 'server')
                 self.notif.error(self.translate.instant('error'), self.translate.instant('server'));
@@ -132,7 +138,7 @@ export class Profile implements OnInit {
      * @public
      */
     getUp() {
-        this.folders.replace(/[^\/]+\/$/, '');
+        this.folders = this.folders.replace(/[^\/]+\/$/, '');
     }
 
     /**
