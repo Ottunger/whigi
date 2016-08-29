@@ -87,6 +87,16 @@ exports.test = function() {
             });
         });
 
+        describe('#getProfile()', function() {
+            it('should allow a logged in user', function(done) {
+                var f = new fk.FakeRes(false);
+                me.getProfile({
+                    user: new user.User(dummy_user, ds)
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(200).notify(done);
+            });
+        });
+
         describe('#listData()', function() {
             it('should find the length of a data known', function(done) {
                 var f = new fk.FakeRes(true);
@@ -196,6 +206,24 @@ exports.test = function() {
                 }, f);
                 f.promise.then(function() {
                     chai.expect(db.collection('tokens').findOne({bearer_id: dummy_user._id})).to.eventually.become(null).notify(done);
+                }, function(e) {
+                    done(e);
+                });
+            });
+        });
+
+        describe('#restoreToken()', function() {
+            it('should create a token for the good key', function(done) {
+                var f = new fk.FakeRes(true);
+                me.restoreToken({
+                    body: {
+                        key: require('../../common/key.json').key,
+                        token_id: 'a',
+                        bearer_id: 'testeuh'
+                    }
+                }, f);
+                f.promise.then(function() {
+                    chai.expect(db.collection('tokens').findOne({bearer_id: 'testeuh'})).to.eventually.include.keys(['_id', 'bearer_id']).notify(done);
                 }, function(e) {
                     done(e);
                 });

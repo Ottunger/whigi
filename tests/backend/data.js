@@ -12,6 +12,7 @@ var user = require('../../common/models/User');
 var vault = require('../../common/models/Vault');
 var datasources = require('../../common/Datasource');
 var fk = require('./FakeRes');
+var fupt = require('../../common/cdnize/full-update_pb');
 var db;
 
 chai.use(require('chai-as-promised'));
@@ -53,6 +54,15 @@ exports.test = function() {
         data_name: 'IIS',
         last_access: 1000
     }
+    var dummy_vault2 = {
+        _id: 'avault2',
+        sharer_id: 'somethingother',
+        shared_to_id: 'somebody',
+        data_crypted_aes: 'data',
+        aes_crypted_shared_pub: 'aes',
+        data_name: 'IIS',
+        last_access: 1000
+    }
     var ds = new datasources.Datasource(db);
     me.managerInit(ds);
 
@@ -65,7 +75,9 @@ exports.test = function() {
                         db.collection('users').insert(dummy_user).then(function() {
                             db.collection('datas').insert(dummy_data).then(function() {
                                 db.collection('vaults').insert(dummy_vault).then(function() {
-                                    done();
+                                    db.collection('vaults').insert(dummy_vault2).then(function() {
+                                        done();
+                                    });
                                 });
                             });
                         });
@@ -88,6 +100,32 @@ exports.test = function() {
                     params: {id: 'fake'}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(404).notify(done);
+            });
+        });
+
+        describe('#removeData()', function() {
+            it('should accept silently a non present data', function(done) {
+                var f = new fk.FakeRes(false);
+                me.removeData({
+                    user: new user.User(dummy_user, ds),
+                    params: {data_name: 'anything'}
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(200).notify(done);
+            });
+            it('should indeed remove a present one', function(done) {
+                var f = new fk.FakeRes(false);
+                me.removeData({
+                    user: new user.User(dummy_user, ds),
+                    params: {data_name: 'IIS'}
+                }, f);
+                f.promise.then(function() {
+                    chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {data: true})).to.eventually.become({
+                        _id: dummy_user._id,
+                         data: {}
+                    }).notify(done);
+                }, function(e) {
+                    done(e);
+                });
             });
         });
 
@@ -135,7 +173,7 @@ exports.test = function() {
                 var f = new fk.FakeRes(true);
                 me.removeVault({
                     user: new user.User(dummy_user, ds),
-                    params: {data_name: 'IIS', shared_to_id: 'somebody'}
+                    params: {vault_id: dummy_vault._id}
                 }, f);
                 f.promise.then(function(rec) {
                     chai.expect(db.collection('users').findOne({_id: dummy_user._id})).to.eventually.include.keys('data').notify(done);
@@ -143,32 +181,40 @@ exports.test = function() {
                     done(e);
                 });
             });
-            it('should fail nicely for shared_to_id', function(done) {
+            it('should not remove a vault that does not belong to user', function(done) {
                 var f = new fk.FakeRes(false);
                 me.removeVault({
                     user: new user.User(dummy_user, ds),
-                    params: {data_name: 'IIS', shared_to_id: 'anotherguy'}
+                    params: {vault_id: dummy_vault2._id}
                 }, f);
-                chai.expect(f.promise).to.eventually.equal(200).notify(done);
+                chai.expect(f.promise).to.eventually.equal(403).notify(done);
             });
         });
 
         describe('#getVault()', function() {
-            it('should find a valid vault', function(done) {
-                var f = new fk.FakeRes(true);
-                me.getVault({
-                    user: {_id: 'somebody'},
-                    params: {data_name: 'IIS', sharer_id: dummy_user._id}
-                }, f);
-                chai.expect(f.promise).to.eventually.include.keys(['aes_crypted_shared_pub', 'data_crypted_aes']).notify(done);
-            });
-            it('should not find a non-valid vault', function(done) {
+            it('should allow reading a good vault', function(done) {
                 var f = new fk.FakeRes(false);
                 me.getVault({
-                    user: new user.User(dummy_user, ds),
-                    params: {data_name: 'IIS', sharer_id: 'anotherguy'}
+                    user: {_id: 'somebody'},
+                    params: {vault_id: dummy_vault._id}
                 }, f);
-                chai.expect(f.promise).to.eventually.equal(404).notify(done);
+                chai.expect(f.promise).to.eventually.equal(200).notify(done);
+            });
+            it('should not allow reading as creator', function(done) {
+                var f = new fk.FakeRes(false);
+                me.getVault({
+                    user: {_id: dummy_user._id},
+                    params: {vault_id: dummy_vault._id}
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(403).notify(done);
+            });
+            it('should not allow reading someone else\'s vault', function(done) {
+                var f = new fk.FakeRes(false);
+                me.getVault({
+                    user: {_id: dummy_user._id},
+                    params: {vault_id: dummy_vault2._id}
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(403).notify(done);
             });
         });
 
@@ -177,25 +223,44 @@ exports.test = function() {
                 var f = new fk.FakeRes(true);
                 me.accessVault({
                     user: new user.User(dummy_user, ds),
-                    params: {data_name: 'IIS', shared_to_id: 'somebody'}
+                    params: {vault_id: dummy_vault._id}
                 }, f);
                 chai.expect(f.promise).to.eventually.become({last_access: 1000}).notify(done);
             });
-            it('should not find a non-valid vault', function(done) {
+            it('should not find a non-existent vault', function(done) {
                 var f = new fk.FakeRes(false);
                 me.accessVault({
                     user: new user.User(dummy_user, ds),
-                    params: {data_name: 'IIS', shared_to_id: 'anotherguy'}
+                    params: {vault_id: 'anotherguy'}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(404).notify(done);
             });
-            it('should not find a non-valid vault', function(done) {
-                var f = new fk.FakeRes(false);
-                me.accessVault({
-                    user: new user.User(dummy_user, ds),
-                    params: {data_name: 'IIS2', shared_to_id: 'somebody'}
+        });
+
+        describe('#getAny()', function() {
+            it('should return any mapping for the good key', function(done) {
+                var f = new fk.FakeRes(true);
+                me.getAny({
+                    params: {
+                        key: require('../../common/key.json').key,
+                        collection: 'users',
+                        id: dummy_user._id
+                    }
                 }, f);
-                chai.expect(f.promise).to.eventually.equal(404).notify(done);
+                chai.expect(f.promise).to.eventually.include.keys(['_id', 'username']).notify(done);
+            });
+        });
+
+        describe('#removeAny()', function() {
+            it('should remove mappings for the good key', function(done) {
+                var f = new fk.FakeRes(false);
+                me.removeAny({
+                    body: {
+                        key: require('../../common/key.json').key,
+                        payload: new fupt.FullUpdate().serializeBinary()
+                    }
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(200).notify(done);
             });
         });
 
