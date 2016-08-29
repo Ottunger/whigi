@@ -26,7 +26,7 @@ enableProdMode();
         <p>{{ 'modify' | translate }}</p>
         <input type="text" [(ngModel)]="new_data" class="form-control">
         <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'record' | translate }}</button>
-        <button type="button" class="btn btn-danger" (click)="remove()">{{ 'remove' | translate }}</button>
+        <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="data_name.startsWith('keys/')">{{ 'remove' | translate }}</button>
         <br />
 
         <div class="table-responsive">

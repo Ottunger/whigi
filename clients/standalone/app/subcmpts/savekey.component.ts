@@ -21,8 +21,8 @@ enableProdMode();
 })
 export class Savekey implements OnInit, OnDestroy {
 
-    private mail: string;
-    private key_frg: string;
+    private key: string;
+    private value: string;
     private sub: Subscription;
 
     /**
@@ -30,9 +30,10 @@ export class Savekey implements OnInit, OnDestroy {
      * @function constructor
      * @public
      * @param translate Translation service.
-     * @param backend App service.
      * @param router Routing service.
      * @param notif Notification service.
+     * @param routed Activated route service.
+     * @param dataservice Data service.
      */
     constructor(private translate: TranslateService, private router: Router, private notif: NotificationsService,
         private routed: ActivatedRoute, private dataservice: Data) {
@@ -47,9 +48,9 @@ export class Savekey implements OnInit, OnDestroy {
     ngOnInit(): void {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
-            self.mail = window.decodeURIComponent(params['mail']);
-            self.key_frg = params['key_frg'];
-            self.dataservice.newData('keys/' + self.mail, self.key_frg).then(function() {
+            self.key = window.decodeURIComponent(params['key']);
+            self.value = window.decodeURIComponent(params['value']);
+            self.dataservice.newData(self.key, self.value).then(function() {
                 self.notif.success(self.translate.instant('success'), self.translate.instant('savekey.rec'));
                 self.router.navigate(['/profile']);
             }, function(err) {

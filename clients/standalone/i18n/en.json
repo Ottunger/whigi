@@ -41,6 +41,7 @@
    "login.recMail": "The system cannot find the user identified by this mail",
 
    "profile.logout": "Log out",
+   "profile.logoutAll": "Remove all authorizations and log out",
    "profile.noLogout": "Cannot log out safely",
    "profile.mine": "See my data",
    "profile.shared": "See what is shared with me",
@@ -71,7 +72,14 @@
    "reset.noMatch": "Passwords no dot match",
    "reset.received": "Paste here the token you received from ",
 
-   "savekey.rec": "Key imported correctly",
+   "savekey.rec": "Value imported correctly",
+
+   "oauth.question": "OAuth authorization request",
+   "oauth.explain": "By accepting a request, you provide the app that sent you here permission of reading only to the data or folder listed below. TO  LIST IT, THE APP WILL HAVE YOUR MASTER KEY. You will be able to revoke this access at any time later from your profile, but the app might have copied your data by then",
+   "oauth.for_id": "App name as given to us (irrelevant, probably): ",
+   "oauth.prefix": "Desired access to: ",
+   "oauth.ok": "Give access",
+   "oauth.nok": "Deny access",
 
    "error.notfound": "Not found"
 }

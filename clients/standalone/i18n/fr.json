@@ -41,6 +41,7 @@
    "login.recMail": "Le système ne peut trouver l'utilisateur identifié par cet email",
 
    "profile.logout": "Déconnecter",
+   "profile.logoutAll": "Enlever toutes les authorisations et se déconnecter",
    "profile.noLogout": "Impossible de quitter avec précautions",
    "profile.mine": "Voir mes données",
    "profile.shared": "Voir ce qui est partagé avec moi",
@@ -71,7 +72,14 @@
    "reset.noMatch": "Mots de passe différents",
    "reset.received": "Copiez ici le jeton reçu de ",
 
-   "savekey.rec": "Clé bien importée",
+   "savekey.rec": "Valeur bien importée",
+
+   "oauth.question": "Demande d'authorisation OAuth",
+   "oauth.explain": "En acceptant la demande, vous donnez des droits de lecture sur la donnée ou le dossier listé à l'app qui vous a envoyé ici. AFIN DE LIRE, L'APP AURA VOTRE CLE MAITRE! Vous pourrez toujours révoquer ce droit plus tard, mais l'app aura peut être copié vos données entre temps.",
+   "oauth.for_id": "Nom de l'app que nous avons reçu (probablement inutile pour vous): ",
+   "oauth.prefix": "Accès demandé à: ",
+   "oauth.ok": "Donner accès",
+   "oauth.nok": "Refuser l'accès",
 
    "error.notfound": "Introuvable"
 }

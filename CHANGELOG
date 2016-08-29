@@ -39,7 +39,7 @@ Creates a new token for the logged in user to connect without credentials.
 {"is_eternal": "boolean"}
 
 /api/v<any>/profile/token: Delete, needs auth
-Removes all granted bearer tokens.
+Removes tokens granted to bearer. One can use the query parameter "?token=" to remove a specific token only.
 
 /api/v<any>/profile/restore-token: Post, needs auth of whigi
 Creates a token for the specified user.

@@ -192,7 +192,7 @@ export function regUser(req, res) {
                             to: '<' + user.recup_mail + '>',
                             subject: utils.i18n('mail.subject.otherAccount', req),
                             html: utils.i18n('mail.body.account', req) + '<br /> \
-                                <a href="' + utils.RUNNING_ADDR + '/save-key/' + encodeURIComponent(u.email) + '/' + pre_master_key.slice(0, pre_master_key.length / 2) + '">' +
+                                <a href="' + utils.RUNNING_ADDR + '/save-key/' + encodeURIComponent('keys/' + u.email) + '/' + pre_master_key.slice(0, pre_master_key.length / 2) + '">' +
                                 utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
                         }, function(e, i) {});
                         end(u);
@@ -305,19 +305,40 @@ export function newToken(req, res) {
  * @param {Response} res The response.
  */
 export function removeToken(req, res) {
-    db.retrieveToken({bearer_id: req.user._id}).then(function(t: Token) {
-        if(!!t) {
-            t.unlink().then(function() {
-                removeToken(req, res);
-            }, function(e) {
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-            });
-        } else {
-            res.type('application/json').status(200).json({error: ''});
-        }
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
+    var token = req.query.token || undefined;
+    if(!!token) {
+        db.retrieveToken({_id: token}).then(function(t: Token) {
+            if(!!t) {
+                if(t.bearer_id != req.user._id) {
+                    res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    return;
+                }
+                t.unlink().then(function() {
+                    removeToken(req, res);
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            } else {
+                res.type('application/json').status(200).json({error: ''});
+            }
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    } else {
+        db.retrieveToken({bearer_id: req.user._id}).then(function(t: Token) {
+            if(!!t) {
+                t.unlink().then(function() {
+                    removeToken(req, res);
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            } else {
+                res.type('application/json').status(200).json({error: ''});
+            }
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }
 }
 
 /**

@@ -469,10 +469,26 @@ export class Backend {
      * Invalidates tokens, logging out.
      * @function removeTokens
      * @public
+     * @param {Boolean} all To remove all tokens.
      * @return {Promise} JSON response from backend.
      */
-    removeTokens(): Promise {
-        return this.backend(true, 'DELETE', {}, 'profile/token', true, true);
+    removeTokens(all: boolean): Promise {
+        return this.backend(true, 'DELETE', {}, 'profile/token' + (all? '' : ('?token=' + sessionStorage.getItem('token'))), true, true);
+    }
+
+    /**
+     * Create an OAuth token.
+     * @function createOAuth
+     * @public
+     * @param {String} for_id Given 3rd party name.
+     * @param {String} prefix Prefix given.
+     * @return {Promise} JSON response from backend.
+     */
+    createOAuth(for_id: string, prefix: string): Promise {
+        return this.backend(true, 'POST', {
+            for_id: for_id,
+            prefix: prefix
+        }, 'oauth/new', true, true);
     }
 
     /**

@@ -16,11 +16,15 @@ enableProdMode();
 @Component({
     template: `
         <h2>{{ backend.profile.username }}</h2>
-        <button type="button" class="btn btn-primary" (click)="logout()">{{ 'profile.logout' | translate }}</button>
-        <br />
+        <button type="button" class="btn btn-primary" (click)="logout(false)">{{ 'profile.logout' | translate }}</button>
+        <button type="button" class="btn btn-danger" (click)="logout(true)">{{ 'profile.logoutAll' | translate }}</button>
+        <br /><br />
 
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/filesystem', 'data'])">{{ 'profile.mine' | translate }}</button>
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/filesystem', 'vault'])">{{ 'profile.shared' | translate }}</button>
+        <br /><br />
+
+        
     `
 })
 export class Profile {
@@ -42,10 +46,11 @@ export class Profile {
      * Log out.
      * @function logout
      * @public
+     * @param {Boolean} all To log out all tokens.
      */
-    logout() {
+    logout(all: boolean) {
         var self = this;
-        this.backend.removeTokens().then(function() {
+        this.backend.removeTokens(all).then(function() {
             sessionStorage.removeItem('token');
             sessionStorage.removeItem('key_decryption');
             window.location.href = '/';

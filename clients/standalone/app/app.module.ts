@@ -25,6 +25,7 @@ import {Vaultview} from './subcmpts/vaultview.component';
 import {Reset} from './subcmpts/reset.component';
 import {Savekey} from './subcmpts/savekey.component';
 import {Filesystem} from './subcmpts/filesystem.component';
+import {Oauth} from './subcmpts/oauth.component';
 import {Notfound} from './subcmpts/notfound.component';
 
 @NgModule({
@@ -45,6 +46,7 @@ import {Notfound} from './subcmpts/notfound.component';
         Reset,
         Savekey,
         Filesystem,
+        Oauth,
         Notfound
     ],
     providers: [

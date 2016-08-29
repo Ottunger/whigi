@@ -7,10 +7,20 @@ Remember that clients aure authenticated using a match on hash(hash(password) + 
 # See CHANGELOG for a description fof API endpoints.
 Note that whigi-restore gets informed of the mappings email <=> master\_key but nevers informs back whigi of the disclosure. A front-end app should therefore request the master\_key then ask whigi for a password change.
 
-# Third parties
-In order to not polute the namespace of applications data names if you have a plugin that needs specific data, please record data as named
+# Third-parties
+- USING THE API: In order to not polute the namespace of applications data names if you have a plugin that needs specific data, please record data as named
 /apps/[your-specific-app-name]/whatever . Please note that we plan on having generic information that a user might usually share stored in
 a standardized path, we suppose profile/often-shared-data
+- USING OAUTH: Whigi is not meant to be used with OAuth. That said, we provide OAuth for ease, but using OAuth will give you the user's master key, thus making you as responsible
+as a third-party not using it. We therefore restrict what can be done using OAuth:
+  - Only read-only access can be given
+  - Only one data or folder at a time
+  - To use it, send your user to /oauth/[your-friendly-app-name]/encodeURIComponent([the-data-you-need])/encodeURI([return\_url\_ok])/encodeURI([return\_url\_deny])
+  - On grant, the url will be browsed to with query parameters:
+    - token, the access token
+    - key_decryption, a key that allows to decrypt the encrypted master key of the user. Apply toBytes (see out code) first on it, before using it as AES256 key.
+  - On deny, the url will be browsed to with query parameter:
+    - reason, can be one of 'deny', 'https' (We only allow HTTPS return URL's), or 'api' (our server failed)
 
 # To install a Gitlab over Ubuntu 14.04:
 - sudo apt-get install vim postfix mailutils libsasl2-2 ca-certificates libsasl2-modules

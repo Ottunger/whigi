@@ -1,0 +1,101 @@
+/**
+ * Component to demand the creation of an OAuth token.
+ * @module oauth.component
+ * @author Mathonet Grégoire
+ */
+
+'use strict';
+declare var window : any
+import {Component, enableProdMode, OnInit, OnDestroy} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
+import {TranslateService} from 'ng2-translate/ng2-translate';
+import {NotificationsService} from 'angular2-notifications';
+import {Subscription} from 'rxjs/Subscription';
+import {Backend} from '../app.service';
+enableProdMode();
+
+@Component({
+    template: `
+        <h2>{{ 'oauth.question' | translate }}</h2>
+        <br />
+        <p>{{ 'oauth.explain' | translate }}</p>
+        <br />
+        <p>{{ 'oauth.for_id' | translate }}{{ for_id }}</p>
+        <br />
+        <p>{{ 'oauth.prefix' | translate }}{{ prefix }}</p>
+        <br />
+
+        <button type="button" class="btn btn-alarm" (click)="finish(true)">{{ 'oauth.ok' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'oauth.nok' | translate }}</button>
+    `
+})
+export class Oauth implements OnInit, OnDestroy {
+
+    public for_id: string;
+    public prefix: string;
+    public return_url_ok: string;
+    public return_url_deny: string;
+    private sub: Subscription;
+
+    /**
+     * Creates the component.
+     * @function constructor
+     * @public
+     * @param translate Translation service.
+     * @param router Routing service.
+     * @param notif Notification service.
+     * @param routed Activated route service.
+     * @param backend Data service.
+     */
+    constructor(private translate: TranslateService, private router: Router, private notif: NotificationsService,
+        private routed: ActivatedRoute, private backend: Backend) {
+
+    }
+
+    /**
+     * Called upon display.
+     * @function ngOnInit
+     * @public
+     */
+    ngOnInit(): void {
+        var self = this;
+        this.sub = this.routed.params.subscribe(function(params) {
+            self.for_id = params['for_id'];
+            self.prefix = window.decodeURIComponent(params['prefix']);
+            self.return_url_ok = window.decodeURI(params['return_url_ok']);
+            self.return_url_deny = window.decodeURI(params['return_url_deny']);
+            if(!/^https/.test(self.return_url_ok)) {
+                window.location.href = this.return_url_deny + '?reason=https';
+            }
+        });
+    }
+
+    /**
+     * Called upon destroy.
+     * @function ngOnInit
+     * @public
+     */
+    ngOnDestroy(): void {
+        this.sub.unsubscribe();
+    }
+
+    /**
+     * Called once the user has selected whether to accept or deny.
+     * @function finish
+     * @public
+     * @param {Boolean} ok True if grant access.
+     */
+    finish(ok: boolean) {
+        var self = this;
+        if(ok) {
+            this.backend.createOAuth(this.for_id, this.prefix).then(function(granted) {
+                window.location.href = this.return_url_ok + '?token=' + granted._id + '&key_decryption=' + sessionStorage.getItem('key_decryption');
+            }, function(e) {
+                window.location.href = this.return_url_deny + '?reason=api';
+            });
+        } else {
+            window.location.href = this.return_url_deny + '?reason=deny';
+        }
+    }
+
+}
