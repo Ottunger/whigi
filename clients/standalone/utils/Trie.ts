@@ -46,16 +46,22 @@ export class Trie {
      * @param {Object} value Associated value.
      */
     add(str: string, value: any) {
-        var cur = this.rootObj;
+        var cur = this.rootObj, newleaf = false;
         for(var i = 0; i < str.length; i++) {
             var c = str[i];
             if(cur.children.hasOwnProperty(c)) {
                 cur = cur.children[c];
+                if(i == str.length - 1 && !cur.end) {
+                    cur.end = true;
+                    this.cnt++;
+                }
             } else {
+                newleaf = true;
                 cur = cur.children[c] = new Node(value, i == str.length - 1);
             }
         }
-        this.cnt++;
+        if(newleaf)
+            this.cnt++;
     }
 
     /**
