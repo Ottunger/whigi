@@ -35,6 +35,7 @@ export class Oauth implements OnInit, OnDestroy {
     public prefix: string;
     public return_url_ok: string;
     public return_url_deny: string;
+    public token: string;
     private sub: Subscription;
 
     /**
@@ -61,6 +62,7 @@ export class Oauth implements OnInit, OnDestroy {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
             self.for_id = params['for_id'];
+            self.token = params['token'];
             self.prefix = window.decodeURIComponent(params['prefix']);
             self.return_url_ok = window.decodeURI(params['return_url_ok']);
             self.return_url_deny = window.decodeURI(params['return_url_deny']);
@@ -88,7 +90,7 @@ export class Oauth implements OnInit, OnDestroy {
     finish(ok: boolean) {
         var self = this;
         if(ok) {
-            this.backend.createOAuth(this.for_id, this.prefix).then(function(granted) {
+            this.backend.createOAuth(this.for_id, this.prefix, this.token).then(function(granted) {
                 window.location.href = this.return_url_ok + '?token=' + granted._id + '&key_decryption=' + sessionStorage.getItem('key_decryption');
             }, function(e) {
                 window.location.href = this.return_url_deny + '?reason=api';

@@ -6,6 +6,7 @@
 
 'use strict';
 declare var require: any
+var https = require('https');
 var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 var hash = require('js-sha256');
@@ -375,17 +376,53 @@ export function createOAuth(req, res) {
     var got = req.body;
     var newid = utils.generateRandomString(64);
     var o: Oauth = new Oauth(newid, req.user._id, got.for_id, got.prefix, db);
-    o.persist().then(function() {
-        req.user.oauth = req.user.oauth || [];
-        req.user.oauth.push({id: newid, for_id: got.for_id, prefix: got.prefix});
-        req.user.persist().then(function() {
-            res.type('application/json').status(201).json({error: '', _id: newid});
-        }, function(e) {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    var points = require('../common/oauths.json').points;
+
+    function end(ok: boolean) {
+        if(ok) {
+            o.persist().then(function() {
+                req.user.oauth = req.user.oauth || [];
+                req.user.oauth.push({id: newid, for_id: got.for_id, prefix: got.prefix});
+                req.user.persist().then(function() {
+                    res.type('application/json').status(201).json({error: '', _id: newid});
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            }, function(e) {
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            });
+        } else {
+            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+        }
+    }
+
+    if(!points[got.for_id]) {
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+    } else {
+        var options = {
+            host: points[got.for_id].validateHost,
+            port: 443,
+            path: points[got.for_id].validatePath + '?token=' + got.token,
+            method: 'GET'
+        };
+        var ht = https.request(options, function(res) {
+            var r = '';
+            res.on('data', function(chunk) {
+                r += chunk;
+            });
+            res.on('end', function() {
+                var res = JSON.parse(r);
+                if('success' in res && res.success) {
+                    end(true);
+                } else {
+                    end(false);
+                }
+            });
+        }).on('error', function(err) {
+            end(false);
         });
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
+        ht.end();
+    }
 }
 
 /**

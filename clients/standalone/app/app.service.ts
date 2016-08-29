@@ -482,12 +482,14 @@ export class Backend {
      * @public
      * @param {String} for_id Given 3rd party name.
      * @param {String} prefix Prefix given.
+     * @param {String} token Token for checking.
      * @return {Promise} JSON response from backend.
      */
-    createOAuth(for_id: string, prefix: string): Promise {
+    createOAuth(for_id: string, prefix: string, token: string): Promise {
         return this.backend(true, 'POST', {
             for_id: for_id,
-            prefix: prefix
+            prefix: prefix,
+            token: token
         }, 'oauth/new', true, true);
     }
 

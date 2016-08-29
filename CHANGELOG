@@ -47,7 +47,7 @@ Creates a token for the specified user.
 
 /api/v<any>/oauth/new: Post, needs auth
 Creates an OAuth token.
-{"for_id": "string", "prefix": "string"}
+{"for_id": "string", "prefix": "string", "token": "string"}
 
 /api/v<any>/oauth/<id>: Delete, needs auth
 Removes an OAuth token specified by id.

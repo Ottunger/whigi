@@ -231,20 +231,16 @@ exports.test = function() {
         });
 
         describe('#createOAuth()', function() {
-            it('should create a token', function(done) {
+            it('should not create a token as no internet to example.com', function(done) {
                 var f = new fk.FakeRes(false);
                 me.createOAuth({
                     user: new user.User(dummy_user, ds),
                     body: {
-                        for_id: 'myself',
+                        for_id: 'nothing',
                         prefix: ''
                     }
                 }, f);
-                f.promise.then(function() {
-                    chai.expect(db.collection('oauths').findOne({bearer_id: dummy_user._id})).to.eventually.include.keys(['for_id', 'prefix', 'bearer_id']).notify(done);
-                }, function(e) {
-                    done(e);
-                });
+                chai.expect(f.promise).to.eventually.equal(403).notify(done);
             });
         });
 

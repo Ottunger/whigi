@@ -26,7 +26,7 @@ const appRoutes: Routes = [
     {path: 'vault/:email/:id', component: Vaultview, canActivate: [Vaultguard]},
     {path: 'password-recovery/:key/:recup_mail', component: Reset},
     {path: 'save-key/:key/:value', component: Savekey, canActivate: [Profileguard]},
-    {path: 'oauth/:for_id/:prefix/:return_url_ok/:return_url_deny', component: Oauth, canActivate: [Profileguard]},
+    {path: 'oauth/:for_id/:prefix/:token/:return_url_ok/:return_url_deny', component: Oauth, canActivate: [Profileguard]},
     {path: '**', component: Notfound}
 ];
 export const appRoutingProviders: any[] = [

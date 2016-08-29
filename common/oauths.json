@@ -1,0 +1,8 @@
+{
+    "points": {
+        "example": {
+            "validateHost": "example.com",
+            "validatePath": "/check"
+        }
+    }
+}

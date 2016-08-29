@@ -245,7 +245,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/update', checks.checkBody(['password', 'encr_master_key']));
     app.post('/api/v:version/user/create', checks.checkBody(['first_name', 'last_name', 'username', 'email', 'password', 'recuperable', 'safe', 'recup_mail']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
-    app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix']));
+    app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix', 'token']));
     //-----
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes']));
     //API LONG LIVED COMMANDS

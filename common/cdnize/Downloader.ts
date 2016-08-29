@@ -72,7 +72,6 @@ export class Downloader {
                         }).on('error', function(err) {
                             end();
                         });
-                        ht.write(data);
                         ht.end();
                     }
                 }

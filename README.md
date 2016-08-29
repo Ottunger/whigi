@@ -12,15 +12,17 @@ Note that whigi-restore gets informed of the mappings email <=> master\_key but 
 /apps/[your-specific-app-name]/whatever . Please note that we plan on having generic information that a user might usually share stored in
 a standardized path, we suppose profile/often-shared-data
 - USING OAUTH: Whigi is not meant to be used with OAuth. That said, we provide OAuth for ease, but using OAuth will give you the user's master key, thus making you as responsible
-as a third-party not using it. We therefore restrict what can be done using OAuth:
+as a third-party not using it. You will need to register to a Whigi provider by your own means (email, ...) to get a valid "for_id".
+When registering you will need to provide an URL that Whigi can call to ensure you are the one who made the request with check-token. It should return a JSON response containing a key
+success set to either true or false. It should accept a GET request where the token will be given by ?token= in query parameters. 
+
+We therefore restrict what can be done using OAuth:
   - Only read-only access can be given
   - Only one data or folder at a time
-  - To use it, send your user to /oauth/[your-friendly-app-name]/encodeURIComponent([the-data-you-need])/encodeURI([return\_url\_ok])/encodeURI([return\_url\_deny])
-  - On grant, the url will be browsed to with query parameters:
-    - token, the access token
-    - key_decryption, a key that allows to decrypt the encrypted master key of the user. Apply toBytes (see out code) first on it, before using it as AES256 key.
-  - On deny, the url will be browsed to with query parameter:
-    - reason, can be one of 'deny', 'https' (We only allow HTTPS return URL's), or 'api' (our server failed)
+  - To use it, send your user to /oauth/[your-for\_id]/encodeURIComponent([the-data-you-need])/[check-token]/encodeURI([return\_url\_ok])/encodeURI([return\_url\_deny])
+  - On grant, the url will be browsed to with query parameters: token, the access token & key_decryption, a key that allows to decrypt the encrypted master key of the user.
+    Apply toBytes (see out code) first on it, before using it as AES256 key.
+  - On deny, the url will be browsed to with query parameter: reason, can be one of 'deny', 'https' (We only allow HTTPS return URL's), or 'api' (our server failed)
 
 # To install a Gitlab over Ubuntu 14.04:
 - sudo apt-get install vim postfix mailutils libsasl2-2 ca-certificates libsasl2-modules
