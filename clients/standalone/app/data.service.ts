@@ -70,6 +70,11 @@ export class Data {
                     });
                     callback(msg.data[1]);
                     break;
+                case 3:
+                    self.notif.remove();
+                    self.notif.error(self.translate.instant(encrypt? 'encrypting' : 'decrypting'), self.translate.instant('corruption'));
+                    callback('');
+                    break;
                 case 0:
                 default:
                     break;
@@ -239,7 +244,7 @@ export class Data {
                     resolve(vault, got);
                 }), aesKey);
             }, function(e) {
-                reject();
+                reject(e);
             });
         });
     }

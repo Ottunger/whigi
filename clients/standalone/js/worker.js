@@ -31,42 +31,46 @@ function chunkify(a, n, balanced) {
 }
 
 onmessage = function(msg) {
-    var data = msg.data[0], key = msg.data[1], encrypt = msg.data[2];
-    var encrypter = new self.aesjs.ModeOfOperation.ctr(key, new self.aesjs.Counter(0));
+    try {
+        var data = msg.data[0], key = msg.data[1], encrypt = msg.data[2];
+        var encrypter = new self.aesjs.ModeOfOperation.ctr(key, new self.aesjs.Counter(0));
 
-    if(encrypt) {
-        var num = self.aesjs.util.convertStringToBytes(data);
-        var len = num.length, split, ret = [];
+        if(encrypt) {
+            var num = self.aesjs.util.convertStringToBytes(data);
+            var len = num.length, split, ret = [];
 
-        if(len < 100) {
-            postMessage([0, 0]);
-            ret = encrypter.encrypt(num);
-            postMessage([2, ret]);
-        } else {
-            postMessage([0, 1]);
-            var parts = chunkify(num, 100, false);
-            for(var i = 0; i < 100; i++) {
-                ret = ret.concat(encrypter.encrypt(parts[i]));
-                postMessage([1, i]);
+            if(len < 100) {
+                postMessage([0, 0]);
+                ret = encrypter.encrypt(num);
+                postMessage([2, ret]);
+            } else {
+                postMessage([0, 1]);
+                var parts = chunkify(num, 100, false);
+                for(var i = 0; i < 100; i++) {
+                    ret = ret.concat(encrypter.encrypt(parts[i]));
+                    postMessage([1, i]);
+                }
+                postMessage([2, ret]);
             }
-            postMessage([2, ret]);
-        }
-    } else {
-        var len = data.length, split, ret = [];
-
-        if(len < 100) {
-            postMessage([0, 0]);
-            ret = encrypter.decrypt(data);
-            postMessage([2, self.aesjs.util.convertBytesToString(ret)]);
         } else {
-            postMessage([0, 1]);
-            var parts = chunkify(data, 100, false);
-            for(var i = 0; i < 100; i++) {
-                ret = ret.concat(encrypter.decrypt(parts[i]));
-                postMessage([1, i]);
+            var len = data.length, split, ret = [];
+
+            if(len < 100) {
+                postMessage([0, 0]);
+                ret = encrypter.decrypt(data);
+                postMessage([2, self.aesjs.util.convertBytesToString(ret)]);
+            } else {
+                postMessage([0, 1]);
+                var parts = chunkify(data, 100, false);
+                for(var i = 0; i < 100; i++) {
+                    ret = ret.concat(encrypter.decrypt(parts[i]));
+                    postMessage([1, i]);
+                }
+                postMessage([2, self.aesjs.util.convertBytesToString(ret)]);
             }
-            postMessage([2, self.aesjs.util.convertBytesToString(ret)]);
         }
+    } catch(e) {
+        postMessage([3]);
     }
     close();
 }

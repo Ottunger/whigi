@@ -48,7 +48,7 @@ export class Profile {
         this.backend.removeTokens().then(function() {
             sessionStorage.removeItem('token');
             sessionStorage.removeItem('key_decryption');
-            self.router.navigate(['/']);
+            window.location.href = '/';
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noLogout'));
         });

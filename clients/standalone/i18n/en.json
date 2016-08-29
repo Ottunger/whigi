@@ -17,6 +17,7 @@
    "server": "The server refused the command",
    "encrypting": "Encrypting",
    "decrypting": "Decrypting",
+   "corruption": "Something is corrupted, cannot use AES",
 
    "login.title": "Time to log in",
    "login.remember": "Remember me",

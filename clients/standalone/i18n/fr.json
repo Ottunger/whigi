@@ -17,6 +17,7 @@
    "server": "Le serveur a refusé la commande",
    "encrypting": "Encryption en cours",
    "decrypting": "Décryption en cours",
+   "corruption": "Quelque chose est corrompu, AES invalide",
 
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",
