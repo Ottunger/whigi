@@ -16,6 +16,7 @@ diff /tmp/127.0.0.1/Uploader.js /root/Whigi/common/cdnize/Uploader.js 1>&2
 diff /tmp/127.0.0.1/Downloader.js /root/Whigi/common/cdnize/Downloader.js 1>&2
 diff /tmp/127.0.0.1/Datafragment.js /root/Whigi/common/models/Datafragment.js 1>&2
 diff /tmp/127.0.0.1/IModel.js /root/Whigi/common/models/IModel.js 1>&2
+diff /tmp/127.0.0.1/Oauth.js /root/Whigi/common/models/Oauth.js 1>&2
 diff /tmp/127.0.0.1/Token.js /root/Whigi/common/models/Token.js 1>&2
 diff /tmp/127.0.0.1/User.js /root/Whigi/common/models/User.js 1>&2
 diff /tmp/127.0.0.1/Vault.js /root/Whigi/common/models/Vault.js 1>&2

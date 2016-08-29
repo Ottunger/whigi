@@ -43,7 +43,7 @@ export function checkPuzzle(req, res, next) {
  * @param {Array} arr The required top-level fields.
  * @return {Function} An express middleware.
  */
-export function checkBody(arr: string[]) {
+export function checkBody(arr: string[]): Function {
     return function(req, res, next) {
         if(!req.body) {
             res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
@@ -54,6 +54,43 @@ export function checkBody(arr: string[]) {
                     return;
                 }
             }
+            next();
+        }
+    }
+}
+
+/**
+ * Creates a function suitable for use in express app that checks that the request is ok for OAuth.
+ * @function checkOAuth
+ * @public
+ * @param {Boolean} auto Always deny, else check agains path.
+ * @return {Function} An express middleware.
+ */
+export function checkOAuth(auto: boolean): Function {
+    return function(req, res, next) {
+        if(!!req.user.impersonated_prefix) {
+            if(auto) {
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+            } else {
+                req.user.fill().then(function() {
+                    var keys = Object.getOwnPropertyNames(req.user.data);
+                    for(var i = 0; i < keys.length; i++) {
+                        if(req.user.data[keys[i]].id == req.params.id) {
+                            if(keys[i].match('^' + req.user.impersonated_prefix)) {
+                                next();
+                                return;
+                            } else {
+                                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                                return;
+                            }
+                        }
+                    }
+                    next();
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            }
+        } else {
             next();
         }
     }

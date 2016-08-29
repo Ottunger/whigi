@@ -106,7 +106,7 @@ export function regVault(req, res) {
                     last_access: 0
                 }, db);
                 db.retrieveUser('id', v.shared_to_id, true).then(function(sharee: User) {
-                    if(!sharee) {
+                    if(!sharee || sharee._id == req.user.id) {
                         res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser', _id: v._id});
                         return;
                     }
@@ -116,6 +116,7 @@ export function regVault(req, res) {
                             sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
                             sharee.shared_with_me[req.user._id][v.data_name] = v._id;
                             sharee.persist().then(function() {
+                                res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
                                 mailer.sendMail({
                                     from: 'Whigi <' + utils.MAIL_ADDR + '>',
                                     to: '<' + sharee.email + '>',
@@ -124,7 +125,6 @@ export function regVault(req, res) {
                                         <a href="' + utils.RUNNING_ADDR + '/vault/' + encodeURIComponent(req.user.email) + '/' + v.data_name + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
                                         utils.i18n('mail.signature', req)
                                 }, function(e, i) {});
-                                res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
                             }, function(e) {
                                 res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                             });

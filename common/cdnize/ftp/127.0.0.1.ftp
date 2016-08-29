@@ -23,6 +23,7 @@ get Downloader.js
 cd ../models
 get Datafragment.js
 get IModel.js
+get Oauth.js
 get Token.js
 get User.js
 get Vault.js

@@ -492,6 +492,17 @@ export class Backend {
     }
 
     /**
+     * Invalidates an OAuth token.
+     * @function removeOAuth
+     * @public
+     * @param {String} id token id.
+     * @return {Promise} JSON response from backend.
+     */
+    removeOAuth(id: string): Promise {
+        return this.backend(true, 'DELETE', {}, 'oauth' + id, true, true);
+    }
+
+    /**
      * Retrieves a piece of data.
      * @function getData
      * @public

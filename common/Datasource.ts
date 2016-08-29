@@ -10,6 +10,7 @@ import {User, fields} from './models/User';
 import {Datafragment} from './models/Datafragment';
 import {Token} from './models/Token';
 import {Vault} from './models/Vault';
+import {Oauth} from './models/Oauth';
 import {Uploader} from './cdnize/Uploader';
 import {Downloader} from './cdnize/Downloader';
 import {Integrity} from './cdnize/Integrity';
@@ -30,7 +31,7 @@ export class Datasource {
     constructor(private db: any, private useCDN?: boolean) {
         this.useCDN = this.useCDN || false;
         if(this.useCDN) {
-            this.up = new Uploader(24, 1, this.db, ['datas', 'tokens', 'users', 'vaults']);
+            this.up = new Uploader(24, 1, this.db, ['datas', 'tokens', 'users', 'vaults', 'oauths']);
             this.down = new Downloader();
             this.int = new Integrity(12);
         }
@@ -187,6 +188,29 @@ export class Datasource {
             self.retrieveGeneric('vaults', {_id: id}, {none: false}).then(function(data) {
                 if(!!data) {
                     resolve(new Vault(data, self));
+                } else {
+                    resolve(undefined);
+                }
+            }, function(e) {
+                reject(e);
+            });
+        });
+    }
+
+    /**
+     * Retrieves a Oauth from storage.
+     * @function retrieveOauth
+     * @public
+     * @param {String} id _id.
+     * @return {Promise} The required item.
+     */
+    retrieveOauth(id: string): Promise<Oauth> {
+        var self = this;
+
+        return new Promise<Oauth>(function(resolve, reject) {
+            self.retrieveGeneric('oauths', {_id: id}, {none: false}).then(function(data) {
+                if(!!data) {
+                    resolve(new Oauth(data._id, data.bearer_id, data.for_id, data.prefix, self));
                 } else {
                     resolve(undefined);
                 }

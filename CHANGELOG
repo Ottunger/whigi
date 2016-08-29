@@ -45,6 +45,13 @@ Removes tokens granted to bearer. One can use the query parameter "?token=" to r
 Creates a token for the specified user.
 {"token_id": "string", "bearer_id"; "string", "key"; "string"}
 
+/api/v<any>/oauth/new: Post, needs auth
+Creates an OAuth token.
+{"for_id": "string", "prefix": "string"}
+
+/api/v<any>/oauth/<id>: Delete, needs auth
+Removes an OAuth token specified by id.
+
 /api/v<any>/data/<id>: Get, needs auth
 Retrieves an encrypted piece of data.
 

@@ -14,6 +14,7 @@ var RSA = require('node-rsa');
 import {User} from '../common/models/User';
 import {Datafragment} from '../common/models/Datafragment';
 import {Token} from '../common/models/Token';
+import {Oauth} from '../common/models/Oauth';
 import {Datasource} from '../common/Datasource';
 var mailer;
 var db: Datasource;
@@ -176,6 +177,7 @@ export function regUser(req, res) {
         u.key = utils.generateRandomString(64);
         u.data = {};
         u.shared_with_me = {};
+        u.oauth = [];
         u.encr_master_key = new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
             .encrypt(utils.toBytes(pre_master_key));
         u.rsa_pub_key = key.exportKey('public');
@@ -305,7 +307,7 @@ export function newToken(req, res) {
  * @param {Response} res The response.
  */
 export function removeToken(req, res) {
-    var token = req.query.token || undefined;
+    var token = (!!req.query && req.query.token) || undefined;
     if(!!token) {
         db.retrieveToken({_id: token}).then(function(t: Token) {
             if(!!t) {
@@ -360,4 +362,62 @@ export function restoreToken(req, res) {
     } else {
         res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
     }
+}
+
+/**
+ * Creates a OAuth token.
+ * @function createOAuth
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function createOAuth(req, res) {
+    var got = req.body;
+    var newid = utils.generateRandomString(64);
+    var o: Oauth = new Oauth(newid, req.user._id, got.for_id, got.prefix, db);
+    o.persist().then(function() {
+        req.user.oauth = req.user.oauth || [];
+        req.user.oauth.push({id: newid, for_id: got.for_id, prefix: got.prefix});
+        req.user.persist().then(function() {
+            res.type('application/json').status(201).json({error: '', _id: newid});
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Removes a OAuth token.
+ * @function removeOAuth
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function removeOAuth(req, res) {
+    db.retrieveOauth(req.params.id).then(function(o: Oauth) {
+        if(!o) {
+            res.type('application/json').status(200).json({error: ''});
+            return;
+        }
+        if(o.bearer_id != req.user._id) {
+            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+            return;
+        }
+        for(var i = 0; i < req.user.oauth.length; i++) {
+            if(req.user.oauth[i].id == req.params.id) {
+                delete req.user.oauth[i];
+                break;
+            }
+        }
+        req.user.persist().then(function() {
+            o.unlink();
+            res.type('application/json').status(200).json({error: ''});
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
 }

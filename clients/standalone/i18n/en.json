@@ -45,6 +45,7 @@
    "profile.noLogout": "Cannot log out safely",
    "profile.mine": "See my data",
    "profile.shared": "See what is shared with me",
+   "profile.noRevoke": "Cannot revoke access",
 
    "filesystem.data_name": "Data name",
    "filesystem.data": "Data",

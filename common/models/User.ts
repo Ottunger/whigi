@@ -23,7 +23,8 @@ export var fields = {
     rsa_pub_key: true,
     rsa_pri_key: true,
     data: true,
-    shared_with_me: true
+    shared_with_me: true,
+    oauth: true
 }
 
 export class User extends IModel {
@@ -40,6 +41,9 @@ export class User extends IModel {
     public rsa_pri_key: string;
     public data;
     public shared_with_me;
+    public oauth: any[];
+
+    public impersonated_prefix: string;
     
     /**
      * Create a User from a bare database description.
@@ -76,6 +80,9 @@ export class User extends IModel {
             this.data = u.data;
         if('shared_with_me' in u)
             this.shared_with_me = u.shared_with_me;
+        if('oauth' in u)
+            this.oauth = u.oauth;
+        this.impersonated_prefix = undefined;
     }
 
     /**
@@ -111,7 +118,8 @@ export class User extends IModel {
             rsa_pub_key : this.rsa_pub_key,
             rsa_pri_key: this.rsa_pri_key,
             data: this.data,
-            shared_with_me: this.shared_with_me
+            shared_with_me: this.shared_with_me,
+            oauth: this.oauth
         };
         return ret;
     }
@@ -204,7 +212,8 @@ export class User extends IModel {
             puzzle: this.puzzle,
             encr_master_key: this.encr_master_key,
             rsa_pub_key: this.rsa_pub_key,
-            rsa_pri_key: this.rsa_pri_key
+            rsa_pri_key: this.rsa_pri_key,
+            oauth: this.oauth
         };
         return ret;
     }

@@ -41,6 +41,11 @@ exports.test = function() {
             '-----END PUBLIC KEY-----',
         rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33]
     }
+    var dummy_user2 = {
+        _id: 'smthg',
+        email: 'likeicare@test.com',
+        shared_with_me: {}
+    }
     var dummy_data = {
         _id: 'fsdn',
         encr_data: 'dataIIS'
@@ -73,10 +78,12 @@ exports.test = function() {
                 db.collection('datas').drop().then(function() {
                     db.collection('vaults').drop().then(function() {
                         db.collection('users').insert(dummy_user).then(function() {
-                            db.collection('datas').insert(dummy_data).then(function() {
-                                db.collection('vaults').insert(dummy_vault).then(function() {
-                                    db.collection('vaults').insert(dummy_vault2).then(function() {
-                                        done();
+                            db.collection('users').insert(dummy_user2).then(function() {
+                                db.collection('datas').insert(dummy_data).then(function() {
+                                    db.collection('vaults').insert(dummy_vault).then(function() {
+                                        db.collection('vaults').insert(dummy_vault2).then(function() {
+                                            done();
+                                        });
                                     });
                                 });
                             });
@@ -131,11 +138,13 @@ exports.test = function() {
 
         describe('#regVault()', function() {
             it('should record a valid vault', function(done) {
-                var f = new fk.FakeRes(true);
+                var f = new fk.FakeRes(false);
                 me.regVault({
                     user: new user.User(dummy_user, ds),
-                    body: {data_name: 'IIS', shared_to_id: 'colleague', aes_crypted_shared_pub: 'aes', data_crypted_aes: 'data'}
+                    body: {data_name: 'IIS', shared_to_id: dummy_user2._id, aes_crypted_shared_pub: 'aes', data_crypted_aes: 'data'}
                 }, f);
+                chai.expect(f.promise).to.eventually.equal(201).notify(done);
+                /*
                 f.promise.then(function(rec) {
                     chai.expect(db.collection('vaults').findOne({_id: rec._id})).to.eventually.become({
                         _id: rec._id,
@@ -149,14 +158,7 @@ exports.test = function() {
                 }, function(e) {
                     done(e);
                 });
-            });
-            it('should record a vault with code 201', function(done) {
-                var f = new fk.FakeRes(false);
-                me.regVault({
-                    user: new user.User(dummy_user, ds),
-                    body: {data_name: 'IIS', shared_to_id: 'colleague', aes_crypted_shared_pub: 'aes', data_crypted_aes: 'data'}
-                }, f);
-                chai.expect(f.promise).to.eventually.equal(201).notify(done);
+                */
             });
             it('should not create for a non existent data name', function(done) {
                 var f = new fk.FakeRes(false);

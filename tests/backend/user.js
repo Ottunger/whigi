@@ -230,5 +230,36 @@ exports.test = function() {
             });
         });
 
+        describe('#createOAuth()', function() {
+            it('should create a token', function(done) {
+                var f = new fk.FakeRes(false);
+                me.createOAuth({
+                    user: new user.User(dummy_user, ds),
+                    body: {
+                        for_id: 'myself',
+                        prefix: ''
+                    }
+                }, f);
+                f.promise.then(function() {
+                    chai.expect(db.collection('oauths').findOne({bearer_id: dummy_user._id})).to.eventually.include.keys(['for_id', 'prefix', 'bearer_id']).notify(done);
+                }, function(e) {
+                    done(e);
+                });
+            });
+        });
+
+        describe('#removeOAuth()', function() {
+            it('should not remove a non existent token but fail nicely', function(done) {
+                var f = new fk.FakeRes(false);
+                me.removeOAuth({
+                    user: new user.User(dummy_user, ds),
+                    params: {
+                        id: 'haha'
+                    }
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(200).notify(done);
+            });
+        });
+
     });
 }

@@ -61,6 +61,10 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/restore-token\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/oauth\/new\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/oauth\/[a-zA-Z0-9]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
     //-----
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
@@ -146,22 +150,37 @@ pass.use(new BS(function(username, hpwd, done) {
  */
 pass.use(new TS(function(token, done) {
     token = utils.atob(token.split(' ')[1]);
+
+    function complete(ticket, is_token) {
+        db.retrieveUser('id', ticket.bearer_id).then(function(user) {
+            if(is_token) {
+                ticket.last_refresh = (new Date).getTime();
+                ticket.persist();
+            } else {
+                user.impersonated_prefix = ticket.prefix;
+            }
+            return done(null, user);
+        }, function(e) {
+            return done(e);
+        });
+    }
+
     db.retrieveToken(token).then(function(ticket) {
         if(!!ticket) {
             if(ticket.is_eternal == false && ticket.last_refresh < (new Date).getTime() - 30*60*1000) {
                 ticket.unlink();
                 return done(null, false);
             } else {
-                db.retrieveUser('id', ticket.bearer_id).then(function(user) {
-                    ticket.last_refresh = (new Date).getTime();
-                    ticket.persist();
-                    return done(null, user);
-                }, function(e) {
-                    return done(e);
-                });
+                complete(ticket, true);
             }
         } else {
-            return done(null, false);
+            db.retrieveOauth(token).then(function(ticket) {
+                if(!!ticket) {
+                    complete(ticket, false);
+                } else {
+                    return done(null, false);
+                }
+            });
         }
     }, function(e) {
         return done(e);
@@ -204,11 +223,29 @@ connect(function(e) {
     app.delete('/api/v:version/vault/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/vault/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/vault/time/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.post('/api/v:version/oauth/new', pass.authenticate(['token', 'basic'], {session: false}));
+    app.delete('/api/v:version/oauth/:id', pass.authenticate(['token', 'basic'], {session: false}));
+    //API LIMITATIONS FOR OAUTH
+    app.post('/api/v:version/profile/data/new', checks.checkOAuth(true));
+    app.post('/api/v:version/profile/update', checks.checkOAuth(true));
+    app.delete('/api/v:version/profile/deactivate', checks.checkOAuth(true));
+    app.post('/api/v:version/profile/token/new', checks.checkOAuth(true));
+    app.delete('/api/v:version/profile/token', checks.checkOAuth(true));
+    //-----
+    app.get('/api/v:version/data/:id', checks.checkOAuth(false));
+    app.delete('/api/v:version/data/:data_name', checks.checkOAuth(true));
+    app.post('/api/v:version/vault/new', checks.checkOAuth(true));
+    app.delete('/api/v:version/vault/:vault_id', checks.checkOAuth(true));
+    app.get('/api/v:version/vault/:vault_id', checks.checkOAuth(true));
+    app.get('/api/v:version/vault/time/:vault_id', checks.checkOAuth(true));
+    app.post('/api/v:version/oauth/new', checks.checkOAuth(true));
+    app.delete('/api/v:version/oauth/:id', checks.checkOAuth(true));
     //API POST CHECKS
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data']));
     app.post('/api/v:version/profile/update', checks.checkBody(['password', 'encr_master_key']));
     app.post('/api/v:version/user/create', checks.checkBody(['first_name', 'last_name', 'username', 'email', 'password', 'recuperable', 'safe', 'recup_mail']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
+    app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix']));
     //-----
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes']));
     //API LONG LIVED COMMANDS
@@ -230,6 +267,8 @@ connect(function(e) {
     app.post('/api/v:version/profile/token/new', user.newToken);
     app.delete('/api/v:version/profile/token', user.removeToken);
     app.post('/api/v:version/profile/restore-token', user.restoreToken);
+    app.post('/api/v:version/oauth/new', user.createOAuth);
+    app.delete('/api/v:version/oauth/:id', user.removeOAuth);
     //------
     app.get('/api/v:version/data/:id', data.getData);
     app.delete('/api/v:version/data/:data_name', data.removeData);

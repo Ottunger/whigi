@@ -45,6 +45,7 @@
    "profile.noLogout": "Impossible de quitter avec précautions",
    "profile.mine": "Voir mes données",
    "profile.shared": "Voir ce qui est partagé avec moi",
+   "profile.noRevoke": "Impossible de supprimer l'accès",
 
    "filesystem.data_name": "Nom de donnée",
    "filesystem.data": "Valeur",

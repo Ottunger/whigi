@@ -1,6 +1,6 @@
 /**
- * Description of a token.
- * @module Token
+ * Description of a OAuth token.
+ * @module Oauth
  * @author Mathonet Grégoire
  */
 
@@ -9,7 +9,7 @@ declare var require: any
 import {Datasource} from '../Datasource';
 import {IModel} from './IModel';
 
-export class Token extends IModel {
+export class Oauth extends IModel {
 
     /**
      * Create a Token from a bare database description.
@@ -17,11 +17,11 @@ export class Token extends IModel {
      * @public
      * @param id New id.
      * @param bearer_id Bearer.
-     * @param last_refresh Last refresh.
-     * @param is_eternal Is ticket alsways valid.
+     * @param for_id App name.
+     * @param prefix Prefix granted.
      * @param db Datasource, usually a DB and remote servers.
      */
-    constructor(id: string, public bearer_id: string, public last_refresh: number, public is_eternal: boolean, db: Datasource) {
+    constructor(id: string, public bearer_id: string, public for_id: string, public prefix: string, db: Datasource) {
         super(id, db);
     }
 
@@ -35,8 +35,8 @@ export class Token extends IModel {
         var ret = {
             _id: this._id,
             bearer_id: this.bearer_id,
-            last_refresh: this.last_refresh,
-            is_eternal: this.is_eternal
+            for_id: this.for_id,
+            prefix: this.prefix
         };
         return ret;
     }
@@ -48,8 +48,8 @@ export class Token extends IModel {
      * @return A promise to check if everything went well.
      */
     persist() {
-        this.updated('tokens');
-        return this.db.getDatabase().collection('tokens').update({_id: this._id}, this.allFields(), {upsert: true});
+        this.updated('oauths');
+        return this.db.getDatabase().collection('oauths').update({_id: this._id}, this.allFields(), {upsert: true});
     }
 
     /**
@@ -69,7 +69,7 @@ export class Token extends IModel {
      * @return {Promise} Whether it went OK.
      */
     unlink(): Promise {
-        return this.unlinkFrom('tokens');
+        return this.unlinkFrom('oauths');
     }
 
 }

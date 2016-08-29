@@ -24,7 +24,24 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/filesystem', 'vault'])">{{ 'profile.shared' | translate }}</button>
         <br /><br />
 
-        
+        <div class="table-responsive">
+            <table class="table table-condensed table-bordered">
+                <thead>
+                    <tr>
+                        <th>{{ 'oauth.for_id' | translate }}</th>
+                        <th>{{ 'oauth.prefix' | translate }}</th>
+                        <th>{{ 'action' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let d of backend.profile.oauth">
+                        <td>{{ d.for_id }}</td>
+                        <td>{{ d.prefix }}</td>
+                        <td><button type="button" class="btn btn-alarm" (click)="remove(d.id)">{{ 'remove' | translate }}</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     `
 })
 export class Profile {
@@ -56,6 +73,26 @@ export class Profile {
             window.location.href = '/';
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noLogout'));
+        });
+    }
+
+    /**
+     * Remove a granted OAuth token.
+     * @function remove
+     * @public
+     * @param {String} id Token id.
+     */
+    remove(id: string) {
+        var self = this;
+        this.backend.removeOAuth(id).then(function() {
+            for(var i = 0; i < self.backend.profile.oauth.length; i++) {
+                if(self.backend.profile.oauth[i].id == id) {
+                    delete self.backend.profile.oauth[i];
+                    break;
+                }
+            }
+        }, function(e) {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noRevoke'));
         });
     }
     
