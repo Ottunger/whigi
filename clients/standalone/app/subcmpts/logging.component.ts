@@ -105,6 +105,7 @@ export class Logging implements OnInit {
     public recuperable: boolean;
     public safe: boolean;
     private createCaptcha: boolean;
+    private onEnd: boolean
 
     /**
      * Creates the component.
@@ -120,6 +121,7 @@ export class Logging implements OnInit {
         this.recuperable = true;
         this.safe = false;
         this.createCaptcha = true;
+        this.onEnd = true;
     }
 
     /**
@@ -130,6 +132,15 @@ export class Logging implements OnInit {
      */
     ngOnInit(set: boolean): void {
         var self = this;
+        if(this.onEnd && /end/.test(window.location.href)) {
+            //Session has expired
+            this.onEnd = false;
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('key_decryption');
+            window.setTimeout(function() {
+                self.notif.alert(self.translate.instant('error'), self.translate.instant('sessionExpired'));
+            }, 1500);
+        }
         if('token' in sessionStorage) {
             this.backend.getProfile().then(function(profile) {
                 //Router.go...

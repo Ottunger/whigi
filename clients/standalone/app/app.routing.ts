@@ -18,6 +18,7 @@ import {Profileguard, Fullguard, Vaultguard} from './guards.service';
 
 const appRoutes: Routes = [
     {path: '', component: Logging},
+    {path: 'end', component: Logging},
     {path: 'profile', component: Profile, canActivate: [Profileguard]},
     {path: 'filesystem/:mode', component: Filesystem, canActivate: [Profileguard], canDeactivate: [Profileguard]},
     {path: 'data/:name', component: Dataview, canActivate: [Fullguard], canDeactivate: [Fullguard]},

@@ -8,7 +8,6 @@
 declare var window: any
 import {Injectable} from '@angular/core';
 import {Headers, Http, Response} from '@angular/http';
-import {Router} from '@angular/router';
 import {NotificationsService} from 'angular2-notifications';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import * as toPromise from 'rxjs/add/operator/toPromise';
@@ -32,11 +31,10 @@ export class Backend {
      * @function constructor
      * @public
      * @param http HTTP service.
-     * @param router Routing service.
      * @param notif Notification service.
      * @param translate Translation service.
      */
-    constructor(private http: Http, private router: Router, private notif: NotificationsService, private translate: TranslateService) {
+    constructor(private http: Http, private notif: NotificationsService, private translate: TranslateService) {
         this.data_loaded = false;
     }
 
@@ -241,11 +239,7 @@ export class Backend {
                 self.backend(whigi, method, data, url, auth, token, puzzle, resolve, reject, num + 1);
             } else {
                 if(e.status == 401 && token) { 
-                    //Session has expired
-                    sessionStorage.removeItem('token');
-                    sessionStorage.removeItem('key_decryption');
-                    self.notif.alert(self.translate.instant('error'), self.translate.instant('sessionExpired'));
-                    self.router.navigate(['']);
+                    window.location.href = '/end/';
                 }
                 reject(e);
             }
