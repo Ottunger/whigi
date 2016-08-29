@@ -40,7 +40,7 @@ enableProdMode();
                 <tbody>
                     <tr *ngFor="let d of sharedIds()">
                         <td>{{ emailOf(d) }}</td>
-                        <td><button type="button" class="btn btn-default" (click)="revoke(d)">{{ 'remove' | translate }}</button></td>
+                        <td><button type="button" class="btn btn-default" (click)="revoke(d)" [disabled]="!backend.profile.data[data_name].shared_to[d]">{{ 'remove' | translate }}</button></td>
                     </tr>
                     <tr>
                         <td><input type="text" [(ngModel)]="new_email" name="y0" class="form-control"></td>
@@ -123,7 +123,7 @@ export class Dataview implements OnInit, OnDestroy {
             dict[names[i]] = this.shared_profiles[names[i]].email;
         }
         this.dataservice.modifyData(this.data_name, this.new_data, dict).then(function() {
-            //Already populated
+            self.new_data = '';
         }, function(err) {
             if(err == 'server')
                 self.notif.error(self.translate.instant('error'), self.translate.instant('server'));
@@ -181,15 +181,11 @@ export class Dataview implements OnInit, OnDestroy {
      */
     revoke(shared_to_id: string) {
         var self = this;
-        if(!!this.backend.profile.data[this.data_name] && !!this.backend.profile.data[this.data_name].shared_to[shared_to_id]) {
-            this.backend.revokeVault(this.backend.profile.data[this.data_name].shared_to[shared_to_id]).then(function() {
-                delete self.backend.profile.data[self.data_name][shared_to_id];
-            }, function(e) {
-                self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noRevoke'));
-            });
-        } else {
+        this.backend.revokeVault(this.backend.profile.data[this.data_name].shared_to[shared_to_id]).then(function() {
+            delete self.backend.profile.data[self.data_name].shared_to[shared_to_id];
+        }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noRevoke'));
-        }
+        });
     }
 
     /**
@@ -200,8 +196,10 @@ export class Dataview implements OnInit, OnDestroy {
     register() {
         var self = this;
         this.dataservice.grantVault(this.new_email, this.data_name, this.data.encr_data).then(function(user, id) {
+            self.shared_profiles = self.shared_profiles || {};
             self.shared_profiles[user._id] = user;
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;
+            self.new_email = '';
         }, function() {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));
         });
@@ -228,7 +226,7 @@ export class Dataview implements OnInit, OnDestroy {
      * @return {String} Email.
      */
     emailOf(id: string): string {
-        if(!!this.shared_profiles[id])
+        if(!!this.shared_profiles && !!this.shared_profiles[id])
             return this.shared_profiles[id].email;
         return this.translate.instant('unknown');
     }

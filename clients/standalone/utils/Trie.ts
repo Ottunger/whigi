@@ -55,6 +55,8 @@ export class Trie {
                     cur.end = true;
                     this.cnt++;
                 }
+                if(i == str.length - 1)
+                    cur.value = value;
             } else {
                 newleaf = true;
                 cur = cur.children[c] = new Node(value, i == str.length - 1);

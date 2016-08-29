@@ -105,14 +105,14 @@ export function regVault(req, res) {
                     sharer_id: req.user._id,
                     last_access: 0
                 }, db);
-                v.persist().then(function() {
-                    req.user.data[got.data_name].shared_to[got.shared_to_id] = v._id;
-                    req.user.persist().then(function() {
-                        db.retrieveUser('id', v.shared_to_id, true).then(function(sharee: User) {
-                            if(!sharee) {
-                                res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
-                                return;
-                            }
+                db.retrieveUser('id', v.shared_to_id, true).then(function(sharee: User) {
+                    if(!sharee) {
+                        res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser', _id: v._id});
+                        return;
+                    }
+                    v.persist().then(function() {
+                        req.user.data[got.data_name].shared_to[got.shared_to_id] = v._id;
+                        req.user.persist().then(function() {
                             sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
                             sharee.shared_with_me[req.user._id][v.data_name] = v._id;
                             sharee.persist().then(function() {
@@ -128,6 +128,8 @@ export function regVault(req, res) {
                             }, function(e) {
                                 res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                             });
+                        }, function(e) {
+                            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                         });
                     }, function(e) {
                         res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});

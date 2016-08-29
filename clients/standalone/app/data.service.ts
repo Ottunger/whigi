@@ -106,8 +106,8 @@ export class Data {
                     for(var j = 0; j < insides.length; j++) {
                         self.backend.shared_with_me_trie.addMilestones(dict[keys[i]].email + '/' + insides[j], '/');
                         self.backend.shared_with_me_trie.add(dict[keys[i]].email + '/' + insides[j], self.backend.profile.shared_with_me[keys[i]][insides[j]]);
-                        self.backend.shared_with_me_trie.addMilestones(dict[keys[i]].email, dict[keys[i]]);
                     }
+                    self.backend.shared_with_me_trie.add(dict[keys[i]].email + '/', dict[keys[i]]);
                 }
             });
             self.backend.data_loaded = true;
@@ -262,6 +262,7 @@ export class Data {
 
                 self.backend.encryptAES(decr_data, self.workerMgt(true, function(got) {
                     self.backend.createVault(name, user._id, got, aes_crypted_shared_pub).then(function(res) {
+                        self.backend.profile.data[name].shared_to[user._id] = res._id;
                         resolve(user, res._id);
                     }, function(e) {
                         reject();

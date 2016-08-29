@@ -147,11 +147,10 @@ export class Filesystem implements OnInit {
         if(this.mode == 'data') {
             this.router.navigate(['/data', window.encodeURIComponent(this.folders + name)]);
         } else if(this.mode == 'vault') {
-            var fslash = this.folders.indexOf('/');
-            var mail = this.folders.substr(0, fslash);
-            this.backend.profile.sharer = this.backend.shared_with_me_trie.find(mail).value;
-            this.router.navigate(['/vault', window.encodeURIComponent(mail), this.backend.shared_with_me_trie.find(this.folderNames + name).value, {
-                route_back: this.folderNames
+            var mail = this.folders.substr(0, this.folders.indexOf('/'));
+            this.backend.profile.sharer = this.backend.shared_with_me_trie.find(mail + '/').value;
+            this.router.navigate(['/vault', window.encodeURIComponent(mail), this.backend.shared_with_me_trie.find(this.folders + name).value, {
+                route_back: this.folders
             }]);
         }
     }

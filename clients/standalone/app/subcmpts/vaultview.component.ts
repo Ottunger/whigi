@@ -22,8 +22,8 @@ enableProdMode();
         <br />
 
         <p>{{ 'actual' | translate }}</p>
-        <input type="text" [(ngModel)]="decr_data" class="form-control" readonly>
-        <button type="button" class="btn btn-primary" (click)="copy()">{{ 'copy' | translate }}</button>
+        <input id="decrypted" type="text" [(ngModel)]="decr_data" class="form-control" readonly>
+        <button type="button" class="btn btn-primary btn-copier" data-clipboard-target="#decrypted">{{ 'copy' | translate }}</button>
         <br />
     `
 })
@@ -47,6 +47,7 @@ export class Vaultview implements OnInit, OnDestroy {
     constructor(private translate: TranslateService, private router: Router, private backend: Backend,
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data) {
         this.vault = {data_name: ''};
+        new window.Clipboard('.btn-copier');
     }
 
     /**
@@ -58,8 +59,8 @@ export class Vaultview implements OnInit, OnDestroy {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
             self.route_back = params['route_back'];
+            self.sharer = self.backend.profile.sharer;
             self.dataservice.getVault(params['id']).then(function(vault, decr_data) {
-                self.sharer = self.backend.profile.sharer;
                 self.vault = vault;
                 self.decr_data = decr_data;
             }, function() {
@@ -85,15 +86,6 @@ export class Vaultview implements OnInit, OnDestroy {
      */
     back() {
         this.router.navigate(['/filesystem', 'vault', (!!this.route_back)? {folders: this.route_back} : {}]);
-    }
-
-    /**
-     * Prompt for copy.
-     * @function copy
-     * @public
-     */
-    copy() {
-        window.prompt(this.translate.instant('makeCopy'), this.decr_data);
     }
     
 }
