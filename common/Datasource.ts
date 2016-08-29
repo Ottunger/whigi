@@ -63,8 +63,9 @@ export class Datasource {
      * @param {String} name collection name.
      * @param {Boolean} deleted Deleted or not.
      */
-    updated(id: string, name: string, deleted: boolean) {
+    updated(id: string, name: string, deleted?: boolean) {
         if(this.useCDN) {
+            deleted = deleted || false;
             this.up.markUpdated(id, name, deleted);
         }
     }
@@ -78,6 +79,7 @@ export class Datasource {
      * @return {Promise} Whether went OK locally.
      */
     unlink(name: string, id: string) {
+        this.updated(id, name, true);
         return this.db.collection(name).remove({_id: id});
     }
 

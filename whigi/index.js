@@ -62,8 +62,8 @@ function listOptions(path, res, next) {
     else if(path.match(/\/api\/v[1-9]\/profile\/restore-token\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     //-----
-    else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9]+\/?$/))
-        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/new\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/?$/))
@@ -199,6 +199,7 @@ connect(function(e) {
     app.delete('/api/v:version/profile/token', pass.authenticate(['token', 'basic'], {session: false}));
     //-----
     app.get('/api/v:version/data/:id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.delete('/api/v:version/data/:data_name', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/vault/new', pass.authenticate(['token', 'basic'], {session: false}));
     app.delete('/api/v:version/vault/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/vault/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
@@ -231,6 +232,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/restore-token', user.restoreToken);
     //------
     app.get('/api/v:version/data/:id', data.getData);
+    app.delete('/api/v:version/data/:data_name', data.removeData);
     app.post('/api/v:version/vault/new', data.regVault);
     app.delete('/api/v:version/vault/:vault_id', data.removeVault);
     app.get('/api/v:version/vault/:vault_id', data.getVault);

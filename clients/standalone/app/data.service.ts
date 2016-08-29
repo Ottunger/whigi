@@ -155,6 +155,26 @@ export class Data {
     }
 
     /**
+     * Removes a data and associated vaults.
+     * @function remove
+     * @public
+     * @param {String} name Data name.
+     * @return {Promise} Of whether went OK.
+     */
+    remove(name: string): Promise {
+        var self = this;
+        return new Promise(function(resolve, reject) {
+            self.backend.removeData(name).then(function() {
+                delete self.backend.profile.data[name];
+                self.backend.data_trie.remove(name);
+                resolve();
+            }, function(e) {
+                reject(e);
+            });
+        });
+    }
+
+    /**
      * Modify a data and associated vaults.
      * @function modifyData
      * @public

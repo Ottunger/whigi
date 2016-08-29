@@ -493,6 +493,17 @@ export class Backend {
     }
 
     /**
+     * Deletes a piece of data.
+     * @function getData
+     * @public
+     * @param {String} name Data name.
+     * @return {Promise} JSON response from backend.
+     */
+    removeData(name: string): Promise {
+        return this.backend(true, 'DELETE', {}, 'data/' + window.encodeURIComponent(name), true, true);
+    }
+
+    /**
      * Shares a data between users.
      * @function createVault
      * @public

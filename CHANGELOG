@@ -48,6 +48,9 @@ Creates a token for the specified user.
 /api/v<any>/data/<id>: Get, needs auth
 Retrieves an encrypted piece of data.
 
+/api/v<any>/data/<data_name>: Delete, needs auth
+Removes such a named data and all associated vaults.
+
 /api/v<any>/vault/new: Post, needs auth, needs puzzle
 Creates a new vault for sharing with another user.
 {"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string", "data_crypted_aes": "string"}

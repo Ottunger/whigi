@@ -26,6 +26,7 @@ enableProdMode();
         <p>{{ 'modify' | translate }}</p>
         <input type="text" [(ngModel)]="new_data" class="form-control">
         <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'record' | translate }}</button>
+        <button type="button" class="btn btn-danger" (click)="remove()">{{ 'remove' | translate }}</button>
         <br />
 
         <div class="table-responsive">
@@ -132,6 +133,20 @@ export class Dataview implements OnInit, OnDestroy {
     }
 
     /**
+     * Removes a data.
+     * @function remove
+     * @public
+     */
+    remove() {
+        var self = this;
+        this.dataservice.remove(this.data_name).then(function() {
+            self.back();
+        }, function(e) {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('server'));
+        });
+    }
+
+    /**
      * Keys of shared people array, which are user id's.
      * @function sharedIds
      * @public
@@ -139,6 +154,8 @@ export class Dataview implements OnInit, OnDestroy {
      */
     sharedIds(): string[] {
         var keys = [];
+        if(!this.backend.profile.data[this.data_name])
+            return [];
         for(var key in this.backend.profile.data[this.data_name].shared_to) {
             if(this.backend.profile.data[this.data_name].shared_to.hasOwnProperty(key)) {
                 keys.push(key);
