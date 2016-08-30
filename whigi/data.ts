@@ -42,17 +42,21 @@ export function managerInit(dbg: Datasource) {
 export function ask(req, res) {
     var got = req.body;
     db.retrieveUser('email', got.email_to).then(function(u: User) {
-        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
-        mailer.sendMail({
-            from: 'Whigi <' + utils.MAIL_ADDR + '>',
-            to: '<' + u.email + '>',
-            subject: utils.i18n('mail.subject.askData', req),
-            html: '<b>' + req.user.email + '</b>' + utils.i18n('mail.body.askData', req) + got.data_name + '.<br /> \
-                <a href="' + utils.RUNNING_ADDR + '/grant/' + encodeURIComponent(got.email_to) + '/' + encodeURIComponent(got.data_name) + '/' +
-                encodeURI('/') + '/' + encodeURI('/') + '">' + utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
-        }, function(e, i) {});
+        if(!!u && u.email != req.user.email) {
+            res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
+            mailer.sendMail({
+                from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                to: '<' + u.email + '>',
+                subject: utils.i18n('mail.subject.askData', req),
+                html: '<b>' + req.user.email + '</b>' + utils.i18n('mail.body.askData', req) + got.data_name + '.<br /> \
+                    <a href="' + utils.RUNNING_ADDR + '/grant/' + encodeURIComponent(got.email_to) + '/' + encodeURIComponent(got.data_name) + '/' +
+                    encodeURIComponent('/') + '/' + encodeURIComponent('/') + '">' + utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
+            }, function(e, i) {});
+        } else {
+            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
+        }
     }, function(e) {
-        res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
+        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
     });
 }
 

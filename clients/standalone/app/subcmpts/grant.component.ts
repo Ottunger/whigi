@@ -64,8 +64,8 @@ export class Grant implements OnInit, OnDestroy {
         this.sub = this.routed.params.subscribe(function(params) {
             self.email_to = params['email_to'];
             self.data_list = window.decodeURIComponent(params['data_list']).split('//');
-            self.return_url_ok = window.decodeURI(params['return_url_ok']);
-            self.return_url_deny = window.decodeURI(params['return_url_deny']);
+            self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
+            self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
             self.dataservice.listData();
         });
     }

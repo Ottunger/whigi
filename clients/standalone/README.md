@@ -3,6 +3,7 @@ Here should lie files that make up our website, front-end site. Not the plugins 
 We should use static html/js files described by an nginx.conf file
 
 # In dev time
+- Best practice is to launch using "npm run serve" after a build, but be careful, as lite-server does not manage URL's with a dot (.) in them!
 - In dev time, the adresses of the API are set to "localhost", those can be found in app/app.service.ts and should be changed!
 - To launch, either create a small nginx.conf file, or use lite-server in node_modules/.bin, once dependencies resolved by npm.
 

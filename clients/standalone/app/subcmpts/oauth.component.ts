@@ -64,8 +64,8 @@ export class Oauth implements OnInit, OnDestroy {
             self.for_id = params['for_id'];
             self.token = params['token'];
             self.prefix = window.decodeURIComponent(params['prefix']);
-            self.return_url_ok = window.decodeURI(params['return_url_ok']);
-            self.return_url_deny = window.decodeURI(params['return_url_deny']);
+            self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
+            self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
             if(!/^https/.test(self.return_url_ok)) {
                 window.location.href = this.return_url_deny + '?reason=https';
             }
