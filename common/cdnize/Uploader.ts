@@ -60,7 +60,7 @@ function end(msg: any, upt: boolean) {
  * @function full
  * @private
  */
-function full() {
+function fullFn() {
     var ids = {}, done = 0;
 
     function complete() {
@@ -115,7 +115,7 @@ function full() {
  * @function partial
  * @private
  */
-function partial() {
+function partialFn() {
     var msg = new fupt.FullUpdate();
     var mappings = [];
     for(var key in updates) {
@@ -145,7 +145,7 @@ export class Uploader {
      * @function constructor
      * @public
      * @param {Number} full Hours between full exports. Should be 1, 2, 4, 6, 12, 24. Defaults to 24.
-     * @param {Number} partial Time between partial updates. Should be 1, 2, 4, 6, 12, 24. Defaults to 24.
+     * @param {Number} partial Time between partial updates. Expressed in minutes.
      * @param {Object} conn Connection to local database.
      * @param {String[]} coll Collections.
      */
@@ -172,31 +172,9 @@ export class Uploader {
                 break;
         }
         rule.minute = Math.floor(Math.random() * 60);
-        scd.scheduleJob(rule, full);
+        scd.scheduleJob(rule, fullFn);
 
-        rule = new scd.RecurrenceRule();
-        switch(full) {
-            case 1:
-                break;
-             case 2:
-                rule.hour = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(function(el) { return el + Math.floor(Math.random() * 2) });
-                break;
-            case 4:
-                rule.hour = [0, 4, 8, 12, 16, 20].map(function(el) { return el + Math.floor(Math.random() * 4) });
-                break;
-            case 6:
-                rule.hour = [0, 6, 12, 18].map(function(el) { return el + Math.floor(Math.random() * 6) });
-                break;
-            case 12:
-                rule.hour = [0, 12].map(function(el) { return el + Math.floor(Math.random() * 12) });
-                break;
-            case 24:
-            default:
-                rule.hour = [Math.floor(Math.random() * 24)];
-                break;
-        }
-        rule.minute = Math.floor(Math.random() * 60);
-        scd.scheduleJob(rule, partial);
+        scd.scheduleJob('* /' + partial + ' * * * *', partialFn);
 
         db = conn;
         collections = coll;
@@ -214,12 +192,12 @@ export class Uploader {
      * @param {Boolean} deleted Deleted or not.
      */
     markUpdated(id: string, name: string, deleted: boolean) {
-        if(filter.contains(id)) {
-            if(deleted) {
-                deleted[name] = deleted[name] || [];
-                if(deleted[name].indexOf(id) == -1)
-                    deleted[name].push(id);
-            } else {
+        if(deleted) {
+            deleted[name] = deleted[name] || [];
+            if(deleted[name].indexOf(id) == -1)
+                deleted[name].push(id);
+        } else {
+            if(filter.contains(id)) {
                 updates[name] = updates[name] || [];
                 if(updates[name].indexOf(id) == -1)
                     updates[name].push(id);

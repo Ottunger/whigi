@@ -7,7 +7,7 @@
 var express = require('express');
 var helmet = require('helmet');
 var body = require('body-parser');
-var https = require('https');
+var http = require('http');
 var pass = require('passport');
 var fs = require('fs');
 var hash = require('js-sha256');
@@ -20,15 +20,15 @@ var user = require('./user');
 var data = require('./data');
 var datasources = require('../common/Datasource');
 var db;
-var DEBUG = true;
 
 //Set the running configuration
-//Launch as >$ node index.js 443 whigi.envict.com for instance
-var httpsport = parseInt(process.argv[2]) || 443;
+//Launch as ">$ node index.js 80 whigi.envict.com whigi-restore.envict.com whigi.com@gmail.com false" for instance
+var httpport = parseInt(process.argv[2]) || 80;
 var localhost = process.argv[3] || 'localhost';
-utils.RESTOREHOST = 'localhost'; 
-utils.RUNNING_ADDR = 'https://' + localhost + ':' + httpsport;
-utils.MAIL_ADDR = "whigi.com@gmail.com";
+utils.RESTOREHOST = process.argv[4] || 'localhost'; 
+utils.RUNNING_ADDR = 'https://' + localhost;
+utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
+var DEBUG = !!process.argv[6];
 
 /**
  * Returns the allowed HTTP vers on a ressource.
@@ -304,7 +304,7 @@ connect(function(e) {
         });
     }
     
-    var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-cert.pem')}, app);
-    servers.listen(httpsport);
+    var server = http.createServer(app);
+    server.listen(httpport);
     console.log('Booststrap finished.'); 
 });

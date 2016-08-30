@@ -51,6 +51,7 @@ Best practice now is to use npm, issuing npm run build, npm run whigi, npm run w
 - Just issue node index.js over the several servers
 - Static servers are described by a nginx configuration file
 - Don't forget to prepare database using the mongoInit.sh file!
+Whigi runs over HTTP because it is behind nginx that makes the HTTPS handshake. Whigi-restore and Whigi-RLI run their own HTTPS.
 
 # Data model
 - Whigi

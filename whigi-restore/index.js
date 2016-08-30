@@ -13,15 +13,15 @@ var mc = require('promised-mongo');
 var utils = require('../utils/utils');
 var mapping = require('./mapping');
 var db;
-var DEBUG = true;
 
 //Set the running configuration
-//Launch as >$ node index.js 443 whigi-restore.envict.com for instance
+//Launch as ">$ node index.js 443 whigi-restore.envict.com whigi.envict.com whigi.com@gmail.com false" for instance
 var httpsport = parseInt(process.argv[2]) || 443;
 var localhost = process.argv[3] || 'localhost';
-utils.WHIGIHOST = 'localhost'; 
-utils.RUNNING_ADDR = 'https://' + localhost + ':' + httpsport;
-utils.MAIL_ADDR = "whigi.com@gmail.com";
+utils.WHIGIHOST = process.argv[4] ||'localhost'; 
+utils.RUNNING_ADDR = 'https://' + utils.WHIGIHOST;
+utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
+var DEBUG = !!process.argv[6];
 
 /**
  * Sets the API to connect to the database.
