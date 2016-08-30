@@ -33,6 +33,30 @@ export function managerInit(dbg: Datasource) {
 }
 
 /**
+ * Asks a user for one data by sending him a link.
+ * @function ask
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function ask(req, res) {
+    var got = req.body;
+    db.retrieveUser('email', got.email_to).then(function(u: User) {
+        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
+        mailer.sendMail({
+            from: 'Whigi <' + utils.MAIL_ADDR + '>',
+            to: '<' + u.email + '>',
+            subject: utils.i18n('mail.subject.askData', req),
+            html: '<b>' + req.user.email + '</b>' + utils.i18n('mail.body.askData', req) + got.data_name + '.<br /> \
+                <a href="' + utils.RUNNING_ADDR + '/grant/' + encodeURIComponent(got.email_to) + '/' + encodeURIComponent(got.data_name) + '/' +
+                encodeURI('/') + '/' + encodeURI('/') + '">' + utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
+        }, function(e, i) {});
+    }, function(e) {
+        res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
+    });
+}
+
+/**
  * Removes a data by name and associated vaults.
  * @function removeData
  * @public
@@ -107,7 +131,7 @@ export function regVault(req, res) {
                 }, db);
                 db.retrieveUser('id', v.shared_to_id, true).then(function(sharee: User) {
                     if(!sharee || sharee._id == req.user.id) {
-                        res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser', _id: v._id});
+                        res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
                         return;
                     }
                     v.persist().then(function() {
@@ -117,7 +141,7 @@ export function regVault(req, res) {
                             sharee.shared_with_me[req.user._id][v.data_name] = v._id;
                             sharee.persist().then(function() {
                                 res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
-                                if(sharee.preferences.email_on_share) {
+                                if(!!sharee.preferences && sharee.preferences.email_on_share) {
                                     mailer.sendMail({
                                         from: 'Whigi <' + utils.MAIL_ADDR + '>',
                                         to: '<' + sharee.email + '>',

@@ -80,16 +80,25 @@ exports.test = function() {
                         db.collection('users').insert(dummy_user).then(function() {
                             db.collection('users').insert(dummy_user2).then(function() {
                                 db.collection('datas').insert(dummy_data).then(function() {
-                                    db.collection('vaults').insert(dummy_vault).then(function() {
-                                        db.collection('vaults').insert(dummy_vault2).then(function() {
-                                            done();
-                                        });
+                                    db.collection('vaults').insert([dummy_vault, dummy_vault2]).then(function() {
+                                        done();
                                     });
                                 });
                             });
                         });
                     });
                 });
+            });
+        });
+
+        describe('#ask()', function() {
+            it('should allow sending a mail as long as remote email is ok', function(done) {
+                var f = new fk.FakeRes(false);
+                me.getData({
+                    user: {email: 'iamsomeone@envict.com'},
+                    body: {email_to: dummy_user.email, data_name: 'anything'}
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(200).notify(done);
             });
         });
 

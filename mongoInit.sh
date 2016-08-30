@@ -21,7 +21,8 @@ db.users.update({username: 'Ottun'}, {
         'xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4' +
         'gwQco1KRMDSmXSMkDwIDAQAB' +
         '-----END PUBLIC KEY-----',
-    rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33]
+    rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33],
+    preferences: {email_on_share: true}
 }, {upsert: true})
 db.users.update({username: 'Ottun2'}, {
    _id: '2',
@@ -40,5 +41,6 @@ db.users.update({username: 'Ottun2'}, {
         'xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4' +
         'gwQco1KRMDSmXSMkDwIDAQAB' +
         '-----END PUBLIC KEY-----',
-    rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33]
+    rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33],
+    preferences: {email_on_share: true}
 }, {upsert: true})

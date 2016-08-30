@@ -46,6 +46,18 @@
    "profile.mine": "Voir mes données",
    "profile.shared": "Voir ce qui est partagé avec moi",
    "profile.noRevoke": "Impossible de supprimer l'accès",
+   "profile.change": "Changer votre profil",
+   "profile.current": "Mot de passe actuel",
+   "profile.new": "Nouveau mot de passe",
+   "profile.email_on_share": "Recevoir un email quand on me partage une donnée",
+   "profile.noMatch": "Mots de passe ne correspondent pas",
+   "profile.noChange": "Mise à jour refusée par le serveur",
+   "profile.changed": "Mise à jour effectuée",
+   "profile.ask": "Demander une donnée",
+   "profile.askMail": "Email utilisateur",
+   "profile.askData": "Donnée utilisateur (séparez les dossiers par '/')",
+   "profile.sent": "Demande envoyée",
+   "profile.noSent": "Demande non envoyée. Vérifiez l'email?",
 
    "filesystem.data_name": "Nom de donnée",
    "filesystem.data": "Valeur",
@@ -61,7 +73,7 @@
    "dataview.shared_to": "Email partagé",
    "dataview.noRevoke": "Impossible de supprimer l'accès",
    "dataview.noGrant": "Impossible de fournir l'accès. Vérifiez l'email?",
-   "dataview.meOnly": "Donnée changée mais pas les coffres-forts...",
+   "dataview.meOnly": "Donnée changée mais pas les valises sécurisées...",
    "dataview.wait": "attendez la décryption avant de partager",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
@@ -81,6 +93,14 @@
    "oauth.prefix": "Accès demandé à: ",
    "oauth.ok": "Donner accès",
    "oauth.nok": "Refuser l'accès",
+
+   "grant.question": "Demande de création de valise sécurisée",
+   "grant.explain": "En acceptant la requête, vous créez automatiquement une valise sécurisée pour chacune des données suivantes vers l'email donné, de la même façon que vous le feriez manuellement. L'utilisateur distant n'AURA PAS accès à vos clés.",
+   "grant.email_to": "Email d'où la demande émane: ",
+   "grant.prefix": "Donnée parmi celles demandées: ",
+   "grant.ok": "Donner l'accès (peut sembler long!)",
+   "grant.nok": "Refuser l'accès",
+   "grant.err": "Erreur quelque part, mais nous envoyons autant que possible",
 
    "error.notfound": "Introuvable"
 }

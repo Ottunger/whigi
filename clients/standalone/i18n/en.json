@@ -46,6 +46,18 @@
    "profile.mine": "See my data",
    "profile.shared": "See what is shared with me",
    "profile.noRevoke": "Cannot revoke access",
+   "profile.change": "Change profile",
+   "profile.current": "Current password",
+   "profile.new": "New password",
+   "profile.email_on_share": "Receive email when someone shared something with you",
+   "profile.noMatch": "Passwords do not match",
+   "profile.noChange": "Update refused by server",
+   "profile.changed": "Profile updated",
+   "profile.ask": "Ask for a data",
+   "profile.askMail": "Remote user email",
+   "profile.askData": "Remote user data path (separate folders with '/')",
+   "profile.sent": "Request sent",
+   "profile.noSent": "Request not sent, check email?",
 
    "filesystem.data_name": "Data name",
    "filesystem.data": "Data",
@@ -76,11 +88,19 @@
    "savekey.rec": "Value imported correctly",
 
    "oauth.question": "OAuth authorization request",
-   "oauth.explain": "By accepting a request, you provide the app that sent you here permission of reading only to the data or folder listed below. TO  LIST IT, THE APP WILL HAVE YOUR MASTER KEY. You will be able to revoke this access at any time later from your profile, but the app might have copied your data by then",
+   "oauth.explain": "By accepting a request, you provide the app that sent you here permission of reading only to the data or folder listed below. TO  LIST IT, THE APP WILL HAVE YOUR MASTER KEY. You will be able to revoke this access at any time later from your profile, but the app might have copied your data by then.",
    "oauth.for_id": "App name as given to us (irrelevant, probably): ",
    "oauth.prefix": "Desired access to: ",
    "oauth.ok": "Give access",
    "oauth.nok": "Deny access",
+
+   "grant.question": "Request for vault creation",
+   "grant.explain": "By accepting the request, you do the same as creating manually a vault of the listed data below towards the given email. The remote user WILL NOT receive your keys.",
+   "grant.email_to": "Email requesting your data: ",
+   "grant.prefix": "Data that is part of the requested ones: ",
+   "grant.ok": "Give access (can be quite long!)",
+   "grant.nok": "Deny access",
+   "grant.err": "Something went wrong somewhere, but we'll prove as much as we can",
 
    "error.notfound": "Not found"
 }

@@ -114,12 +114,11 @@ export class Backend {
      * @public
      * @param {String} pwd Password.
      * @param {String} salt User salt.
-     * @param {String} master_key Master key.
+     * @param {Number[]} master_key Master key.
      * @return {Bytes} Encrypted master key.
      */
-    encryptMasterAES(pwd: string, salt: string, master_key: string): number[] {
-        return new window.aesjs.ModeOfOperation.ctr(this.toBytes(window.sha256(pwd + salt)), new window.aesjs.Counter(0))
-            .encrypt(this.toBytes(master_key));
+    encryptMasterAES(pwd: string, salt: string, master_key: number[]): number[] {
+        return new window.aesjs.ModeOfOperation.ctr(this.toBytes(window.sha256(pwd + salt)), new window.aesjs.Counter(0)).encrypt(master_key);
     }
 
     /**
@@ -388,15 +387,21 @@ export class Backend {
      * Updates the password of the user.
      * @function updateProfile
      * @public
-     * @param {String} password New password.
-     * @param {Bytes} encr_master_key Master key locally encrypted.
+     * @param {String} new_password New password.
+     * @param {Boolean} email_on_share Whether want emails.
+     * @param {String} password Hash of current password for auth.
      * @return {Promise} JSON response from backend.
      */
-    updateProfile(password: string, encr_master_key: number[]): Promise {
+    updateProfile(new_password: string, email_on_share: boolean, password: string): Promise {
         return this.backend(true, 'POST', {
-            password: window.sha256(password),
-            encr_master_key: encr_master_key
-        }, 'profile/update', true, true);
+            new_password: window.sha256(new_password),
+            encr_master_key: this.encryptMasterAES(new_password, this.profile.salt, this.master_key),
+            preferences: {
+                email_on_share: email_on_share
+            },
+            username: this.profile.username,
+            password: window.sha256(password)
+        }, 'profile/update', true, false);
     }
 
     /**
@@ -502,6 +507,21 @@ export class Backend {
      */
     removeOAuth(id: string): Promise {
         return this.backend(true, 'DELETE', {}, 'oauth' + id, true, true);
+    }
+
+    /**
+     * Asks a user for a data.
+     * @function Asks
+     * @public
+     * @param {String} email_to Email of user.
+     * @param {String} data_name name of data.
+     * @return {Promise} JSON response from server.
+     */
+    ask(email_to: string, data_name: string): Promise {
+        return this.backend(true, 'POST', {
+            email_to: email_to,
+            data_name: data_name
+        }, 'ask', true, true, true);
     }
 
     /**

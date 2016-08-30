@@ -96,8 +96,8 @@ export class User extends IModel {
      * @param upt The update.
      */
     applyUpdate(upt) {
-        if('password' in upt && 'encr_master_key' in upt) {
-            this.password = hash.sha256(upt.password + this.salt);
+        if('new_password' in upt && 'encr_master_key' in upt) {
+            this.password = hash.sha256(upt.new_password + this.salt);
             this.encr_master_key = upt.encr_master_key;
         }
     }

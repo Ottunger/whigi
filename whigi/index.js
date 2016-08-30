@@ -66,6 +66,8 @@ function listOptions(path, res, next) {
     else if(path.match(/\/api\/v[1-9]\/oauth\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
     //-----
+    else if(path.match(/\/api\/v[1-9]\/ask\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/new\/?$/))
@@ -212,11 +214,12 @@ connect(function(e) {
     app.get('/api/v:version/profile', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/profile/data', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/profile/data/new', pass.authenticate(['token', 'basic'], {session: false}));
-    app.post('/api/v:version/profile/update', pass.authenticate(['token', 'basic'], {session: false}));
+    app.post('/api/v:version/profile/update', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/profile/deactivate', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/profile/token/new', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/profile/token', pass.authenticate(['token', 'basic'], {session: false}));
     //-----
+    app.post('/api/v:version/ask', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/data/:id', pass.authenticate(['token', 'basic'], {session: false}));
     app.delete('/api/v:version/data/:data_name', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/vault/new', pass.authenticate(['token', 'basic'], {session: false}));
@@ -232,6 +235,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/token/new', checks.checkOAuth(true));
     app.delete('/api/v:version/profile/token', checks.checkOAuth(true));
     //-----
+    app.post('/api/v:version/ask', checks.checkOAuth(true));
     app.get('/api/v:version/data/:id', checks.checkOAuth(false));
     app.delete('/api/v:version/data/:data_name', checks.checkOAuth(true));
     app.post('/api/v:version/vault/new', checks.checkOAuth(true));
@@ -242,17 +246,19 @@ connect(function(e) {
     app.delete('/api/v:version/oauth/:id', checks.checkOAuth(true));
     //API POST CHECKS
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data']));
-    app.post('/api/v:version/profile/update', checks.checkBody(['password', 'encr_master_key']));
+    app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key']));
     app.post('/api/v:version/user/create', checks.checkBody(['first_name', 'last_name', 'username', 'email', 'password', 'recuperable', 'safe', 'recup_mail']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix', 'token']));
     //-----
+    app.post('/api/v:version/ask', checks.checkBody(['email_to', 'data_name']));
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes']));
     //API LONG LIVED COMMANDS
     app.get('/api/v:version/user/:id', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/new', checks.checkPuzzle);
     app.post('/api/v:version/profile/token/new', checks.checkPuzzle);
     //-----
+    app.post('/api/v:version/ask', checks.checkPuzzle);
     app.post('/api/v:version/vault/new', checks.checkPuzzle);
     app.get('/api/v:version/vault/:vault_id', checks.checkPuzzle);
     //API ROUTES
@@ -270,6 +276,7 @@ connect(function(e) {
     app.post('/api/v:version/oauth/new', user.createOAuth);
     app.delete('/api/v:version/oauth/:id', user.removeOAuth);
     //------
+    app.post('/api/v:version/ask', data.ask);
     app.get('/api/v:version/data/:id', data.getData);
     app.delete('/api/v:version/data/:data_name', data.removeData);
     app.post('/api/v:version/vault/new', data.regVault);

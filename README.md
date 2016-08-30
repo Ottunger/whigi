@@ -8,13 +8,18 @@ Remember that clients aure authenticated using a match on hash(hash(password) + 
 Note that whigi-restore gets informed of the mappings email <=> master\_key but nevers informs back whigi of the disclosure. A front-end app should therefore request the master\_key then ask whigi for a password change.
 
 # Third-parties
+- USING THE REQUEST FOR GRANT: This is the most promoted method. You do not need to register anything special to Whigi, a simple account with a mail will do.
+When a user has for instance bought something on your website, just send them to
+/grant/[your-email]/encodeURIComponent([//-separated-list-of-data])/encodeURI([return\_url\_ok])/encodeURI([return\_url\_deny]) . Upon selection, the user will be redirected
+to one of the two URL's, the "ok" one if the intersection of all the data you asked for and the user's data can be granted, the "deny" if the user denied you
+access or if something went wrong.
 - USING THE API: In order to not polute the namespace of applications data names if you have a plugin that needs specific data, please record data as named
 /apps/[your-specific-app-name]/whatever . Please note that we plan on having generic information that a user might usually share stored in
 a standardized path, we suppose profile/often-shared-data
 - USING OAUTH: Whigi is not meant to be used with OAuth. That said, we provide OAuth for ease, but using OAuth will give you the user's master key, thus making you as responsible
 as a third-party not using it. You will need to register to a Whigi provider by your own means (email, ...) to get a valid "for_id".
 When registering you will need to provide an URL that Whigi can call to ensure you are the one who made the request with check-token. It should return a JSON response containing a key
-success set to either true or false. It should accept a GET request where the token will be given by ?token= in query parameters. 
+success set to either true or false. It should accept a GET request where the token will be given by ?token= in query parameters.
 
 We therefore restrict what can be done using OAuth:
   - Only read-only access can be given

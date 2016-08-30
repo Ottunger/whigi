@@ -195,7 +195,7 @@ export class Dataview implements OnInit, OnDestroy {
      */
     register() {
         var self = this;
-        this.dataservice.grantVault(this.new_email, this.data_name, this.data.encr_data).then(function(user, id) {
+        this.dataservice.grantVault(this.new_email, this.data_name, this.data.dec).then(function(user, id) {
             self.shared_profiles = self.shared_profiles || {};
             self.shared_profiles[user._id] = user;
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;
@@ -231,4 +231,6 @@ export class Dataview implements OnInit, OnDestroy {
         return this.translate.instant('unknown');
     }
     
+}
+ 
 }
