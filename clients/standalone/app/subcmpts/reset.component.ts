@@ -24,13 +24,20 @@ enableProdMode();
                 {{ 'reset.received' | translate }}{{ recup_mail }}<br />
                 <input type="text" [(ngModel)]="first_half" name="n0" class="form-control" required>
             </div>
-            <div class="form-group">
-                {{ 'reset.password' | translate }}<br />
-                <input type="password" [(ngModel)]="password" name="n4" class="form-control" required>
+            <div class="checkbox">
+                <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
             </div>
             <div class="form-group">
                 {{ 'reset.password' | translate }}<br />
-                <input type="password" [(ngModel)]="password2" name="n5" class="form-control" required>
+                <input type="password" [(ngModel)]="password" name="n4" class="form-control" [disabled]="!use_pwd" required>
+            </div>
+            <div class="form-group">
+                {{ 'reset.password' | translate }}<br />
+                <input type="password" [(ngModel)]="password2" name="n5" class="form-control" [disabled]="!use_pwd" required>
+            </div>
+            <div class="form-group">
+                {{ 'login.password_file' | translate }}<br />
+                <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
             </div>
             <div class="form-group">
                 <button type="submit" class="btn btn-primary" (click)="enter()">{{ 'reset.send' | translate }}</button>
@@ -44,6 +51,7 @@ export class Reset implements OnInit, OnDestroy {
     public password2: string;
     public first_half: string;
     public use_recup: boolean;
+    public use_pwd: boolean;
     private key: string;
     private recup_mail: string;
     private sub: Subscription;
@@ -59,7 +67,7 @@ export class Reset implements OnInit, OnDestroy {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
         private notif: NotificationsService, private routed: ActivatedRoute) {
-
+        this.use_pwd = true;
     }
 
     /**
@@ -105,7 +113,7 @@ export class Reset implements OnInit, OnDestroy {
                         self.backend.encryptMasterAES(self.password, user.salt, self.first_half + data.master_key);
                     else
                         self.backend.encryptMasterAES(self.password, user.salt, data.master_key)
-                    self.backend.updateProfile(self.password, encr_master_key).then(function() {
+                    self.backend.updateProfileForReset(self.password, encr_master_key).then(function() {
                         self.router.navigate(['']);
                     }, function(e) {
                         self.notif.error(self.translate.instant('error'), self.translate.instant('reset.noReset'));
@@ -119,6 +127,23 @@ export class Reset implements OnInit, OnDestroy {
         } else {
             self.notif.alert(self.translate.instant('error'), self.translate.instant('reset.noMatch'));
         }
+    }
+
+    /**
+     * Loads a file as password.
+     * @function fileLoad
+     * @public
+     * @param {Event} e The change event.
+     */
+    fileLoad(e: any) {
+        var self = this;
+        var file: File = e.target.files[0]; 
+        var r: FileReader = new FileReader();
+        r.onloadend = function(e) {
+            self.password = r.result;
+            self.password2 = r.result;
+        }
+        r.readAsText(file);
     }
     
 }

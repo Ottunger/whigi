@@ -23,9 +23,16 @@ enableProdMode();
                 {{ 'login.username' | translate }}<br />
                 <input type="text" [(ngModel)]="username" name="n0" class="form-control" required>
             </div>
+            <div class="checkbox">
+                <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
+            </div>
             <div class="form-group">
                 {{ 'login.password' | translate }}<br />
                 <input type="password" [(ngModel)]="password" name="n1" class="form-control" required>
+            </div>
+            <div class="form-group">
+                {{ 'login.password_file' | translate }}<br />
+                <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
             </div>
             <div class="form-group">
                 <div class="checkbox">
@@ -56,13 +63,20 @@ enableProdMode();
                 {{ 'login.username' | translate }}<br />
                 <input type="text" [(ngModel)]="username" name="n3" class="form-control" required>
             </div>
-            <div class="form-group">
-                {{ 'login.password' | translate }}<br />
-                <input type="password" [(ngModel)]="password" name="n4" class="form-control" required>
+            <div class="checkbox">
+                <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
             </div>
             <div class="form-group">
                 {{ 'login.password' | translate }}<br />
-                <input type="password" [(ngModel)]="password2" name="n5" class="form-control" required>
+                <input type="password" [(ngModel)]="password" name="n4" class="form-control" [disabled]="!use_pwd" required>
+            </div>
+            <div class="form-group">
+                {{ 'login.password' | translate }}<br />
+                <input type="password" [(ngModel)]="password2" name="n5" class="form-control" [disabled]="!use_pwd" required>
+            </div>
+            <div class="form-group">
+                {{ 'login.password_file' | translate }}<br />
+                <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
             </div>
             <div class="form-group">
                 {{ 'login.email' | translate }}<br />
@@ -104,6 +118,7 @@ export class Logging implements OnInit {
     public persistent: boolean;
     public recuperable: boolean;
     public safe: boolean;
+    public use_pwd: boolean;
     private createCaptcha: boolean;
     private onEnd: boolean
 
@@ -122,6 +137,7 @@ export class Logging implements OnInit {
         this.safe = false;
         this.createCaptcha = true;
         this.onEnd = true;
+        this.use_pwd = true;
     }
 
     /**
@@ -233,6 +249,23 @@ export class Logging implements OnInit {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('login.noReset'));
             });
         }
+    }
+
+    /**
+     * Loads a file as password.
+     * @function fileLoad
+     * @public
+     * @param {Event} e The change event.
+     */
+    fileLoad(e: any) {
+        var self = this;
+        var file: File = e.target.files[0]; 
+        var r: FileReader = new FileReader();
+        r.onloadend = function(e) {
+            self.password = r.result;
+            self.password2 = r.result;
+        }
+        r.readAsText(file);
     }
     
 }

@@ -43,7 +43,8 @@
   "license": "SEE LICENSE IN LICENSE.txt",
   "scripts": {
     "serve": "cp --force nginx.conf /etc/nginx/sites-available/default && rm -f /etc/nginx/sites-enabled/default && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && service nginx restart",
-    "whigi": "node whigi/index.js 80 localhost localhost whigi.com@gmail.com true",
+    "whigi": "node whigi/index.js 80 localhost localhost whigi.com@gmail.com false false",
+    "whigi-dev": "node whigi/index.js 443 localhost localhost whigi.com@gmail.com true true",
     "whigi-restore": "node whigi-restore/index.js 443 localhost localhost whigi.com@gmail.com true",
     "whigi-rli": "node whigi-rli/index.js 443 localhost true",
     "build_whigi_data": "node_modules/.bin/tsc --removeComments whigi/data.ts && echo ok || echo not ok",

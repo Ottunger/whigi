@@ -39,6 +39,8 @@
    "login.recuperable": "Créer un compte dont le mot de passe peut être récupéré",
    "login.safe": "Utiliser un ami pour la récupération. Meilleure protection",
    "login.recMail": "Le système ne peut trouver l'utilisateur identifié par cet email",
+   "login.use_pwd": "Utiliser un mot de passe comme moyen d'authentification",
+   "login.password_file": "Fichier dont le contenu sert à authentifier (un petit suffit!)",
 
    "profile.logout": "Déconnecter",
    "profile.logoutAll": "Enlever toutes les authorisations et se déconnecter",

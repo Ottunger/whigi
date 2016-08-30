@@ -39,6 +39,8 @@
    "login.recuperable": "Create an account whose password can be recovered later",
    "login.safe": "Refer to a friend for password recovery. This is the safest method",
    "login.recMail": "The system cannot find the user identified by this mail",
+   "login.use_pwd": "Use password as auth text",
+   "login.password_file": "File whose contents will be used as password (use a small file!)",
 
    "profile.logout": "Log out",
    "profile.logoutAll": "Remove all authorizations and log out",
