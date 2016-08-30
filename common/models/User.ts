@@ -24,7 +24,8 @@ export var fields = {
     rsa_pri_key: true,
     data: true,
     shared_with_me: true,
-    oauth: true
+    oauth: true,
+    preferences: true
 }
 
 export class User extends IModel {
@@ -42,6 +43,7 @@ export class User extends IModel {
     public data;
     public shared_with_me;
     public oauth: any[];
+    public preferences: any;
 
     public impersonated_prefix: string;
     
@@ -82,6 +84,8 @@ export class User extends IModel {
             this.shared_with_me = u.shared_with_me;
         if('oauth' in u)
             this.oauth = u.oauth;
+        if('preferences' in u)
+            this.preferences = u.preferences;
         this.impersonated_prefix = undefined;
     }
 
@@ -119,7 +123,8 @@ export class User extends IModel {
             rsa_pri_key: this.rsa_pri_key,
             data: this.data,
             shared_with_me: this.shared_with_me,
-            oauth: this.oauth
+            oauth: this.oauth,
+            preferences: this.preferences
         };
         return ret;
     }
@@ -213,7 +218,8 @@ export class User extends IModel {
             encr_master_key: this.encr_master_key,
             rsa_pub_key: this.rsa_pub_key,
             rsa_pri_key: this.rsa_pri_key,
-            oauth: this.oauth
+            oauth: this.oauth,
+            preferences: this.preferences
         };
         return ret;
     }

@@ -117,14 +117,16 @@ export function regVault(req, res) {
                             sharee.shared_with_me[req.user._id][v.data_name] = v._id;
                             sharee.persist().then(function() {
                                 res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
-                                mailer.sendMail({
-                                    from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                                    to: '<' + sharee.email + '>',
-                                    subject: utils.i18n('mail.subject.newData', req),
-                                    html: '<b>' + v.data_name + '</b>' + utils.i18n('mail.body.shared', req) + req.user.email + '.<br /> \
-                                        <a href="' + utils.RUNNING_ADDR + '/vault/' + encodeURIComponent(req.user.email) + '/' + v.data_name + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
-                                        utils.i18n('mail.signature', req)
-                                }, function(e, i) {});
+                                if(sharee.preferences.email_on_share) {
+                                    mailer.sendMail({
+                                        from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                                        to: '<' + sharee.email + '>',
+                                        subject: utils.i18n('mail.subject.newData', req),
+                                        html: '<b>' + v.data_name + '</b>' + utils.i18n('mail.body.shared', req) + req.user.email + '.<br /> \
+                                            <a href="' + utils.RUNNING_ADDR + '/vault/' + encodeURIComponent(req.user.email) + '/' + v.data_name + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
+                                            utils.i18n('mail.signature', req)
+                                    }, function(e, i) {});
+                                }
                             }, function(e) {
                                 res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                             });

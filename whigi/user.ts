@@ -132,6 +132,8 @@ export function recData(req, res, respond?: boolean) {
  */
 export function updateUser(req, res) {
     var upt = req.body;
+    if(!!upt.preferences)
+        req.user.preferences.email_on_share = !!upt.preferences.email_on_share;
     req.user.applyUpdate(upt);
     req.user.persist().then(function() {
         res.type('application/json').status(200).json({error: ''});
@@ -179,6 +181,7 @@ export function regUser(req, res) {
         u.data = {};
         u.shared_with_me = {};
         u.oauth = [];
+        u.preferences = {email_on_share: true};
         u.encr_master_key = new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
             .encrypt(utils.toBytes(pre_master_key));
         u.rsa_pub_key = key.exportKey('public');
