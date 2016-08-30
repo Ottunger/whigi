@@ -22,7 +22,9 @@ enableProdMode();
         <br />
 
         <p>{{ 'actual' | translate }}</p>
-        <input id="decrypted" type="text" [(ngModel)]="decr_data" class="form-control" readonly>
+        <input id="decrypted" *ngIf="decr_data.length < 150" type="text" [ngModel]="decr_data" class="form-control" readonly>
+        <input id="decrypted" *ngIf="decr_data.length >= 150" type="text" value="{{ 'dataview.tooLong' | translate }}" class="form-control" readonly>
+        <button type="button" class="btn btn-primary" [disabled]="decr_data==''" (click)="dl()">{{ 'download' | translate }}</button>
         <button type="button" class="btn btn-primary btn-copier" data-clipboard-target="#decrypted">{{ 'copy' | translate }}</button>
         <br />
     `
@@ -47,6 +49,7 @@ export class Vaultview implements OnInit, OnDestroy {
     constructor(private translate: TranslateService, private router: Router, private backend: Backend,
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data) {
         this.vault = {data_name: ''};
+        this.decr_data = '';
         new window.Clipboard('.btn-copier');
     }
 
@@ -86,6 +89,15 @@ export class Vaultview implements OnInit, OnDestroy {
      */
     back() {
         this.router.navigate(['/filesystem', 'vault', (!!this.route_back)? {folders: this.route_back} : {}]);
+    }
+
+    /**
+     * Prompts for downloading.
+     * @function dl
+     * @public
+     */
+    dl() {
+        window.open('data:application/octet-stream,' + window.encodeURIComponent(this.decr_data), 'data');
     }
     
 }

@@ -18,6 +18,7 @@
    "encrypting": "Encryption en cours",
    "decrypting": "Décryption en cours",
    "corruption": "Quelque chose est corrompu, AES invalide",
+   "download": "Télécharger comme fichier",
 
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",
@@ -77,6 +78,7 @@
    "dataview.noGrant": "Impossible de fournir l'accès. Vérifiez l'email?",
    "dataview.meOnly": "Donnée changée mais pas les valises sécurisées...",
    "dataview.wait": "attendez la décryption avant de partager",
+   "dataview.tooLong": "Trop long pour être affiché",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
 

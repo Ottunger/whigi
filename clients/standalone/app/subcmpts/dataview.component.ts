@@ -21,7 +21,10 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
         <p>{{ 'actual' | translate }}</p>
-        <input type="text" [ngModel]="decr_data" class="form-control" readonly>
+        <input id="decrypted" *ngIf="decr_data.length < 150" type="text" [ngModel]="decr_data" class="form-control" readonly>
+        <input id="decrypted" *ngIf="decr_data.length >= 150" type="text" value="{{ 'dataview.tooLong' | translate }}" class="form-control" readonly>
+        <button type="button" class="btn btn-primary" [disabled]="decr_data==''" (click)="dl()">{{ 'download' | translate }}</button>
+        <button type="button" class="btn btn-primary btn-copier" data-clipboard-target="#decrypted">{{ 'copy' | translate }}</button>
         <br />
         <p>{{ 'modify' | translate }}</p>
         <input type="text" [(ngModel)]="new_data" class="form-control">
@@ -73,7 +76,8 @@ export class Dataview implements OnInit, OnDestroy {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data, private check: ApplicationRef) {
-
+        this.decr_data = '';
+        new window.Clipboard('.btn-copier');
     }
 
     /**
@@ -216,6 +220,15 @@ export class Dataview implements OnInit, OnDestroy {
         return new Promise<boolean>(function(resolve, reject) {
             resolve(window.confirm(msg));
         });
+    }
+
+    /**
+     * Prompts for downloading.
+     * @function dl
+     * @public
+     */
+    dl() {
+        window.open('data:application/octet-stream,' + window.encodeURIComponent(this.decr_data), 'data');
     }
 
     /**

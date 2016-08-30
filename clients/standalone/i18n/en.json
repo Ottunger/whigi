@@ -18,6 +18,7 @@
    "encrypting": "Encrypting",
    "decrypting": "Decrypting",
    "corruption": "Something is corrupted, cannot use AES",
+   "download": "Download as file",
 
    "login.title": "Time to log in",
    "login.remember": "Remember me",
@@ -77,6 +78,7 @@
    "dataview.noGrant": "Could not register grant. Check email?",
    "dataview.meOnly": "Data changed for you but not in vaults...",
    "dataview.wait": "Wait for decryption before sharing",
+   "dataview.tooLong": "Too long for showing",
 
    "vaultview.noData": "Cannot retrieve such vault. Maybe access was revoked...",
 
