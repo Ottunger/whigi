@@ -62,7 +62,7 @@ export class Grant implements OnInit, OnDestroy {
     ngOnInit(): void {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
-            self.email_to = params['email_to'];
+            self.email_to = window.decodeURIComponent(params['email_to']);
             self.data_list = window.decodeURIComponent(params['data_list']).split('//');
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);

@@ -10,7 +10,7 @@ Note that whigi-restore gets informed of the mappings email <=> master\_key but 
 # Third-parties
 - USING THE REQUEST FOR GRANT: This is the most promoted method. You do not need to register anything special to Whigi, a simple account with a mail will do.
 When a user has for instance bought something on your website, just send them to
-/grant/[your-email]/encodeURIComponent([//-separated-list-of-data])/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny]) . Upon selection, the user will be redirected
+/grant/encodeURIComponent([your-email])/encodeURIComponent([//-separated-list-of-data])/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny]) . Upon selection, the user will be redirected
 to one of the two URL's, the "ok" one if the intersection of all the data you asked for and the user's data can be granted, the "deny" if the user denied you
 access or if something went wrong.
 - USING THE API: In order to not polute the namespace of applications data names if you have a plugin that needs specific data, please record data as named
