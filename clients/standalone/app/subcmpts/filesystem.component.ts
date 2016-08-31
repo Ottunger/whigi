@@ -54,7 +54,12 @@ enableProdMode();
                     <tr *ngIf="mode=='data'">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
-                        <td><button type="button" class="btn btn-default" (click)="register()">{{ 'record' | translate }}</button></td>
+                        <td><button type="button" class="btn btn-default" (click)="register(false)">{{ 'record' | translate }}</button></td>
+                    </tr>
+                    <tr *ngIf="mode=='data'">
+                        <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
+                        <td><input type="file" (change)="fileLoad($event)" name="n50" class="form-control"></td>
+                        <td><button type="button" class="btn btn-default" (click)="register(true)" [disabled]="data_value_file==''">{{ 'record' | translate }}</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -65,6 +70,7 @@ export class Filesystem implements OnInit {
 
     public data_name: string;
     public data_value: string;
+    public data_value_file: string;
     private mode: string;
     private folders: string;
     private sub: Subscription;
@@ -82,6 +88,7 @@ export class Filesystem implements OnInit {
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private routed: ActivatedRoute,
         private notif: NotificationsService, private dataservice: Data, private check: ApplicationRef) {
         this.folders = '';
+        this.data_value_file = '';
     }
 
     /**
@@ -103,12 +110,14 @@ export class Filesystem implements OnInit {
      * Register a new data.
      * @function register
      * @public
+     * @param {Boolean} as_file Load from file.
      */
-    register() {
+    register(as_file: boolean) {
         var self = this;
-        this.dataservice.newData(this.completeName(), this.data_value).then(function() {
+        this.dataservice.newData(this.completeName(), as_file? this.data_value_file : this.data_value).then(function() {
             self.data_name = '';
             self.data_value = '';
+            self.data_value_file = '';
             self.check.tick();
         }, function(err) {
             if(err == 'server')
@@ -220,6 +229,22 @@ export class Filesystem implements OnInit {
         return new Promise<boolean>(function(resolve, reject) {
             resolve(window.confirm(msg));
         });
+    }
+
+    /**
+     * Loads a file as data.
+     * @function fileLoad
+     * @public
+     * @param {Event} e The change event.
+     */
+    fileLoad(e: any) {
+        var self = this;
+        var file: File = e.target.files[0]; 
+        var r: FileReader = new FileReader();
+        r.onloadend = function(e) {
+            self.data_value_file = r.result;
+        }
+        r.readAsText(file);
     }
     
 }

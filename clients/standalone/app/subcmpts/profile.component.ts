@@ -32,13 +32,20 @@ enableProdMode();
                 {{ 'profile.current' | translate }}<br />
                 <input type="password" [(ngModel)]="current_pwd" name="n0" class="form-control" required>
             </div>
-            <div class="form-group">
-                {{ 'profile.new' | translate }}<br />
-                <input type="password" [(ngModel)]="password" name="n4" class="form-control" required>
+            <div class="checkbox">
+                <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
             </div>
             <div class="form-group">
                 {{ 'profile.new' | translate }}<br />
-                <input type="password" [(ngModel)]="password2" name="n5" class="form-control" required>
+                <input type="password" [(ngModel)]="password" name="n4" class="form-control" [disabled]="!use_pwd" required>
+            </div>
+            <div class="form-group">
+                {{ 'profile.new' | translate }}<br />
+                <input type="password" [(ngModel)]="password2" name="n5" class="form-control" [disabled]="!use_pwd" required>
+            </div>
+            <div class="form-group">
+                {{ 'login.password_file' | translate }}<br />
+                <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
             </div>
             <div class="form-group">
                 <div class="checkbox">
@@ -94,6 +101,7 @@ export class Profile {
     public password2: string;
     public ask_email: string;
     public ask_data: string;
+    public use_pwd: boolean;
 
     /**
      * Creates the component.
@@ -105,7 +113,7 @@ export class Profile {
      * @param router Router service.
      */
     constructor(private translate: TranslateService, private notif: NotificationsService, private backend: Backend, private router: Router) {
-
+        this.use_pwd = true;
     }
 
     /**
@@ -180,6 +188,23 @@ export class Profile {
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noSent'));
         });
+    }
+
+    /**
+     * Loads a file as password.
+     * @function fileLoad
+     * @public
+     * @param {Event} e The change event.
+     */
+    fileLoad(e: any) {
+        var self = this;
+        var file: File = e.target.files[0]; 
+        var r: FileReader = new FileReader();
+        r.onloadend = function(e) {
+            self.password = r.result;
+            self.password2 = r.result;
+        }
+        r.readAsText(file);
     }
     
 }

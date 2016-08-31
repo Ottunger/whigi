@@ -28,7 +28,7 @@ enableProdMode();
             </div>
             <div class="form-group">
                 {{ 'login.password' | translate }}<br />
-                <input type="password" [(ngModel)]="password" name="n1" class="form-control" required>
+                <input type="password" [(ngModel)]="password" name="n1" class="form-control" [disabled]="!use_pwd" required>
             </div>
             <div class="form-group">
                 {{ 'login.password_file' | translate }}<br />
