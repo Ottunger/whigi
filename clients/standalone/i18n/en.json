@@ -3,7 +3,7 @@
    "success": "Success!",
    "confirmation": "Are you sure tou want to move now?",
    "action": "Action",
-   "record": "Record (500KB max)",
+   "record": "Record (6000KB max)",
    "remove": "Remove",
    "back": "Back to profile",
    "actual": "Actual data",

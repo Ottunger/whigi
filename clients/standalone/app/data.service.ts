@@ -240,7 +240,7 @@ export class Data {
         return new Promise(function(resolve, reject) {
             self.backend.getVault(id).then(function(vault) {
                 var aesKey: number[] = self.backend.decryptRSA(vault.aes_crypted_shared_pub);
-                self.backend.decryptAES(vault.data_crypted_aes, self.workerMgt(false, function(got) {
+                self.backend.decryptAES(self.backend.str2arr(vault.data_crypted_aes), self.workerMgt(false, function(got) {
                     resolve(vault, got);
                 }), aesKey);
             }, function(e) {

@@ -65,6 +65,36 @@ export class Backend {
     }
 
     /**
+     * Turns an array of nums to a string.
+     * @function arr2str
+     * @private
+     * @param {Number[]} arr Array.
+     * @return {String} String.
+     */
+    private arr2str(arr: number[]): string {
+        var result = '';
+        for (var i = 0; i < arr.length; i++) {
+            result += String.fromCharCode(arr[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Turns a string to an array of numbers.
+     * @function str2arr
+     * @public
+     * @param {String} str String.
+     * @return {Number[]} Array.
+     */
+    public str2arr(str: string): number[] {
+        var result: number[] = [];
+        for (var i = 0; i < str.length; i++) {
+            result.push(window.parseInt(str.charCodeAt(i).toString(10)));
+        }
+        return result;
+    }
+
+    /**
      * Generates a random string.
      * @function generateRandomString
      * @private
@@ -393,7 +423,7 @@ export class Backend {
     postData(name: string, encr_data: number[]): Promise {
         return this.backend(true, 'POST', {
             name: name,
-            encr_data: encr_data
+            encr_data: this.arr2str(encr_data)
         }, 'profile/data/new', true, true, true);
     }
 
@@ -590,7 +620,7 @@ export class Backend {
         return this.backend(true, 'POST', {
             data_name: data_name,
             shared_to_id: shared_to_id,
-            data_crypted_aes: data_crypted_aes,
+            data_crypted_aes: this.arr2str(data_crypted_aes),
             aes_crypted_shared_pub: aes_crypted_shared_pub
         }, 'vault/new', true, true, true);
     }

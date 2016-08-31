@@ -65,7 +65,7 @@ export class Vaultview implements OnInit, OnDestroy {
             self.sharer = self.backend.profile.sharer;
             self.dataservice.getVault(params['id']).then(function(vault, decr_data) {
                 self.vault = vault;
-                self.decr_data = decr_data;
+                self.decr_data = decr;
             }, function() {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.noData'));
                 self.back();
@@ -101,4 +101,6 @@ export class Vaultview implements OnInit, OnDestroy {
         window.download(this.decr_data, spl[spl.length - 1]);
     }
     
+}
+
 }

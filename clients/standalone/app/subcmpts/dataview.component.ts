@@ -100,6 +100,7 @@ export class Dataview implements OnInit, OnDestroy {
 
             self.backend.getData(self.backend.profile.data[self.data_name].id).then(function(data) {
                 self.data = data;
+                self.data.encr_data = self.backend.str2arr(self.data.encr_data);
                 self.backend.decryptAES(self.data.encr_data, self.dataservice.workerMgt(false, function(got) {
                     self.decr_data = got;
                     self.check.tick();
