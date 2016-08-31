@@ -16,7 +16,7 @@ var mapping = require('./mapping');
 //Launch as ">$ node index.js 443 whigi-rli.envict.com false" for instance
 var httpsport = parseInt(process.argv[2]) || 443;
 var localhost = process.argv[3] || 'localhost';
-var DEBUG = !!process.argv[4];
+var DEBUG = !!process.argv[4]? process.argv[4] : true;
 
 //Create the express application
 var app = express();

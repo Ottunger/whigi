@@ -29,8 +29,8 @@ var localhost = process.argv[3] || 'localhost';
 utils.RESTOREHOST = process.argv[4] || 'localhost'; 
 utils.RUNNING_ADDR = 'https://' + localhost;
 utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
-var DEBUG = !!process.argv[6];
-var isHttps = !!process.argv[7];
+var DEBUG = !!process.argv[6]? process.argv[6] : true;
+var isHttps = !!process.argv[7]? process.argv[7] : true;
 
 /**
  * Returns the allowed HTTP vers on a ressource.

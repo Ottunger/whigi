@@ -21,7 +21,7 @@ var localhost = process.argv[3] || 'localhost';
 utils.WHIGIHOST = process.argv[4] ||'localhost'; 
 utils.RUNNING_ADDR = 'https://' + utils.WHIGIHOST;
 utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
-var DEBUG = !!process.argv[6];
+var DEBUG = !!process.argv[6]? process.argv[6] : true;
 
 /**
  * Sets the API to connect to the database.
