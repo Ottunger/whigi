@@ -70,6 +70,7 @@
    "filesystem.noUser": "No such user registered",
    "filesystem.folder": "Folder",
    "filesystem.getUp": "Get up",
+   "filesystem.newFolder": "Create folder",
 
    "dataview.noData": "Cannot fetch data details",
    "dataview.long": "Too long for decrypting in preview",
@@ -93,7 +94,7 @@
 
    "oauth.question": "OAuth authorization request",
    "oauth.explain": "By accepting a request, you provide the app that sent you here permission of reading only to the data or folder listed below. TO  LIST IT, THE APP WILL HAVE YOUR MASTER KEY. You will be able to revoke this access at any time later from your profile, but the app might have copied your data by then.",
-   "oauth.for_id": "App name as given to us (irrelevant, probably): ",
+   "oauth.for_id": "App name as given to us: ",
    "oauth.prefix": "Desired access to: ",
    "oauth.ok": "Give access",
    "oauth.nok": "Deny access",
