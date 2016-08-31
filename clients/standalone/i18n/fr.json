@@ -3,7 +3,7 @@
    "success": "Succès!",
    "confirmation": "Êtes-vous sur de vouloir partir maintenant?",
    "action": "Action",
-   "record": "Enregistrer",
+   "record": "Enregistrer (500Ko max)",
    "remove": "Supprimer",
    "back": "Revenir au profil",
    "actual": "Données en clair",

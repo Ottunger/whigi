@@ -7,7 +7,6 @@
 'use strict';
 declare var require: any
 var scd = require('node-schedule');
-var querystring = require('querystring');
 var sys = require('sys')
 var exec = require('child_process').exec;
 var https = require('https');
@@ -20,10 +19,10 @@ var https = require('https');
  */
 function end(host: string) {
     var endpoints = require('./endpoints.json').endpoints;
-    var data = querystring.stringify({
+    var data = {
         host: host,
         key: require('../../common/key.json').key
-    });
+    };
     for(var i = 0; i < endpoints.length; i++) {
         var options = {
             host: endpoints[i].host,
@@ -31,7 +30,7 @@ function end(host: string) {
             path: endpoints[i].pathFlag,
             method: 'POST',
             headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
             'Content-Length': Buffer.byteLength(data)
             }
         };

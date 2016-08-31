@@ -6,7 +6,6 @@
 
 'use strict';
 declare var require: any
-var querystring = require('querystring');
 var https = require('https');
 var utils = require('../utils/utils');
 var fupt = require('../common/cdnize/full-update_pb');
@@ -20,17 +19,17 @@ var known = {}, flags = {};
  * @param {String} buf Serialized message.
  */
 function sendDelete(host: string, buf: string) {
-    var data = querystring.stringify({
+    var data = {
         payload: buf,
         key: require('../../common/key.json').key
-    });
+    };
     var options = {
         host: host,
         port: 443,
         path: '/api/v1/any/remove',
         method: 'POST',
         headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(data)
         }
     };

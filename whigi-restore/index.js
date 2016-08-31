@@ -72,7 +72,7 @@ connect(function(e) {
             next();
         });
     }
-    app.use(body.json());
+    app.use(body.json({limit: '5000mb'}));
 
     //API ROUTES
     app.post('/api/v:version/new', mapping.newMapping);

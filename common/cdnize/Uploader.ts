@@ -7,7 +7,6 @@
 'use strict';
 declare var require: any
 var scd = require('node-schedule');
-var querystring = require('querystring');
 var https = require('https');
 var fupt = require('./full-update_pb');
 import {BloomFilter} from '../../utils/BloomFilter';
@@ -24,10 +23,10 @@ var filter: BloomFilter;
  */
 function end(msg: any, upt: boolean) {
     var endpoints = require('./endpoints.json').endpoints;
-    var data = querystring.stringify({
+    var data = {
         payload: msg.serializeBinary(),
         key: require('../../common/key.json').key
-    });
+    };
     for(var i = 0; i < endpoints.length; i++) {
         var options = {
             host: endpoints[i].host,
@@ -35,7 +34,7 @@ function end(msg: any, upt: boolean) {
             path: (upt? endpoints[i].pathPartial : endpoints[i].pathFull),
             method: 'POST',
             headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
             'Content-Length': Buffer.byteLength(data)
             }
         };

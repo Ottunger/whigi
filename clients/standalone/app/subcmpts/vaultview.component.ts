@@ -97,7 +97,8 @@ export class Vaultview implements OnInit, OnDestroy {
      * @public
      */
     dl() {
-        window.download(this.decr_data, 'Data');
+        var spl = this.vault.data_name.split('/');
+        window.download(this.decr_data, spl[spl.length - 1]);
     }
     
 }

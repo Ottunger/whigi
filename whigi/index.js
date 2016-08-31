@@ -209,7 +209,7 @@ connect(function(e) {
             next();
         });
     }
-    app.use(body.json());
+    app.use(body.json({limit: '5000mb'}));
 
     //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pass.authenticate(['token', 'basic'], {session: false}));

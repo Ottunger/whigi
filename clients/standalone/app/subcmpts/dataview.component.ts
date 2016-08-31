@@ -25,12 +25,14 @@ enableProdMode();
         <input id="decrypted" *ngIf="decr_data.length >= 150" type="text" value="{{ 'dataview.tooLong' | translate }}" class="form-control" readonly>
         <button type="button" class="btn btn-primary" [disabled]="decr_data==''" (click)="dl()">{{ 'download' | translate }}</button>
         <button type="button" class="btn btn-primary btn-copier" data-clipboard-target="#decrypted">{{ 'copy' | translate }}</button>
-        <br />
+        <br /><br />
+
         <p>{{ 'modify' | translate }}</p>
-        <input type="text" [(ngModel)]="new_data" class="form-control">
+        <input type="text" [(ngModel)]="new_data" [disabled]="new_data_file!=''" class="form-control">
+        <input type="file" (change)="fileLoad($event)" class="form-control">
         <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'record' | translate }}</button>
         <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="data_name.startsWith('keys/')">{{ 'remove' | translate }}</button>
-        <br />
+        <br /><br />
 
         <div class="table-responsive">
             <table class="table table-condensed table-bordered">
@@ -60,6 +62,7 @@ export class Dataview implements OnInit, OnDestroy {
     public data_name: string;
     public decr_data: string;
     public new_data: string;
+    public new_data_file: string;
     public shared_profiles: any;
     public new_email: string;
     private sub: Subscription;
@@ -77,6 +80,7 @@ export class Dataview implements OnInit, OnDestroy {
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data, private check: ApplicationRef) {
         this.decr_data = '';
+        this.new_data_file = '';
         new window.Clipboard('.btn-copier');
     }
 
@@ -126,7 +130,7 @@ export class Dataview implements OnInit, OnDestroy {
         for(var i = 0; i < names.length; i++) {
             dict[names[i]] = this.shared_profiles[names[i]].email;
         }
-        this.dataservice.modifyData(this.data_name, this.new_data, dict).then(function() {
+        this.dataservice.modifyData(this.data_name, (this.new_data_file != '')? this.new_data_file : this.new_data, dict).then(function() {
             self.new_data = '';
         }, function(err) {
             if(err == 'server')
@@ -228,7 +232,8 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     dl() {
-        window.download(this.decr_data, 'Data');
+        var spl = this.data_name.split('/');
+        window.download(this.decr_data, spl[spl.length - 1]);
     }
 
     /**
@@ -243,7 +248,21 @@ export class Dataview implements OnInit, OnDestroy {
             return this.shared_profiles[id].email;
         return this.translate.instant('unknown');
     }
+
+    /**
+     * Loads a file as data.
+     * @function fileLoad
+     * @public
+     * @param {Event} e The change event.
+     */
+    fileLoad(e: any) {
+        var self = this;
+        var file: File = e.target.files[0]; 
+        var r: FileReader = new FileReader();
+        r.onloadend = function(e) {
+            self.new_data_file = r.result;
+        }
+        r.readAsDataURL(file);
+    }
     
-}
- 
 }

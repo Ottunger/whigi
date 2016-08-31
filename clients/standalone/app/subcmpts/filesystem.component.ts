@@ -123,7 +123,7 @@ export class Filesystem implements OnInit {
             if(err == 'server')
                 self.notif.error(self.translate.instant('error'), self.translate.instant('server'));
             else
-                self.notif.error(self.translate.instant('error'), self.translate.instant('profile.exists'));
+                self.notif.error(self.translate.instant('error'), self.translate.instant('filesystem.exists'));
         });
     }
 
@@ -244,7 +244,7 @@ export class Filesystem implements OnInit {
         r.onloadend = function(e) {
             self.data_value_file = r.result;
         }
-        r.readAsText(file);
+        r.readAsDataURL(file);
     }
     
 }

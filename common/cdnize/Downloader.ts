@@ -6,7 +6,6 @@
 
 'use strict';
 declare var require: any
-var querystring = require('querystring');
 var https = require('https');
 
 export class Downloader {
@@ -30,11 +29,11 @@ export class Downloader {
      */
     fetch(id: string, name: string): Promise {
         var endpoints = require('./endpoints.json').endpoints;
-        var data = querystring.stringify({
+        var data = {
             collection: name,
             id: id,
             key: require('../../common/key.json').key
-        });
+        };
         var asked = 0, points = {}, tried = 0, found = false, keys;
 
         return new Promise(function(resolve, reject) {
@@ -84,7 +83,7 @@ export class Downloader {
                     path: endpoints[i].pathQuestion,
                     method: 'POST',
                     headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                     'Content-Length': Buffer.byteLength(data)
                     }
                 };
