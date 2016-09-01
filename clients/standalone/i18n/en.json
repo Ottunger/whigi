@@ -81,6 +81,7 @@
    "dataview.meOnly": "Data changed for you but not in vaults...",
    "dataview.wait": "Wait for decryption before sharing",
    "dataview.tooLong": "Too long for showing",
+   "dataview.revokeAll": "Revoke all vaults for this data",
 
    "vaultview.noData": "Cannot retrieve such vault. Maybe access was revoked...",
 

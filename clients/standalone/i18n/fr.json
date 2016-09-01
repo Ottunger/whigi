@@ -81,6 +81,7 @@
    "dataview.meOnly": "Donnée changée mais pas les valises sécurisées...",
    "dataview.wait": "attendez la décryption avant de partager",
    "dataview.tooLong": "Trop long pour être affiché",
+   "dataview.revokeAll": "Supprimer toutes les valises associées",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
 
