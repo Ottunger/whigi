@@ -3,7 +3,7 @@
    "success": "Succès!",
    "confirmation": "Êtes-vous sur de vouloir partir maintenant?",
    "action": "Action",
-   "record": "Enregistrer (6000Ko max)",
+   "record": "Enregistrer",
    "remove": "Supprimer",
    "back": "Revenir au profil",
    "actual": "Données en clair",
@@ -71,6 +71,7 @@
    "filesystem.folder": "Dossier",
    "filesystem.getUp": "Dossier parent",
    "filesystem.newFolder": "Créer un dossier",
+   "filesystem.record": "Enregistrer donnée, 6Mo max",
 
    "dataview.noData": "Impossible d'avoir les détails de la donnée",
    "dataview.long": "Trop long pour récupérer en prévisualisation",

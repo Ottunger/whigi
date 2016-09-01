@@ -3,7 +3,7 @@
    "success": "Success!",
    "confirmation": "Are you sure tou want to move now?",
    "action": "Action",
-   "record": "Record (6000KB max)",
+   "record": "Record",
    "remove": "Remove",
    "back": "Back to profile",
    "actual": "Actual data",
@@ -71,6 +71,7 @@
    "filesystem.folder": "Folder",
    "filesystem.getUp": "Get up",
    "filesystem.newFolder": "Create folder",
+   "filesystem.record": "Record data, 6MB max",
 
    "dataview.noData": "Cannot fetch data details",
    "dataview.long": "Too long for decrypting in preview",

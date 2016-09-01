@@ -8,5 +8,5 @@ We should use static html/js files described by an nginx.conf file
 - To launch, either create a small nginx.conf file, or use lite-server in node_modules/.bin, once dependencies resolved by npm.
 
 # Add a component
-To add a component, you have to add file named yourcomponent.component.ts in app/subcmpts folder. Then create a route for it in app/app.service.ts, load it in app/app.module.ts and don't forget to link to it from other components!
+To add a component, you have to add file named yourcomponent.component.ts in app/subcmpts folder. Then create a route for it in app/app.routing.ts, load it in app/app.module.ts and don't forget to link to it from other components!
 Refer to other components to see usually included services (translation, routing, backend and notifications, mostly).

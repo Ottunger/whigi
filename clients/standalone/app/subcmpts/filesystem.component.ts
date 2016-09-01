@@ -54,12 +54,12 @@ enableProdMode();
                     <tr *ngIf="mode=='data'">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
-                        <td><button type="button" class="btn btn-default" (click)="register(false)">{{ 'record' | translate }}</button></td>
+                        <td><button type="button" class="btn btn-default" (click)="register(false)">{{ 'filesystem.record' | translate }}</button></td>
                     </tr>
                     <tr *ngIf="mode=='data'">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="file" (change)="fileLoad($event)" name="n50" class="form-control"></td>
-                        <td><button type="button" class="btn btn-default" (click)="register(true)" [disabled]="data_value_file==''">{{ 'record' | translate }}</button></td>
+                        <td><button type="button" class="btn btn-default" (click)="register(true)" [disabled]="data_value_file==''">{{ 'filesystem.record' | translate }}</button></td>
                     </tr>
                 </tbody>
             </table>
