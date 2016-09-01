@@ -64,8 +64,8 @@ Retrieves an encrypted piece of data.
 Removes such a named data and all associated vaults.
 
 /api/v<any>/vault/new: Post, needs auth, needs puzzle
-Creates a new vault for sharing with another user.
-{"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string", "data_crypted_aes": "string"}
+Creates a new vault for sharing with another user. Set expire_epoch to 0 or negative to never expire.
+{"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string", "data_crypted_aes": "string", "expire_epoch": "number"}
 
 /api/v<any>/vault/<vault_id>: Delete, needs auth
 Removes a vault from the storage, revoking access grant.

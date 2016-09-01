@@ -616,14 +616,16 @@ export class Backend {
      * @param {String} shared_to_id Id of person with who to share.
      * @param {Bytes} data_crypted_aes Locally crypted data using a freshly generated AES key.
      * @param {String} aes_crypted_shared_pub Locally crypted new AES key using remote public RSA key.
+     * @param {Number} expire_epoch Time for expiration.
      * @return {Promise} JSON response from backend.
      */
-    createVault(data_name: string, shared_to_id: string, data_crypted_aes: number[], aes_crypted_shared_pub: string): Promise {
+    createVault(data_name: string, shared_to_id: string, data_crypted_aes: number[], aes_crypted_shared_pub: string, expire_epoch?: number): Promise {
         return this.backend(true, 'POST', {
             data_name: data_name,
             shared_to_id: shared_to_id,
             data_crypted_aes: this.arr2str(data_crypted_aes),
-            aes_crypted_shared_pub: aes_crypted_shared_pub
+            aes_crypted_shared_pub: aes_crypted_shared_pub,
+            expire_epoch: (!!expire_epoch)? expire_epoch : 0
         }, 'vault/new', true, true, true);
     }
 

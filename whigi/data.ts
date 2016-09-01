@@ -131,7 +131,8 @@ export function regVault(req, res) {
                     aes_crypted_shared_pub: got.aes_crypted_shared_pub,
                     data_crypted_aes: got.data_crypted_aes,
                     sharer_id: req.user._id,
-                    last_access: 0
+                    last_access: 0,
+                    expire_epoch: got.expire_epoch
                 }, db);
                 db.retrieveUser('id', v.shared_to_id, true).then(function(sharee: User) {
                     if(!sharee || sharee._id == req.user.id) {
@@ -238,6 +239,11 @@ export function getVault(req, res) {
         if(!!v) {
             if(v.shared_to_id != req.user._id) {
                 res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
+                return;
+            }
+            if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
+                res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+                v.unlink();
                 return;
             }
             v.last_access = (new Date).getTime();
