@@ -476,10 +476,11 @@ export class Backend {
      * @param {Boolean} recuperable Will be recuperable.
      * @param {Boolean} safe Use recup_mail.
      * @param {String} recup_mail Recup mail.
+     * @param {String} recup_mail2 Other mail.
      * @return {Promise} JSON response from backend.
      */
     createUser(first_name: string, last_name: string, username: string, password: string, email: string, recuperable: boolean,
-        safe: boolean, recup_mail: string): Promise {
+        safe: boolean, recup_mail: string, recup_mail2: string): Promise {
         return this.backend(true, 'POST', {
             first_name: first_name,
             last_name: last_name,
@@ -488,7 +489,8 @@ export class Backend {
             email: email,
             recuperable: recuperable,
             safe: safe,
-            recup_mail: recup_mail
+            recup_mail: recup_mail,
+            recup_mail2: recup_mail2
         }, 'user/create' + this.regCaptcha(), false, false);
     }
 

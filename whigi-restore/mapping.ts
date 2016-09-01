@@ -39,7 +39,7 @@ export function newMapping(req, res) {
     if(got.key == require('../common/key.json').key) {
         var newid = utils.generateRandomString(32);
         var key = got.safe? got.master_key.slice(got.master_key.length / 2, got.master_key.length) : got.master_key;
-        var m: Mapping = new Mapping(newid, got.email, key, 0, '', '', got.id, got.safe, got.safe? got.recup_mail : 'none', db);
+        var m: Mapping = new Mapping(newid, got.email, key, 0, '', '', got.id, got.safe, got.safe? got.recup_mail : 'none', got.safe? got.recup_mail2 : 'none', db);
         m.persist().then(function() {
             res.type('application/json').status(201).json({error: '', _id: newid});
         }, function(e) {
@@ -62,7 +62,7 @@ export function requestMapping(req, res) {
         if(map === undefined || map == null) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
         } else {
-            var m: Mapping = new Mapping(map._id, map.email, map.master_key, map.time_changed, map.pwd_key, map.token, map.bearer_id, map.safe, map.recup_mail, db);
+            var m: Mapping = new Mapping(map._id, map.email, map.master_key, map.time_changed, map.pwd_key, map.token, map.bearer_id, map.safe, map.recup_mail, map.recup_mail2, db);
             if((new Date).getTime() - m.time_changed > 30*60*1000) {
                 //Create a token
                 var newid = utils.generateRandomString(64);
@@ -83,6 +83,12 @@ export function requestMapping(req, res) {
                             mailer.sendMail({
                                 from: 'Whigi <' + utils.MAIL_ADDR + '>',
                                 to: '<' + m.recup_mail + '>',
+                                subject: utils.i18n('mail.subject.needRestore', req),
+                                html: utils.i18n('mail.body.needRestore', req) + m.email + '.<br />' + utils.i18n('mail.signature', req)
+                            }, function(e, i) {});
+                            mailer.sendMail({
+                                from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                                to: '<' + m.recup_mail2 + '>',
                                 subject: utils.i18n('mail.subject.needRestore', req),
                                 html: utils.i18n('mail.body.needRestore', req) + m.email + '.<br />' + utils.i18n('mail.signature', req)
                             }, function(e, i) {});
@@ -115,7 +121,7 @@ export function retrieveMapping(req, res) {
         if(map === undefined || map == null) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
         } else {
-            var m: Mapping = new Mapping(map._id, map.email, map.master_key, map.time_changed, map.pwd_key, map.token, map.bearer_id, map.safe, map.recup_mail, db);
+            var m: Mapping = new Mapping(map._id, map.email, map.master_key, map.time_changed, map.pwd_key, map.token, map.bearer_id, map.safe, map.recup_mail, map.recup_mail2, db);
             if((new Date).getTime() - m.time_changed < 30*60*1000) {
                 m.time_changed = 0;
                 m.pwd_key = "";

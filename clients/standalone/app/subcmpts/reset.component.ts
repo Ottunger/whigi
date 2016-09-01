@@ -23,6 +23,7 @@ enableProdMode();
             <div class="form-group" *ngIf="use_recup">
                 {{ 'reset.received' | translate }}{{ recup_mail }}<br />
                 <input type="text" [(ngModel)]="first_half" name="n0" class="form-control" required>
+                <input type="text" [(ngModel)]="second_half" name="n22" class="form-control" required>
             </div>
             <div class="checkbox">
                 <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
@@ -50,6 +51,7 @@ export class Reset implements OnInit, OnDestroy {
     public password: string;
     public password2: string;
     public first_half: string;
+    public second_half: string;
     public use_recup: boolean;
     public use_pwd: boolean;
     private key: string;
@@ -100,7 +102,7 @@ export class Reset implements OnInit, OnDestroy {
      */
     enter() {
         var self = this;
-        if(this.use_recup && (!this.first_half || this.first_half.length < 2)) {
+        if(this.use_recup && (!this.first_half || this.first_half.length < 2 || !this.second_half || this.second_half.length < 2)) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('reset.noReset'));
             return;
         }
@@ -110,7 +112,7 @@ export class Reset implements OnInit, OnDestroy {
                 self.backend.getProfile().then(function(user) {
                     var encr_master_key;
                     if(self.use_recup)
-                        self.backend.encryptMasterAES(self.password, user.salt, self.first_half + data.master_key);
+                        self.backend.encryptMasterAES(self.password, user.salt, self.first_half + self.second_half + data.master_key);
                     else
                         self.backend.encryptMasterAES(self.password, user.salt, data.master_key)
                     self.backend.updateProfileForReset(self.password, encr_master_key).then(function() {

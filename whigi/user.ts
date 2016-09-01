@@ -188,7 +188,7 @@ export function regUser(req, res) {
         u.rsa_pri_key = new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
             .encrypt(aes.util.convertStringToBytes(key.exportKey('private')));
         if(user.recuperable) {
-            utils.registerMapping(u._id, u.email, user.safe, user.recup_mail, pre_master_key, function(err) {
+            utils.registerMapping(u._id, u.email, pre_master_key, user.safe, user.recup_mail, user.recup_mail2, function(err) {
                 if(err) {
                     res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
                 } else {
@@ -198,7 +198,17 @@ export function regUser(req, res) {
                             to: '<' + user.recup_mail + '>',
                             subject: utils.i18n('mail.subject.otherAccount', req),
                             html: utils.i18n('mail.body.account', req) + '<br /> \
-                                <a href="' + utils.RUNNING_ADDR + '/save-key/' + encodeURIComponent('keys/' + u.email) + '/' + pre_master_key.slice(0, pre_master_key.length / 2) + '">' +
+                                <a href="' + utils.RUNNING_ADDR + '/save-key/' + encodeURIComponent('keys/' + u.email) + '/' +
+                                pre_master_key.slice(0, pre_master_key.length / 4) + '">' +
+                                utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
+                        }, function(e, i) {});
+                        mailer.sendMail({
+                            from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                            to: '<' + user.recup_mail2 + '>',
+                            subject: utils.i18n('mail.subject.otherAccount', req),
+                            html: utils.i18n('mail.body.account', req) + '<br /> \
+                                <a href="' + utils.RUNNING_ADDR + '/save-key/' + encodeURIComponent('keys/' + u.email) + '/' +
+                                pre_master_key.slice(pre_master_key.length / 4, pre_master_key.length / 2) + '">' +
                                 utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
                         }, function(e, i) {});
                         end(u);

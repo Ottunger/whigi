@@ -249,7 +249,7 @@ connect(function(e) {
     //API POST CHECKS
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data']));
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key']));
-    app.post('/api/v:version/user/create', checks.checkBody(['first_name', 'last_name', 'username', 'email', 'password', 'recuperable', 'safe', 'recup_mail']));
+    app.post('/api/v:version/user/create', checks.checkBody(['first_name', 'last_name', 'username', 'email', 'password', 'recuperable', 'safe', 'recup_mail', 'recup_mail2']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix', 'token']));
     //-----

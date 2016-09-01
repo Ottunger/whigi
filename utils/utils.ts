@@ -195,24 +195,26 @@ export function checkCaptcha(c: string, callback: Function) {
  * @param {String} master_key Master key.
  * @param {Boolean} safe Whether to use recup_mail.
  * @param {String} recup_mail Recup mail to use.
+ * @param {String} recup_mail2 Other email.
  * @param {Function} callback Callback will be called with true if error occured.
  */
-export function registerMapping(id: string, email: string, master_key: string, safe: boolean, recup_mail: string, callback) {
-    var data = querystring.stringify({
+export function registerMapping(id: string, email: string, master_key: string, safe: boolean, recup_mail: string, recup_mail2: string, callback) {
+    var data = {
         id: id,
         email: email,
         master_key: master_key,
         safe: safe,
         recup_mail: recup_mail,
+        recup_mail2: recup_mail2,
         key: require('../common/key.json').key
-    });
+    };
     var options = {
         host: RESTOREHOST,
         port: 443,
         path: '/api/v1/new',
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(data)
         }
     };
@@ -240,18 +242,18 @@ export function registerMapping(id: string, email: string, master_key: string, s
  * @return {Promise} Promise that resolves when Whigi has saved the token.
  */
 export function persistToken(newid: string, bearer_id: string): Promise {
-    var data = querystring.stringify({
+    var data = {
         token_id: newid,
         bearer_id: bearer_id,
         key: require('../common/key.json').key
-    });
+    };
     var options = {
         host: WHIGIHOST,
         port: 443,
         path: '/api/v1/new',
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(data)
         }
     };

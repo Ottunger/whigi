@@ -25,7 +25,7 @@ export class Mapping {
      * @param db Database.
      */
     constructor(public _id: string, public email: string, public master_key: string, public time_changed: number, public pwd_key: string,
-        public token: string, public bearer_id: string, public safe: boolean, public recup_mail: string, private db: any) {
+        public token: string, public bearer_id: string, public safe: boolean, public recup_mail: string, public recup_mail2: string, private db: any) {
 
     }
 
@@ -45,7 +45,8 @@ export class Mapping {
             token: this.token,
             bearer_id: this.bearer_id,
             safe: this.safe,
-            recup_mail: this.recup_mail
+            recup_mail: this.recup_mail,
+            recup_mail2: this.recup_mail2
         };
         return ret;
     }
@@ -74,7 +75,8 @@ export class Mapping {
             _id: this._id,
             time_changed: this.time_changed,
             safe: this.safe,
-            recup_mail: this.recup_mail
+            recup_mail: this.recup_mail,
+            recup_mail2: this.recup_mail2
         };
         if(key) {
             ret['pwd_key'] = this.pwd_key;

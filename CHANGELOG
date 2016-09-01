@@ -27,7 +27,7 @@ Updates password. When updated password, can send the password hashed but needs 
 /api/v<any>/user/create: Post, needs captcha
 Creates a new entry if none matches. The password is this only time sent in clear.
 {"first_name": "string", "last_name": "string", "username": "string", "password": "string", "email": "string", "recuperable": "boolean",
-    "safe": "boolean", "recup_mail": "string"}
+    "safe": "boolean", "recup_mail": "string", "recup_mail2": "string"}
 
 /api/v<any>/activate/<key>: Get
 Activates the user whose activation key is given.
@@ -90,7 +90,7 @@ Whigi-restore endpoints:
 
 /api/v<any>/new: Post, needs auth of Whigi
 Adds a new mapping.
-{"email": "string", "master_key": "string", "key": "string"}
+{"email": "string", "master_key": "string", "key": "string", "safe": string, "recup_mail": "string", "recup_mail2": "string"}
 
 /api/v<any>/request/<email>: Get
 Creates a token sent by mail to retrieve master_key, lag protected. The page pointed to is /password-recovery that *should* call /api/v<any>/key/<token> for user experience.

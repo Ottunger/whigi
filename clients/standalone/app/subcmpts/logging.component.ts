@@ -98,6 +98,7 @@ enableProdMode();
                     <label><input type="checkbox" name="n10" [(ngModel)]="safe"> {{ 'login.safe' | translate }}</label>
                 </div>
                 <input type="text" [(ngModel)]="recup_mail" name="n11" class="form-control" [readonly]="!recuperable || !safe">
+                <input type="text" [(ngModel)]="recup_mail2" name="n110" class="form-control" [readonly]="!recuperable || !safe">
             </div>
             <div class="form-group">
                 <div id="grecaptcha"></div>
@@ -115,6 +116,7 @@ export class Logging implements OnInit {
     public first_name: string;
     public last_name: string;
     public recup_mail: string;
+    public recup_mail2: string;
     public persistent: boolean;
     public recuperable: boolean;
     public safe: boolean;
@@ -208,8 +210,8 @@ export class Logging implements OnInit {
         var self = this;
 
         function complete() {
-            this.backend.createUser(this.first_name, this.last_name, this.username, this.password, this.email, this.recuperable,
-                this.safe, this.recup_mail).then(function() {
+            self.backend.createUser(self.first_name, self.last_name, self.username, self.password, self.email, self.recuperable,
+                self.safe, self.recup_mail, self.recup_mail2).then(function() {
                 self.notif.success(self.translate.instant('success'), self.translate.instant('login.sent'));
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
@@ -218,11 +220,15 @@ export class Logging implements OnInit {
 
         if(this.password == this.password2 && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(this.email)) {
             if(this.recuperable && this.safe) {
-                if(!/^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(this.recup_mail)) {
+                if(!/^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(this.recup_mail) || !/^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(this.recup_mail2)) {
                     self.notif.alert(self.translate.instant('error'), self.translate.instant('login.recMail'));
                 } else {
                     this.backend.getUser(this.recup_mail).then(function() {
-                        complete();
+                        self.backend.getUser(self.recup_mail2).then(function() {
+                            complete();
+                        }, function(e) {
+                            self.notif.alert(self.translate.instant('error'), self.translate.instant('login.recMail'));
+                        });
                     }, function(e) {
                         self.notif.alert(self.translate.instant('error'), self.translate.instant('login.recMail'));
                     });
