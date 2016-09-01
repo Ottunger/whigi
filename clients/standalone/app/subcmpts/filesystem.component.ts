@@ -159,7 +159,8 @@ export class Filesystem implements OnInit {
             var mail = this.folders.substr(0, this.folders.indexOf('/'));
             this.backend.profile.sharer = this.backend.shared_with_me_trie.find(mail + '/').value;
             this.router.navigate(['/vault', window.encodeURIComponent(mail), this.backend.shared_with_me_trie.find(this.folders + name).value, {
-                route_back: this.folders
+                route_back: this.folders,
+                data_name: name
             }]);
         }
     }

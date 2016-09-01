@@ -77,6 +77,7 @@ export function getProfile(req, res) {
  */
 export function listData(req, res) {
     req.user.fill().then(function() {
+        
         res.type('application/json').status(200).json({
             data: req.user.data,
             shared_with_me: req.user.shared_with_me

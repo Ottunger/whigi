@@ -40,16 +40,19 @@ enableProdMode();
                 <thead>
                     <tr>
                         <th>{{ 'dataview.shared_to' | translate }}</th>
+                        <th>{{ 'dataview.until' | translate }}</th>
                         <th>{{ 'action' | translate }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let d of sharedIds()">
                         <td>{{ emailOf(d) }}</td>
+                        <td></td>
                         <td><button type="button" class="btn btn-default" (click)="revoke(d)" [disabled]="!backend.profile.data[data_name].shared_to[d]">{{ 'remove' | translate }}</button></td>
                     </tr>
                     <tr>
                         <td><input type="text" [(ngModel)]="new_email" name="y0" class="form-control"></td>
+                        <td><input [(ngModel)]="new_date" datetime-picker class="form-control"></td>
                         <td><button type="button" class="btn btn-default" (click)="register()" [disabled]="!decr_data">{{ 'record' | translate }}</button></td>
                     </tr>
                 </tbody>
@@ -66,6 +69,7 @@ export class Dataview implements OnInit, OnDestroy {
     public new_data_file: string;
     public shared_profiles: any;
     public new_email: string;
+    public new_date: Date;
     private sub: Subscription;
 
     /**
@@ -82,6 +86,7 @@ export class Dataview implements OnInit, OnDestroy {
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data, private check: ApplicationRef) {
         this.decr_data = '';
         this.new_data_file = '';
+        this.new_date = new Date;
         new window.Clipboard('.btn-copier');
     }
 
@@ -221,7 +226,7 @@ export class Dataview implements OnInit, OnDestroy {
      */
     register() {
         var self = this;
-        this.dataservice.grantVault(this.new_email, this.data_name, this.data.dec).then(function(user, id) {
+        this.dataservice.grantVault(this.new_email, this.data_name, this.data.dec, this.new_date).then(function(user, id) {
             self.shared_profiles = self.shared_profiles || {};
             self.shared_profiles[user._id] = user;
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;

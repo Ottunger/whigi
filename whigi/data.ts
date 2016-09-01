@@ -242,8 +242,14 @@ export function getVault(req, res) {
                 return;
             }
             if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
-                res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+                db.retrieveUser('id', v.sharer_id, true).then(function(u: User) {
+                    delete u.data[v.data_name].shared_to[v.shared_to_id];
+                    u.persist();
+                });
+                delete req.user.shared_with_me[v.sharer_id][v.data_name];
+                req.user.persist();
                 v.unlink();
+                res.type('application/json').status(417).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
                 return;
             }
             v.last_access = (new Date).getTime();
@@ -275,7 +281,18 @@ export function accessVault(req, res) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
-            res.type('application/json').status(200).json({last_access: v.last_access});
+            if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
+                db.retrieveUser('id', v.shared_to_id, true).then(function(u: User) {
+                    delete u.shared_with_me[v.sharer_id][v.data_name];
+                    u.persist();
+                });
+                delete req.user.data[v.data_name].shared_to[v.shared_to_id];
+                req.user.persist();
+                v.unlink();
+                res.type('application/json').status(417).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+                return;
+            }
+            res.type('application/json').status(200).json({last_access: v.last_access, expire_epoch: v.expire_epoch});
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });

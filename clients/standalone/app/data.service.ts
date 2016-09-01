@@ -256,9 +256,10 @@ export class Data {
      * @param {String} email User email.
      * @param {String} name Data name.
      * @param {String} decr_data Decrypted data.
+     * @param {Date} max_date Valid until.
      * @return {Promise} Whether went OK with remote profile and newly created vault.
      */
-    grantVault(email: string, name: string, decr_data: string): Promise {
+    grantVault(email: string, name: string, decr_data: string, max_date: Date): Promise {
         var self = this;
         return new Promise(function(resolve, reject) {
             self.backend.getUser(email).then(function(user) {
@@ -266,7 +267,8 @@ export class Data {
                 var aes_crypted_shared_pub: string = self.backend.encryptRSA(aesKey, user.rsa_pub_key);
 
                 self.backend.encryptAES(decr_data, self.workerMgt(true, function(got) {
-                    self.backend.createVault(name, user._id, got, aes_crypted_shared_pub).then(function(res) {
+                    self.backend.createVault(name, user._id, got, aes_crypted_shared_pub,
+                        (max_date.getTime() < (new Date).getTime())? 0 : (new Date).getTime()).then(function(res) {
                         self.backend.profile.data[name].shared_to[user._id] = res._id;
                         resolve(user, res._id);
                     }, function(e) {

@@ -11,7 +11,7 @@
     '@angular': 'node_modules/@angular',
     'rxjs': 'node_modules/rxjs',
     'ng2-translate': 'node_modules/ng2-translate',
-    'bootstrap': 'node_modules/bootstrap',
+    'ng2-datetime-picker': 'node_modules/ng2-datetime-picker/dist',
     'angular2-notifications': 'node_modules/angular2-notifications'
   };
   var packages = {
@@ -19,7 +19,7 @@
     'utils': {defaultExtension: 'js'},
     'rxjs': {defaultExtension: 'js'},
     'ng2-translate': {main: 'ng2-translate.js', defaultExtension: 'js'},
-    'bootstrap': {defaultExtension: 'js'},
+    'ng2-datetime-picker': {main: 'index.js', defaultExtension: 'js'},
     'angular2-notifications': {main: 'components.js', defaultExtension: 'js'}
   };
   var ngPackageNames = [
