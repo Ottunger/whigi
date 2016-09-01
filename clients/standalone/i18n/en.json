@@ -61,6 +61,9 @@
    "profile.askData": "Remote user data path (separate folders with '/')",
    "profile.sent": "Request sent",
    "profile.noSent": "Request not sent, check email?",
+   "profile.revoke": "Revoke accesses to all granted vaults",
+   "profile.revokeEmail": "Email to ban",
+   "profile.oauth": "OAuth permissions",
 
    "filesystem.data_name": "Data name",
    "filesystem.data": "Data",

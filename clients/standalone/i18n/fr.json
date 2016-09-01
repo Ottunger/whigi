@@ -61,6 +61,9 @@
    "profile.askData": "Donnée utilisateur (séparez les dossiers par '/')",
    "profile.sent": "Demande envoyée",
    "profile.noSent": "Demande non envoyée. Vérifiez l'email?",
+   "profile.revoke": "Supprimer accès à toutes les valises",
+   "profile.revokeEmail": "Email à bannir",
+   "profile.oauth": "Permissions OAuth",
 
    "filesystem.data_name": "Nom de donnée",
    "filesystem.data": "Valeur",

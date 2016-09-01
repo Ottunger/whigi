@@ -74,6 +74,23 @@ enableProdMode();
         </form>
         <br /><br />
 
+        <form class="form-signin">
+            <div class="heading">
+                <h3 class="form-signin-heading">{{ 'profile.revoke' | translate }}</h3>
+            </div>
+            <div class="form-group">
+                {{ 'profile.revokeEmail' | translate }}<br />
+                <input type="text" [(ngModel)]="revoke_email" name="n100" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-warning" (click)="revokeAll()">{{ 'profile.revoke' | translate }}</button>
+            </div>
+        </form>
+        <br /><br />
+
+        <div class="heading">
+            <h3 class="form-signin-heading">{{ 'profile.oauth' | translate }}</h3>
+        </div>
         <div class="table-responsive">
             <table class="table table-condensed table-bordered">
                 <thead>
@@ -101,6 +118,7 @@ export class Profile {
     public password2: string;
     public ask_email: string;
     public ask_data: string;
+    public revoke_email: string;
     public use_pwd: boolean;
 
     /**
@@ -187,6 +205,28 @@ export class Profile {
             self.notif.success(self.translate.instant('success'), self.translate.instant('profile.sent'));
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noSent'));
+        });
+    }
+
+    /**
+     * Revoke all accesses.
+     * @function revokeAll
+     * @public
+     */
+    revokeAll() {
+        var self = this, keys = Object.getOwnPropertyNames(this.backend.profile.data);
+        this.backend.getUser(this.revoke_email).then(function(user) {
+            for(var i = 0; i < keys.length; i++) {
+                if(user._id in self.backend.profile[keys[i]].shared_to) {
+                    self.backend.revokeVault(self.backend.profile.data[keys[i]].shared_to[user._id]).then(function() {
+                        delete self.backend.profile.data[keys[i]].shared_to[user._id];
+                    }, function(e) {
+                        self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noRevoke'));
+                    });
+                }
+            }
+        }, function(e) {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('filesystem.noUser'));
         });
     }
 

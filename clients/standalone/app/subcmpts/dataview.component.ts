@@ -31,7 +31,7 @@ enableProdMode();
         <input type="text" [(ngModel)]="new_data" [disabled]="new_data_file!=''" class="form-control">
         <input type="file" (change)="fileLoad($event)" class="form-control">
         <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'filesystem.record' | translate }}</button>
-        <button type="button" class="btn btn-alarm" (click)="revokeAll()">{{ 'dataview.revokeAll' | translate }}</button>
+        <button type="button" class="btn btn-warning" (click)="revokeAll()">{{ 'dataview.revokeAll' | translate }}</button>
         <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="data_name.startsWith('keys/')">{{ 'remove' | translate }}</button>
         <br /><br />
 
