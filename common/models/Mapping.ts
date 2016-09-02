@@ -6,8 +6,10 @@
 
 'use strict';
 declare var require: any
+import {Datasource} from '../Datasource';
+import {IModel} from './IModel';
 
-export class Mapping {
+export class Mapping extends IModel {
     
     /**
      * Create a USer from a bare database description.
@@ -24,9 +26,9 @@ export class Mapping {
      * @param recup_mail Recuperation mail for safe mappings.
      * @param db Database.
      */
-    constructor(public _id: string, public email: string, public master_key: string, public time_changed: number, public pwd_key: string,
-        public token: string, public bearer_id: string, public safe: boolean, public recup_mail: string, public recup_mail2: string, private db: any) {
-
+    constructor(_id: string, public email: string, public master_key: string, public time_changed: number, public pwd_key: string,
+        public token: string, public bearer_id: string, public safe: boolean, public recup_mail: string, public recup_mail2: string, db: Datasource) {
+        super(_id, db);
     }
 
     /**
@@ -58,32 +60,28 @@ export class Mapping {
      * @return A promise to check if everything went well.
      */
     persist() {
-        return this.db.collection('mappings').update({_id: this._id}, this.allFields(), {upsert: true});
+        this.updated('mappings');
+        return this.db.getDatabase().collection('mappings').update({_id: this._id}, this.allFields(), {upsert: true});
     }
 
     /**
      * Returns a shallow copy safe for sending.
      * @function sanitarize
      * @public
-     * @param {Boolean} key Whether to add the keys in mapping.
      * @return Duplicated object.
      */
-    sanitarize(key: boolean) {
-        var ret = {
-            bearer_id: this.bearer_id,
-            email: this.email,
-            _id: this._id,
-            time_changed: this.time_changed,
-            safe: this.safe,
-            recup_mail: this.recup_mail,
-            recup_mail2: this.recup_mail2
-        };
-        if(key) {
-            ret['pwd_key'] = this.pwd_key;
-            ret['master_key'] = this.master_key;
-            ret['token'] = this.token;
-        }
-        return ret;
+    sanitarize() {
+        return this.allFields();
+    }
+
+    /**
+     * Removes this object.
+     * @function unlink
+     * @public
+     * @return {Promise} Whether it went OK.
+     */
+    unlink(): Promise {
+        return this.unlinkFrom('mappings');
     }
 
 }

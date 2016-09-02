@@ -11,7 +11,6 @@ var https = require('https');
 var aes = require('aes-js');
 var RSA = require('node-rsa');
 var utils = require('../utils/utils');
-import {Mapping} from '../common/models/Mapping';
 var mailer, db;
 
 /**
@@ -48,7 +47,7 @@ function whigi(method: string, path: string, data?: any): Promise {
         headers: {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(data),
-          'Authorization': 'Basic ' + btoa('whigi-restore:' + require('password.json').pwd)
+          'Authorization': 'Basic ' + new Buffer('whigi-restore:' + require('./password.json').pwd).toString('base64')
         }
     };
     return new Promise(function(resolve, reject) {

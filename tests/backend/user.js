@@ -24,9 +24,6 @@ exports.test = function() {
     var db = mc('localhost:27017/whigi');
     var dummy_user = {
         _id: 'fsdfhp',
-        username: 'Test',
-        key: 'totallysecret',
-        is_activated: true,
         data: {
             IIS: {id: 'fsdn', length: 8, shared_to: {}}
         },
@@ -37,7 +34,8 @@ exports.test = function() {
             'xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4' +
             'gwQco1KRMDSmXSMkDwIDAQAB' +
             '-----END PUBLIC KEY-----',
-        rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33]
+        rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33],
+        is_company: 0
     }
     var dummy_token0 = {
         _id: 'dummy0',
@@ -97,6 +95,24 @@ exports.test = function() {
             });
         });
 
+        describe('#goCompany()', function() {
+            it('should allow changing info up to one max', function(done) {
+                var f = new fk.FakeRes(false);
+                me.goCompany({
+                    user: new user.User(dummy_user, ds),
+                    body: {name: 'Hi'}
+                }, f);
+                f.promise.then(function() {
+                    chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {is_company: true})).to.eventually.become({
+                        _id: dummy_user._id,
+                        is_company: 1
+                    }).notify(done);
+                }, function(e) {
+                    done(e);
+                });
+            });
+        });
+
         describe('#listData()', function() {
             it('should find the length of a data known', function(done) {
                 var f = new fk.FakeRes(true);
@@ -135,12 +151,11 @@ exports.test = function() {
                 var f = new fk.FakeRes(false);
                 me.updateUser({
                     user: new user.User(dummy_user, ds),
-                    body: {password: 'hi', encr_master_key: 'lol'}
+                    body: {new_password: 'abcdefgh', encr_master_key: 'lol'}
                 }, f);
                 f.promise.then(function() {
-                    chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {password: true, encr_master_key: true})).to.eventually.become({
+                    chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {encr_master_key: true})).to.eventually.become({
                         _id: dummy_user._id,
-                        password: '265f8fd0ec4892562b48d663307d67f8dc7f74eb67a2ee6dc3fd2ad483940ed3',
                         encr_master_key: 'lol'
                     }).notify(done);
                 }, function(e) {
@@ -154,36 +169,10 @@ exports.test = function() {
                 var f = new fk.FakeRes(false);
                 me.regUser({
                     get: function() {return 'fr'},
-                    query: {captcha: 'dummy'}
+                    query: {captcha: 'dummy'},
+                    body: {password: 'abcdefgh'}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(400).notify(done);
-            });
-        });
-
-        describe('#activateUser()', function() {
-            it('should allow to reactivate a user', function(done) {
-                var f = new fk.FakeRes(false);
-                me.activateUser({
-                    params: {key: dummy_user.key, id: dummy_user._id}
-                }, f);
-                chai.expect(f.promise).to.eventually.equal('/').notify(done);
-            });
-        });
-
-        describe('#deactivateUser()', function() {
-            it('should update password and encr_master_key', function(done) {
-                var f = new fk.FakeRes(false);
-                me.deactivateUser({
-                    user: new user.User(dummy_user, ds)
-                }, f);
-                f.promise.then(function() {
-                    chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {is_activated: true})).to.eventually.become({
-                        _id: dummy_user._id,
-                        is_activated: false
-                    }).notify(done);
-                }, function(e) {
-                    done(e);
-                });
             });
         });
 
@@ -238,7 +227,8 @@ exports.test = function() {
                     body: {
                         for_id: 'nothing',
                         prefix: ''
-                    }
+                    },
+                    get: function() {return 'fr';}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(403).notify(done);
             });

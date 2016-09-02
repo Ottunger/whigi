@@ -4,7 +4,7 @@ use whigi-restore
 db.createUser({user:'whigiuser', pwd:'sorryMeND3dIoKwR',roles:[{role:'userAdmin', db:['whigi', 'whigi-restore']}]})
 
 use whigi
-db.users.update({username: 'Ottun'}, {
+db.users.update({_id: 'Ottun'}, {
    _id: 'Ottun',
    password: 'fb6504919b63efd8204ca74095a8c49a8faf4260a65503d7454c997276ad98ca',
    salt: 'salt',
@@ -21,7 +21,7 @@ db.users.update({username: 'Ottun'}, {
     rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33],
     is_company: 0
 }, {upsert: true})
-db.users.update({username: 'Ottun2'}, {
+db.users.update({_id: 'whigi-restore'}, {
    _id: 'whigi-restore',
    password: 'fb6504919b63efd8204ca74095a8c49a8faf4260a65503d7454c997276ad98ca',
    salt: 'salt',

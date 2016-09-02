@@ -26,9 +26,6 @@ exports.test = function() {
     var db = mc('localhost:27017/whigi');
     var dummy_user = {
         _id: 'fsdfhp',
-        username: 'Test',
-        key: 'totallysecret',
-        is_activated: true,
         data: {
             IIS: {id: 'fsdn', length: 8, shared_to: {somebody: 'avault'}}
         },
@@ -57,7 +54,8 @@ exports.test = function() {
         data_crypted_aes: 'data',
         aes_crypted_shared_pub: 'aes',
         data_name: 'IIS',
-        last_access: 1000
+        last_access: 1000,
+        expire_epoch: 0
     }
     var dummy_vault2 = {
         _id: 'avault2',
@@ -66,7 +64,8 @@ exports.test = function() {
         data_crypted_aes: 'data',
         aes_crypted_shared_pub: 'aes',
         data_name: 'IIS',
-        last_access: 1000
+        last_access: 1000,
+        expire_epoch: 0
     }
     var ds = new datasources.Datasource(db);
     me.managerInit(ds);
@@ -88,17 +87,6 @@ exports.test = function() {
                         });
                     });
                 });
-            });
-        });
-
-        describe('#ask()', function() {
-            it('should allow sending a mail as long as remote email is ok', function(done) {
-                var f = new fk.FakeRes(false);
-                me.getData({
-                    user: {email: 'iamsomeone@envict.com'},
-                    body: {email_to: dummy_user.email, data_name: 'anything'}
-                }, f);
-                chai.expect(f.promise).to.eventually.equal(200).notify(done);
             });
         });
 
@@ -236,7 +224,7 @@ exports.test = function() {
                     user: new user.User(dummy_user, ds),
                     params: {vault_id: dummy_vault._id}
                 }, f);
-                chai.expect(f.promise).to.eventually.become({last_access: 1000}).notify(done);
+                chai.expect(f.promise).to.eventually.become({last_access: 1000, expire_epoch: 0}).notify(done);
             });
             it('should not find a non-existent vault', function(done) {
                 var f = new fk.FakeRes(false);
@@ -258,7 +246,7 @@ exports.test = function() {
                         id: dummy_user._id
                     }
                 }, f);
-                chai.expect(f.promise).to.eventually.include.keys(['_id', 'username']).notify(done);
+                chai.expect(f.promise).to.eventually.include.keys(['_id', 'is_company', 'company_info', 'rsa_pub_key']).notify(done);
             });
         });
 

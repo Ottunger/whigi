@@ -77,7 +77,7 @@ export function getProfile(req, res) {
  */
 export function goCompany(req, res) {
     req.user.is_company = 1;
-    req.user.is_company = req.body;
+    req.user.company_info = req.body;
     req.user.persist().then(function() {
         res.type('application/json').status(200).json({error: ''});
     }, function(e) {
@@ -181,7 +181,7 @@ export function regUser(req, res) {
         var u: User = new User(user, db);
         var pre_master_key: string = utils.generateRandomString(64);
         var key = new RSA();
-        key.generateKeyPair(2048, 65537);
+        key.generateKeyPair(4096, 65537);
 
         u._id = user.username;
         u.salt = utils.generateRandomString(64);
