@@ -174,7 +174,7 @@ export function requestMapping(req, res) {
         var key = this.toBytes(sessionStorage.getItem('key_decryption'));
         var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
         var master_key = decrypter.decrypt(this.profile.encr_master_key);
-        decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
+        decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
         req.params.id = decodeURIComponent(req.params.id);
         whigi('GET', '/api/v1/profile/data').then(function(data) {

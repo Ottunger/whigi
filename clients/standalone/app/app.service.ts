@@ -120,7 +120,7 @@ export class Backend {
             var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
             this.master_key = decrypter.decrypt(this.profile.encr_master_key);
 
-            decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
+            decrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
             this.rsa_key = window.aesjs.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
         } catch(e) {
             this.notif.alert(this.translate.instant('error'), this.translate.instant('noKey'));

@@ -213,7 +213,7 @@ export function regUser(req, res) {
         u.encr_master_key = Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
             .encrypt(utils.toBytes(pre_master_key)));
         u.rsa_pub_key = key.exportKey('public');
-        u.rsa_pri_key = Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
+        u.rsa_pri_key = Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
             .encrypt(aes.util.convertStringToBytes(key.exportKey('private'))));
         u.is_company = !!user.company_info? 1 : 0;
         u.company_info = !!user.company_info? user.company_info : {};
