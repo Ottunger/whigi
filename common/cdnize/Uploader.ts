@@ -82,30 +82,16 @@ function fullFn() {
     }
 
     for(var i = 0; i < collections.length; i++) {
-        if(collections[i] == 'users') {
-            db.collection('users').find({}, {_id: true, email: true}).toArray().then(function(data) {
-                var ret = new Array(2 * data.length);
-                for(var j = 0; j < data.length; j += 2) {
-                    ret[j] = data[j]._id;
-                    ret[j+1] = data[j].email;
-                }
-                ids['users'] = ret;
-                complete();
-            }, function() {
-                complete();
-            });
-        } else {
-            db.collection(collections[i]).find({}, {_id: true}).toArray().then(function(data) {
-                var ret = new Array(data.length);
-                for(var j = 0; j < data.length; j++) {
-                    ret[j] = data[j]._id;
-                }
-                ids[collections[i]] = ret;
-                complete();
-            }, function() {
-                complete();
-            });
-        }
+        db.collection(collections[i]).find({}, {_id: true}).toArray().then(function(data) {
+            var ret = new Array(data.length);
+            for(var j = 0; j < data.length; j++) {
+                ret[j] = data[j]._id;
+            }
+            ids[collections[i]] = ret;
+            complete();
+        }, function() {
+            complete();
+        });
     }
 }
 

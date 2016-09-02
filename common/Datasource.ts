@@ -124,22 +124,16 @@ export class Datasource {
      * Retrieves a User from storage. By default does not load its data mappings.
      * @function retrieveUser
      * @public
-     * @param {String} mode Mode for retrieval.
-     * @param {String} value Value for this mode.
+     * @param {String} id User id.
      * @param {Boolean} data Whether to retrieve data array.
      * @return {Promise} The required item.
      */
-    retrieveUser(mode: string, value: string, data?: boolean): Promise<User> {
+    retrieveUser(id: string, data?: boolean): Promise<User> {
         var self = this;
         var decl = (data === true)? fields : {data: false};
-        if(mode === 'id')
-            mode = '_id';
-        var sel = {$or: [{email: value}]}, inside = {};
-        inside[mode] = value;
-        sel.$or.push(inside);
 
         return new Promise<User>(function(resolve, reject) {
-            self.retrieveGeneric('users', sel, decl).then(function(data) {
+            self.retrieveGeneric('users', {_id: id}, decl).then(function(data) {
                 if(!!data) {
                     resolve(new User(data, self));
                 } else {

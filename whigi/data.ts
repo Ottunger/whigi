@@ -33,34 +33,6 @@ export function managerInit(dbg: Datasource) {
 }
 
 /**
- * Asks a user for one data by sending him a link.
- * @function ask
- * @public
- * @param {Request} req The request.
- * @param {Response} res The response.
- */
-export function ask(req, res) {
-    var got = req.body;
-    db.retrieveUser('email', got.email_to).then(function(u: User) {
-        if(!!u && u.email != req.user.email) {
-            res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
-            mailer.sendMail({
-                from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                to: '<' + u.email + '>',
-                subject: utils.i18n('mail.subject.askData', req),
-                html: '<b>' + req.user.email + '</b>' + utils.i18n('mail.body.askData', req) + got.data_name + '.<br /> \
-                    <a href="' + utils.RUNNING_ADDR + '/grant/' + encodeURIComponent(got.email_to) + '/' + encodeURIComponent(got.data_name) + '/' +
-                    encodeURIComponent('/') + '/' + encodeURIComponent('/') + '">' + utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
-            }, function(e, i) {});
-        } else {
-            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
-        }
-    }, function(e) {
-        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
-    });
-}
-
-/**
  * Removes a data by name and associated vaults.
  * @function removeData
  * @public
@@ -92,7 +64,6 @@ export function removeData(req, res) {
  * Forges the response to retrieve a new info.
  * @function getData
  * @public
- * @TODO Check if must check ownership before sending.
  * @param {Request} req The request.
  * @param {Response} res The response.
  */
@@ -134,7 +105,7 @@ export function regVault(req, res) {
                     last_access: 0,
                     expire_epoch: got.expire_epoch
                 }, db);
-                db.retrieveUser('id', v.shared_to_id, true).then(function(sharee: User) {
+                db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
                     if(!sharee || sharee._id == req.user.id) {
                         res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
                         return;
@@ -146,16 +117,6 @@ export function regVault(req, res) {
                             sharee.shared_with_me[req.user._id][v.data_name] = v._id;
                             sharee.persist().then(function() {
                                 res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
-                                if(!!sharee.preferences && sharee.preferences.email_on_share) {
-                                    mailer.sendMail({
-                                        from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                                        to: '<' + sharee.email + '>',
-                                        subject: utils.i18n('mail.subject.newData', req),
-                                        html: '<b>' + v.data_name + '</b>' + utils.i18n('mail.body.shared', req) + req.user.email + '.<br /> \
-                                            <a href="' + utils.RUNNING_ADDR + '/vault/' + encodeURIComponent(req.user.email) + '/' + v.data_name + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
-                                            utils.i18n('mail.signature', req)
-                                    }, function(e, i) {});
-                                }
                             }, function(e) {
                                 res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                             });
@@ -204,7 +165,7 @@ export function removeVault(req, res) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
-            db.retrieveUser('id', v.shared_to_id, true).then(function(sharee: User) {
+            db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
                 if(!!sharee) {
                     sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
                     delete sharee.shared_with_me[req.user._id][v.data_name];
@@ -238,28 +199,28 @@ export function getVault(req, res) {
     db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
         if(!!v) {
             if(v.shared_to_id != req.user._id) {
-                res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
             if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
-                db.retrieveUser('id', v.sharer_id, true).then(function(u: User) {
+                db.retrieveUser(v.sharer_id, true).then(function(u: User) {
                     delete u.data[v.data_name].shared_to[v.shared_to_id];
                     u.persist();
                 });
                 delete req.user.shared_with_me[v.sharer_id][v.data_name];
                 req.user.persist();
                 v.unlink();
-                res.type('application/json').status(417).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+                res.type('application/json').status(417).json({error: utils.i18n('client.noData', req)});
                 return;
             }
             v.last_access = (new Date).getTime();
             v.persist();
-            res.type('application/json').status(200).json(Object.assign({puzzle: req.user.puzzle}, v.sanitarize()));
+            res.type('application/json').status(200).json(v.sanitarize());
         } else {
-            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         }
     }, function(e) {
-        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
 }
 
@@ -282,7 +243,7 @@ export function accessVault(req, res) {
                 return;
             }
             if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
-                db.retrieveUser('id', v.shared_to_id, true).then(function(u: User) {
+                db.retrieveUser(v.shared_to_id, true).then(function(u: User) {
                     delete u.shared_with_me[v.sharer_id][v.data_name];
                     u.persist();
                 });
@@ -319,7 +280,7 @@ export function getAny(req, res) {
     if(req.params.key == require('../common/key.json').key) {
         switch(req.params.collection) {
             case 'users':
-                db.retrieveUser('id', req.params.id).then(ok, nok);
+                db.retrieveUser(req.params.id).then(ok, nok);
                 break;
             case 'datas':
                 db.retrieveData(req.params.id).then(ok, nok);
@@ -350,16 +311,7 @@ export function removeAny(req, res) {
     var got = req.body;
 
     function rem(name, ids) {
-        switch(name) {
-            case 'users':
-                db.getDatabase().collection('users').remove({
-                    $or: [{_id: {$in: ids}}, {email: {$in: ids}}]
-                });
-                break;
-            default:
-                db.getDatabase().collection(name).remove({_id: {$in: ids}});
-                break;
-        }
+        db.getDatabase().collection(name).remove({_id: {$in: ids}});
     }
 
     if(got.key == require('../common/key.json').key) {

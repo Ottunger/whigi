@@ -45,8 +45,8 @@ export function managerInit(dbg: Datasource) {
  */
 export function getUser(req, res) {
     var dec = decodeURIComponent(req.params.id);
-    db.retrieveUser('id', dec).then(function(user) {
-        if(!!user && !!(user.is_activated)) {
+    db.retrieveUser(dec).then(function(user) {
+        if(!!user) {
             res.type('application/json').status(200).json(Object.assign({puzzle: req.user.puzzle}, user.sanitarize()));
         } else {
             res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
@@ -69,6 +69,23 @@ export function getProfile(req, res) {
 }
 
 /**
+ * Go Company.
+ * @function goCompany
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function goCompany(req, res) {
+    req.user.is_company = 1;
+    req.user.is_company = req.body;
+    req.user.persist().then(function() {
+        res.type('application/json').status(200).json({error: ''});
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
  * Forges the response to list all possessed data as json, or HTTP 500 code.
  * @function listData
  * @public
@@ -77,7 +94,6 @@ export function getProfile(req, res) {
  */
 export function listData(req, res) {
     req.user.fill().then(function() {
-        
         res.type('application/json').status(200).json({
             data: req.user.data,
             shared_with_me: req.user.shared_with_me
@@ -133,8 +149,10 @@ export function recData(req, res, respond?: boolean) {
  */
 export function updateUser(req, res) {
     var upt = req.body;
-    if(!!upt.preferences)
-        req.user.preferences.email_on_share = !!upt.preferences.email_on_share;
+    if(upt.new_password.length < 8) {
+        res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
+        return;
+    }
     req.user.applyUpdate(upt);
     req.user.persist().then(function() {
         res.type('application/json').status(200).json({error: ''});
@@ -154,14 +172,6 @@ export function regUser(req, res) {
     var user = req.body;
     function end(u: User) {
         u.persist().then(function() {
-            mailer.sendMail({
-                from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                to: '<' + u.email + '>',
-                subject: utils.i18n('mail.subject.account', req),
-                html: utils.i18n('mail.body.account', req) + '<br /> \
-                    <a href="' + utils.RUNNING_ADDR + '/api/v1/activate/' + u.key + '/' + u._id + '">' + utils.i18n('mail.body.click', req) + '</a><br />' +
-                    utils.i18n('mail.signature', req)
-            }, function(e, i) {});
             res.type('application/json').status(201).json({error: ''});
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
@@ -171,130 +181,43 @@ export function regUser(req, res) {
         var u: User = new User(user, db);
         var pre_master_key: string = utils.generateRandomString(64);
         var key = new RSA();
-        key.generateKeyPair(4096, 65537);
+        key.generateKeyPair(2048, 65537);
 
-        u._id = utils.generateRandomString(32);
+        u._id = user.username;
         u.salt = utils.generateRandomString(64);
         u.puzzle = utils.generateRandomString(16);
         u.password = hash.sha256(hash.sha256(user.password) + u.salt);
-        u.is_activated = false;
-        u.key = utils.generateRandomString(64);
         u.data = {};
         u.shared_with_me = {};
         u.oauth = [];
-        u.preferences = {email_on_share: true};
-        u.encr_master_key = new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
-            .encrypt(utils.toBytes(pre_master_key));
+        u.encr_master_key = Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
+            .encrypt(utils.toBytes(pre_master_key)));
         u.rsa_pub_key = key.exportKey('public');
-        u.rsa_pri_key = new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
-            .encrypt(aes.util.convertStringToBytes(key.exportKey('private')));
-        if(user.recuperable) {
-            utils.registerMapping(u._id, u.email, pre_master_key, user.safe, user.recup_mail, user.recup_mail2, function(err) {
-                if(err) {
-                    res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
-                } else {
-                    if(user.safe) {
-                        mailer.sendMail({
-                            from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                            to: '<' + user.recup_mail + '>',
-                            subject: utils.i18n('mail.subject.otherAccount', req),
-                            html: utils.i18n('mail.body.account', req) + '<br /> \
-                                <a href="' + utils.RUNNING_ADDR + '/save-key/' + encodeURIComponent('keys/' + u.email) + '/' +
-                                pre_master_key.slice(0, pre_master_key.length / 4) + '">' +
-                                utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
-                        }, function(e, i) {});
-                        mailer.sendMail({
-                            from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                            to: '<' + user.recup_mail2 + '>',
-                            subject: utils.i18n('mail.subject.otherAccount', req),
-                            html: utils.i18n('mail.body.account', req) + '<br /> \
-                                <a href="' + utils.RUNNING_ADDR + '/save-key/' + encodeURIComponent('keys/' + u.email) + '/' +
-                                pre_master_key.slice(pre_master_key.length / 4, pre_master_key.length / 2) + '">' +
-                                utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
-                        }, function(e, i) {});
-                        end(u);
-                    } else {
-                        end(u);
-                    }
-                }
-            });
-        } else {
-            end(u);
-        }
-    }
-    function towards() {
-        db.retrieveUser('email', user.email).then(function(u) {
-            if(u === undefined)
-                complete();
-            else
-                res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
-        }, function(e) {
-            complete();
-        });
+        u.rsa_pri_key = Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
+            .encrypt(aes.util.convertStringToBytes(key.exportKey('private'))));
+        u.is_company = !!user.company_info? 1 : 0;
+        u.company_info = !!user.company_info? user.company_info : {};
+        end(u);
     }
 
-    utils.checkCaptcha(req.query.captcha, function(ok) {
-        if(ok) {
-            if(user.first_name.length > 0 && user.last_name.length > 0 && user.username.length > 0 && user.password.length > 0 && user.email.length > 0 && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(user.email)) {
-                if(user.recuperable && user.safe && !/^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(user.recup_mail)) {
-                    res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
-                } else {
-                    db.retrieveUser('username', user.username).then(function(u) {
-                        if(u == undefined)
-                            towards();
-                        else
-                            res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
-                    }, function(e) {
-                        towards();
-                    });
-                }
+    if(user.password.length >= 8) {
+        utils.checkCaptcha(req.query.captcha, function(ok) {
+            if(ok) {
+                db.retrieveUser(user.username).then(function(u) {
+                    if(u == undefined)
+                        complete();
+                    else
+                        res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+                }, function(e) {
+                    complete();
+                });
             } else {
-                res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
+                res.type('application/json').status(400).json({error: utils.i18n('client.captcha', req)});
             }
-        } else {
-            res.type('application/json').status(400).json({error: utils.i18n('client.captcha', req)});
-        }
-    });
-}
-
-/**
- * Activates a user account. Can be HTTP 200 or 400 or 404 or 500.
- * @function activateUser
- * @public
- * @param {Request} req The request.
- * @param {Response} res The response.
- */
-export function activateUser(req, res) {
-    db.retrieveUser('key', req.params.key).then(function(user) {
-        if(user != undefined) {
-            user.is_activated = true;
-            user.persist().then(function() {
-                res.redirect('/');
-            }, function(e) {
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-            });
-        } else {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
-        }
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
-}
-
-/**
- * Deactivates a user account. Can be HTTP 200 or 500.
- * @function deactivateUser
- * @public
- * @param {Request} req The request.
- * @param {Response} res The response.
- */
-export function deactivateUser(req, res) {
-    req.user.is_activated = false;
-    req.user.persist().then(function() {
-        res.type('application/json').status(200).json({error: ''});
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
+        });
+    } else {
+        res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
+    }
 }
 
 /**

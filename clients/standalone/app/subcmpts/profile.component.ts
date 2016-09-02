@@ -11,11 +11,12 @@ import {Router} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
 import {Backend} from '../app.service';
+import {Data} from '../data.service';
 enableProdMode();
 
 @Component({
     template: `
-        <h2>{{ backend.profile.username }}</h2>
+        <h2>{{ backend.profile._id }}</h2>
         <button type="button" class="btn btn-primary" (click)="logout(false)">{{ 'profile.logout' | translate }}</button>
         <button type="button" class="btn btn-danger" (click)="logout(true)">{{ 'profile.logoutAll' | translate }}</button>
         <br /><br />
@@ -48,28 +49,7 @@ enableProdMode();
                 <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
             </div>
             <div class="form-group">
-                <div class="checkbox">
-                    <label><input type="checkbox" name="n9" [(ngModel)]="backend.profile.preferences.email_on_share">{{ 'profile.email_on_share' | translate }}</label>
-                </div>
                 <button type="submit" class="btn btn-primary" (click)="update()">{{ 'profile.change' | translate }}</button>
-            </div>
-        </form>
-        <br /><br />
-
-        <form class="form-signin">
-            <div class="heading">
-                <h3 class="form-signin-heading">{{ 'profile.ask' | translate }}</h3>
-            </div>
-            <div class="form-group">
-                {{ 'profile.askMail' | translate }}<br />
-                <input type="text" [(ngModel)]="ask_email" name="n100" class="form-control" required>
-            </div>
-            <div class="form-group">
-                {{ 'profile.askData' | translate }}<br />
-                <input type="text" [(ngModel)]="ask_data" name="n40" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" (click)="ask()">{{ 'profile.ask' | translate }}</button>
             </div>
         </form>
         <br /><br />
@@ -79,8 +59,8 @@ enableProdMode();
                 <h3 class="form-signin-heading">{{ 'profile.revoke' | translate }}</h3>
             </div>
             <div class="form-group">
-                {{ 'profile.revokeEmail' | translate }}<br />
-                <input type="text" [(ngModel)]="revoke_email" name="n100" class="form-control" required>
+                {{ 'profile.revokeID' | translate }}<br />
+                <input type="text" [(ngModel)]="revoke_id" name="n100" class="form-control" required>
             </div>
             <div class="form-group">
                 <button type="submit" class="btn btn-warning" (click)="revokeAll()">{{ 'profile.revoke' | translate }}</button>
@@ -116,9 +96,8 @@ export class Profile {
     public current_pwd: string;
     public password: string;
     public password2: string;
-    public ask_email: string;
     public ask_data: string;
-    public revoke_email: string;
+    public revoke_id: string;
     public use_pwd: boolean;
 
     /**
@@ -130,7 +109,8 @@ export class Profile {
      * @param backend Backend service.
      * @param router Router service.
      */
-    constructor(private translate: TranslateService, private notif: NotificationsService, private backend: Backend, private router: Router) {
+    constructor(private translate: TranslateService, private notif: NotificationsService, private backend: Backend,
+        private router: Router, private dataservice: Data) {
         this.use_pwd = true;
     }
 
@@ -178,34 +158,30 @@ export class Profile {
      */
     update() {
         var self = this;
+        if(this.password.length < 8) {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('login.noMatch'));
+            return;
+        }
         if(this.password == this.password2) {
-            this.backend.updateProfile(this.password, this.backend.profile.preferences.email_on_share, this.current_pwd).then(function() {
-                self.current_pwd = '';
-                self.password = '';
-                self.password2 = '';
-                self.notif.success(self.translate.instant('success'), self.translate.instant('profile.changed'));
+            this.backend.updateProfile(this.password, this.current_pwd).then(function() {
+                self.dataservice.modifyData('keys/pwd/mine1', self.password.slice(0, 4), self.backend.profile.data['keys/pwd/mine1'].shared_to).then(function() {
+                    self.dataservice.modifyData('keys/pwd/mine2', self.password.slice(4), self.backend.profile.data['keys/pwd/mine2'].shared_to).then(function() {
+                        self.current_pwd = '';
+                        self.password = '';
+                        self.password2 = '';
+                        self.notif.success(self.translate.instant('success'), self.translate.instant('profile.changed'));
+                    }, function(e) {
+                        self.notif.error(self.translate.instant('error'), self.translate.instant('profile.warnChange'));
+                    });
+                }, function(e) {
+                    self.notif.error(self.translate.instant('error'), self.translate.instant('profile.warnChange'));
+                });
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noChange'));
             });
         } else {
-            self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noMatch'));
+            self.notif.error(self.translate.instant('error'), self.translate.instant('login.noMatch'));
         }
-    }
-
-    /**
-     * Ask a user for some of his data by mail.
-     * @function ask
-     * @public
-     */
-    ask() {
-        var self = this;
-        this.backend.ask(this.ask_email, this.ask_data).then(function() {
-            self.ask_email = '';
-            self.ask_data = '';
-            self.notif.success(self.translate.instant('success'), self.translate.instant('profile.sent'));
-        }, function(e) {
-            self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noSent'));
-        });
     }
 
     /**
@@ -215,7 +191,7 @@ export class Profile {
      */
     revokeAll() {
         var self = this, keys = Object.getOwnPropertyNames(this.backend.profile.data);
-        this.backend.getUser(this.revoke_email).then(function(user) {
+        this.backend.getUser(this.revoke_id).then(function(user) {
             for(var i = 0; i < keys.length; i++) {
                 if(user._id in self.backend.profile[keys[i]].shared_to) {
                     self.backend.revokeVault(self.backend.profile.data[keys[i]].shared_to[user._id]).then(function() {

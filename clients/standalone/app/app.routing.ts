@@ -15,6 +15,7 @@ import {Savekey} from './subcmpts/savekey.component';
 import {Filesystem} from './subcmpts/filesystem.component';
 import {Oauth} from './subcmpts/oauth.component';
 import {Grant} from './subcmpts/grant.component';
+import {Resethelp} from './subcmpts/resethelp.component';
 import {Notfound} from './subcmpts/notfound.component';
 import {Profileguard, Fullguard, Vaultguard} from './guards.service';
 
@@ -24,11 +25,12 @@ const appRoutes: Routes = [
     {path: 'profile', component: Profile, canActivate: [Profileguard]},
     {path: 'filesystem/:mode', component: Filesystem, canActivate: [Profileguard], canDeactivate: [Profileguard]},
     {path: 'data/:name', component: Dataview, canActivate: [Fullguard], canDeactivate: [Fullguard]},
-    {path: 'vault/:email/:id', component: Vaultview, canActivate: [Vaultguard]},
-    {path: 'password-recovery/:key/:recup_mail', component: Reset},
-    {path: 'save-key/:key/:value', component: Savekey, canActivate: [Profileguard]},
+    {path: 'vault/:username/:id', component: Vaultview, canActivate: [Vaultguard]},
+    {path: 'password-help/:id/:data_name', component: Resethelp, canActivate: [Profileguard]},
+    {path: 'password-recovery/:id/:pwd', component: Reset},
+    {path: 'save-key/:key/:value/:return_url', component: Savekey, canActivate: [Profileguard]},
     {path: 'oauth/:for_id/:prefix/:token/:return_url_ok/:return_url_deny', component: Oauth, canActivate: [Profileguard]},
-    {path: 'grant/:email_to/:data_list/:return_url_ok/:return_url_deny', component: Grant, canActivate: [Profileguard]},
+    {path: 'grant/:id_to/:data_list/:return_url_ok/:return_url_deny/:expire_epoch', component: Grant, canActivate: [Profileguard]},
     {path: '**', component: Notfound}
 ];
 export const appRoutingProviders: any[] = [

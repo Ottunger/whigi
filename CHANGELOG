@@ -6,11 +6,15 @@ Updated on 21-08-16, 13:30
 Whigi endpoints:
 ****************
 
-/api/v<any>/user/<id-email>: Get, needs auth, needs puzzle
-Retrieves public data of user. Can also use email as key.
+/api/v<any>/user/<id>: Get, needs auth, needs puzzle
+Retrieves public data of user.
 
 /api/v<any>/profile: Get, needs auth
 Retrieves own data.
+
+/api/v<any>/profile/info: Post, needs auth
+Go company mode, set public info
+{"...": "..."}
 
 /api/v<any>/profile/data: Get, needs auth
 Retrieves list of owned fragments, and list of shared with me vaults.
@@ -21,19 +25,11 @@ Saves a new data fragment. The API sends back the newly generated id for that da
 
 /api/v<any>/profile/update: Post, needs auth
 Updates password. When updated password, can send the password hashed but needs to send the new ecrypted master key as well.
-    Can also update preferences at the same time.
-{"new_password": "string", "encr_master_key": "string", "preferences"?: {"email_on_share": "boolean"}}
+{"new_password": "string", "encr_master_key": "string"}
 
 /api/v<any>/user/create: Post, needs captcha
 Creates a new entry if none matches. The password is this only time sent in clear.
-{"first_name": "string", "last_name": "string", "username": "string", "password": "string", "email": "string", "recuperable": "boolean",
-    "safe": "boolean", "recup_mail": "string", "recup_mail2": "string"}
-
-/api/v<any>/activate/<key>: Get
-Activates the user whose activation key is given.
-
-/api/v<any>/profile/deactivate: Delete, needs auth
-Deactivates the user.
+{"username": "string", "password": "string"}
 
 /api/v<any>/profile/token/new: Post, needs auth (basic only), needs puzzle
 Creates a new token for the logged in user to connect without credentials.
@@ -53,10 +49,6 @@ Creates an OAuth token.
 /api/v<any>/oauth/<id>: Delete, needs auth
 Removes an OAuth token specified by id.
 
-/api/v<any>/ask: Post, needs auth, needs puzzle
-Sends a mail with a link asking for data.
-{"email_to": "string", "data_name": "string"}
-
 /api/v<any>/data/<id>: Get, needs auth
 Retrieves an encrypted piece of data.
 
@@ -70,7 +62,7 @@ Creates a new vault for sharing with another user. Set expire_epoch to 0 or nega
 /api/v<any>/vault/<vault_id>: Delete, needs auth
 Removes a vault from the storage, revoking access grant.
 
-/api/v<any>/vault/<vault_id>: Get, needs auth, needs puzzle
+/api/v<any>/vault/<vault_id>: Get, needs auth
 Retrieves a piece of information that was shared to me.
 
 /api/v<any>/vault/time/<vault_id>: Get, needs auth
@@ -88,15 +80,11 @@ Delete from local database the specified resource.
 Whigi-restore endpoints:
 ************************
 
-/api/v<any>/new: Post, needs auth of Whigi
-Adds a new mapping.
-{"email": "string", "master_key": "string", "key": "string", "safe": string, "recup_mail": "string", "recup_mail2": "string"}
+/api/v<any>/request/<id>: Get
+Ask for a link to reset password sent by mail when ready.
 
-/api/v<any>/request/<email>: Get
-Creates a token sent by mail to retrieve master_key, lag protected. The page pointed to is /password-recovery that *should* call /api/v<any>/key/<token> for user experience.
-
-/api/v<any>/key/<token>: Get
-Retrieves the master key if token is valid and clear the token. The page that calls this method *should* inform Whigi of a password change.
+/api/v<any>/mix/<half>: Get
+Visited by a peer ton inform of half a key.
 
 
 

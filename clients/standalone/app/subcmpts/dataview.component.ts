@@ -46,13 +46,14 @@ enableProdMode();
                 </thead>
                 <tbody>
                     <tr *ngFor="let d of sharedIds()">
-                        <td>{{ emailOf(d) }}</td>
-                        <td></td>
+                        <td>{{ d }}</td>
+                        <td *ngIf="!!timings[d]">{{ timings[d].la }} - {{ timings[d].ee }}</td>
+                        <td *ngIf="!timings[d]"></td>
                         <td><button type="button" class="btn btn-default" (click)="revoke(d)" [disabled]="!backend.profile.data[data_name].shared_to[d]">{{ 'remove' | translate }}</button></td>
                     </tr>
                     <tr>
-                        <td><input type="text" [(ngModel)]="new_email" name="y0" class="form-control"></td>
-                        <td><input [(ngModel)]="new_date" datetime-picker class="form-control"></td>
+                        <td><input type="text" [(ngModel)]="new_id" name="y0" class="form-control"></td>
+                        <td><input [(ngModel)]="new_date" datetime-picker></td>
                         <td><button type="button" class="btn btn-default" (click)="register()" [disabled]="!decr_data">{{ 'record' | translate }}</button></td>
                     </tr>
                 </tbody>
@@ -67,9 +68,9 @@ export class Dataview implements OnInit, OnDestroy {
     public decr_data: string;
     public new_data: string;
     public new_data_file: string;
-    public shared_profiles: any;
-    public new_email: string;
-    public new_date: Date;
+    public new_id: string;
+    public new_date: string;
+    public timings: {[id: string]: {la: Date, ee: Date}};
     private sub: Subscription;
 
     /**
@@ -86,7 +87,7 @@ export class Dataview implements OnInit, OnDestroy {
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data, private check: ApplicationRef) {
         this.decr_data = '';
         this.new_data_file = '';
-        this.new_date = new Date;
+        this.timings = {};
         new window.Clipboard('.btn-copier');
     }
 
@@ -100,10 +101,14 @@ export class Dataview implements OnInit, OnDestroy {
         this.sub = this.routed.params.subscribe(function(params) {
             //Use params.name as key
             self.data_name = window.decodeURIComponent(params['name']);
-            self.dataservice.populateUsers(self.sharedIds()).then(function(dict) {
-                self.shared_profiles = dict;
-            });
-
+            var keys = Object.getOwnPropertyNames(self.backend.profile.data[self.data_name].shared_to);
+            for(var i = 0; i < keys.length; i++) {
+                self.backend.getAccessVault(self.backend.profile.data[self.data_name].shared_to[keys[i]]).then(function(got) {
+                    self.timings[keys[i]] = {la: new Date(got.last_access), ee: new Date(got.expire_epoch)};
+                }, function(e) {
+                    delete self.backend.profile.data[self.data_name].shared_to[keys[i]];
+                });
+            }
             self.backend.getData(self.backend.profile.data[self.data_name].id).then(function(data) {
                 self.data = data;
                 self.data.encr_data = self.backend.str2arr(self.data.encr_data);
@@ -132,10 +137,10 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     modify() {
-        var self = this, names = this.sharedIds(), dict = {};
+        var self = this, names = this.sharedIds(), dict: {[id: string]: Date} = {};
 
         for(var i = 0; i < names.length; i++) {
-            dict[names[i]] = this.shared_profiles[names[i]].email;
+            dict[names[i]] = this.timings[names[i]].ee;
         }
         this.dataservice.modifyData(this.data_name, (this.new_data_file != '')? this.new_data_file : this.new_data, dict).then(function() {
             self.new_data = '';
@@ -226,11 +231,10 @@ export class Dataview implements OnInit, OnDestroy {
      */
     register() {
         var self = this;
-        this.dataservice.grantVault(this.new_email, this.data_name, this.data.dec, this.new_date).then(function(user, id) {
-            self.shared_profiles = self.shared_profiles || {};
-            self.shared_profiles[user._id] = user;
+        this.dataservice.grantVault(this.new_id, this.data_name, this.data.dec, new Date(this.new_date)).then(function(user, id) {
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;
-            self.new_email = '';
+            self.timings[user._id] = {la: new Date(0), ee: new Date(this.new_date)};
+            self.new_id = '';
         }, function() {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));
         });
@@ -257,19 +261,6 @@ export class Dataview implements OnInit, OnDestroy {
     dl() {
         var spl = this.data_name.split('/');
         window.download(this.decr_data, spl[spl.length - 1]);
-    }
-
-    /**
-     * Return the email from an id as we know it.
-     * @function emailOf
-     * @public
-     * @param {String} id Id.
-     * @return {String} Email.
-     */
-    emailOf(id: string): string {
-        if(!!this.shared_profiles && !!this.shared_profiles[id])
-            return this.shared_profiles[id].email;
-        return this.translate.instant('unknown');
     }
 
     /**

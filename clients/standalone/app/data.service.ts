@@ -86,41 +86,43 @@ export class Data {
      * Store the user data's. Build the trie's for data and whared_with_me.
      * @function listData
      * @public
+     * @return {Promise} Promise.
      */
-    listData(): void {
+    listData(): Promise {
         var self = this;
-        if(this.backend.data_loaded)
-            return;
 
-        this.backend.data_trie = new Trie();
-        this.backend.shared_with_me_trie = new Trie();
-        this.backend.listData().then(function(add) {
-            self.backend.profile.data = add.data;
-            self.backend.profile.shared_with_me = add.shared_with_me;
-            
-            var keys = Object.getOwnPropertyNames(add.data);
-            for(var i = 0; i < keys.length; i++) {
-                self.backend.data_trie.addMilestones(keys[i], '/');
-                self.backend.data_trie.add(keys[i], self.backend.profile.data[keys[i]]);
-            }
-            keys = Object.getOwnPropertyNames(add.shared_with_me);
-            self.populateUsers(keys).then(function(dict) {
-                self.backend.sharer_mapping = dict;
+        return new Promise(function(resolve, reject) {
+            if(self.backend.data_loaded)
+                resolve();
+
+            self.backend.data_trie = new Trie();
+            self.backend.shared_with_me_trie = new Trie();
+            self.backend.listData().then(function(add) {
+                self.backend.profile.data = add.data;
+                self.backend.profile.shared_with_me = add.shared_with_me;
+                
+                var keys = Object.getOwnPropertyNames(add.data);
+                for(var i = 0; i < keys.length; i++) {
+                    self.backend.data_trie.addMilestones(keys[i], '/');
+                    self.backend.data_trie.add(keys[i], self.backend.profile.data[keys[i]]);
+                }
+                keys = Object.getOwnPropertyNames(add.shared_with_me);
                 for(var i = 0; i < keys.length; i++) {
                     var insides = Object.getOwnPropertyNames(add.shared_with_me[keys[i]]);
                     for(var j = 0; j < insides.length; j++) {
-                        self.backend.shared_with_me_trie.addMilestones(dict[keys[i]].email + '/' + insides[j], '/');
-                        self.backend.shared_with_me_trie.add(dict[keys[i]].email + '/' + insides[j], self.backend.profile.shared_with_me[keys[i]][insides[j]]);
+                        self.backend.shared_with_me_trie.addMilestones(keys[i] + '/' + insides[j], '/');
+                        self.backend.shared_with_me_trie.add(keys[i] + '/' + insides[j], self.backend.profile.shared_with_me[keys[i]][insides[j]]);
                     }
-                    self.backend.shared_with_me_trie.add(dict[keys[i]].email + '/', dict[keys[i]]);
                 }
+                self.backend.data_loaded = true;
+                resolve();
+            }, function(e) {
+                self.backend.profile.data = {};
+                self.backend.profile.shared_with_me = {};
+                self.backend.data_loaded = true;
+                self.notif.error(self.translate.instant('error'), self.translate.instant('noData'));
+                resolve();
             });
-            self.backend.data_loaded = true;
-        }, function(e) {
-            self.backend.profile.data = {};
-            self.backend.profile.shared_with_me = {};
-            self.backend.data_loaded = true;
-            self.notif.error(self.translate.instant('error'), self.translate.instant('noData'));
         });
     }
 
@@ -185,10 +187,10 @@ export class Data {
      * @public
      * @param {String} name Complete name, directory prefixed.
      * @param {String} value Value.
-     * @param {Object} users_mapping A dictionary that must contain user id => email.
+     * @param {Object} users_mapping A dictionary that must contain user id => expire_epoch.
      * @return {Promise} Whether it went OK.
      */
-    modifyData(name: string, value: string, users_mapping: any): Promise {
+    modifyData(name: string, value: string, users_mapping: {[id: string]: Date}): Promise {
         var i = 0, names = keys(), max = names.length, went = true;
         var self = this;
 
@@ -215,7 +217,8 @@ export class Data {
         return new Promise(function(resolve, reject) {
             self.newData(name, value, true).then(function() {
                 names.forEach(function(id) {
-                    self.grantVault(users_mapping[id], name, value).then(function(user, newid) {
+                    var time = !!users_mapping[id].getTime? users_mapping[id] : new Date(0);
+                    self.grantVault(id, name, value, time).then(function(user, newid) {
                         check(resolve, reject);
                     }, function() {
                         went = false;
@@ -253,16 +256,16 @@ export class Data {
      * Grants access to a data, creating a vault.
      * @function grantVault
      * @public
-     * @param {String} email User email.
+     * @param {String} id User id.
      * @param {String} name Data name.
      * @param {String} decr_data Decrypted data.
      * @param {Date} max_date Valid until.
      * @return {Promise} Whether went OK with remote profile and newly created vault.
      */
-    grantVault(email: string, name: string, decr_data: string, max_date: Date): Promise {
+    grantVault(id: string, name: string, decr_data: string, max_date: Date): Promise {
         var self = this;
         return new Promise(function(resolve, reject) {
-            self.backend.getUser(email).then(function(user) {
+            self.backend.getUser(id).then(function(user) {
                 var aesKey: number[] = self.backend.newAES();
                 var aes_crypted_shared_pub: string = self.backend.encryptRSA(aesKey, user.rsa_pub_key);
 

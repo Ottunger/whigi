@@ -102,7 +102,7 @@ export class Fullguard implements CanActivate, CanDeactivate<Dataview> {
      */
     canDeactivate(component: Dataview, route: any, state: any): Observable<boolean> | Promise<boolean> | boolean {
         if((!component.new_data || component.new_data.length == 0) &&
-            (!component.new_email || component.new_email.length == 0))
+            (!component.new_id || component.new_id.length == 0))
             return true;
         return component.dialog(this.translate.instant('confirmation'));
     }

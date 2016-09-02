@@ -17,7 +17,7 @@ enableProdMode();
 
 @Component({
     template: `
-        <h2>{{ dataservice.sanitarize(sharer.email + '/' + vault.data_name) }}</h2>
+        <h2>{{ dataservice.sanitarize(sharer_id + '/' + vault.data_name) }}</h2>
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
 
@@ -31,8 +31,8 @@ enableProdMode();
 })
 export class Vaultview implements OnInit, OnDestroy {
 
-    public sharer: any;
     public vault: any;
+    public sharer_id: string;
     public decr_data: string;
     private route_back: string;
     private sub: Subscription;
@@ -62,7 +62,7 @@ export class Vaultview implements OnInit, OnDestroy {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
             self.route_back = params['route_back'];
-            self.sharer = self.backend.profile.sharer;
+            self.sharer_id = params['username'];
             self.dataservice.getVault(params['id']).then(function(vault, decr_data) {
                 self.vault = vault;
                 self.decr_data = decr_data;
@@ -71,7 +71,7 @@ export class Vaultview implements OnInit, OnDestroy {
                     self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.expired'));
                 else
                     self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.noData'));
-                delete self.backend.profile.shared_with_me[self.sharer._id][params['data_name']];
+                delete self.backend.profile.shared_with_me[self.sharer_id][params['data_name']];
                 self.back();
             });
         });

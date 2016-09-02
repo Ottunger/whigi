@@ -7,6 +7,9 @@
 'use strict';
 declare var require: any
 var ndm = require('nodemailer');
+var https = require('https');
+var aes = require('aes-js');
+var RSA = require('node-rsa');
 var utils = require('../utils/utils');
 import {Mapping} from '../common/models/Mapping';
 var mailer, db;
@@ -28,26 +31,83 @@ export function managerInit(dbg) {
 }
 
 /**
- * Learns a new user mapping from Whigi.
- * @function newMapping
- * @public
- * @param {Request} req The request.
- * @param {Response} res The response.
+ * Sends a request to Whigi
+ * @function whigi
+ * @private
+ * @param {String} method Method.
+ * @param {String} path End point.
+ * @param {Object} data Data.
+ * @return {Promise} Promise.
  */
-export function newMapping(req, res) {
-    var got = req.body;
-    if(got.key == require('../common/key.json').key) {
-        var newid = utils.generateRandomString(32);
-        var key = got.safe? got.master_key.slice(got.master_key.length / 2, got.master_key.length) : got.master_key;
-        var m: Mapping = new Mapping(newid, got.email, key, 0, '', '', got.id, got.safe, got.safe? got.recup_mail : 'none', got.safe? got.recup_mail2 : 'none', db);
-        m.persist().then(function() {
-            res.type('application/json').status(201).json({error: '', _id: newid});
-        }, function(e) {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+function whigi(method: string, path: string, data?: any): Promise {
+    var options = {
+        host: utils.WHIGIHOST,
+        port: 443,
+        path: path,
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(data),
+          'Authorization': 'Basic ' + btoa('whigi-restore:' + require('password.json').pwd)
+        }
+    };
+    return new Promise(function(resolve, reject) {
+        var ht = https.request(options, function(res) {
+            var r = '';
+            res.on('data', function(chunk) {
+                r += chunk;
+            });
+            res.on('end', function() {
+                resolve(JSON.parse(r));
+            });
+        }).on('error', function(err) {
+            reject(err);
         });
-    } else {
-        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        if(method == 'POST')
+            ht.write(data);
+        ht.end();
+    });
+}
+
+/**
+ * Turns a string to an array of numbers.
+ * @function str2arr
+ * @public
+ * @param {String} str String.
+ * @return {Number[]} Array.
+ */
+function str2arr(str: string): number[] {
+    var result: number[] = [];
+    for (var i = 0; i < str.length; i++) {
+        result.push(parseInt(str.charCodeAt(i).toString(10)));
     }
+    return result;
+}
+
+/**
+ * Decrypt an AES key using RSA.
+ * @function decryptRSA
+ * @public
+ * @param {String} Encrypted data.
+ * @param {String} rsa_key Key.
+ * @return {Bytes} Decrypted data, we use AES keys.
+ */
+function decryptRSA(data: string, rsa_key: string): number[] {
+    var dec = new RSA();
+    dec.setPrivateKey(rsa_key);
+    return aes.util.convertStringToBytes(dec.decrypt(data));
+}
+
+/**
+ * Decrypt a string using master_key in AES.
+ * @function decryptAES
+ * @public
+ * @param {String} data Data to decrypt.
+ * @param {Bytes} key Key to use.
+ * @return {String} Result.
+ */
+function decryptAES(data: string, key: number[]): string {
+    return aes.util.convertBytesToString(aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(str2arr(data)));
 }
 
 /**
@@ -58,83 +118,135 @@ export function newMapping(req, res) {
  * @param {Response} res The response.
  */
 export function requestMapping(req, res) {
-    db.collection('mappings').findOne({email: req.params.email}).then(function(map) {
-        if(map === undefined || map == null) {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
+    function complete(recup, mk, pk, data) {
+        if(recup) {
+            whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/recup_id']).then(function(vault) {
+                var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                var recup_id = decryptAES(vault.data_crypted_aes, aesKey);
+                whigi('GET', '/vault/' + data.shared_with_me[recup_id]['profile/email']).then(function(vault) {
+                    var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                    var recup_mail = decryptAES(vault.data_crypted_aes, aesKey);
+                    mailer.sendMail({
+                        from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                        to: '<' + recup_mail + '>',
+                        subject: utils.i18n('mail.subject.otherAccount', req),
+                        html: utils.i18n('mail.body.otherAccount', req) + '<br /> \
+                            <a href="' + utils.RUNNING_ADDR + '/password-help/' + encodeURIComponent(req.params.id) + '">' +
+                            utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
+                    }, function(e, i) {});
+                }, function(e) {
+                    res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+                });
+            }, function(e) {
+                res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+            });
         } else {
-            var m: Mapping = new Mapping(map._id, map.email, map.master_key, map.time_changed, map.pwd_key, map.token, map.bearer_id, map.safe, map.recup_mail, map.recup_mail2, db);
-            if((new Date).getTime() - m.time_changed > 30*60*1000) {
-                //Create a token
-                var newid = utils.generateRandomString(64);
-                utils.persistToken(newid, m.bearer_id).then(function() {
-                    m.time_changed = (new Date).getTime();
-                    m.pwd_key = utils.generateRandomString(64);
-                    m.token = newid;
-                    m.persist().then(function() {
+            whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email']).then(function(vault) {
+                var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                var email = decryptAES(vault.data_crypted_aes, aesKey);
+                whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine1']).then(function(vault) {
+                    var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                    var mine1 = decryptAES(vault.data_crypted_aes, aesKey);
+                    whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine2']).then(function(vault) {
+                        var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                        var mine2 = decryptAES(vault.data_crypted_aes, aesKey);
                         mailer.sendMail({
                             from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                            to: '<' + m.email + '>',
+                            to: '<' + email + '>',
                             subject: utils.i18n('mail.subject.account', req),
                             html: utils.i18n('mail.body.reset', req) + '<br /> \
-                                <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + m.pwd_key + '/' + encodeURIComponent(m.recup_mail) + '">' +
+                                <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + encodeURIComponent(req.params.id) +
+                                '/' + encodeURIComponent(mine1 + mine2) + '">' +
                                 utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
                         }, function(e, i) {});
-                        if(m.safe) {
-                            mailer.sendMail({
-                                from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                                to: '<' + m.recup_mail + '>',
-                                subject: utils.i18n('mail.subject.needRestore', req),
-                                html: utils.i18n('mail.body.needRestore', req) + m.email + '.<br />' + utils.i18n('mail.signature', req)
-                            }, function(e, i) {});
-                            mailer.sendMail({
-                                from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                                to: '<' + m.recup_mail2 + '>',
-                                subject: utils.i18n('mail.subject.needRestore', req),
-                                html: utils.i18n('mail.body.needRestore', req) + m.email + '.<br />' + utils.i18n('mail.signature', req)
-                            }, function(e, i) {});
-                        }
-                        res.type('application/json').status(201).json({error: ''});
                     }, function(e) {
-                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                        res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
                     });
                 }, function(e) {
-                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
                 });
-            } else {
-                res.type('application/json').status(400).json({error: utils.i18n('client.tooSoon', req)});
-            }
+            }, function(e) {
+                res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+            });
         }
+    }
+
+    whigi('GET', '/api/v1/profile').then(function(profile) {
+        var key = this.toBytes(sessionStorage.getItem('key_decryption'));
+        var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
+        var master_key = decrypter.decrypt(this.profile.encr_master_key);
+        decrypter = new aes.ModeOfOperation.ctr(this.master_key, new aes.Counter(0));
+        var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
+        req.params.id = decodeURIComponent(req.params.id);
+        whigi('GET', '/api/v1/profile/data').then(function(data) {
+            if(!!data.shared_with_me[req.params.id]['profile/email'] && !!data.shared_with_me[req.params.id]['keys/pwd/mine1']) {
+                if(!!data.shared_with_me[req.params.id]['profile/recup_id']) {
+                    complete(true, master_key, rsa_key, data);
+                } else if(!!data.shared_with_me[req.params.id]['keys/pwd/mine2']) {
+                    complete(false, master_key, rsa_key, data);
+                } else {
+                    res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});    
+                }
+            } else {
+                res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
+            }
+        }, function(e) {
+            res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+        });
     }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
     });
 }
 
 /**
- * Sends back the master key if confirmed possible.
+ * Says the half key and send mail.
  * @function retrieveMapping
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.
  */
-export function retrieveMapping(req, res) {
-    db.collection('mappings').findOne({pwd_key: req.params.token}).then(function(map) {
-        if(map === undefined || map == null) {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
-        } else {
-            var m: Mapping = new Mapping(map._id, map.email, map.master_key, map.time_changed, map.pwd_key, map.token, map.bearer_id, map.safe, map.recup_mail, map.recup_mail2, db);
-            if((new Date).getTime() - m.time_changed < 30*60*1000) {
-                m.time_changed = 0;
-                m.pwd_key = "";
-                m.persist().then(function() {
-                    res.type('application/json').status(200).json(m.sanitarize(true));
-                }, function(e) {
-                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-                });
+export function mixMapping(req, res) {
+    function complete(mk, pk, data) {
+        whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email']).then(function(vault) {
+            var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+            var email = decryptAES(vault.data_crypted_aes, aesKey);
+            whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine1']).then(function(vault) {
+                var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                var mine1 = decryptAES(vault.data_crypted_aes, aesKey);
+                mailer.sendMail({
+                    from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                    to: '<' + email + '>',
+                    subject: utils.i18n('mail.subject.account', req),
+                    html: utils.i18n('mail.body.reset', req) + '<br /> \
+                        <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + encodeURIComponent(req.params.id) +
+                        '/' + encodeURIComponent(mine1 + decodeURIComponent(req.params.half)) + '">' +
+                        utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
+                }, function(e, i) {});
+            }, function(e) {
+                res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+            });
+        }, function(e) {
+            res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+        });
+    }
+
+    whigi('GET', '/api/v1/profile').then(function(profile) {
+        var key = this.toBytes(sessionStorage.getItem('key_decryption'));
+        var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
+        var master_key = decrypter.decrypt(this.profile.encr_master_key);
+        decrypter = new aes.ModeOfOperation.ctr(this.master_key, new aes.Counter(0));
+        var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
+        req.params.id = decodeURIComponent(req.params.id);
+        whigi('GET', '/api/v1/profile/data').then(function(data) {
+            if(!!data.shared_with_me[req.params.id]['profile/email'] && !!data.shared_with_me[req.params.id]['keys/pwd/mine1']) {
+                complete(master_key, rsa_key, data);
             } else {
-                res.type('application/json').status(412).json({error: utils.i18n('client.tooSoon', req)});
+                res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
             }
-        }
+        }, function(e) {
+            res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+        });
     }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
     });
 }

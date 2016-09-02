@@ -75,9 +75,8 @@ connect(function(e) {
     app.use(body.json({limit: '5000mb'}));
 
     //API ROUTES
-    app.post('/api/v:version/new', mapping.newMapping);
-    app.get('/api/v:version/request/:email', mapping.requestMapping);
-    app.get('/api/v:version/key/:token', mapping.retrieveMapping);
+    app.get('/api/v:version/request/:id', mapping.requestMapping);
+    app.get('/api/v:version/mix/:id/:half', mapping.mixMapping);
 
     //Error route
     app.use(function(req, res) {

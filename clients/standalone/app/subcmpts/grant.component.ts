@@ -21,7 +21,7 @@ enableProdMode();
         <br />
         <p>{{ 'grant.explain' | translate }}</p>
         <br />
-        <p>{{ 'grant.email_to' | translate }}{{ for_id }}</p>
+        <p>{{ 'grant.id_to' | translate }}{{ for_id }}</p>
         <br />
         <p *ngFor="let p of data_list">{{ 'grant.prefix' | translate }}{{ p }}</p>
         <br />
@@ -32,10 +32,11 @@ enableProdMode();
 })
 export class Grant implements OnInit, OnDestroy {
 
-    public email_to: string;
+    public id_to: string;
     public data_list: string[];
     public return_url_ok: string;
     public return_url_deny: string;
+    public expire_epoch: Date;
     private sub: Subscription;
 
     /**
@@ -62,7 +63,8 @@ export class Grant implements OnInit, OnDestroy {
     ngOnInit(): void {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
-            self.email_to = window.decodeURIComponent(params['email_to']);
+            self.id_to = window.decodeURIComponent(params['id_to']);
+            self.expire_epoch = new Date(params['expire_epoch']);
             self.data_list = window.decodeURIComponent(params['data_list']).split('//');
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
@@ -94,7 +96,7 @@ export class Grant implements OnInit, OnDestroy {
                     continue;
                 this.backend.getData(this.backend.profile.data[this.data_list[i]].id).then(function(data) {
                     self.backend.decryptAES(data.encr_data, self.dataservice.workerMgt(false, function(got) {
-                        promises.push(self.dataservice.grantVault(self.email_to, self.data_list[i], got));
+                        promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], got, self.expire_epoch));
                     }));
                 }, function(e) {
                     self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));

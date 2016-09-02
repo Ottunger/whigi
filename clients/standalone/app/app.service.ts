@@ -19,9 +19,8 @@ export class Backend {
     public profile: any;
     public data_trie: Trie;
     public shared_with_me_trie: Trie;
-    public sharer_mapping: {[id: string]: any};
     public data_loaded: boolean;
-    private master_key: number[];
+    public master_key: number[];
     private rsa_key: string;
     private BASE_URL = 'https://localhost/api/v1/';
     private RESTORE_URL = 'https://localhost/api/v1';
@@ -67,11 +66,11 @@ export class Backend {
     /**
      * Turns an array of nums to a string.
      * @function arr2str
-     * @private
+     * @public
      * @param {Number[]} arr Array.
      * @return {String} String.
      */
-    private arr2str(arr: number[]): string {
+    arr2str(arr: number[]): string {
         var result = '';
         for (var i = 0; i < arr.length; i++) {
             result += String.fromCharCode(arr[i]);
@@ -86,7 +85,7 @@ export class Backend {
      * @param {String} str String.
      * @return {Number[]} Array.
      */
-    public str2arr(str: string): number[] {
+    str2arr(str: string): number[] {
         var result: number[] = [];
         for (var i = 0; i < str.length; i++) {
             result.push(window.parseInt(str.charCodeAt(i).toString(10)));
@@ -113,9 +112,9 @@ export class Backend {
     /**
      * Decrypts the master key once and for all.
      * @function decryptMaster
-     * @private
+     * @public
      */
-    private decryptMaster() {
+    decryptMaster() {
         try {
             var key = this.toBytes(sessionStorage.getItem('key_decryption'));
             var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
@@ -385,7 +384,7 @@ export class Backend {
      * Returns the public info of a user.
      * @function getUser
      * @public
-     * @param {String} known Request id or email.
+     * @param {String} known Request id.
      * @return {Promise} JSON response from backend.
      */
     getUser(known: string): Promise {
@@ -400,6 +399,17 @@ export class Backend {
      */
     getProfile(): Promise {
         return this.backend(true, 'GET', {}, 'profile', true, true);
+    }
+
+    /**
+     * Posts info for company.
+     * @function goCompany
+     * @public
+     * @param {Object} info Informations.
+     * @return {Promise} JSON response from backend.
+     */
+    goCompany(info: any): Promise {
+        return this.backend(true, 'POST', info, 'profile/info', true, true);
     }
 
     /**
@@ -432,17 +442,13 @@ export class Backend {
      * @function updateProfile
      * @public
      * @param {String} new_password New password.
-     * @param {Boolean} email_on_share Whether want emails.
      * @param {String} password Hash of current password for auth.
      * @return {Promise} JSON response from backend.
      */
-    updateProfile(new_password: string, email_on_share: boolean, password: string): Promise {
+    updateProfile(new_password: string, password: string): Promise {
         return this.backend(true, 'POST', {
             new_password: window.sha256(new_password),
             encr_master_key: this.encryptMasterAESAsNumber(new_password, this.profile.salt, this.master_key),
-            preferences: {
-                email_on_share: email_on_share
-            },
             username: this.profile.username,
             password: window.sha256(password)
         }, 'profile/update', true, false);
@@ -453,7 +459,6 @@ export class Backend {
      * @function updateProfileForReset
      * @public
      * @param {String} new_password New password.
-     * @param {Boolean} email_on_share Whether want emails.
      * @param {String} password Hash of current password for auth.
      * @return {Promise} JSON response from backend.
      */
@@ -468,51 +473,15 @@ export class Backend {
      * Creates a new user.
      * @function createUser
      * @public
-     * @param {String} first_name First name.
-     * @param {String} last_name Last name.
      * @param {String} username Username.
      * @param {String} password Password.
-     * @param {String} email Email.
-     * @param {Boolean} recuperable Will be recuperable.
-     * @param {Boolean} safe Use recup_mail.
-     * @param {String} recup_mail Recup mail.
-     * @param {String} recup_mail2 Other mail.
      * @return {Promise} JSON response from backend.
      */
-    createUser(first_name: string, last_name: string, username: string, password: string, email: string, recuperable: boolean,
-        safe: boolean, recup_mail: string, recup_mail2: string): Promise {
+    createUser(username: string, password: string): Promise {
         return this.backend(true, 'POST', {
-            first_name: first_name,
-            last_name: last_name,
             username: username,
-            password: password,
-            email: email,
-            recuperable: recuperable,
-            safe: safe,
-            recup_mail: recup_mail,
-            recup_mail2: recup_mail2
+            password: password
         }, 'user/create' + this.regCaptcha(), false, false);
-    }
-
-    /**
-     * Activates a user using a key.
-     * @function activateUser
-     * @public
-     * @param {String} key The key.
-     * @return {Promise} JSON response from backend.
-     */
-    activateUser(key: string): Promise {
-        return this.backend(true, 'GET', {}, 'activate/' + key, false, false);
-    }
-
-    /**
-     * Deactivates the logged in user.
-     * @function deactivateUser
-     * @public
-     * @return {Promise} JSON response from backend.
-     */
-    deactivateUser(): Promise {
-        return this.backend(true, 'DELETE', {}, 'profile/deactivate', true, true);
     }
 
     /**
@@ -569,21 +538,6 @@ export class Backend {
      */
     removeOAuth(id: string): Promise {
         return this.backend(true, 'DELETE', {}, 'oauth' + id, true, true);
-    }
-
-    /**
-     * Asks a user for a data.
-     * @function Asks
-     * @public
-     * @param {String} email_to Email of user.
-     * @param {String} data_name name of data.
-     * @return {Promise} JSON response from server.
-     */
-    ask(email_to: string, data_name: string): Promise {
-        return this.backend(true, 'POST', {
-            email_to: email_to,
-            data_name: data_name
-        }, 'ask', true, true, true);
     }
 
     /**
@@ -648,7 +602,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     getVault(vault_id: string): Promise {
-        return this.backend(true, 'GET', {}, 'vault/' + vault_id, true, true, true);
+        return this.backend(true, 'GET', {}, 'vault/' + vault_id, true, true);
     }
 
     /**
@@ -666,22 +620,23 @@ export class Backend {
      * Asks for a reset link.
      * @function requestRestore
      * @public
-     * @param {String} email Email.
+     * @param {String} id Id.
      * @return {Promise} JSON response from backend.
      */
-    requestRestore(email: string): Promise {
-        return this.backend(false, 'GET', {}, 'request/' + email, false, false);
+    requestRestore(id: string): Promise {
+        return this.backend(false, 'GET', {}, 'request/' + window.encodeURIComponent(id), false, false);
     }
 
     /**
      * Use a reset link.
-     * @function getRestore
+     * @function mixRestore
      * @public
-     * @param {String} token Token.
+     * @param {String} id Requestant id.
+     * @param {String} half Half password.
      * @return {Promise} JSON response from backend.
      */
-    getRestore(token: string): Promise {
-        return this.backend(false, 'GET', {}, 'key/' + token, false, false);
+    mixRestore(id: string, half: string): Promise {
+        return this.backend(false, 'GET', {}, 'mix/' + window.encodeURIComponent(id) + '/' + window.encodeURIComponent(half), false, false);
     }
 
 }

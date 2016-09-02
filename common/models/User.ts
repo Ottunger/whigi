@@ -11,39 +11,33 @@ import {Datasource} from '../Datasource';
 import {IModel} from './IModel';
 
 export var fields = {
-    username: true,
-    key: true,
-    is_activated: true,
+    is_company: true,
+    company_info: true,
     password: true,
     salt: true,
     _id: true,
-    email: true,
     puzzle: true,
     encr_master_key: true,
     rsa_pub_key: true,
     rsa_pri_key: true,
     data: true,
     shared_with_me: true,
-    oauth: true,
-    preferences: true
+    oauth: true
 }
 
 export class User extends IModel {
 
-    public username: string;
-    public key: string;
-    public is_activated: boolean;
+    public is_company: number;
+    public company_info: any;
     public password: string;
     public salt: string;
-    public email: string;
     public puzzle: string;
     public encr_master_key: string;
     public rsa_pub_key: string;
     public rsa_pri_key: string;
-    public data;
-    public shared_with_me;
+    public data: any;
+    public shared_with_me: any;
     public oauth: any[];
-    public preferences: any;
 
     public impersonated_prefix: string;
     
@@ -56,20 +50,14 @@ export class User extends IModel {
      */
     constructor(u, db: Datasource) {
         super(u._id, db);
-        if('username' in u)
-            this.username = u.username;
-        if('key' in u)
-            this.key = u.key;
-        if('is_activated' in u)
-            this.is_activated = u.is_activated;
+        if('is_company' in u)
+            this.is_company = u.is_company;
+        if('company_info' in u)
+            this.company_info = u.company_info;
         if('password' in u)
             this.password = u.password;
         if('salt' in u)
             this.salt = u.salt;
-        if('_id' in u)
-            this._id = u._id;
-        if('email' in u)
-            this.email = u.email;
         if('puzzle' in u)
             this.puzzle = u.puzzle;
         if('encr_master_key' in u)
@@ -84,8 +72,6 @@ export class User extends IModel {
             this.shared_with_me = u.shared_with_me;
         if('oauth' in u)
             this.oauth = u.oauth;
-        if('preferences' in u)
-            this.preferences = u.preferences;
         this.impersonated_prefix = undefined;
     }
 
@@ -110,13 +96,11 @@ export class User extends IModel {
      */
     protected allFields() {
         var ret = {
-            username: this.username,
-            key: this.key,
+            is_company: this.is_company,
+            company_info: this.company_info,
             password: this.password,
             salt: this.salt,
             _id: this._id,
-            email: this.email,
-            is_activated: this.is_activated,
             puzzle: this.puzzle,
             encr_master_key: this.encr_master_key,
             rsa_pub_key : this.rsa_pub_key,
@@ -124,7 +108,6 @@ export class User extends IModel {
             data: this.data,
             shared_with_me: this.shared_with_me,
             oauth: this.oauth,
-            preferences: this.preferences
         };
         return ret;
     }
@@ -142,7 +125,7 @@ export class User extends IModel {
             if(self.data !== undefined && self.shared_with_me !== undefined) {
                 resolve();
             } else {
-                self.db.retrieveUser('id', self._id, true).then(function(user) {
+                self.db.retrieveUser(self._id, true).then(function(user) {
                     if(!!user && !!(user.data))
                         self.data = user.data;
                     else
@@ -190,9 +173,8 @@ export class User extends IModel {
      */
     sanitarize() {
         var ret = {
-            username: this.username,
-            email: this.email,
-            is_activated: this.is_activated,
+            is_company: this.is_company,
+            company_info: this.company_info,
             rsa_pub_key: this.rsa_pub_key,
             _id: this._id
         };
@@ -207,19 +189,16 @@ export class User extends IModel {
      */
     fields() {
         var ret = {
-            username: this.username,
-            key: this.key,
+            is_company: this.is_company,
+            company_info: this.company_info,
             password: this.password,
             salt: this.salt,
             _id: this._id,
-            email: this.email,
-            is_activated: this.is_activated,
             puzzle: this.puzzle,
             encr_master_key: this.encr_master_key,
             rsa_pub_key: this.rsa_pub_key,
             rsa_pri_key: this.rsa_pri_key,
-            oauth: this.oauth,
-            preferences: this.preferences
+            oauth: this.oauth
         };
         return ret;
     }

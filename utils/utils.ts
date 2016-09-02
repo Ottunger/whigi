@@ -148,6 +148,21 @@ export function toBytes(data: string): number[] {
 }
 
 /**
+ * Turns an array of nums to a string.
+ * @function arr2str
+ * @public
+ * @param {Number[]} arr Array.
+ * @return {String} String.
+ */
+export function arr2str(arr: number[]): string {
+    var result = '';
+    for (var i = 0; i < arr.length; i++) {
+        result += String.fromCharCode(arr[i]);
+    }
+    return result;
+}
+
+/**
  * Checks the captcha and returns whether ko or not to callback.
  * @function checkCaptcha
  * @public
