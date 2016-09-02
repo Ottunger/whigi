@@ -132,10 +132,11 @@ export class Data {
      * @public
      * @param {String} name Complete name, directory prefixed.
      * @param {String} value Value.
+     * @param {Boolean} is_dated Dated field.
      * @param {Boolean} ignore Ignore existing data, wiping it.
      * @return {Promise} Whether it went OK.
      */
-    newData(name: string, value: string, ignore?: boolean): Promise {
+    newData(name: string, value: string, is_dated: boolean, ignore?: boolean): Promise {
         var self = this;
         ignore = ignore || false;
 
@@ -145,10 +146,11 @@ export class Data {
                 return;
             }
             self.backend.encryptAES(value, self.workerMgt(true, function(got) {
-                self.backend.postData(name, got).then(function(res) {
+                self.backend.postData(name, got, is_dated).then(function(res) {
                     self.backend.profile.data[name] = {
                         id: res._id,
                         length: 0,
+                        is_dated: is_dated,
                         shared_to: {}
                     }
                     self.backend.data_trie.addMilestones(name, '/');
@@ -187,10 +189,11 @@ export class Data {
      * @public
      * @param {String} name Complete name, directory prefixed.
      * @param {String} value Value.
+     * @param {Boolean} is_dated Dated field.
      * @param {Object} users_mapping A dictionary that must contain user id => expire_epoch.
      * @return {Promise} Whether it went OK.
      */
-    modifyData(name: string, value: string, users_mapping: {[id: string]: Date}): Promise {
+    modifyData(name: string, value: string, is_dated: boolean, users_mapping: {[id: string]: Date}): Promise {
         var i = 0, names = keys(), max = names.length, went = true;
         var self = this;
 
@@ -215,7 +218,7 @@ export class Data {
         }
         
         return new Promise(function(resolve, reject) {
-            self.newData(name, value, true).then(function() {
+            self.newData(name, value, is_dated, true).then(function() {
                 names.forEach(function(id) {
                     var time = !!users_mapping[id].getTime? users_mapping[id] : new Date(0);
                     self.grantVault(id, name, value, time).then(function(user, newid) {
@@ -225,6 +228,8 @@ export class Data {
                         check(resolve, reject);
                     });
                 });
+                if(names.length == 0)
+                    resolve();
             }, function(err) {
                 reject(err);
             });
@@ -312,6 +317,8 @@ export class Data {
                     check(resolve);  
                 });
             });
+            if(ids.length == 0)
+                resolve({});
         });
     }
 

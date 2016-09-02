@@ -19,6 +19,8 @@
    "decrypting": "Decrypting",
    "corruption": "Something is corrupted, cannot use AES",
    "download": "Download as file",
+   "actualFrom": "Actual data since: ",
+   "add": "Add a value",
 
    "login.title": "Time to log in",
    "login.remember": "Remember me",
@@ -75,6 +77,7 @@
    "filesystem.getUp": "Get up",
    "filesystem.newFolder": "Create folder",
    "filesystem.record": "Record data, 6MB max",
+   "filesystem.dated": "Dated field",
 
    "dataview.noData": "Cannot fetch data details",
    "dataview.long": "Too long for decrypting in preview",

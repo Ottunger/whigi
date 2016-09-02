@@ -54,12 +54,22 @@ enableProdMode();
                     <tr *ngIf="mode=='data'">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
-                        <td><button type="button" class="btn btn-default" (click)="register(false)">{{ 'filesystem.record' | translate }}</button></td>
+                        <td>
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="n9" [(ngModel)]="is_dated" checked> {{ 'filesystem.dated' | translate }}</label>
+                            </div>
+                            <button type="button" class="btn btn-default" (click)="register(false)">{{ 'filesystem.record' | translate }}</button>
+                        </td>
                     </tr>
                     <tr *ngIf="mode=='data'">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="file" (change)="fileLoad($event)" name="n50" class="form-control"></td>
-                        <td><button type="button" class="btn btn-default" (click)="register(true)" [disabled]="data_value_file==''">{{ 'filesystem.record' | translate }}</button></td>
+                        <td>
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="n9" [(ngModel)]="is_dated"> {{ 'filesystem.dated' | translate }}</label>
+                            </div>
+                            <button type="button" class="btn btn-default" (click)="register(true)" [disabled]="data_value_file==''">{{ 'filesystem.record' | translate }}</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -71,6 +81,7 @@ export class Filesystem implements OnInit {
     public data_name: string;
     public data_value: string;
     public data_value_file: string;
+    public is_dated: boolean;
     private mode: string;
     private folders: string;
     private sub: Subscription;
@@ -89,6 +100,7 @@ export class Filesystem implements OnInit {
         private notif: NotificationsService, private dataservice: Data, private check: ApplicationRef) {
         this.folders = '';
         this.data_value_file = '';
+        this.is_dated = false;
     }
 
     /**
@@ -113,8 +125,16 @@ export class Filesystem implements OnInit {
      * @param {Boolean} as_file Load from file.
      */
     register(as_file: boolean) {
-        var self = this;
-        this.dataservice.newData(this.completeName(), as_file? this.data_value_file : this.data_value).then(function() {
+        var self = this, send;
+        if(this.is_dated) {
+            send = JSON.stringify([{
+                value: as_file? this.data_value_file : this.data_value,
+                from: (new Date).getTime()
+            }]);
+        } else {
+            send = as_file? this.data_value_file : this.data_value;
+        }
+        this.dataservice.newData(this.completeName(), send, this.is_dated).then(function() {
             self.data_name = '';
             self.data_value = '';
             self.data_value_file = '';

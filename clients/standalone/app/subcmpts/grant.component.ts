@@ -44,6 +44,7 @@ export class Grant implements OnInit, OnDestroy {
     public expire_epoch: Date;
     public requester: any;
     public new_data: {[id: string]: string};
+    public is_dated: boolean;
     private sub: Subscription;
 
     /**
@@ -75,6 +76,7 @@ export class Grant implements OnInit, OnDestroy {
             self.data_list = window.decodeURIComponent(params['data_list']).split('//');
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
+            self.is_dated = params['is_dated'];
             self.dataservice.listData();
             self.backend.getUser(self.id_to).then(function(user) {
                 self.requester = user;
@@ -103,7 +105,7 @@ export class Grant implements OnInit, OnDestroy {
             var promises: Promise[] = [];
             for(var i = 0; i < this.data_list.length; i++) {
                 if(!(this.data_list[i] in this.backend.profile.data)) {
-                    this.dataservice.newData(this.data_list[i], this.new_data[this.data_list[i]]).then(function(data) {
+                    this.dataservice.newData(this.data_list[i], this.new_data[this.data_list[i]], this.is_dated).then(function(data) {
                         promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], self.new_data[self.data_list[i]], self.expire_epoch));
                     }, function(e) {
                         self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));

@@ -200,8 +200,8 @@ export class Logging implements OnInit {
         var self = this;
 
         function safe() {
-            self.dataservice.newData('keys/pwd/mine1', self.password.slice(0, 4)).then(function() {
-                self.dataservice.newData('keys/pwd/mine2', self.password.slice(4)).then(function() {
+            self.dataservice.newData('keys/pwd/mine1', self.password.slice(0, 4), false).then(function() {
+                self.dataservice.newData('keys/pwd/mine2', self.password.slice(4), false).then(function() {
                     if(self.safe) {
                         self.dataservice.grantVault('whigi-restore', 'keys/pwd/mine1', self.password.slice(0, 4), new Date(0)).then(function() {
                             self.dataservice.grantVault('whigi-restore', 'profile/recup_id', self.recup_id, new Date(0)).then(function() {
@@ -242,8 +242,8 @@ export class Logging implements OnInit {
                         self.backend.profile = user;
                         sessionStorage.setItem('key_decryption', window.sha256(self.password + user.salt));
                         self.dataservice.listData().then(function() {
-                            self.dataservice.newData('profile/email', self.email, true).then(function(email) {
-                                self.dataservice.newData('profile/recup_id', self.recup_id, true).then(function(email) {
+                            self.dataservice.newData('profile/email', self.email, false, true).then(function(email) {
+                                self.dataservice.newData('profile/recup_id', self.recup_id, false, true).then(function(email) {
                                     if(self.recuperable) {
                                         self.dataservice.grantVault('whigi-restore', 'profile/email', self.email, new Date(0)).then(function() {
                                             safe();

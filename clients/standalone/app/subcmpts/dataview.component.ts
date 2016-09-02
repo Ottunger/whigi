@@ -23,7 +23,8 @@ enableProdMode();
         <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="data_name"></clear-view>
         <br /><br />
 
-        <p>{{ 'modify' | translate }}</p>
+        <p *ngIf="!is_dated">{{ 'modify' | translate }}</p>
+        <p *ngIf="!!is_dated && is_dated">{{ 'add' | translate }}</p>
         <input type="text" [(ngModel)]="new_data" [disabled]="new_data_file!=''" class="form-control">
         <input type="file" (change)="fileLoad($event)" class="form-control">
         <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'filesystem.record' | translate }}</button>
@@ -61,7 +62,7 @@ export class Dataview implements OnInit, OnDestroy {
 
     public data: any;
     public data_name: string;
-    public decr_data: string;
+    public decr_data: string|{from: Date, value: string}[];
     public new_data: string;
     public new_data_file: string;
     public new_id: string;
@@ -82,7 +83,7 @@ export class Dataview implements OnInit, OnDestroy {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router,
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data, private check: ApplicationRef) {
-        this.decr_data = '';
+        this.decr_data = '[]';
         this.new_data_file = '';
         this.timings = {};
         new window.Clipboard('.btn-copier');
@@ -135,12 +136,22 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     modify() {
-        var self = this, names = this.sharedIds(), dict: {[id: string]: Date} = {};
+        var self = this, names = this.sharedIds(), dict: {[id: string]: Date} = {}, replacement;
 
         for(var i = 0; i < names.length; i++) {
             dict[names[i]] = this.timings[names[i]].ee;
         }
-        this.dataservice.modifyData(this.data_name, (this.new_data_file != '')? this.new_data_file : this.new_data, dict).then(function() {
+        if(this.is_dated) {
+            replacement = JSON.parse(this.decr_data);
+            replacement.unshift({
+                from: (new Date).getTime(),
+                value:(this.new_data_file != '')? this.new_data_file : this.new_data
+            });
+            replacement = JSON.stringify(replacement);
+        } else {
+            replacement = (this.new_data_file != '')? this.new_data_file : this.new_data;
+        }
+        this.dataservice.modifyData(this.data_name, replacement, this.is_dated, dict).then(function() {
             self.new_data = '';
         }, function(err) {
             if(err == 'server')
@@ -206,7 +217,7 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     revokeAll() {
-        var self = this, keys = Object.getOwnPropertyNames(this.backend.profile[this.data_name].shared_to);
+        var self = this, keys = Object.getOwnPropertyNames(this.backend.profile.data[this.data_name].shared_to);
         keys.forEach(function(val) {
             this.backend.revokeVault(this.backend.profile.data[this.data_name].shared_to[val]).then(function() {
                 delete self.backend.profile.data[self.data_name].shared_to[val];

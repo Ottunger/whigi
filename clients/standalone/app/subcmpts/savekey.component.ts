@@ -52,7 +52,7 @@ export class Savekey implements OnInit, OnDestroy {
             self.key = window.decodeURIComponent(params['key']);
             self.value = window.decodeURIComponent(params['value']);
             self.return_url = window.decodeURIComponent(params['return_url']);
-            self.dataservice.newData(self.key, self.value).then(function() {
+            self.dataservice.newData(self.key, self.value, params['is_dated']).then(function() {
                 self.notif.success(self.translate.instant('success'), self.translate.instant('savekey.rec'));
                 window.location.href = self.return_url;
             }, function(err) {
