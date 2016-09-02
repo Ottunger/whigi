@@ -21,12 +21,7 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
 
-        <p>{{ 'actual' | translate }}</p>
-        <input id="decrypted" *ngIf="decr_data.length < 150" type="text" [ngModel]="decr_data" class="form-control" readonly>
-        <input id="decrypted" *ngIf="decr_data.length >= 150" type="text" value="{{ 'dataview.tooLong' | translate }}" class="form-control" readonly>
-        <button type="button" class="btn btn-primary" [disabled]="decr_data==''" (click)="dl()">{{ 'download' | translate }}</button>
-        <button type="button" class="btn btn-primary btn-copier" data-clipboard-target="#decrypted">{{ 'copy' | translate }}</button>
-        <br />
+        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="vault.data_name"></clear-view>
     `
 })
 export class Vaultview implements OnInit, OnDestroy {
@@ -34,6 +29,7 @@ export class Vaultview implements OnInit, OnDestroy {
     public vault: any;
     public sharer_id: string;
     public decr_data: string;
+    public is_dated: boolean;
     private route_back: string;
     private sub: Subscription;
 
@@ -50,7 +46,6 @@ export class Vaultview implements OnInit, OnDestroy {
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data) {
         this.vault = {data_name: ''};
         this.decr_data = '';
-        new window.Clipboard('.btn-copier');
     }
 
     /**
@@ -66,6 +61,7 @@ export class Vaultview implements OnInit, OnDestroy {
             self.dataservice.getVault(params['id']).then(function(vault) {
                 self.vault = vault;
                 self.decr_data = vault.decr_data;
+                self.is_dated = vault.is_dated;
             }, function(e) {
                 if(e.status == 417)
                     self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.expired'));
@@ -93,16 +89,6 @@ export class Vaultview implements OnInit, OnDestroy {
      */
     back() {
         this.router.navigate(['/filesystem', 'vault', (!!this.route_back)? {folders: this.route_back} : {}]);
-    }
-
-    /**
-     * Prompts for downloading.
-     * @function dl
-     * @public
-     */
-    dl() {
-        var spl = this.vault.data_name.split('/');
-        window.download(this.decr_data, spl[spl.length - 1]);
     }
     
 }

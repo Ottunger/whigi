@@ -140,6 +140,7 @@ export function recData(req, res, respond?: boolean) {
         req.user.data[got.name] = {
             id: newid,
             length: Buffer.byteLength(got.encr_data, 'utf8'),
+            is_dated: got.is_dated,
             shared_to: {}
         }
         var frg: Datafragment = new Datafragment(newid, got.encr_data, db);

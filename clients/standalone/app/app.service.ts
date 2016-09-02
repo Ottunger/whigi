@@ -443,12 +443,14 @@ export class Backend {
      * @public
      * @param {String} name Data name.
      * @param {String} encr_data Locally crypted data.
+     * @param {Boolean} is_dated True to register as a dated data.
      * @return {Promise} JSON response from backend.
      */
-    postData(name: string, encr_data: number[]): Promise {
+    postData(name: string, encr_data: number[], is_dated?: boolean): Promise {
         return this.backend(true, 'POST', {
             name: name,
-            encr_data: this.arr2str(encr_data)
+            encr_data: this.arr2str(encr_data),
+            is_dated: (!!is_dated)? is_dated : false
         }, 'profile/data/new', true, true, true);
     }
 

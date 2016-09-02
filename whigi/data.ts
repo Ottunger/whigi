@@ -103,7 +103,8 @@ export function regVault(req, res) {
                     data_crypted_aes: got.data_crypted_aes,
                     sharer_id: req.user._id,
                     last_access: 0,
-                    expire_epoch: got.expire_epoch
+                    expire_epoch: got.expire_epoch,
+                    is_dated: req.user.data[got.data_name].is_dated
                 }, db);
                 db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
                     if(!sharee || sharee._id == req.user.id) {

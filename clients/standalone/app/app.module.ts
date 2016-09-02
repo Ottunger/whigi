@@ -32,6 +32,7 @@ import {Resethelp} from './subcmpts/resethelp.component';
 import {Userinfo} from './subcmpts/userinfo.component';
 import {Account} from './subcmpts/account.component';
 import {Remote} from './subcmpts/remote.component';
+import {Clearview} from './subcmpts/clearview.component';
 import {Notfound} from './subcmpts/notfound.component';
 
 @NgModule({
@@ -59,6 +60,7 @@ import {Notfound} from './subcmpts/notfound.component';
         Userinfo,
         Account,
         Remote,
+        Clearview,
         Notfound
     ],
     providers: [

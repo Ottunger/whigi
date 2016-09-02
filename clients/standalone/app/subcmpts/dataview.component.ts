@@ -20,11 +20,7 @@ enableProdMode();
         <h2>{{ dataservice.sanitarize(data_name) }}</h2>
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
-        <p>{{ 'actual' | translate }}</p>
-        <input id="decrypted" *ngIf="decr_data.length < 150" type="text" [ngModel]="decr_data" class="form-control" readonly>
-        <input id="decrypted" *ngIf="decr_data.length >= 150" type="text" value="{{ 'dataview.tooLong' | translate }}" class="form-control" readonly>
-        <button type="button" class="btn btn-primary" [disabled]="decr_data==''" (click)="dl()">{{ 'download' | translate }}</button>
-        <button type="button" class="btn btn-primary btn-copier" data-clipboard-target="#decrypted">{{ 'copy' | translate }}</button>
+        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="data_name"></clear-view>
         <br /><br />
 
         <p>{{ 'modify' | translate }}</p>
@@ -71,6 +67,7 @@ export class Dataview implements OnInit, OnDestroy {
     public new_id: string;
     public new_date: string;
     public timings: {[id: string]: {la: Date, ee: Date}};
+    public is_dated: boolean;
     private sub: Subscription;
 
     /**
@@ -101,6 +98,7 @@ export class Dataview implements OnInit, OnDestroy {
         this.sub = this.routed.params.subscribe(function(params) {
             //Use params.name as key
             self.data_name = window.decodeURIComponent(params['name']);
+            self.is_dated = self.backend.profile.data[self.data_name].is_dated;
             var keys = Object.getOwnPropertyNames(self.backend.profile.data[self.data_name].shared_to);
             keys.forEach(function(val) {
                 self.backend.getAccessVault(self.backend.profile.data[self.data_name].shared_to[val]).then(function(got) {
@@ -245,16 +243,6 @@ export class Dataview implements OnInit, OnDestroy {
         return new Promise<boolean>(function(resolve, reject) {
             resolve(window.confirm(msg));
         });
-    }
-
-    /**
-     * Prompts for downloading.
-     * @function dl
-     * @public
-     */
-    dl() {
-        var spl = this.data_name.split('/');
-        window.download(this.decr_data, spl[spl.length - 1]);
     }
 
     /**
