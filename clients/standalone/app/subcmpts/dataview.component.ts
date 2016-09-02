@@ -102,13 +102,13 @@ export class Dataview implements OnInit, OnDestroy {
             //Use params.name as key
             self.data_name = window.decodeURIComponent(params['name']);
             var keys = Object.getOwnPropertyNames(self.backend.profile.data[self.data_name].shared_to);
-            for(var i = 0; i < keys.length; i++) {
-                self.backend.getAccessVault(self.backend.profile.data[self.data_name].shared_to[keys[i]]).then(function(got) {
-                    self.timings[keys[i]] = {la: new Date(got.last_access), ee: new Date(got.expire_epoch)};
+            keys.forEach(function(val) {
+                self.backend.getAccessVault(self.backend.profile.data[self.data_name].shared_to[val]).then(function(got) {
+                    self.timings[val] = {la: new Date(got.last_access), ee: new Date(got.expire_epoch)};
                 }, function(e) {
-                    delete self.backend.profile.data[self.data_name].shared_to[keys[i]];
+                    delete self.backend.profile.data[self.data_name].shared_to[val];
                 });
-            }
+            });
             self.backend.getData(self.backend.profile.data[self.data_name].id).then(function(data) {
                 self.data = data;
                 self.data.encr_data = self.backend.str2arr(self.data.encr_data);
@@ -173,15 +173,9 @@ export class Dataview implements OnInit, OnDestroy {
      * @return {Array} Known fields.
      */
     sharedIds(): string[] {
-        var keys = [];
         if(!this.backend.profile.data[this.data_name])
             return [];
-        for(var key in this.backend.profile.data[this.data_name].shared_to) {
-            if(this.backend.profile.data[this.data_name].shared_to.hasOwnProperty(key)) {
-                keys.push(key);
-            }
-        }
-        return keys;
+        return Object.getOwnPropertyNames(this.backend.profile.data[this.data_name].shared_to);
     }
 
     /**
@@ -215,13 +209,13 @@ export class Dataview implements OnInit, OnDestroy {
      */
     revokeAll() {
         var self = this, keys = Object.getOwnPropertyNames(this.backend.profile[this.data_name].shared_to);
-        for(var i = 0; i < keys.length; i++) {
-            this.backend.revokeVault(this.backend.profile.data[this.data_name].shared_to[keys[i]]).then(function() {
-                delete self.backend.profile.data[self.data_name].shared_to[keys[i]];
+        keys.forEach(function(val) {
+            this.backend.revokeVault(this.backend.profile.data[this.data_name].shared_to[val]).then(function() {
+                delete self.backend.profile.data[self.data_name].shared_to[val];
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noRevoke'));
             });
-        }
+        });
     }
 
     /**
@@ -233,7 +227,7 @@ export class Dataview implements OnInit, OnDestroy {
         var self = this;
         this.dataservice.grantVault(this.new_id, this.data_name, this.data.dec, new Date(this.new_date)).then(function(user, id) {
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;
-            self.timings[user._id] = {la: new Date(0), ee: new Date(this.new_date)};
+            self.timings[user._id] = {la: new Date(0), ee: new Date(self.new_date)};
             self.new_id = '';
         }, function() {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));

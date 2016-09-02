@@ -85,7 +85,7 @@
    "dataview.wait": "Wait for decryption before sharing",
    "dataview.tooLong": "Too long for showing",
    "dataview.revokeAll": "Revoke all vaults for this data",
-   "dataview.until": "Valid until (before today means no expire)",
+   "dataview.until": "Last time seen - Valid until",
 
    "vaultview.noData": "Cannot retrieve such vault. Maybe access was revoked...",
    "vaultview.expired": "This vault has expired...",

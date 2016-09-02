@@ -23,7 +23,9 @@ enableProdMode();
         <br />
         <p>{{ 'grant.id_to' | translate }}{{ id_to }}</p>
         <br />
-        <p *ngFor="let p of data_list">{{ 'grant.prefix' | translate }}{{ p }}</p>
+        <h1 *ngFor="let p of data_list">{{ 'grant.prefix' | translate }}</h1>
+        <p *ngIf="!!backend.profile.data[p]">{{ p }}</p>
+        <input *ngIf="!backend.profile.data[p]" type="text" [(ngModel)]="new_data[p]" class="form-control">
         <br />
 
         <button type="button" class="btn btn-alarm" (click)="finish(true)">{{ 'grant.ok' | translate }}</button>
@@ -41,6 +43,7 @@ export class Grant implements OnInit, OnDestroy {
     public return_url_deny: string;
     public expire_epoch: Date;
     public requester: any;
+    public new_data: {[id: string]: string};
     private sub: Subscription;
 
     /**
@@ -56,7 +59,7 @@ export class Grant implements OnInit, OnDestroy {
      */
     constructor(private translate: TranslateService, private router: Router, private notif: NotificationsService,
         private routed: ActivatedRoute, private backend: Backend, private dataservice: Data) {
-
+        this.new_data = {};
     }
 
     /**
@@ -99,15 +102,21 @@ export class Grant implements OnInit, OnDestroy {
         if(ok) {
             var promises: Promise[] = [];
             for(var i = 0; i < this.data_list.length; i++) {
-                if(!(this.data_list[i] in this.backend.profile.data))
-                    continue;
-                this.backend.getData(this.backend.profile.data[this.data_list[i]].id).then(function(data) {
-                    self.backend.decryptAES(data.encr_data, self.dataservice.workerMgt(false, function(got) {
-                        promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], got, self.expire_epoch));
-                    }));
-                }, function(e) {
-                    self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));
-                });
+                if(!(this.data_list[i] in this.backend.profile.data)) {
+                    this.dataservice.newData(this.data_list[i], this.new_data[this.data_list[i]]).then(function(data) {
+                        promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], self.new_data[self.data_list[i]], self.expire_epoch));
+                    }, function(e) {
+                        self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));
+                    });
+                } else {
+                    this.backend.getData(this.backend.profile.data[this.data_list[i]].id).then(function(data) {
+                        self.backend.decryptAES(data.encr_data, self.dataservice.workerMgt(false, function(got) {
+                            promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], got, self.expire_epoch));
+                        }));
+                    }, function(e) {
+                        self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));
+                    });
+                }
             }
             Promise.all(promises).then(function() {
                 window.location.href = this.return_url_ok;

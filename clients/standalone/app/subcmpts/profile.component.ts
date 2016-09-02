@@ -192,15 +192,15 @@ export class Profile {
     revokeAll() {
         var self = this, keys = Object.getOwnPropertyNames(this.backend.profile.data);
         this.backend.getUser(this.revoke_id).then(function(user) {
-            for(var i = 0; i < keys.length; i++) {
-                if(user._id in self.backend.profile[keys[i]].shared_to) {
-                    self.backend.revokeVault(self.backend.profile.data[keys[i]].shared_to[user._id]).then(function() {
-                        delete self.backend.profile.data[keys[i]].shared_to[user._id];
+            keys.forEach(function(val) {
+                if(user._id in self.backend.profile[val].shared_to) {
+                    self.backend.revokeVault(self.backend.profile.data[val].shared_to[user._id]).then(function() {
+                        delete self.backend.profile.data[val].shared_to[user._id];
                     }, function(e) {
                         self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noRevoke'));
                     });
                 }
-            }
+            });
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('filesystem.noUser'));
         });
