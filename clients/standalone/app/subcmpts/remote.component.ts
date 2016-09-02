@@ -52,6 +52,9 @@ export class Remote implements OnInit, OnDestroy {
         this.sub = this.routed.params.subscribe(function(params) {
             self.id_to = window.decodeURIComponent(params['id_to']);
             self.return_url = window.decodeURIComponent(params['return_url']);
+            if(!/^https/.test(self.return_url)) {
+                window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;
+            }
             self.dataservice.listData().then(function() {
                 if(self.backend.profile.shared_with_me[self.id_to] || !self.backend.profile.shared_with_me[self.id_to]['keys/auth/' + self.id_to]) {
                     window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;

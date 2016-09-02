@@ -36,5 +36,5 @@ db.users.update({_id: 'whigi-restore'}, {
         'gwQco1KRMDSmXSMkDwIDAQAB' +
         '-----END PUBLIC KEY-----',
     rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33],
-    is_company: 1
+    is_company: 5
 }, {upsert: true})

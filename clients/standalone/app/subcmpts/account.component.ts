@@ -66,6 +66,9 @@ export class Account implements OnInit, OnDestroy {
             self.id_to = window.decodeURIComponent(params['id_to']);
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
+            if(!/^https/.test(self.return_url_ok)) {
+                window.location.href = this.return_url_deny;
+            }
             self.dataservice.listData();
             self.backend.getUser(self.id_to).then(function(user) {
                 self.requester = user;

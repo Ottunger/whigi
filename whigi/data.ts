@@ -33,6 +33,25 @@ export function managerInit(dbg: Datasource) {
 }
 
 /**
+ * Forges the response to retrieve a new info.
+ * @function getData
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function getData(req, res) {
+    db.retrieveData(req.params.id).then(function(df) {
+        if(!df) {
+            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+        } else {
+            res.type('application/json').status(200).json(df.sanitarize());
+        }
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
  * Removes a data by name and associated vaults.
  * @function removeData
  * @public
@@ -54,25 +73,6 @@ export function removeData(req, res) {
             });
         } else {
             res.type('application/json').status(200).json({error: ''});
-        }
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
-}
-
-/**
- * Forges the response to retrieve a new info.
- * @function getData
- * @public
- * @param {Request} req The request.
- * @param {Response} res The response.
- */
-export function getData(req, res) {
-    db.retrieveData(req.params.id).then(function(df) {
-        if(!df) {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
-        } else {
-            res.type('application/json').status(200).json(df.sanitarize());
         }
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
