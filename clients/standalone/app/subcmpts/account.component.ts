@@ -1,6 +1,6 @@
 /**
- * Component to ask for a granting.
- * @module grant.component
+ * Component to ask for a remote account creation.
+ * @module account.component
  * @author Mathonet Grégoire
  */
 
@@ -17,29 +17,25 @@ enableProdMode();
 
 @Component({
     template: `
-        <h2>{{ 'grant.question' | translate }}</h2>
+        <h2>{{ 'account.question' | translate }}</h2>
         <br />
-        <p>{{ 'grant.explain' | translate }}</p>
+        <p>{{ 'account.explain' | translate }}</p>
         <br />
-        <p>{{ 'grant.id_to' | translate }}{{ id_to }}</p>
-        <br />
-        <p *ngFor="let p of data_list">{{ 'grant.prefix' | translate }}{{ p }}</p>
+        <p>{{ 'account.id_to' | translate }}{{ for_id }}</p>
         <br />
 
-        <button type="button" class="btn btn-alarm" (click)="finish(true)">{{ 'grant.ok' | translate }}</button>
-        <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'grant.nok' | translate }}</button>
+        <button type="button" class="btn btn-alarm" (click)="finish(true)">{{ 'account.ok' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'account.nok' | translate }}</button>
         <br /><br />
 
         <user-info [user]="requester"></user-info>
     `
 })
-export class Grant implements OnInit, OnDestroy {
+export class Account implements OnInit, OnDestroy {
 
     public id_to: string;
-    public data_list: string[];
     public return_url_ok: string;
     public return_url_deny: string;
-    public expire_epoch: Date;
     public requester: any;
     private sub: Subscription;
 
@@ -68,8 +64,6 @@ export class Grant implements OnInit, OnDestroy {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
             self.id_to = window.decodeURIComponent(params['id_to']);
-            self.expire_epoch = new Date(params['expire_epoch']);
-            self.data_list = window.decodeURIComponent(params['data_list']).split('//');
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
             self.dataservice.listData();
@@ -92,30 +86,20 @@ export class Grant implements OnInit, OnDestroy {
      * Called once the user has selected whether to accept or deny.
      * @function finish
      * @public
-     * @param {Boolean} ok True if grant access.
+     * @param {Boolean} ok True if create account.
      */
     finish(ok: boolean) {
         var self = this;
         if(ok) {
-            var promises: Promise[] = [];
-            for(var i = 0; i < this.data_list.length; i++) {
-                if(!(this.data_list[i] in this.backend.profile.data))
-                    continue;
-                this.backend.getData(this.backend.profile.data[this.data_list[i]].id).then(function(data) {
-                    self.backend.decryptAES(data.encr_data, self.dataservice.workerMgt(false, function(got) {
-                        promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], got, self.expire_epoch));
-                    }));
+            var key = this.backend.generateRandomString(32);
+            this.dataservice.newData('keys/auth/' + this.id_to, key, true).then(function(dummy) {
+                self.dataservice.grantVault(self.id_to, 'keys/auth/' + self.id_to, key, new Date(0)).then(function(dummy) {
+                    window.location.href = this.return_url_ok;
                 }, function(e) {
-                    self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));
-                });
-            }
-            Promise.all(promises).then(function() {
-                window.location.href = this.return_url_ok;
-            }, function(e) {
-                self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));
-                window.setTimeout(function() {
                     window.location.href = this.return_url_deny;
-                }, 1500);
+                });
+            }, function() {
+                window.location.href = this.return_url_deny;
             });
         } else {
             window.location.href = this.return_url_deny;

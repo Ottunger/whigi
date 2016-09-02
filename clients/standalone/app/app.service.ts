@@ -96,11 +96,11 @@ export class Backend {
     /**
      * Generates a random string.
      * @function generateRandomString
-     * @private
+     * @public
      * @param {Number} length The length.
      * @return {String} The string.
      */
-    private generateRandomString(length) {
+    generateRandomString(length) {
         var characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         var randomString = '';
         for (var i = 0; i < length; i++) {

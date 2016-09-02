@@ -27,6 +27,9 @@ enableProdMode();
 
         <button type="button" class="btn btn-alarm" (click)="finish(true)">{{ 'oauth.ok' | translate }}</button>
         <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'oauth.nok' | translate }}</button>
+        <br /><br />
+
+        <user-info [user]="requester"></user-info>
     `
 })
 export class Oauth implements OnInit, OnDestroy {
@@ -36,6 +39,7 @@ export class Oauth implements OnInit, OnDestroy {
     public return_url_ok: string;
     public return_url_deny: string;
     public token: string;
+    public requester: any;
     private sub: Subscription;
 
     /**
@@ -69,6 +73,9 @@ export class Oauth implements OnInit, OnDestroy {
             if(!/^https/.test(self.return_url_ok)) {
                 window.location.href = this.return_url_deny + '?reason=https';
             }
+            self.backend.getUser(self.for_id).then(function(user) {
+                self.requester = user;
+            });
         });
     }
 

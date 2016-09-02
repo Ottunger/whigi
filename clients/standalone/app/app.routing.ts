@@ -16,6 +16,8 @@ import {Filesystem} from './subcmpts/filesystem.component';
 import {Oauth} from './subcmpts/oauth.component';
 import {Grant} from './subcmpts/grant.component';
 import {Resethelp} from './subcmpts/resethelp.component';
+import {Account} from './subcmpts/account.component';
+import {Remote} from './subcmpts/remote.component';
 import {Notfound} from './subcmpts/notfound.component';
 import {Profileguard, Fullguard, Vaultguard} from './guards.service';
 
@@ -31,6 +33,8 @@ const appRoutes: Routes = [
     {path: 'save-key/:key/:value/:return_url', component: Savekey, canActivate: [Profileguard]},
     {path: 'oauth/:for_id/:prefix/:token/:return_url_ok/:return_url_deny', component: Oauth, canActivate: [Profileguard]},
     {path: 'grant/:id_to/:data_list/:return_url_ok/:return_url_deny/:expire_epoch', component: Grant, canActivate: [Profileguard]},
+    {path: 'account/:id_to/:return_url_ok/:return_url_deny', component: Account, canActivate: [Profileguard]},
+    {path: 'remote/:id_to/:return_url', component: Remote, canActivate: [Profileguard]},
     {path: '**', component: Notfound}
 ];
 export const appRoutingProviders: any[] = [

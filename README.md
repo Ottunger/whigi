@@ -8,13 +8,18 @@ Remember that clients aure authenticated using a match on hash(hash(password) + 
 Note that whigi-restore gets informed of the mappings email <=> master\_key but nevers informs back whigi of the disclosure. A front-end app should therefore request the master\_key then ask whigi for a password change.
 
 # Third-parties
+- SIMULATE AN ACCOUNT CREATION WITHOUT OAUTH: This is the best method for account creation. Make your user browse to
+/account/encodeURIComponent([your-ID])/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny]). This will create a new dummy data in the user's file named
+keys/auth/[your-ID], and share it with you. To log in a user, make him browse to /remote/encodeURIComponent([your-ID])/encodeURIComponent([return\_url]). The URL
+will be visited back with URL query parameters "user", the ID of the user, and "response", the decrypted data from this file. This can be null if no such account exists
+on our side. You can then just check that this is indeed what you get by decrypting your vault for this ID.
 - USING THE REQUEST FOR GRANT: This is the most promoted method. You do not need to register anything special to Whigi, a simple account with a mail will do.
 When a user has for instance bought something on your website, just send them to
 /grant/encodeURIComponent([your-ID])/encodeURIComponent([//-separated-list-of-data])/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny])/expire-epoch . Upon selection, the user will be redirected
 to one of the two URL's, the "ok" one if the intersection of all the data you asked for and the user's data can be granted, the "deny" if the user denied you
 access or if something went wrong.
 - USING THE API: In order to not polute the namespace of applications data names if you have a plugin that needs specific data, please record data as named
-/apps/[your-specific-app-name]/whatever . Please note that we plan on having generic information that a user might usually share stored in
+/apps/[your-ID]/whatever . Please note that we plan on having generic information that a user might usually share stored in
 a standardized path, we suppose profile/often-shared-data
 - USING OAUTH: Whigi is not meant to be used with OAuth. That said, we provide OAuth for ease, but using OAuth will give you the user's master key, thus making you as responsible
 as a third-party not using it. You will need to register to a Whigi provider by your own means (email, ...) to get a valid "for_id".

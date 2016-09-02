@@ -29,6 +29,9 @@ import {Filesystem} from './subcmpts/filesystem.component';
 import {Oauth} from './subcmpts/oauth.component';
 import {Grant} from './subcmpts/grant.component';
 import {Resethelp} from './subcmpts/resethelp.component';
+import {Userinfo} from './subcmpts/userinfo.component';
+import {Account} from './subcmpts/account.component';
+import {Remote} from './subcmpts/remote.component';
 import {Notfound} from './subcmpts/notfound.component';
 
 @NgModule({
@@ -53,6 +56,9 @@ import {Notfound} from './subcmpts/notfound.component';
         Oauth,
         Grant,
         Resethelp,
+        Userinfo,
+        Account,
+        Remote,
         Notfound
     ],
     providers: [
