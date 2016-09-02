@@ -108,34 +108,3 @@ export class Fullguard implements CanActivate, CanDeactivate<Dataview> {
     }
 
 }
-
-@Injectable()
-export class Vaultguard implements CanActivate {
-
-    /**
-     * Creates the service.
-     * @function constructor
-     * @public
-     * @param backend App service.
-     * @param router Router.
-     * @param translate Translation service.
-     */
-    constructor(private backend: Backend, private router: Router, private translate: TranslateService) {
-
-    }
-
-    /**
-     * Checks the guard.
-     * @function canActivate
-     * @public
-     * @return {Boolean} Can go through.
-     */
-    canActivate() {
-        if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption') && !!this.backend.profile
-            && !!this.backend.data_loaded && !!this.backend.profile.sharer)
-            return true;
-        this.router.navigate(['/profile']);
-        return false;
-    }
-
-}

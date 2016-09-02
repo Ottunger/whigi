@@ -12,6 +12,7 @@ get whigi-csr.pem
 get whigi-key.pem
 cd ../utils
 get BloomFilter.js
+get RSAPool.js
 get checks.js
 get utils.js
 cd ../common/cdnize

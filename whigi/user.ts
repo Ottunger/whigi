@@ -11,14 +11,15 @@ var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 var hash = require('js-sha256');
 var aes = require('aes-js');
-var RSA = require('node-rsa');
 import {User} from '../common/models/User';
 import {Datafragment} from '../common/models/Datafragment';
 import {Token} from '../common/models/Token';
 import {Oauth} from '../common/models/Oauth';
 import {Datasource} from '../common/Datasource';
+import {RSAPool} from '../utils/RSAPool';
 var mailer;
 var db: Datasource;
+var rsa: RSAPool;
 
 /**
  * Sets up the mailer before use.
@@ -34,10 +35,31 @@ export function managerInit(dbg: Datasource) {
         }
     });
     db = dbg;
+    rsa = new RSAPool(10, utils.DEBUG? 1024 : 4096, false);
 }
 
 /**
- * Forges the response to some user info as json, or HTTP 500 code.
+ * Forges the response to some user info as json.
+ * @function peekUser
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function peekUser(req, res) {
+    var dec = decodeURIComponent(req.params.id);
+    db.retrieveUser(dec).then(function(user) {
+        if(!!user) {
+            res.type('application/json').status(200).json({error: ''});
+        } else {
+            res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
+        }
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Forges the response to some user info as json when connected.
  * @function getUser
  * @public
  * @param {Request} req The request.
@@ -54,7 +76,6 @@ export function getUser(req, res) {
     }, function(e) {
         res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
     });
-
 }
 
 /**
@@ -180,8 +201,7 @@ export function regUser(req, res) {
     function complete() {
         var u: User = new User(user, db);
         var pre_master_key: string = utils.generateRandomString(64);
-        var key = new RSA();
-        key.generateKeyPair(4096, 65537);
+        var key = rsa.nextKeyPair();
 
         u._id = user.username;
         u.salt = utils.generateRandomString(64);

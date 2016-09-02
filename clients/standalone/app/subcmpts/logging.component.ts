@@ -277,12 +277,20 @@ export class Logging implements OnInit {
         }
         if(this.password == this.password2) {
             if(!/^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(this.email)) {
-                self.notif.alert(self.translate.instant('error'), self.translate.instant('login.noMatch'));
+                self.notif.error(self.translate.instant('error'), self.translate.instant('login.noMatch'));
                 return;
             }
-            complete();
+            if(this.safe && this.recuperable) {
+                this.backend.peekUser(this.recup_id).then(function() {
+                    complete();
+                }, function(e) {
+                    self.notif.error(self.translate.instant('error'), self.translate.instant('filesystem.noUser'));
+                });
+            } else {
+                complete();
+            }
         } else {
-            self.notif.alert(self.translate.instant('error'), self.translate.instant('login.noMatch'));
+            self.notif.error(self.translate.instant('error'), self.translate.instant('login.noMatch'));
         }
     }
 

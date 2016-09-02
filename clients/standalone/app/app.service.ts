@@ -120,7 +120,7 @@ export class Backend {
             var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
             this.master_key = decrypter.decrypt(this.profile.encr_master_key);
 
-            decrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
+            decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
             this.rsa_key = window.aesjs.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
         } catch(e) {
             this.notif.alert(this.translate.instant('error'), this.translate.instant('noKey'));
@@ -215,7 +215,7 @@ export class Backend {
     encryptRSA(data: number[], key: string): string {
         var enc = new window.JSEncrypt();
         enc.setPublicKey(key);
-        return enc.encrypt(window.aesjs.util.convertBytesToString(data));
+        return enc.encrypt(this.arr2str(data));
     }
 
     /**
@@ -226,9 +226,13 @@ export class Backend {
      * @return {Bytes} Decrypted data, we use AES keys.
      */
     decryptRSA(data: string): number[] {
+        if(!this.rsa_key) {
+            this.decryptMaster();
+        }
         var dec = new window.JSEncrypt();
         dec.setPrivateKey(this.rsa_key);
-        return window.aesjs.util.convertStringToBytes(dec.decrypt(data));
+        dec = dec.decrypt(data);
+        return this.str2arr(dec);
     }
 
     /**
@@ -378,6 +382,17 @@ export class Backend {
     private regCaptcha(): string {
         var v = window.grecaptcha.getResponse();
         return '?captcha=' + v;
+    }
+
+    /**
+     * Returns the public info of a user.
+     * @function peekUser
+     * @public
+     * @param {String} known Request id.
+     * @return {Promise} JSON response from backend.
+     */
+    peekUser(known: string): Promise {
+        return this.backend(true, 'GET', {}, 'peek/' + window.encodeURIComponent(known), false, false);
     }
 
     /**

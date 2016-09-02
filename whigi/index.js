@@ -41,7 +41,9 @@ var isHttps = !!process.argv[7]? process.argv[7] : true;
  * @param {Function} next 404 Handler.
  */
 function listOptions(path, res, next) {
-    if(path.match(/\/api\/v[1-9]\/user\/create\/?$/))
+    if(path.match(/\/api\/v[1-9]\/peek\/.+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/user\/create\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
@@ -255,6 +257,7 @@ connect(function(e) {
     //-----
     app.post('/api/v:version/vault/new', checks.checkPuzzle);
     //API ROUTES
+    app.get('/api/v:version/peek/:id', user.peekUser);
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
     app.post('/api/v:version/profile/info', user.goCompany);

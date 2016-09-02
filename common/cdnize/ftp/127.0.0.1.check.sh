@@ -7,6 +7,7 @@ diff /tmp/127.0.0.1/whigi-cert.pem /root/Whigi/whigi/whigi-cert.pem 1>&2
 diff /tmp/127.0.0.1/whigi-csr.pem /root/Whigi/whigi/whigi-csr.pem 1>&2
 diff /tmp/127.0.0.1/whigi-key.pem /root/Whigi/whigi/whigi-key.pem 1>&2
 diff /tmp/127.0.0.1/BloomFilter.js /root/Whigi/utils/Bloomfilter.js 1>&2
+diff /tmp/127.0.0.1/RSAPool.js /root/Whigi/utils/RSAPool.js 1>&2
 diff /tmp/127.0.0.1/checks.js /root/Whigi/utils/checks.js 1>&2
 diff /tmp/127.0.0.1/utils.js /root/Whigi/utils.utils.js 1>&2
 diff /tmp/127.0.0.1/Downloader.js /root/Whigi/common/cdnize/Downloader.js 1>&2

@@ -19,7 +19,7 @@ import {Resethelp} from './subcmpts/resethelp.component';
 import {Account} from './subcmpts/account.component';
 import {Remote} from './subcmpts/remote.component';
 import {Notfound} from './subcmpts/notfound.component';
-import {Profileguard, Fullguard, Vaultguard} from './guards.service';
+import {Profileguard, Fullguard} from './guards.service';
 
 const appRoutes: Routes = [
     {path: '', component: Logging},
@@ -27,7 +27,7 @@ const appRoutes: Routes = [
     {path: 'profile', component: Profile, canActivate: [Profileguard]},
     {path: 'filesystem/:mode', component: Filesystem, canActivate: [Profileguard], canDeactivate: [Profileguard]},
     {path: 'data/:name', component: Dataview, canActivate: [Fullguard], canDeactivate: [Fullguard]},
-    {path: 'vault/:username/:id', component: Vaultview, canActivate: [Vaultguard]},
+    {path: 'vault/:username/:id', component: Vaultview, canActivate: [Fullguard]},
     {path: 'password-help/:id/:data_name', component: Resethelp, canActivate: [Profileguard]},
     {path: 'password-recovery/:id/:pwd', component: Reset},
     {path: 'save-key/:key/:value/:return_url', component: Savekey, canActivate: [Profileguard]},

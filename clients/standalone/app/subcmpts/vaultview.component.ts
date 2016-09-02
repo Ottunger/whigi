@@ -63,9 +63,9 @@ export class Vaultview implements OnInit, OnDestroy {
         this.sub = this.routed.params.subscribe(function(params) {
             self.route_back = params['route_back'];
             self.sharer_id = params['username'];
-            self.dataservice.getVault(params['id']).then(function(vault, decr_data) {
+            self.dataservice.getVault(params['id']).then(function(vault) {
                 self.vault = vault;
-                self.decr_data = decr_data;
+                self.decr_data = vault.decr_data;
             }, function(e) {
                 if(e.status == 417)
                     self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.expired'));

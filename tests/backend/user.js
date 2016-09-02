@@ -66,11 +66,27 @@ exports.test = function() {
             });
         });
 
+        describe('#peekUser()', function() {
+            it('should find a present user', function(done) {
+                var f = new fk.FakeRes(false);
+                me.peekUser({
+                    params: {id: dummy_user._id}
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(200).notify(done);
+            });
+            it('should not find a non-present user', function(done) {
+                var f = new fk.FakeRes(false);
+                me.peekUser({
+                    params: {id: 'dummy'}
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(404).notify(done);
+            });
+        });
+
         describe('#getUser()', function() {
             it('should find a present user', function(done) {
                 var f = new fk.FakeRes(true);
                 me.getUser({
-                    user: {is_activated: true},
                     params: {id: dummy_user._id}
                 }, f);
                 chai.expect(f.promise).to.eventually.include.keys('_id').notify(done);
@@ -78,7 +94,6 @@ exports.test = function() {
             it('should not find a non-present user', function(done) {
                 var f = new fk.FakeRes(false);
                 me.getUser({
-                    user: {is_activated: true},
                     params: {id: 'dummy'}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(404).notify(done);

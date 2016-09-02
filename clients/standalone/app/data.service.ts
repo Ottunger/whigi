@@ -244,7 +244,8 @@ export class Data {
             self.backend.getVault(id).then(function(vault) {
                 var aesKey: number[] = self.backend.decryptRSA(vault.aes_crypted_shared_pub);
                 self.backend.decryptAES(self.backend.str2arr(vault.data_crypted_aes), self.workerMgt(false, function(got) {
-                    resolve(vault, got);
+                    vault.decr_data = got;
+                    resolve(vault);
                 }), aesKey);
             }, function(e) {
                 reject(e);
@@ -275,11 +276,11 @@ export class Data {
                         self.backend.profile.data[name].shared_to[user._id] = res._id;
                         resolve(user, res._id);
                     }, function(e) {
-                        reject();
+                        reject(e);
                     });
                 }), aesKey);
             }, function(e) {
-                reject();
+                reject(e);
             });
         });
     }
