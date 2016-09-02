@@ -16,21 +16,15 @@ enableProdMode();
     template: `
         <h2>{{ 'userinfo.title' | translate }}</h2>
         <br />
-        <p>{{ 'userinfo.trustLevel' | translate }}{{ requester.is_company }}</p>
+        <p>{{ 'userinfo.trustLevel' | translate }}{{ user.is_company }}</p>
         <br />
-        <p>{{ 'userinfo.public' | translate }}{{ requester.company_info }}</p>
+        <p>{{ 'userinfo.public' | translate }}{{ user.company_info }}</p>
         <br />
-
-        <button type="button" class="btn btn-alarm" (click)="finish(true)">{{ 'oauth.ok' | translate }}</button>
-        <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'oauth.nok' | translate }}</button>
-        <br /><br />
-
-        <user-info [user]="requester"></user-info>
     `
 })
 export class Userinfo {
 
-    @Input() requester: any;
+    @Input() user: any;
 
     /**
      * Creates the component.

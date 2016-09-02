@@ -202,7 +202,7 @@ export function regUser(req, res) {
 
     if(user.password.length >= 8) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
-            if(ok) {
+            if(ok || utils.DEBUG) {
                 db.retrieveUser(user.username).then(function(u) {
                     if(u == undefined)
                         complete();

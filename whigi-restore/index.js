@@ -21,7 +21,7 @@ var localhost = process.argv[3] || 'localhost';
 utils.WHIGIHOST = process.argv[4] ||'localhost'; 
 utils.RUNNING_ADDR = 'https://' + utils.WHIGIHOST;
 utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
-var DEBUG = !!process.argv[6]? process.argv[6] : true;
+utils.DEBUG = !!process.argv[6]? process.argv[6] : true;
 
 /**
  * Sets the API to connect to the database.
@@ -30,7 +30,7 @@ var DEBUG = !!process.argv[6]? process.argv[6] : true;
  * @param {Function} callback Callback.
  */ 
 function connect(callback) {
-    if(DEBUG)
+    if(utils.DEBUG)
         db = mc('localhost:27017/whigi-restore');
     else
         db = mc('whigiuser:sorryMeND3dIoKwR@localhost:27017/whigi-restore');
@@ -63,7 +63,7 @@ connect(function(e) {
 
     //Create the express application
     var app = express();
-    if(DEBUG == false) {
+    if(utils.DEBUG == false) {
         app.use(helmet());
     } else {
         app.use(function(req, res, next) {
@@ -85,7 +85,7 @@ connect(function(e) {
 
     process.on('SIGTERM', close);
     process.on('SIGINT', close);
-    if(DEBUG == false) {
+    if(utils.DEBUG == false) {
         process.on('uncaughtException', function(err) {
             console.log(err);
         });
