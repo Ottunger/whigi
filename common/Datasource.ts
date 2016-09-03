@@ -26,14 +26,15 @@ export class Datasource {
      * @function constructor
      * @public
      * @param {Request} db The database.
+     * @param {String} basedir Install directory.
      * @param {Boolean} useCDN Use the CDN facilities. Defaults to false.
      */
-    constructor(private db: any, private useCDN?: boolean) {
+    constructor(private db: any, basedir: string, private useCDN?: boolean) {
         this.useCDN = this.useCDN || false;
         if(this.useCDN) {
             this.up = new Uploader(24, 20, this.db, ['datas', 'tokens', 'users', 'vaults', 'oauths']);
             this.down = new Downloader();
-            this.int = new Integrity(12);
+            this.int = new Integrity(12, basedir);
         }
     }
 

@@ -36,7 +36,7 @@ const appRoutes: Routes = [
     {path: 'grant/:id_to/:data_list/:return_url_ok/:return_url_deny/:expire_epoch', component: Grant, canActivate: [Profileguard]},
     {path: 'account/:id_to/:return_url_ok/:return_url_deny', component: Account, canActivate: [Profileguard]},
     {path: 'remote/:id_to/:return_url', component: Remote, canActivate: [Profileguard]},
-    {path: 'generics', component: Generics, canActivate: [Fullguard]},
+    {path: 'generics', component: Generics, canActivate: [Fullguard], canDeactivate: [Fullguard]},
     {path: '**', component: Notfound}
 ];
 export const appRoutingProviders: any[] = [

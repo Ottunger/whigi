@@ -44,7 +44,7 @@ enableProdMode();
                             <i>{{ 'filesystem.mix' | translate }}</i>
                         </td>
                         <td *ngIf="!backend.profile.data[g] && !backend.generics[g].is_file">
-                            <input type="text" [(ngModel)]="data_value" name="s1" class="form-control">
+                            <input type="text" [(ngModel)]="new_data" name="s1" class="form-control">
                         </td>
                         <td *ngIf="!backend.profile.data[g] && backend.generics[g].is_file">
                             <input type="file" (change)="fileLoad($event)" name="n50" class="form-control">
@@ -57,7 +57,7 @@ enableProdMode();
                             <button type="button" class="btn btn-default" (click)="register(g, false)">{{ 'filesystem.record' | translate }}</button>
                         </td>
                         <td *ngIf="!backend.profile.data[g] && backend.generics[g].is_file">
-                            <button type="button" class="btn btn-default" (click)="register(g, true)" [disabled]="data_value_file==''">{{ 'filesystem.record' | translate }}</button>
+                            <button type="button" class="btn btn-default" (click)="register(g, true)" [disabled]="new_data_file==''">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
                 </tbody>
@@ -67,8 +67,8 @@ enableProdMode();
 })
 export class Generics implements OnInit {
 
-    public data_value: string;
-    public data_value_file: string;
+    public new_data: string;
+    public new_data_file: string;
     private sub: Subscription;
 
     /**
@@ -98,22 +98,22 @@ export class Generics implements OnInit {
         var self = this, send;
         if(!!this.backend.generics[name].regexp) {
             var re = new RegExp(this.backend.generics[name].regexp);
-            if(!re.test(this.data_value)) {
+            if(!re.test(this.new_data)) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('generics.regexp'));
                 return;
             }
         }
         if(this.backend.generics[name].is_dated) {
             send = JSON.stringify([{
-                value: as_file? this.data_value_file : this.data_value,
+                value: as_file? this.new_data_file : this.new_data,
                 from: (new Date).getTime()
             }]);
         } else {
-            send = as_file? this.data_value_file : this.data_value;
+            send = as_file? this.new_data_file : this.new_data;
         }
         this.dataservice.newData(name, send, this.backend.generics[name].is_dated).then(function() {
-            self.data_value = '';
-            self.data_value_file = '';
+            self.new_data = '';
+            self.new_data_file = '';
             self.check.tick();
         }, function(err) {
             if(err == 'server')
@@ -154,7 +154,7 @@ export class Generics implements OnInit {
         var file: File = e.target.files[0]; 
         var r: FileReader = new FileReader();
         r.onloadend = function(e) {
-            self.data_value_file = r.result;
+            self.new_data_file = r.result;
         }
         r.readAsDataURL(file);
     }

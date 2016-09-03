@@ -23,7 +23,7 @@ var datasources = require('../common/Datasource');
 var db;
 
 //Set the running configuration
-//Launch as ">$ node index.js 80 whigi.envict.com whigi-restore.envict.com whigi.com@gmail.com false false" for instance
+//Launch as ">$ node index.js 80 whigi.envict.com whigi-restore.envict.com whigi.com@gmail.com false false `pwd`" for instance
 var httpport = parseInt(process.argv[2]) || 80;
 var localhost = process.argv[3] || 'localhost';
 utils.RESTOREHOST = process.argv[4] || 'localhost'; 
@@ -98,7 +98,7 @@ function connect(callback) {
     else
         d = mc('whigiuser:sorryMeND3dIoKwR@localhost:27017/whigi');
     if(d) {
-        db = new datasources.Datasource(d);
+        db = new datasources.Datasource(d, process.argv[8]);
         user.managerInit(db);
         data.managerInit(db);
         callback(false)

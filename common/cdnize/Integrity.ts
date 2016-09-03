@@ -10,6 +10,7 @@ var scd = require('node-schedule');
 var sys = require('sys')
 var exec = require('child_process').exec;
 var https = require('https');
+var basedir: string;
 
 /**
  * Flag a host as biaised.
@@ -61,17 +62,32 @@ function check() {
         exec('mkdir -p ' + whigis[i].tmpdir, function(err) {
             if(err)
                 return;
-            exec('ftp -n < ' + whigis[i].cmd, function(err, stdout, stderr) {
+            exec(basedir + '/common/cdnize/scripts/server.sh ' + whigis[i].tmpdir + ' ' + basedir + ' ' + whigis[i].host, function(err, stdout, stderr) {
                 if(err || (!!stderr && stderr != '')) {
                     end(whigis[i].host);
-                    exec('rm -rf ' + whigis[i].tmpdir);
-                } else {
-                    exec(whigis[i].check, function(err, stdout, stderr) {
-                        if(!!stderr && stderr != '')
-                            end(whigis[i].host);
-                        exec('rm -rf ' + whigis[i].tmpdir);
-                    });
                 }
+                exec('rm -rf ' + whigis[i].tmpdir);
+            });
+        });
+    }
+}
+
+/**
+ * Does integrity check on other Whigi's client side.
+ * @function clientCheck
+ * @private
+ */
+function clientCheck() {
+    var whigis = require('./whigis.json').whigis;
+    for(var i = 0; i < whigis.length; i++) {
+        exec('mkdir -p ' + whigis[i].clienttmpdir, function(err) {
+            if(err)
+                return;
+            exec(basedir + '/common/cdnize/scripts/client.sh ' + basedir + ' ' + whigis[i].host + ' ' + whigis[i].clienttmpdir, function(err, stdout, stderr) {
+                if(err || (!!stderr && stderr != '')) {
+                    end(whigis[i].host);
+                }
+                exec('rm -rf ' + whigis[i].clienttmpdir);
             });
         });
     }
@@ -84,8 +100,9 @@ export class Integrity {
      * @function constructor
      * @public
      * @param {Number} spacing Hours between checks. Should be 1, 2, 4, 6, 12, 24. Defaults to 24.
+     * @param {String} base_dir Directory of installation.
      */
-    constructor(private spacing: number) {
+    constructor(private spacing: number, base_dir: string) {
         var rule = new scd.RecurrenceRule();
         switch(spacing) {
             case 1:
@@ -109,6 +126,8 @@ export class Integrity {
         }
         rule.minute = Math.floor(Math.random() * 60);
         scd.scheduleJob(rule, check);
+        scd.scheduleJob(rule, clientCheck);
+        basedir = base_dir;
     }
 
 }

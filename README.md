@@ -76,6 +76,10 @@ If you want to modify/rebuild the message definitions, you will need to download
 The source and compiled messages definitions are stored in common/cdnize.
 
 # Peer monitoring
+Client side monitoring is done via auditing the retieved HTTPS files. Because the server might still change their responses if they knew requests are coming from Whigi's,
+any Whigi is free to use a proxy for retrieving the files, thus making sure the tested server will respond typically sent files. You can change your local proxy in the
+file /common/cdnize/scripts/client.sh
+
 Peer monitoring is enabled in the following way: all Whigi instances are reuired to run an FTP daemon, we would recommend vsFTPd.
 The daemon must listen on the standard FTP port (ie, 21), and allow anyone to connect securely (ie, using SSL) in read only mode to the directory
 containing the server files (ie, this level). All Whigi instances can then retrieve this counterpart and hash the files to their owns to check
