@@ -125,11 +125,11 @@ export class Grant implements OnInit, OnDestroy {
                 }
             }
             Promise.all(promises).then(function() {
-                window.location.href = this.return_url_ok;
+                window.location.href = self.return_url_ok;
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));
                 window.setTimeout(function() {
-                    window.location.href = this.return_url_deny;
+                    window.location.href = self.return_url_deny;
                 }, 1500);
             });
         } else {

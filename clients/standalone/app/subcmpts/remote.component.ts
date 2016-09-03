@@ -56,11 +56,13 @@ export class Remote implements OnInit, OnDestroy {
                 window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;
             }
             self.dataservice.listData().then(function() {
-                if(self.backend.profile.shared_with_me[self.id_to] || !self.backend.profile.shared_with_me[self.id_to]['keys/auth/' + self.id_to]) {
+                if(!self.backend.profile.data['keys/auth/' + self.id_to]) {
                     window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;
                 }
-                self.dataservice.getVault(self.backend.profile.shared_with_me[self.id_to]['keys/auth/' + self.id_to]).then(function(vault, got) {
-                    window.location.href = self.return_url + '?response=' + got + '&user=' + self.backend.profile._id;
+                self.backend.getData(self.backend.profile.data['keys/auth/' + self.id_to].id).then(function(data) {
+                    self.backend.decryptAES(self.backend.str2arr(data.encr_data), self.dataservice.workerMgt(false, function(got) {
+                        window.location.href = self.return_url + '?response=' + got + '&user=' + self.backend.profile._id;
+                    }));
                 }, function(e) {
                     window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;
                 });
