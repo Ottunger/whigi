@@ -23,7 +23,10 @@ export class Backend {
     public master_key: number[];
     public generics: {[id: string]: {
         is_dated: boolean,
-        is_file: boolean
+        is_file: boolean,
+        descr_key: string,
+        regexp?: string,
+        img_url?: string
     }};
     private rsa_key: string;
     private BASE_URL = 'https://localhost/api/v1/';

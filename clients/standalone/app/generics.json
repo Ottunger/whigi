@@ -1,6 +1,44 @@
 {
     "profile/email": {
         "is_dated": false,
-        "is_file": false
+        "is_file": false,
+        "descr_key": "generics.email"
+    },
+    "profile/last_name": {
+        "is_dated": false,
+        "is_file": false,
+        "descr_key": "generics.last_name"
+    },
+    "profile/first_name": {
+        "is_dated": false,
+        "is_file": false,
+        "descr_key": "generics.first_name"
+    },
+    "profile/other_first_names": {
+        "is_dated": false,
+        "is_file": false,
+        "descr_key": "generics.other_first_names"
+    },
+    "profile/birth_date": {
+        "is_dated": false,
+        "is_file": false,
+        "descr_key": "generics.birth_date",
+        "regexp": "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d$"
+    },
+    "profile/corporate/name": {
+        "is_dated": true,
+        "is_file": false,
+        "descr_key": "generics.corporate_name"
+    },
+    "profile/corporate/bcenum": {
+        "is_dated": false,
+        "is_file": false,
+        "descr_key": "generics.corporate_bcenum"
+    },
+    "profile/corporate/creation_date": {
+        "is_dated": false,
+        "is_file": false,
+        "descr_key": "generics.corporate_creation_date",
+        "regexp": "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d$"
     }
 }

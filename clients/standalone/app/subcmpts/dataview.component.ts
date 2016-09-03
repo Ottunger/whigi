@@ -18,7 +18,8 @@ enableProdMode();
 @Component({
     template: `
         <h2>{{ dataservice.sanitarize(data_name) }}</h2>
-        <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="back(false)">{{ 'back' | translate }}</button>
+        <button *ngIf="!!backend.generics[data_name]" type="button" class="btn btn-primary" (click)="back(true)">{{ 'dataview.toGen' | translate }}</button>
         <br />
         <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="data_name"></clear-view>
         <br /><br />
@@ -171,7 +172,7 @@ export class Dataview implements OnInit, OnDestroy {
     remove() {
         var self = this;
         this.dataservice.remove(this.data_name).then(function() {
-            self.back();
+            self.back(false);
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('server'));
         });
@@ -193,12 +194,13 @@ export class Dataview implements OnInit, OnDestroy {
      * Back to profile.
      * @function back
      * @public
+     * @param {Boolean} gen To generics page.
      */
-    back() {
-        if(this.to_filesystem)
-            this.router.navigate(['/filesystem', 'data', {folders: this.data_name.replace(/[^\/]+$/, '')}]);
+    back(gen: boolean) {
+        if(gen)
+            this.router.navigate(['/generics']);
         else
-            this.router.navigate['/generics'];
+            this.router.navigate(['/filesystem', 'data', {folders: this.data_name.replace(/[^\/]+$/, '')}]);
     }
 
     /**

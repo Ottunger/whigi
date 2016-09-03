@@ -91,6 +91,7 @@
    "dataview.tooLong": "Too long for showing",
    "dataview.revokeAll": "Revoke all vaults for this data",
    "dataview.until": "Last time seen - Valid until",
+   "dataview.toGen": "Go to generics page",
 
    "vaultview.noData": "Cannot retrieve such vault. Maybe access was revoked...",
    "vaultview.expired": "This vault has expired...",
@@ -130,6 +131,16 @@
    "account.nok": "Decline creating account",
 
    "generics.title": "Create here your generic data",
+   "generics.regexp": "Your input does not match expected format",
+   "generics.descr": "Description",
+   "generics.email": "Your preferred email for Whigi-restore",
+   "generics.last_name": "Your last name",
+   "generics.first_name": "Your first name",
+   "generics.other_first_names": "Your other first names",
+   "generics.birth_date": "Your birth date (DD-MM-YYYY)",
+   "generics.corporate_name": "Your corporate name",
+   "generics.corporate_bcenum": "Your BCE code",
+   "generics.corporate_creation_date": "Your company creation date (DD-MM-YYYY)",
 
    "error.notfound": "Not found"
 }

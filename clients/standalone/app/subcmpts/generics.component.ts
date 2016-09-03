@@ -26,6 +26,8 @@ enableProdMode();
                 <thead>
                     <tr>
                         <th>{{ 'filesystem.data_name' | translate }}</th>
+                        <th>{{ 'generics.descr' | translate }}</th>
+                        <th></th>
                         <th>{{ 'filesystem.data' | translate }}</th>
                         <th>{{ 'action' | translate }}</th>
                     </tr>
@@ -33,6 +35,10 @@ enableProdMode();
                 <tbody>
                     <tr *ngFor="let g of generics()">
                         <td>{{ g }}</td>
+                        <td>{{ backend.generics[g].descr_key | translate }}</td>
+
+                        <td *ngIf="!!backend.generics[g].img_url"><img src="{{ backend.generics[g].img_url }}" /></td>
+                        <td *ngIf="!backend.generics[g].img_url"><img src="favicon.png" /></td>
 
                         <td *ngIf="!!backend.profile.data[g]">
                             <i>{{ 'filesystem.mix' | translate }}</i>
@@ -90,6 +96,13 @@ export class Generics implements OnInit {
      */
     register(name: string, as_file: boolean) {
         var self = this, send;
+        if(!!this.backend.generics[name].regexp) {
+            var re = new RegExp(this.backend.generics[name].regexp);
+            if(!re.test(this.data_value)) {
+                self.notif.error(self.translate.instant('error'), self.translate.instant('generics.regexp'));
+                return;
+            }
+        }
         if(this.backend.generics[name].is_dated) {
             send = JSON.stringify([{
                 value: as_file? this.data_value_file : this.data_value,
@@ -117,9 +130,7 @@ export class Generics implements OnInit {
      * @param {String} name Name of data.
      */
     select(name: string) {
-        this.router.navigate(['/data', window.encodeURIComponent(name), {
-            to_filesystem: false
-        }]);
+        this.router.navigate(['/data', window.encodeURIComponent(name)]);
     }
 
     /**

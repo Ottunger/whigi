@@ -180,9 +180,7 @@ export class Filesystem implements OnInit {
      */
     view(name: string) {
         if(this.mode == 'data') {
-            this.router.navigate(['/data', window.encodeURIComponent(this.folders + name), {
-                to_filesystem: true
-            }]);
+            this.router.navigate(['/data', window.encodeURIComponent(this.folders + name)]);
         } else if(this.mode == 'vault') {
             var mail = this.folders.substr(0, this.folders.indexOf('/'));
             this.router.navigate(['/vault', window.encodeURIComponent(mail), this.backend.shared_with_me_trie.find(this.folders + name).value, {

@@ -91,6 +91,7 @@
    "dataview.tooLong": "Trop long pour être affiché",
    "dataview.revokeAll": "Supprimer toutes les valises associées",
    "dataview.until": "Dernier accès - Valide jusque",
+   "dataview.toGen": "Aller à la page des génériques",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
    "vaultview.expired": "Cette valise a expiré...",
@@ -130,6 +131,16 @@
    "account.nok": "Refuser la création",
 
    "generics.title": "Créez ici vos données génériques",
+   "generics.regexp": "Votre entrée ne valide pas le format attendu",
+   "generics.descr": "Description",
+   "generics.email": "Votre email préféré pour Whigi-restore",
+   "generics.last_name": "Votre nom de famille",
+   "generics.first_name": "Votre prénom",
+   "generics.other_first_names": "Vos autres prénoms",
+   "generics.birth_date": "Votre date de naissance (JJ-MM-AAAA)",
+   "generics.corporate_name": "Votre nom d'entreprise",
+   "generics.corporate_bcenum": "Votre code BCE",
+   "generics.corporate_creation_date": "Date de création d'entreprise (JJ-MM-AAAA)",
 
    "error.notfound": "Introuvable"
 }
