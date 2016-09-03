@@ -119,14 +119,17 @@
    "grant.ok": "Give access (can be quite long!)",
    "grant.nok": "Deny access",
    "grant.err": "Something went wrong somewhere, but we'll prove as much as we can",
+   "grant.notShared": "This data will not be shared",
+   "grant.shared": "This data will be shared",
 
    "userinfo.title": "Information about the requester",
    "userinfo.trustLevel": "Trust level of whigi about this provider (0-5): ",
    "userinfo.public": "Publicly advertised and checked information: ",
+   "userinfo.name": "Organization name: ",
 
    "account.question": "Request for 3rd party account creation",
    "account.explain": "By accepting, we will create a dummy data for you and share it with the third party in order for it to authenticate you. The remote user WILL NOT receive your keys.",
-   "account.id_to": "ID requesting an account",
+   "account.id_to": "ID requesting an account: ",
    "account.ok": "Create account",
    "account.nok": "Decline creating account",
 

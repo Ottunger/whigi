@@ -30,7 +30,7 @@ enableProdMode();
         <input type="file" (change)="fileLoad($event)" class="form-control">
         <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'filesystem.record' | translate }}</button>
         <button type="button" class="btn btn-warning" (click)="revokeAll()">{{ 'dataview.revokeAll' | translate }}</button>
-        <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="data_name.startsWith('keys/')">{{ 'remove' | translate }}</button>
+        <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="!!backend.generics[data_name]">{{ 'remove' | translate }}</button>
         <br /><br />
 
         <div class="table-responsive">

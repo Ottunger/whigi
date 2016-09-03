@@ -15,11 +15,9 @@ enableProdMode();
     selector: 'user-info',
     template: `
         <h2>{{ 'userinfo.title' | translate }}</h2>
-        <br />
-        <p>{{ 'userinfo.trustLevel' | translate }}{{ user.is_company }}</p>
-        <br />
-        <p>{{ 'userinfo.public' | translate }}{{ user.company_info }}</p>
-        <br />
+        <h3>{{ 'userinfo.trustLevel' | translate }}{{ user.is_company }}</h3>
+        <h3>{{ 'userinfo.public' | translate }}</h3>
+        <p *ngIf="!!user.company_info && !!user.company_info.name">{{ 'userinfo.name' | translate }}{{ user.company_info.name }}</p>
     `
 })
 export class Userinfo {

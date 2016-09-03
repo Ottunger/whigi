@@ -124,9 +124,10 @@ export class Profile implements OnInit {
         var self = this;
         this.dataservice.listData().then(function() {
             if(!!localStorage.getItem('return_url') && localStorage.getItem('return_url').length > 1) {
-                var ret: string = localStorage.getItem('return_url');
+                var ret = localStorage.getItem('return_url');
+                ret = JSON.parse(ret);
                 localStorage.removeItem('return_url');
-                self.router.navigate([ret]);
+                self.router.navigate(ret);
             }
         });
     }

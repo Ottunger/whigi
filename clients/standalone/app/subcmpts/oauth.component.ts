@@ -6,7 +6,7 @@
 
 'use strict';
 declare var window : any
-import {Component, enableProdMode, OnInit, OnDestroy} from '@angular/core';
+import {Component, enableProdMode, OnInit, OnDestroy, ApplicationRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
@@ -25,7 +25,7 @@ enableProdMode();
         <p>{{ 'oauth.prefix' | translate }}{{ prefix }}</p>
         <br />
 
-        <button type="button" class="btn btn-alarm" (click)="finish(true)">{{ 'oauth.ok' | translate }}</button>
+        <button type="button" class="btn btn-warning" (click)="finish(true)">{{ 'oauth.ok' | translate }}</button>
         <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'oauth.nok' | translate }}</button>
         <br /><br />
 
@@ -51,10 +51,11 @@ export class Oauth implements OnInit, OnDestroy {
      * @param notif Notification service.
      * @param routed Activated route service.
      * @param backend Data service.
+     * @param check Check service.
      */
     constructor(private translate: TranslateService, private router: Router, private notif: NotificationsService,
-        private routed: ActivatedRoute, private backend: Backend) {
-
+        private routed: ActivatedRoute, private backend: Backend, private check: ApplicationRef) {
+        this.requester = {};
     }
 
     /**
@@ -71,10 +72,11 @@ export class Oauth implements OnInit, OnDestroy {
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
             if(!/^https/.test(self.return_url_ok)) {
-                window.location.href = this.return_url_deny + '?reason=https';
+                window.location.href = self.return_url_deny + '?reason=https';
             }
             self.backend.getUser(self.for_id).then(function(user) {
                 self.requester = user;
+                self.check.tick();
             });
         });
     }

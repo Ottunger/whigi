@@ -33,7 +33,7 @@ const appRoutes: Routes = [
     {path: 'password-recovery/:id/:pwd', component: Reset},
     {path: 'save-key/:key/:value/:is_dated/:return_url', component: Savekey, canActivate: [Fullguard]},
     {path: 'oauth/:for_id/:prefix/:token/:return_url_ok/:return_url_deny', component: Oauth, canActivate: [Profileguard]},
-    {path: 'grant/:id_to/:data_list/:return_url_ok/:return_url_deny/:expire_epoch', component: Grant, canActivate: [Profileguard]},
+    {path: 'grant/:id_to/:data_list/:return_url_ok/:return_url_deny/:expire_epoch', component: Grant, canActivate: [Fullguard]},
     {path: 'account/:id_to/:return_url_ok/:return_url_deny', component: Account, canActivate: [Profileguard]},
     {path: 'remote/:id_to/:return_url', component: Remote, canActivate: [Profileguard]},
     {path: 'generics', component: Generics, canActivate: [Fullguard], canDeactivate: [Fullguard]},

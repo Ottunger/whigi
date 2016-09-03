@@ -6,7 +6,7 @@
 
 'use strict';
 declare var window : any
-import {Component, enableProdMode, OnInit, OnDestroy} from '@angular/core';
+import {Component, enableProdMode, OnInit, OnDestroy, ApplicationRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
@@ -21,10 +21,10 @@ enableProdMode();
         <br />
         <p>{{ 'account.explain' | translate }}</p>
         <br />
-        <p>{{ 'account.id_to' | translate }}{{ for_id }}</p>
+        <p>{{ 'account.id_to' | translate }}{{ id_to }}</p>
         <br />
 
-        <button type="button" class="btn btn-alarm" (click)="finish(true)">{{ 'account.ok' | translate }}</button>
+        <button type="button" class="btn btn-warning" (click)="finish(true)">{{ 'account.ok' | translate }}</button>
         <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'account.nok' | translate }}</button>
         <br /><br />
 
@@ -49,10 +49,11 @@ export class Account implements OnInit, OnDestroy {
      * @param routed Activated route service.
      * @param backend Backend service.
      * @param data Data service.
+     * @param check Check service.
      */
     constructor(private translate: TranslateService, private router: Router, private notif: NotificationsService,
-        private routed: ActivatedRoute, private backend: Backend, private dataservice: Data) {
-
+        private routed: ActivatedRoute, private backend: Backend, private dataservice: Data, private check: ApplicationRef) {
+        this.requester = {};
     }
 
     /**
@@ -67,11 +68,12 @@ export class Account implements OnInit, OnDestroy {
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
             if(!/^https/.test(self.return_url_ok)) {
-                window.location.href = this.return_url_deny;
+                window.location.href = self.return_url_deny;
             }
             self.dataservice.listData();
             self.backend.getUser(self.id_to).then(function(user) {
                 self.requester = user;
+                self.check.tick();
             });
         });
     }

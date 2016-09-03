@@ -119,14 +119,17 @@
    "grant.ok": "Donner l'accès (peut sembler long!)",
    "grant.nok": "Refuser l'accès",
    "grant.err": "Erreur quelque part, mais nous envoyons autant que possible",
+   "grant.notShared": "Cette donnée ne sera pas partagée",
+   "grant.shared": "Cette donnée sera partagée",
 
    "userinfo.title": "Informations à propos du demandeur",
    "userinfo.trustLevel": "Niveau de confiance accordé par Whigi (0-5): ",
    "userinfo.public": "Informations publiques vérifiées: ",
+   "userinfo.name": "Nom de l'organisation: ",
 
    "account.question": "Demande de création de compte '3rd party'",
    "account.explain": "En acceptant, nous créons une donnée vide que nous partageons avec cet ID pour lui permettre de vous authentifier. L'app NE RECEVRA PAS vos clés",
-   "account.id_to": "ID demandant un compte",
+   "account.id_to": "ID demandant un compte: ",
    "account.ok": "Créer un compte",
    "account.nok": "Refuser la création",
 

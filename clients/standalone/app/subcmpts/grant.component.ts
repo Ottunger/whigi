@@ -6,7 +6,7 @@
 
 'use strict';
 declare var window : any
-import {Component, enableProdMode, OnInit, OnDestroy} from '@angular/core';
+import {Component, enableProdMode, OnInit, OnDestroy, ApplicationRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
@@ -23,12 +23,16 @@ enableProdMode();
         <br />
         <p>{{ 'grant.id_to' | translate }}{{ id_to }}</p>
         <br />
-        <h1 *ngFor="let p of data_list">{{ 'grant.prefix' | translate }}</h1>
-        <p *ngIf="!!backend.profile.data[p]">{{ p }}</p>
-        <input *ngIf="!backend.profile.data[p] && !!backend.generics[p]" type="text" [(ngModel)]="new_data[p]" class="form-control">
+
+        <div *ngFor="let p of data_list">
+            <h3>{{ 'grant.prefix' | translate }}{{ p }}</h3>
+            <p *ngIf="!!backend.profile.data[p]">{{ 'grant.shared' | translate }}</p>
+            <input *ngIf="!backend.profile.data[p] && !!backend.generics[p]" type="text" [(ngModel)]="new_data[p]" class="form-control">
+            <p *ngIf="!backend.profile.data[p] && !backend.generics[p]"><i>{{ 'grant.notShared' | translate }}</i></p>
+        </div>
         <br />
 
-        <button type="button" class="btn btn-alarm" (click)="finish(true)">{{ 'grant.ok' | translate }}</button>
+        <button type="button" class="btn btn-warning" (click)="finish(true)">{{ 'grant.ok' | translate }}</button>
         <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'grant.nok' | translate }}</button>
         <br /><br />
 
@@ -56,10 +60,12 @@ export class Grant implements OnInit, OnDestroy {
      * @param routed Activated route service.
      * @param backend Backend service.
      * @param data Data service.
+     * @param check: Check service.
      */
     constructor(private translate: TranslateService, private router: Router, private notif: NotificationsService,
-        private routed: ActivatedRoute, private backend: Backend, private dataservice: Data) {
+        private routed: ActivatedRoute, private backend: Backend, private dataservice: Data, private check: ApplicationRef) {
         this.new_data = {};
+        this.requester = {};
     }
 
     /**
@@ -75,9 +81,9 @@ export class Grant implements OnInit, OnDestroy {
             self.data_list = window.decodeURIComponent(params['data_list']).split('//');
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
-            self.dataservice.listData();
             self.backend.getUser(self.id_to).then(function(user) {
                 self.requester = user;
+                self.check.tick();
             });
         });
     }

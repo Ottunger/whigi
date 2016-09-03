@@ -5,6 +5,7 @@
  */
 
 'use strict';
+declare var window: any
 import {Injectable} from '@angular/core';
 import {CanActivate} from '@angular/router';
 import {Router, CanDeactivate, ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
@@ -40,7 +41,7 @@ export class Profileguard implements CanActivate, CanDeactivate<Filesystem> {
         if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption') && !!this.backend.profile)
             return true;
         if(!('return_url' in localStorage))
-            localStorage.setItem('return_url', state.url);
+            localStorage.setItem('return_url', JSON.stringify(state.url.split('/').map(window.decodeURIComponent)));
         this.router.navigate(['/']);
         return false;
     }
@@ -92,7 +93,7 @@ export class Fullguard implements CanActivate, CanDeactivate<Dataview> {
             && !!this.backend.data_loaded)
             return true;
         if(!('return_url' in localStorage))
-            localStorage.setItem('return_url', state.url);
+            localStorage.setItem('return_url', JSON.stringify(state.url.split('/').map(window.decodeURIComponent)));
         this.router.navigate(['/profile']);
         return false;
     }
