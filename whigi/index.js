@@ -29,8 +29,8 @@ var localhost = process.argv[3] || 'localhost';
 utils.RESTOREHOST = process.argv[4] || 'localhost'; 
 utils.RUNNING_ADDR = 'https://' + localhost;
 utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
-utils.DEBUG = !!process.argv[6]? process.argv[6] : true;
-var isHttps = !!process.argv[7]? process.argv[7] : true;
+utils.DEBUG = !!process.argv[6]? (process.argv[6] == 'true'? true : false): 'true';
+var isHttps = !!process.argv[7]? process.argv[7] : 'true';
 
 /**
  * Returns the allowed HTTP vers on a ressource.
@@ -297,8 +297,8 @@ connect(function(e) {
             console.log(err);
         });
     }
-    
-    if(isHttps) {
+
+    if(isHttps == 'true') {
         var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-cert.pem')}, app);
         servers.listen(httpport);
     } else {
