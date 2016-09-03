@@ -62,9 +62,11 @@ export function removeData(req, res) {
     var name = decodeURIComponent(req.params.data_name);
     req.user.fill().then(function() {
         if(name in req.user.data) {
+            if(Object.getOwnPropertyNames(req.user.data[name].shared_to).length != 0) {
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                return;
+            }
             db.unlink('datas', req.user.data[name].id);
-            for(var id in req.user.data[name].shared_to)
-                db.unlink('vaults', id);
             delete req.user.data[name];
             req.user.persist().then(function() {
                 res.type('application/json').status(200).json({error: ''});

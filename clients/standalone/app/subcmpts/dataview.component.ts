@@ -30,7 +30,8 @@ enableProdMode();
         <input type="file" (change)="fileLoad($event)" class="form-control">
         <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'filesystem.record' | translate }}</button>
         <button type="button" class="btn btn-warning" (click)="revokeAll()">{{ 'dataview.revokeAll' | translate }}</button>
-        <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="!!backend.generics[data_name]">{{ 'remove' | translate }}</button>
+        <button type="button" class="btn btn-danger" (click)="remove()"
+                [disabled]="shared() || !!backend.generics[data_name]">{{ 'remove' | translate }}</button>
         <br /><br />
 
         <div class="table-responsive">
@@ -131,6 +132,16 @@ export class Dataview implements OnInit, OnDestroy {
      */
     ngOnDestroy(): void {
         this.sub.unsubscribe();
+    }
+
+    /**
+     * Check if this data is shared.
+     * @function shared
+     * @public
+     * @return {Boolean} shared or not.
+     */
+    shared(): boolean {
+        return Object.getOwnPropertyNames(this.backend.profile.data[this.data_name].shared_to).length != 0;
     }
 
     /**

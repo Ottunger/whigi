@@ -27,7 +27,7 @@ enableProdMode();
         <div *ngFor="let p of data_list">
             <h3>{{ 'grant.prefix' | translate }}{{ p }}</h3>
             <p *ngIf="!!backend.profile.data[p]">{{ 'grant.shared' | translate }}</p>
-            <input *ngIf="!backend.profile.data[p] && !!backend.generics[p]" type="text" [(ngModel)]="new_data[p]" class="form-control">
+            <input *ngIf="!backend.profile.data[p] && !!backend.generics[p] && !backend.generics[p].is_file" type="text" [(ngModel)]="new_data[p]" class="form-control">
             <p *ngIf="!backend.profile.data[p] && !backend.generics[p]"><i>{{ 'grant.notShared' | translate }}</i></p>
         </div>
         <br />
