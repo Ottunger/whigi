@@ -25,7 +25,7 @@ enableProdMode();
         <br />
         <h1 *ngFor="let p of data_list">{{ 'grant.prefix' | translate }}</h1>
         <p *ngIf="!!backend.profile.data[p]">{{ p }}</p>
-        <input *ngIf="!backend.profile.data[p]" type="text" [(ngModel)]="new_data[p]" class="form-control">
+        <input *ngIf="!backend.profile.data[p] && !!backend.generics[p]" type="text" [(ngModel)]="new_data[p]" class="form-control">
         <br />
 
         <button type="button" class="btn btn-alarm" (click)="finish(true)">{{ 'grant.ok' | translate }}</button>
@@ -44,7 +44,6 @@ export class Grant implements OnInit, OnDestroy {
     public expire_epoch: Date;
     public requester: any;
     public new_data: {[id: string]: string};
-    public is_dated: boolean;
     private sub: Subscription;
 
     /**
@@ -76,7 +75,6 @@ export class Grant implements OnInit, OnDestroy {
             self.data_list = window.decodeURIComponent(params['data_list']).split('//');
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
-            self.is_dated = params['is_dated'];
             self.dataservice.listData();
             self.backend.getUser(self.id_to).then(function(user) {
                 self.requester = user;
@@ -104,8 +102,8 @@ export class Grant implements OnInit, OnDestroy {
         if(ok) {
             var promises: Promise[] = [];
             for(var i = 0; i < this.data_list.length; i++) {
-                if(!(this.data_list[i] in this.backend.profile.data)) {
-                    this.dataservice.newData(this.data_list[i], this.new_data[this.data_list[i]], this.is_dated).then(function(data) {
+                if(!(this.data_list[i] in this.backend.profile.data) && this.data_list[i] in this.backend.generics) {
+                    this.dataservice.newData(this.data_list[i], this.new_data[this.data_list[i]], this.backend.generics[this.data_list[i]].is_dated).then(function(data) {
                         promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], self.new_data[self.data_list[i]], self.expire_epoch));
                     }, function(e) {
                         self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));

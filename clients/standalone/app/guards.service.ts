@@ -7,7 +7,7 @@
 'use strict';
 import {Injectable} from '@angular/core';
 import {CanActivate} from '@angular/router';
-import {Router, CanDeactivate} from '@angular/router';
+import {Router, CanDeactivate, ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {Backend} from './app.service';
 import {Filesystem} from './subcmpts/filesystem.component';
@@ -32,13 +32,15 @@ export class Profileguard implements CanActivate, CanDeactivate<Filesystem> {
      * Checks the guard.
      * @function canActivate
      * @public
+     * @param route Actual route.
+     * @param state State service.
      * @return {Boolean} Can go through.
      */
-    canActivate() {
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption') && !!this.backend.profile)
             return true;
         if(!('return_url' in localStorage))
-            localStorage.setItem('return_url', this.router.routerState.snapshot.url);
+            localStorage.setItem('return_url', state.url);
         this.router.navigate(['/']);
         return false;
     }
@@ -52,7 +54,7 @@ export class Profileguard implements CanActivate, CanDeactivate<Filesystem> {
      * @param state Actual state.
      * @return {Boolean} Can go through.
      */
-    canDeactivate(component: Filesystem, route: any, state: any): Observable<boolean> | Promise<boolean> | boolean {
+    canDeactivate(component: Filesystem, route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
         if((!component.data_name || component.data_name.length == 0) &&
             (!component.data_value || component.data_value.length == 0)) {
             return true;
@@ -81,12 +83,16 @@ export class Fullguard implements CanActivate, CanDeactivate<Dataview> {
      * Checks the guard.
      * @function canActivate
      * @public
+     * @param route Actual route.
+     * @param state State service.
      * @return {Boolean} Can go through.
      */
-    canActivate() {
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption') && !!this.backend.profile
             && !!this.backend.data_loaded)
             return true;
+        if(!('return_url' in localStorage))
+            localStorage.setItem('return_url', state.url);
         this.router.navigate(['/profile']);
         return false;
     }
@@ -100,7 +106,7 @@ export class Fullguard implements CanActivate, CanDeactivate<Dataview> {
      * @param state Actual state.
      * @return {Boolean} Can go through.
      */
-    canDeactivate(component: Dataview, route: any, state: any): Observable<boolean> | Promise<boolean> | boolean {
+    canDeactivate(component: Dataview, route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
         if((!component.new_data || component.new_data.length == 0) &&
             (!component.new_id || component.new_id.length == 0))
             return true;

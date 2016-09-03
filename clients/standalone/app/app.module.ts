@@ -32,6 +32,7 @@ import {Resethelp} from './subcmpts/resethelp.component';
 import {Userinfo} from './subcmpts/userinfo.component';
 import {Account} from './subcmpts/account.component';
 import {Remote} from './subcmpts/remote.component';
+import {Generics} from './subcmpts/generics.component';
 import {Clearview} from './subcmpts/clearview.component';
 import {Notfound} from './subcmpts/notfound.component';
 
@@ -60,6 +61,7 @@ import {Notfound} from './subcmpts/notfound.component';
         Userinfo,
         Account,
         Remote,
+        Generics,
         Clearview,
         Notfound
     ],

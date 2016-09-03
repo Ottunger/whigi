@@ -1,6 +1,6 @@
 /**
- * Component displaying the welcome screen.
- * @module profile.component
+ * Component displaying the files as folders.
+ * @module filesystem.component
  * @author Mathonet Grégoire
  */
 
@@ -93,8 +93,10 @@ export class Filesystem implements OnInit {
      * @param translate Translation service.
      * @param backend App service.
      * @param router Routing service.
+     * @param routed Route snapshot service.
      * @param notif Notification service.
      * @param dataservice Data service.
+     * @param check Check service.
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private routed: ActivatedRoute,
         private notif: NotificationsService, private dataservice: Data, private check: ApplicationRef) {
@@ -126,6 +128,10 @@ export class Filesystem implements OnInit {
      */
     register(as_file: boolean) {
         var self = this, send;
+        if(this.completeName() in this.backend.generics) {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('filesystem.generics'));
+            return;
+        }
         if(this.is_dated) {
             send = JSON.stringify([{
                 value: as_file? this.data_value_file : this.data_value,
@@ -170,11 +176,13 @@ export class Filesystem implements OnInit {
      * Navigate to details panel.
      * @function view
      * @public
-     * @return {String} name Name of data.
+     * @param {String} name Name of data.
      */
     view(name: string) {
         if(this.mode == 'data') {
-            this.router.navigate(['/data', window.encodeURIComponent(this.folders + name)]);
+            this.router.navigate(['/data', window.encodeURIComponent(this.folders + name), {
+                to_filesystem: true
+            }]);
         } else if(this.mode == 'vault') {
             var mail = this.folders.substr(0, this.folders.indexOf('/'));
             this.router.navigate(['/vault', window.encodeURIComponent(mail), this.backend.shared_with_me_trie.find(this.folders + name).value, {

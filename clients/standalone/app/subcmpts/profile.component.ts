@@ -6,7 +6,7 @@
 
 'use strict';
 declare var window: any
-import {Component, enableProdMode} from '@angular/core';
+import {Component, enableProdMode, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
@@ -23,6 +23,7 @@ enableProdMode();
 
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/filesystem', 'data'])">{{ 'profile.mine' | translate }}</button>
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/filesystem', 'vault'])">{{ 'profile.shared' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="router.navigate(['/generics'])">{{ 'profile.generics' | translate }}</button>
         <br /><br />
 
         <form class="form-signin">
@@ -91,7 +92,7 @@ enableProdMode();
         </div>
     `
 })
-export class Profile {
+export class Profile implements OnInit {
 
     public current_pwd: string;
     public password: string;
@@ -112,6 +113,22 @@ export class Profile {
     constructor(private translate: TranslateService, private notif: NotificationsService, private backend: Backend,
         private router: Router, private dataservice: Data) {
         this.use_pwd = true;
+    }
+
+    /**
+     * Called upon displaying.
+     * @function ngOnInit
+     * @public
+     */
+    ngOnInit(): void {
+        var self = this;
+        this.dataservice.listData().then(function() {
+            if(!!localStorage.getItem('return_url') && localStorage.getItem('return_url').length > 1) {
+                var ret: string = localStorage.getItem('return_url');
+                localStorage.removeItem('return_url');
+                self.router.navigate([ret]);
+            }
+        });
     }
 
     /**
@@ -164,8 +181,8 @@ export class Profile {
         }
         if(this.password == this.password2) {
             this.backend.updateProfile(this.password, this.current_pwd).then(function() {
-                self.dataservice.modifyData('keys/pwd/mine1', self.password.slice(0, 4), self.backend.profile.data['keys/pwd/mine1'].shared_to).then(function() {
-                    self.dataservice.modifyData('keys/pwd/mine2', self.password.slice(4), self.backend.profile.data['keys/pwd/mine2'].shared_to).then(function() {
+                self.dataservice.modifyData('keys/pwd/mine1', self.password.slice(0, 4), false, self.backend.profile.data['keys/pwd/mine1'].shared_to).then(function() {
+                    self.dataservice.modifyData('keys/pwd/mine2', self.password.slice(4), false, self.backend.profile.data['keys/pwd/mine2'].shared_to).then(function() {
                         self.current_pwd = '';
                         self.password = '';
                         self.password2 = '';

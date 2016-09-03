@@ -66,6 +66,7 @@
    "profile.revokeID": "ID to ban",
    "profile.oauth": "OAuth permissions",
    "profile.warnChange": "Password changed, but recovery options not",
+   "profile.generics": "Generic data fields",
 
    "filesystem.data_name": "Data name",
    "filesystem.data": "Data",
@@ -78,6 +79,7 @@
    "filesystem.newFolder": "Create folder",
    "filesystem.record": "Record data, 6MB max",
    "filesystem.dated": "Dated field",
+   "filesystem.generics": "This data is a generic one, use the dedicated interface",
 
    "dataview.noData": "Cannot fetch data details",
    "dataview.long": "Too long for decrypting in preview",
@@ -126,6 +128,8 @@
    "account.id_to": "ID requesting an account",
    "account.ok": "Create account",
    "account.nok": "Decline creating account",
+
+   "generics.title": "Create here your generic data",
 
    "error.notfound": "Not found"
 }

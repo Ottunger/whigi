@@ -21,6 +21,10 @@ export class Backend {
     public shared_with_me_trie: Trie;
     public data_loaded: boolean;
     public master_key: number[];
+    public generics: {[id: string]: {
+        is_dated: boolean,
+        is_file: boolean
+    }};
     private rsa_key: string;
     private BASE_URL = 'https://localhost/api/v1/';
     private RESTORE_URL = 'https://localhost/api/v1';
@@ -34,7 +38,11 @@ export class Backend {
      * @param translate Translation service.
      */
     constructor(private http: Http, private notif: NotificationsService, private translate: TranslateService) {
+        var self = this;
         this.data_loaded = false;
+        this.http.get('/app/generics.json').toPromise().then(function(response) {
+            self.generics = response.json();
+        });
     }
 
     /**

@@ -62,13 +62,14 @@ export class Dataview implements OnInit, OnDestroy {
 
     public data: any;
     public data_name: string;
-    public decr_data: string|{from: Date, value: string}[];
+    public decr_data: string;
     public new_data: string;
     public new_data_file: string;
     public new_id: string;
     public new_date: string;
     public timings: {[id: string]: {la: Date, ee: Date}};
     public is_dated: boolean;
+    private to_filesystem: boolean;
     private sub: Subscription;
 
     /**
@@ -99,6 +100,7 @@ export class Dataview implements OnInit, OnDestroy {
         this.sub = this.routed.params.subscribe(function(params) {
             //Use params.name as key
             self.data_name = window.decodeURIComponent(params['name']);
+            self.to_filesystem = params['to_filesystem'];
             self.is_dated = self.backend.profile.data[self.data_name].is_dated;
             var keys = Object.getOwnPropertyNames(self.backend.profile.data[self.data_name].shared_to);
             keys.forEach(function(val) {
@@ -193,7 +195,10 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     back() {
-        this.router.navigate(['/filesystem', 'data', {folders: this.data_name.replace(/[^\/]+$/, '')}]);
+        if(this.to_filesystem)
+            this.router.navigate(['/filesystem', 'data', {folders: this.data_name.replace(/[^\/]+$/, '')}]);
+        else
+            this.router.navigate['/generics'];
     }
 
     /**

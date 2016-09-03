@@ -66,6 +66,7 @@
    "profile.revokeID": "ID à bannir",
    "profile.oauth": "Permissions OAuth",
    "profile.warnChange": "Mot de passe changé, mais récupération devenue impossible",
+   "profile.generics": "Données génériques",
 
    "filesystem.data_name": "Nom de donnée",
    "filesystem.data": "Valeur",
@@ -78,6 +79,7 @@
    "filesystem.newFolder": "Créer un dossier",
    "filesystem.record": "Enregistrer donnée, 6Mo max",
    "filesystem.dated": "Champ daté",
+   "filesystem.generics": "Cette donnée est générique, utilisez l'interface dédiée",
 
    "dataview.noData": "Impossible d'avoir les détails de la donnée",
    "dataview.long": "Trop long pour récupérer en prévisualisation",
@@ -126,6 +128,8 @@
    "account.id_to": "ID demandant un compte",
    "account.ok": "Créer un compte",
    "account.nok": "Refuser la création",
+
+   "generics.title": "Créez ici vos données génériques",
 
    "error.notfound": "Introuvable"
 }
