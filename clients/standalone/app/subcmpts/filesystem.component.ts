@@ -55,20 +55,31 @@ enableProdMode();
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
                         <td>
-                            <div class="checkbox">
-                                <label><input type="checkbox" name="n9" [(ngModel)]="is_dated" checked> {{ 'filesystem.dated' | translate }}</label>
-                            </div>
-                            <button type="button" class="btn btn-default" (click)="register(false)">{{ 'filesystem.record' | translate }}</button>
+                            <button type="button" class="btn btn-default" (click)="register(false, false)">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
                     <tr *ngIf="mode=='data'">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="file" (change)="fileLoad($event)" name="n50" class="form-control"></td>
                         <td>
-                            <div class="checkbox">
-                                <label><input type="checkbox" name="n9" [(ngModel)]="is_dated"> {{ 'filesystem.dated' | translate }}</label>
-                            </div>
-                            <button type="button" class="btn btn-default" (click)="register(true)" [disabled]="data_value_file==''">{{ 'filesystem.record' | translate }}</button>
+                            <button type="button" class="btn btn-default" (click)="register(true, false)" [disabled]="data_value_file==''">{{ 'filesystem.record' | translate }}</button>
+                        </td>
+                    </tr>
+
+                    <tr *ngIf="mode=='data'">
+                        <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
+                        <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
+                        <td>
+                            <input [(ngModel)]="new_date" datetime-picker>
+                            <button type="button" class="btn btn-default" (click)="register(false, true)">{{ 'filesystem.record' | translate }}</button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="mode=='data'">
+                        <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
+                        <td><input type="file" (change)="fileLoad($event)" name="n50" class="form-control"></td>
+                        <td>
+                            <input [(ngModel)]="new_date" datetime-picker>
+                            <button type="button" class="btn btn-default" (click)="register(true, true)" [disabled]="data_value_file==''">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
                 </tbody>
@@ -81,7 +92,7 @@ export class Filesystem implements OnInit {
     public data_name: string;
     public data_value: string;
     public data_value_file: string;
-    public is_dated: boolean;
+    public new_date: string;
     private mode: string;
     private folders: string;
     private sub: Subscription;
@@ -102,7 +113,6 @@ export class Filesystem implements OnInit {
         private notif: NotificationsService, private dataservice: Data, private check: ApplicationRef) {
         this.folders = '';
         this.data_value_file = '';
-        this.is_dated = false;
     }
 
     /**
@@ -125,22 +135,23 @@ export class Filesystem implements OnInit {
      * @function register
      * @public
      * @param {Boolean} as_file Load from file.
+     * @param {Boolean} is_dated Dated or not.
      */
-    register(as_file: boolean) {
+    register(as_file: boolean, is_dated: boolean) {
         var self = this, send;
         if(this.completeName() in this.backend.generics) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('filesystem.generics'));
             return;
         }
-        if(this.is_dated) {
+        if(is_dated) {
             send = JSON.stringify([{
                 value: as_file? this.data_value_file : this.data_value,
-                from: (new Date).getTime()
+                from: new Date(this.new_date).getTime()
             }]);
         } else {
             send = as_file? this.data_value_file : this.data_value;
         }
-        this.dataservice.newData(this.completeName(), send, this.is_dated).then(function() {
+        this.dataservice.newData(this.completeName(), send, is_dated).then(function() {
             self.data_name = '';
             self.data_value = '';
             self.data_value_file = '';

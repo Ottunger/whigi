@@ -26,6 +26,7 @@ enableProdMode();
 
         <p *ngIf="!is_dated">{{ 'modify' | translate }}</p>
         <p *ngIf="!!is_dated && is_dated">{{ 'add' | translate }}</p>
+        <input *ngIf="!!is_dated && is_dated" [(ngModel)]="new_date" datetime-picker>
         <input type="text" [(ngModel)]="new_data" [disabled]="new_data_file!=''" class="form-control">
         <input type="file" (change)="fileLoad($event)" class="form-control">
         <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'filesystem.record' | translate }}</button>
@@ -158,7 +159,7 @@ export class Dataview implements OnInit, OnDestroy {
         if(this.is_dated) {
             replacement = JSON.parse(this.decr_data);
             replacement.unshift({
-                from: (new Date).getTime(),
+                from: new Date(this.new_date).getTime(),
                 value:(this.new_data_file != '')? this.new_data_file : this.new_data
             });
             replacement = JSON.stringify(replacement);
