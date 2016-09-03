@@ -23,6 +23,7 @@ enableProdMode();
 export class Remote implements OnInit, OnDestroy {
 
     private id_to: string;
+    private challenge: string;
     private return_url: string;
     private sub: Subscription;
 
@@ -51,6 +52,7 @@ export class Remote implements OnInit, OnDestroy {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
             self.id_to = window.decodeURIComponent(params['id_to']);
+            self.challenge = params['challenge'];
             self.return_url = window.decodeURIComponent(params['return_url']);
             if(!/^https/.test(self.return_url)) {
                 window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;
@@ -61,7 +63,9 @@ export class Remote implements OnInit, OnDestroy {
                 }
                 self.backend.getData(self.backend.profile.data['keys/auth/' + self.id_to].id).then(function(data) {
                     self.backend.decryptAES(self.backend.str2arr(data.encr_data), self.dataservice.workerMgt(false, function(got) {
-                        window.location.href = self.return_url + '?response=' + got + '&user=' + self.backend.profile._id;
+                        self.backend.encryptAES(self.challenge, self.dataservice.workerMgt(true, function(got) {
+                            window.location.href = self.return_url + '?response=' + got + '&user=' + self.backend.profile._id;
+                        }), self.backend.toBytes(got));
                     }));
                 }, function(e) {
                     window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;

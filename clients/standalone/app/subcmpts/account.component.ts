@@ -96,7 +96,7 @@ export class Account implements OnInit, OnDestroy {
     finish(ok: boolean) {
         var self = this;
         if(ok) {
-            var key = this.backend.generateRandomString(32);
+            var key = this.backend.generateRandomString(64);
             this.dataservice.newData('keys/auth/' + this.id_to, key, false, true).then(function(dummy) {
                 self.dataservice.grantVault(self.id_to, 'keys/auth/' + self.id_to, key, new Date(0)).then(function(dummy) {
                     window.location.href = self.return_url_ok;

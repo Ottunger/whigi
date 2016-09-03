@@ -51,11 +51,11 @@ export class Backend {
     /**
      * Return an array from the first values of a string giving an AES key.
      * @function toBytes
-     * @private
+     * @public
      * @param {String} data String.
      * @return {Bytes} Bytes.
      */
-    private toBytes(data: string): number[] {
+     toBytes(data: string): number[] {
         function num(e) {
             if(e >= 65)
                 return e - 55;
