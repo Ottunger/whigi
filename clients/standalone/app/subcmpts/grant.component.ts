@@ -23,7 +23,7 @@ enableProdMode();
         <br />
         <p>{{ 'grant.id_to' | translate }}{{ id_to }}</p>
         <br />
-        <p *ngIf="!forever">{{ 'grant.until' | translate }}<input [ngModel]="expire_epoch.toLocaleString()" datetime-picker [disabled]="true"></p>
+        <p *ngIf="!forever">{{ 'grant.until' | translate }}<input [ngModel]="expire_epoch.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></p>
         <p *ngIf="forever">{{ 'grant.forever' | translate }}</p>
         <br />
 

@@ -73,7 +73,7 @@ enableProdMode();
             <h3 class="form-signin-heading">{{ 'profile.oauth' | translate }}</h3>
         </div>
         <div class="table-responsive">
-            <table class="table table-condensed table-bordered">
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th>{{ 'oauth.for_id' | translate }}</th>

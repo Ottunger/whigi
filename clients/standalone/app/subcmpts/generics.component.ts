@@ -27,7 +27,7 @@ enableProdMode();
         <br />
 
         <div class="table-responsive">
-            <table class="table table-condensed table-bordered">
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th>{{ 'filesystem.data_name' | translate }}</th>

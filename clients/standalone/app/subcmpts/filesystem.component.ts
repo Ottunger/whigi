@@ -22,7 +22,7 @@ enableProdMode();
         <br />
 
         <div class="table-responsive">
-            <table class="table table-condensed table-bordered">
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th>{{ 'filesystem.data_name' | translate }}</th>
@@ -31,12 +31,12 @@ enableProdMode();
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <tr class="info">
                         <td></td>
                         <td>{{ 'filesystem.folder' | translate }}</td>
                         <td><button type="button" class="btn btn-default" (click)="getUp()" [disabled]="folders==''">{{ 'filesystem.getUp' | translate }}</button></td>
                     </tr>
-                    <tr *ngFor="let d of folderNames()">
+                    <tr *ngFor="let d of folderNames()"  class="info">
                         <td>{{ d }}</td>
                         <td>{{ 'filesystem.folder' | translate }}</td>
                         <td><button type="button" class="btn btn-default" (click)="select(d)">{{ 'filesystem.goTo' | translate }}</button></td>
@@ -46,7 +46,7 @@ enableProdMode();
                         <td><i>{{ 'filesystem.mix' | translate }}</i></td>
                         <td><button type="button" class="btn btn-default" (click)="view(d)">{{ 'filesystem.goTo' | translate }}</button></td>
                     </tr>
-                    <tr *ngIf="mode=='data'">
+                    <tr *ngIf="mode=='data'"  class="info">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td>{{ 'filesystem.folder' | translate }}</td>
                         <td><button type="button" class="btn btn-default" (click)="select(data_name); data_name=''">{{ 'filesystem.newFolder' | translate }}</button></td>
@@ -70,7 +70,7 @@ enableProdMode();
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
                         <td>
-                            <input [(ngModel)]="new_date" datetime-picker>
+                            <input [(ngModel)]="new_date" datetime-picker class="form-control">
                             <button type="button" class="btn btn-default" (click)="register(false, true)">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
@@ -78,7 +78,7 @@ enableProdMode();
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="file" (change)="fileLoad($event)" name="n50" class="form-control"></td>
                         <td>
-                            <input [(ngModel)]="new_date" datetime-picker>
+                            <input [(ngModel)]="new_date" datetime-picker class="form-control">
                             <button type="button" class="btn btn-default" (click)="register(true, true)" [disabled]="data_value_file==''">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>

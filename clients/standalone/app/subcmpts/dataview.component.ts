@@ -26,7 +26,7 @@ enableProdMode();
 
         <p *ngIf="!is_dated">{{ 'modify' | translate }}</p>
         <p *ngIf="!!is_dated && is_dated">{{ 'add' | translate }}</p>
-        <input *ngIf="!!is_dated && is_dated" [(ngModel)]="new_date" datetime-picker>
+        <input *ngIf="!!is_dated && is_dated" [(ngModel)]="new_date" datetime-picker class="form-control">
         <input type="text" [(ngModel)]="new_data" [disabled]="new_data_file!=''" class="form-control">
         <input type="file" (change)="fileLoad($event)" class="form-control">
         <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'filesystem.record' | translate }}</button>
@@ -36,7 +36,7 @@ enableProdMode();
         <br /><br />
 
         <div class="table-responsive">
-            <table class="table table-condensed table-bordered">
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th>{{ 'dataview.shared_to' | translate }}</th>
@@ -48,8 +48,8 @@ enableProdMode();
                 <tbody>
                     <tr *ngFor="let d of sharedIds()">
                         <td>{{ d }}</td>
-                        <td *ngIf="!!timings[d] && timings[d].seen"><input [ngModel]="timings[d].la.toLocaleString()" datetime-picker [disabled]="true"></td>
-                        <td *ngIf="!!timings[d] && timings[d].ends"><input [ngModel]="timings[d].ee.toLocaleString()" datetime-picker [disabled]="true"></td>
+                        <td *ngIf="!!timings[d] && timings[d].seen"><input [ngModel]="timings[d].la.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></td>
+                        <td *ngIf="!!timings[d] && timings[d].ends"><input [ngModel]="timings[d].ee.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></td>
                         <td *ngIf="!!timings[d] && !timings[d].seen">{{ 'dataview.neverSeen' | translate }}</td>
                         <td *ngIf="!!timings[d] && !timings[d].ends">{{ 'dataview.forever' | translate }}</td>
                         <td *ngIf="!timings[d]"></td>
@@ -59,7 +59,7 @@ enableProdMode();
                     <tr>
                         <td><input type="text" [(ngModel)]="new_id" name="y0" class="form-control"></td>
                         <td></td>
-                        <td><input [(ngModel)]="new_date" datetime-picker></td>
+                        <td><input [(ngModel)]="new_date" datetime-picker class="form-control"></td>
                         <td><button type="button" class="btn btn-default" (click)="register()" [disabled]="!decr_data">{{ 'record' | translate }}</button></td>
                     </tr>
                 </tbody>
