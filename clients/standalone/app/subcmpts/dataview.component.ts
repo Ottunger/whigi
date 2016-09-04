@@ -48,8 +48,10 @@ enableProdMode();
                 <tbody>
                     <tr *ngFor="let d of sharedIds()">
                         <td>{{ d }}</td>
-                        <td *ngIf="!!timings[d]"><input [ngModel]="timings[d].la.toLocaleString()" datetime-picker [disabled]="true"></td>
-                        <td *ngIf="!!timings[d]"><input [ngModel]="timings[d].ee.toLocaleString()" datetime-picker [disabled]="true"></td>
+                        <td *ngIf="!!timings[d] && timings[d].seen"><input [ngModel]="timings[d].la.toLocaleString()" datetime-picker [disabled]="true"></td>
+                        <td *ngIf="!!timings[d] && timings[d].ends"><input [ngModel]="timings[d].ee.toLocaleString()" datetime-picker [disabled]="true"></td>
+                        <td *ngIf="!!timings[d] && !timings[d].seen">{{ 'dataview.neverSeen' | translate }}</td>
+                        <td *ngIf="!!timings[d] && !timings[d].ends">{{ 'dataview.forever' | translate }}</td>
                         <td *ngIf="!timings[d]"></td>
                         <td *ngIf="!timings[d]"></td>
                         <td><button type="button" class="btn btn-default" (click)="revoke(d)" [disabled]="!backend.profile.data[data_name].shared_to[d]">{{ 'remove' | translate }}</button></td>
@@ -74,7 +76,7 @@ export class Dataview implements OnInit, OnDestroy {
     public new_data_file: string;
     public new_id: string;
     public new_date: string;
-    public timings: {[id: string]: {la: Date, ee: Date}};
+    public timings: {[id: string]: {la: Date, ee: Date, seen: boolean, ends: boolean}};
     public is_dated: boolean;
     private to_filesystem: boolean;
     private sub: Subscription;
@@ -112,7 +114,12 @@ export class Dataview implements OnInit, OnDestroy {
             var keys = Object.getOwnPropertyNames(self.backend.profile.data[self.data_name].shared_to);
             keys.forEach(function(val) {
                 self.backend.getAccessVault(self.backend.profile.data[self.data_name].shared_to[val]).then(function(got) {
-                    self.timings[val] = {la: new Date(got.last_access), ee: new Date(got.expire_epoch)};
+                    self.timings[val] = {
+                        la: new Date(parseInt(got.last_access)),
+                        ee: new Date(parseInt(got.expire_epoch)),
+                        seen: parseInt(got.last_access) > 0,
+                        ends: parseInt(got.expire_epoch) > (new Date).getTime()
+                    };
                 }, function(e) {
                     delete self.backend.profile.data[self.data_name].shared_to[val];
                 });

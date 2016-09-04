@@ -93,6 +93,8 @@
    "dataview.until": "Valide jusque",
    "dataview.toGen": "Aller à la page des génériques",
    "dataview.lastAccess": "Dernier accès",
+   "dataview.neverSeen": "Jamais exploité",
+   "dataview.forever": "A jamais valide",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
    "vaultview.expired": "Cette valise a expiré...",
@@ -122,6 +124,8 @@
    "grant.err": "Erreur quelque part, mais nous envoyons autant que possible",
    "grant.notShared": "Cette donnée ne sera pas partagée",
    "grant.shared": "Cette donnée sera partagée",
+   "grant.until": "Les données seront disponibles pour l'app jusqu'à: ",
+   "grant.forever": "Les données seront TOUJOURS disponibles pour l'app, mais vous pourrez retirer l'accès.",
 
    "userinfo.title": "Informations à propos du demandeur",
    "userinfo.trustLevel": "Niveau de confiance accordé par Whigi (0-5): ",
@@ -137,6 +141,9 @@
    "generics.title": "Créez ici vos données génériques",
    "generics.regexp": "Votre entrée ne valide pas le format attendu",
    "generics.descr": "Description",
+   "generics.any": "Nos registres",
+   "generics.profile": "Registre 'profil'",
+   "generics.corporate": "Registre 'entreprise'",
    "generics.email": "Votre email préféré pour Whigi-restore",
    "generics.last_name": "Votre nom de famille",
    "generics.first_name": "Votre prénom",

@@ -23,6 +23,9 @@ enableProdMode();
         <br />
         <p>{{ 'grant.id_to' | translate }}{{ id_to }}</p>
         <br />
+        <p *ngIf="!forever">{{ 'grant.until' | translate }}<input [ngModel]="expire_epoch.toLocaleString()" datetime-picker [disabled]="true"></p>
+        <p *ngIf="forever">{{ 'grant.forever' | translate }}</p>
+        <br />
 
         <div *ngFor="let p of data_list">
             <h3>{{ 'grant.prefix' | translate }}{{ p }}</h3>
@@ -49,6 +52,7 @@ export class Grant implements OnInit, OnDestroy {
     public expire_epoch: Date;
     public requester: any;
     public new_data: {[id: string]: string};
+    public forever: boolean;
     private sub: Subscription;
 
     /**
@@ -78,7 +82,8 @@ export class Grant implements OnInit, OnDestroy {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
             self.id_to = window.decodeURIComponent(params['id_to']);
-            self.expire_epoch = new Date(params['expire_epoch']);
+            self.expire_epoch = new Date(parseInt(params['expire_epoch']));
+            self.forever = self.expire_epoch.getTime() < (new Date).getTime();
             self.data_list = window.decodeURIComponent(params['data_list']).split('//');
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);

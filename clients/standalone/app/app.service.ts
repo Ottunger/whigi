@@ -26,6 +26,7 @@ export class Backend {
         is_file: boolean,
         descr_key: string,
         regexp?: string,
+        module: string,
         img_url?: string
     }};
     private rsa_key: string;

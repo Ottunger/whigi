@@ -93,6 +93,8 @@
    "dataview.until": "Valid until",
    "dataview.toGen": "Go to generics page",
    "dataview.lastAccess": "Last access",
+   "dataview.neverSeen": "Never seen",
+   "dataview.forever": "Always valid",
 
    "vaultview.noData": "Cannot retrieve such vault. Maybe access was revoked...",
    "vaultview.expired": "This vault has expired...",
@@ -122,6 +124,8 @@
    "grant.err": "Something went wrong somewhere, but we'll prove as much as we can",
    "grant.notShared": "This data will not be shared",
    "grant.shared": "This data will be shared",
+   "grant.until": "The data will be available to the 3rd party until: ",
+   "grant.forever": "The data will ALWAYS be available to 3rd party, but you can revoke this.",
 
    "userinfo.title": "Information about the requester",
    "userinfo.trustLevel": "Trust level of whigi about this provider (0-5): ",
@@ -137,6 +141,9 @@
    "generics.title": "Create here your generic data",
    "generics.regexp": "Your input does not match expected format",
    "generics.descr": "Description",
+   "generics.any": "Any module",
+   "generics.profile": "Module 'profile'",
+   "generics.corporate": "Module 'corporate'",
    "generics.email": "Your preferred email for Whigi-restore",
    "generics.last_name": "Your last name",
    "generics.first_name": "Your first name",

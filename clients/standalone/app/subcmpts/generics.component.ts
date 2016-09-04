@@ -21,6 +21,11 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/profile'])">{{ 'back' | translate }}</button>
         <br />
 
+        <select class="form-control" [(ngModel)]="filter">
+            <option *ngFor="let f of filters()" [value]="f">{{ f | translate }}</option>
+        </select>
+        <br />
+
         <div class="table-responsive">
             <table class="table table-condensed table-bordered">
                 <thead>
@@ -69,6 +74,7 @@ export class Generics implements OnInit {
 
     public new_data: string;
     public new_data_file: string;
+    public filter: string;
     private sub: Subscription;
 
     /**
@@ -84,7 +90,7 @@ export class Generics implements OnInit {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService,
         private dataservice: Data, private check: ApplicationRef) {
-
+        this.filter = 'generics.any';
     }
 
     /**
@@ -134,13 +140,32 @@ export class Generics implements OnInit {
     }
 
     /**
+     * Returns all available filters.
+     * @function filters
+     * @public
+     */
+    filters(): string[] {
+        var ret = ['generics.any'];
+        for(var data in this.backend.generics) {
+            if(ret.indexOf(this.backend.generics[data].module) < 0)
+                ret.push(this.backend.generics[data].module);
+        }
+        return ret;
+    }
+
+    /**
      * Returns the keys of generics.
      * @function generics
      * @public
      * @return {String[]} Keys.
      */
     generics(): string[] {
-        return Object.getOwnPropertyNames(this.backend.generics);
+        var self = this;
+        if(this.filter == 'generics.any')
+            return Object.getOwnPropertyNames(this.backend.generics);
+        return Object.getOwnPropertyNames(this.backend.generics).filter(function(el): boolean {
+            return self.backend.generics[el].module == self.filter;
+        });
     }
 
     /**
