@@ -28,6 +28,7 @@ enableProdMode();
             <h3>{{ 'grant.prefix' | translate }}{{ p }}</h3>
             <p *ngIf="!!backend.profile.data[p]">{{ 'grant.shared' | translate }}</p>
             <input *ngIf="!backend.profile.data[p] && !!backend.generics[p] && !backend.generics[p].is_file" type="text" [(ngModel)]="new_data[p]" class="form-control">
+            <input *ngIf="!backend.profile.data[p] && !!backend.generics[p] && backend.generics[p].is_file" type="file" (change)="fileLoad($event, p)" class="form-control">
             <p *ngIf="!backend.profile.data[p] && !backend.generics[p]"><i>{{ 'grant.notShared' | translate }}</i></p>
         </div>
         <br />
@@ -84,6 +85,8 @@ export class Grant implements OnInit, OnDestroy {
             self.backend.getUser(self.id_to).then(function(user) {
                 self.requester = user;
                 self.check.tick();
+            }, function(e) {
+                window.location.href = self.return_url_deny;
             });
         });
     }
@@ -109,6 +112,12 @@ export class Grant implements OnInit, OnDestroy {
             var promises: Promise[] = [];
             for(var i = 0; i < this.data_list.length; i++) {
                 if(!(this.data_list[i] in this.backend.profile.data) && this.data_list[i] in this.backend.generics) {
+                    if(this.backend.generics[this.data_list[i]].is_dated) {
+                        this.new_data[this.data_list[i]] = JSON.stringify([{
+                            value: this.new_data[this.data_list[i]],
+                            from: 0
+                        }]);
+                    }
                     this.dataservice.newData(this.data_list[i], this.new_data[this.data_list[i]], this.backend.generics[this.data_list[i]].is_dated).then(function(data) {
                         promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], self.new_data[self.data_list[i]], self.expire_epoch));
                     }, function(e) {
@@ -135,6 +144,23 @@ export class Grant implements OnInit, OnDestroy {
         } else {
             window.location.href = this.return_url_deny;
         }
+    }
+
+    /**
+     * Loads a file as data.
+     * @function fileLoad
+     * @public
+     * @param {Event} e The change event.
+     * @param {String} name The data name associated.
+     */
+    fileLoad(e: any, name: string) {
+        var self = this;
+        var file: File = e.target.files[0]; 
+        var r: FileReader = new FileReader();
+        r.onloadend = function(e) {
+            self.new_data[name] = r.result;
+        }
+        r.readAsDataURL(file);
     }
 
 }

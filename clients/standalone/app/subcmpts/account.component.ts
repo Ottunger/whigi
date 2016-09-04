@@ -74,6 +74,8 @@ export class Account implements OnInit, OnDestroy {
             self.backend.getUser(self.id_to).then(function(user) {
                 self.requester = user;
                 self.check.tick();
+            }, function(e) {
+                window.location.href = self.return_url_deny;
             });
         });
     }

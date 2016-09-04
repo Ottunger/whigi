@@ -90,8 +90,9 @@
    "dataview.wait": "attendez la décryption avant de partager",
    "dataview.tooLong": "Trop long pour être affiché",
    "dataview.revokeAll": "Supprimer toutes les valises associées",
-   "dataview.until": "Dernier accès - Valide jusque",
+   "dataview.until": "Valide jusque",
    "dataview.toGen": "Aller à la page des génériques",
+   "dataview.lastAccess": "Dernier accès",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
    "vaultview.expired": "Cette valise a expiré...",

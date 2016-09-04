@@ -77,6 +77,8 @@ export class Oauth implements OnInit, OnDestroy {
             self.backend.getUser(self.for_id).then(function(user) {
                 self.requester = user;
                 self.check.tick();
+            }, function(e) {
+                window.location.href = self.return_url_deny;
             });
         });
     }

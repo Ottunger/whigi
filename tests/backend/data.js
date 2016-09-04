@@ -116,20 +116,13 @@ exports.test = function() {
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(200).notify(done);
             });
-            it('should indeed remove a present one', function(done) {
+            it('should not allow removing a still used data', function(done) {
                 var f = new fk.FakeRes(false);
                 me.removeData({
                     user: new user.User(dummy_user, ds),
                     params: {data_name: 'IIS'}
                 }, f);
-                f.promise.then(function() {
-                    chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {data: true})).to.eventually.become({
-                        _id: dummy_user._id,
-                         data: {}
-                    }).notify(done);
-                }, function(e) {
-                    done(e);
-                });
+                chai.expect(f.promise).to.eventually.equal(403).notify(done);
             });
         });
 

@@ -24,7 +24,7 @@ enableProdMode();
         </div>
         <div *ngIf="is_dated">
             <div *ngFor="let p of computeValues(); let i = index">
-                <p>{{ 'actualFrom' | translate }}{{ p.from }}</p>
+                <p>{{ 'actualFrom' | translate }}<input [ngModel]="p.from.toLocaleString()" datetime-picker [disabled]="true"></p>
                 <input *ngIf="p.value.length < 150" type="text" [ngModel]="p.value" class="form-control" readonly>
                 <input *ngIf="p.value.length >= 150" type="text" value="{{ 'dataview.tooLong' | translate }}" class="form-control" readonly>
                 <button type="button" class="btn btn-primary" (click)="dl(p.value)">{{ 'download' | translate }}</button>

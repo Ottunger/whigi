@@ -40,6 +40,7 @@ enableProdMode();
                 <thead>
                     <tr>
                         <th>{{ 'dataview.shared_to' | translate }}</th>
+                        <th>{{ 'dataview.lastAccess' | translate }}</th>
                         <th>{{ 'dataview.until' | translate }}</th>
                         <th>{{ 'action' | translate }}</th>
                     </tr>
@@ -47,12 +48,15 @@ enableProdMode();
                 <tbody>
                     <tr *ngFor="let d of sharedIds()">
                         <td>{{ d }}</td>
-                        <td *ngIf="!!timings[d]">{{ timings[d].la }} - {{ timings[d].ee }}</td>
+                        <td *ngIf="!!timings[d]"><input [ngModel]="timings[d].la.toLocaleString()" datetime-picker [disabled]="true"></td>
+                        <td *ngIf="!!timings[d]"><input [ngModel]="timings[d].ee.toLocaleString()" datetime-picker [disabled]="true"></td>
+                        <td *ngIf="!timings[d]"></td>
                         <td *ngIf="!timings[d]"></td>
                         <td><button type="button" class="btn btn-default" (click)="revoke(d)" [disabled]="!backend.profile.data[data_name].shared_to[d]">{{ 'remove' | translate }}</button></td>
                     </tr>
                     <tr>
                         <td><input type="text" [(ngModel)]="new_id" name="y0" class="form-control"></td>
+                        <td></td>
                         <td><input [(ngModel)]="new_date" datetime-picker></td>
                         <td><button type="button" class="btn btn-default" (click)="register()" [disabled]="!decr_data">{{ 'record' | translate }}</button></td>
                     </tr>

@@ -85,11 +85,11 @@ exports.test = function() {
 
         describe('#getUser()', function() {
             it('should find a present user', function(done) {
-                var f = new fk.FakeRes(true);
+                var f = new fk.FakeRes(false);
                 me.getUser({
                     params: {id: dummy_user._id}
                 }, f);
-                chai.expect(f.promise).to.eventually.include.keys('_id').notify(done);
+                chai.expect(f.promise).to.eventually.equal(200).notify(done);
             });
             it('should not find a non-present user', function(done) {
                 var f = new fk.FakeRes(false);
@@ -180,14 +180,14 @@ exports.test = function() {
         });
 
         describe('#regUser()', function() {
-            it('should fail because of captcha', function(done) {
+            it('should record a user', function(done) {
                 var f = new fk.FakeRes(false);
                 me.regUser({
                     get: function() {return 'fr'},
                     query: {captcha: 'dummy'},
-                    body: {password: 'abcdefgh'}
+                    body: {password: 'abcdefgh', username: 'lol'}
                 }, f);
-                chai.expect(f.promise).to.eventually.equal(400).notify(done);
+                chai.expect(f.promise).to.eventually.equal(201).notify(done);
             });
         });
 
