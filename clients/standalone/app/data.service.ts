@@ -73,7 +73,8 @@ export class Data {
                 case 3:
                     self.notif.remove();
                     self.notif.error(self.translate.instant(encrypt? 'encrypting' : 'decrypting'), self.translate.instant('corruption'));
-                    callback('');
+                    console.log(JSON.parse(msg.data[1]));
+                    callback('[]');
                     break;
                 case 0:
                 default:

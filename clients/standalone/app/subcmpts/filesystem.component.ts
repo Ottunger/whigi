@@ -209,9 +209,9 @@ export class Filesystem implements OnInit {
      */
     listLevel(): string[] {
         if(this.mode == 'data') {
-            return this.backend.data_trie.suggestions(this.folders, '/');
+            return this.backend.data_trie.suggestions(this.folders, '/').sort();
         } else if(this.mode == 'vault') {
-            return this.backend.shared_with_me_trie.suggestions(this.folders, '/');
+            return this.backend.shared_with_me_trie.suggestions(this.folders, '/').sort();
         }
     }
 

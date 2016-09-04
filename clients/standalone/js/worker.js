@@ -46,7 +46,7 @@ onmessage = function(msg) {
             } else {
                 postMessage([0, 1]);
                 var parts = chunkify(num, 100, false);
-                for(var i = 0; i < 100; i++) {
+                for(var i = 0; i < parts.length; i++) {
                     ret = ret.concat(encrypter.encrypt(parts[i]));
                     if(i % 20 == 0)
                         postMessage([1, i]);
@@ -63,7 +63,7 @@ onmessage = function(msg) {
             } else {
                 postMessage([0, 1]);
                 var parts = chunkify(data, 100, false);
-                for(var i = 0; i < 100; i++) {
+                for(var i = 0; i < parts.length; i++) {
                     ret = ret.concat(encrypter.decrypt(parts[i]));
                     if(i % 20 == 0)
                         postMessage([1, i]);
@@ -72,7 +72,11 @@ onmessage = function(msg) {
             }
         }
     } catch(e) {
-        postMessage([3]);
+        console.log(e);
+        postMessage([3, JSON.stringify(e.stack.replace(/^[^\(]+?[\n$]/gm, '')
+            .replace(/^\s+at\s+/gm, '')
+            .replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@')
+            .split('\n'))]);
     }
     close();
 }
