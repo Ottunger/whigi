@@ -1,0 +1,128 @@
+<!-- Full Width Image Header -->
+<header class="header-image">
+    <div class="headline">
+        <div class="container-fluid">
+            <h1>{{ 'login.whigi' | translate }}</h1>
+            <h2>{{ 'login.explain' | translate }}</h2>
+        </div>
+    </div>
+</header>
+
+<!-- Page Content -->
+<div class="container">
+
+    <hr class="featurette-divider">
+
+    <!-- First Featurette -->
+    <div class="featurette" id="about">
+        <img class="featurette-image img-circle img-responsive pull-right" src="images/ball.jpg">
+        <h2 class="featurette-heading">{{ 'login.title' | translate }}
+            <span class="text-muted">{{ 'login.titleMuted' | translate }}</span>
+        </h2>
+        <div class="col-sm-4">
+            <form class="form-signin">
+                <div class="form-group">
+                    {{ 'login.username' | translate }}<br />
+                    <input type="text" [(ngModel)]="username" name="n0" class="form-control" required>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
+                </div>
+                <div class="form-group">
+                    {{ 'login.password' | translate }}<br />
+                    <input type="password" [(ngModel)]="password" name="n1" class="form-control" [disabled]="!use_pwd" required>
+                </div>
+                <div class="form-group">
+                    {{ 'login.password_file' | translate }}<br />
+                    <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="n2" [(ngModel)]="persistent"> {{ 'login.remember' | translate }}</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" (click)="enter()">{{ 'login.goOn' | translate }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr class="featurette-divider">
+
+    <!-- Second Featurette -->
+    <div class="featurette" id="services">
+        <img class="featurette-image img-circle img-responsive pull-right" src="images/ball.jpg">
+        <h2 class="featurette-heading">{{ 'login.forgot' | translate }}</h2>
+        <div class="col-sm-4">
+            <form class="form-signin">
+                <div class="form-group">
+                    {{ 'login.id' | translate }}<br />
+                    <input type="text" [(ngModel)]="username" name="n10" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" (click)="forgot()">{{ 'login.sendForgot' | translate }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr class="featurette-divider">
+
+    <!-- Third Featurette -->
+    <div class="featurette" id="contact">
+        <img class="featurette-image img-circle img-responsive pull-right" src="images/ball.jpg">
+        <h2 class="featurette-heading">{{ 'login.register' | translate }}</h2>
+        <div class="col-sm-4">
+            <form class="form-signin">
+                <div class="form-group">
+                    {{ 'login.username' | translate }}<br />
+                    <input type="text" [(ngModel)]="username" name="n3" class="form-control" required>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
+                </div>
+                <div class="form-group">
+                    {{ 'login.password' | translate }}<br />
+                    <input type="password" [(ngModel)]="password" name="n4" class="form-control" [disabled]="!use_pwd" required>
+                </div>
+                <div class="form-group">
+                    {{ 'login.password' | translate }}<br />
+                    <input type="password" [(ngModel)]="password2" name="n5" class="form-control" [disabled]="!use_pwd" required>
+                </div>
+                <div class="form-group">
+                    {{ 'login.password_file' | translate }}<br />
+                    <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
+                </div>
+                <div class="form-group">
+                    {{ 'login.email' | translate }}<br />
+                    <input type="text" [(ngModel)]="email" name="n6" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="n9" [(ngModel)]="recuperable" checked> {{ 'login.recuperable' | translate }}</label>
+                    </div>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="n10" [(ngModel)]="safe"> {{ 'login.safe' | translate }}</label>
+                    </div>
+                    <input type="text" [(ngModel)]="recup_id" name="n11" class="form-control" [readonly]="!recuperable || !safe">
+                </div>
+                <div class="form-group">
+                    <div id="grecaptcha"></div>
+                    <button type="submit" class="btn btn-primary" (click)="signUp()">{{ 'login.send' | translate }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr class="featurette-divider">
+
+    <!-- Footer -->
+    <footer>
+        <div class="row">
+            <div class="col-lg-12">
+                <p>{{ 'login.mention' | translate }}</p>
+            </div>
+        </div>
+    </footer>
+
+</div>
+<!-- /.container -->

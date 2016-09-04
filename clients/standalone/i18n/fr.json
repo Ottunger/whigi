@@ -44,6 +44,10 @@
    "login.use_pwd": "Utiliser un mot de passe comme moyen d'authentification",
    "login.password_file": "Fichier dont le contenu sert à authentifier (un petit suffit!)",
    "login.id": "ID du compte",
+   "login.whigi": "Bienvenue sur Whigi",
+   "login.explain": "Reprenez le contrôle de vos données",
+   "login.titleMuted": " et de répendre le mot!",
+   "login.mention": "Copyright Envict SCRL 2016",
 
    "profile.logout": "Déconnecter",
    "profile.logoutAll": "Enlever toutes les authorisations et se déconnecter",

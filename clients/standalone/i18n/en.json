@@ -44,6 +44,10 @@
    "login.use_pwd": "Use password as auth text",
    "login.password_file": "File whose contents will be used as password (use a small file!)",
    "login.id": "Account ID",
+   "login.whigi": "Welcome to Whigi",
+   "login.explain": "Make your data yours again",
+   "login.titleMuted": " and start spreading the word!",
+   "login.mention": "Copyright Envict SCRL 2016",
 
    "profile.logout": "Log out",
    "profile.logoutAll": "Remove all authorizations and log out",
