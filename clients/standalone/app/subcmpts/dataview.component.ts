@@ -21,7 +21,7 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="back(false)">{{ 'back' | translate }}</button>
         <button *ngIf="!!backend.generics[data_name]" type="button" class="btn btn-primary" (click)="back(true)">{{ 'dataview.toGen' | translate }}</button>
         <br />
-        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="data_name"></clear-view>
+        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="data_name" [change]="true" (notify)="mod($event, false)"></clear-view>
         <br /><br />
 
         <p *ngIf="!is_dated">{{ 'modify' | translate }}</p>
@@ -151,23 +151,48 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     modify() {
-        var self = this, names = this.sharedIds(), dict: {[id: string]: Date} = {}, replacement;
-
-        for(var i = 0; i < names.length; i++) {
-            dict[names[i]] = this.timings[names[i]].ee;
-        }
+        var replacement, from = new Date(this.new_date).getTime(), done = false;
         if(this.is_dated) {
             replacement = JSON.parse(this.decr_data);
-            replacement.unshift({
-                from: new Date(this.new_date).getTime(),
-                value:(this.new_data_file != '')? this.new_data_file : this.new_data
-            });
+            for(var i = 0; i < replacement.length; i++) {
+                if(from > replacement[i].from) {
+                    replacement.splice(i, 0, {
+                        from: from,
+                        value:(this.new_data_file != '')? this.new_data_file : this.new_data
+                    });
+                    done = true;
+                    break;
+                }
+            }
+            if(!done) {
+                replacement.push({
+                    from: from,
+                    value:(this.new_data_file != '')? this.new_data_file : this.new_data
+                });
+            }
             replacement = JSON.stringify(replacement);
         } else {
             replacement = (this.new_data_file != '')? this.new_data_file : this.new_data;
         }
+        this.mod(replacement, true);
+    }
+
+    /**
+     * Modifies a data the way asked.
+     * @function mod
+     * @public
+     * @param {String} replacement New value.
+     * @param {Boolean} back Should back.
+     */
+    mod(replacement: string, back: boolean) {
+        var self = this, names = this.sharedIds(), dict: {[id: string]: Date} = {}
+        for(var i = 0; i < names.length; i++) {
+            dict[names[i]] = this.timings[names[i]].ee;
+        }
         this.dataservice.modifyData(this.data_name, replacement, this.is_dated, dict).then(function() {
             self.new_data = '';
+            if(back)
+                self.back(false);
         }, function(err) {
             if(err == 'server')
                 self.notif.error(self.translate.instant('error'), self.translate.instant('server'));

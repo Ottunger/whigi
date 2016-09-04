@@ -6,7 +6,7 @@
 
 'use strict';
 declare var window : any
-import {Component, enableProdMode, Input} from '@angular/core';
+import {Component, enableProdMode, Input, Output, EventEmitter} from '@angular/core';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
 enableProdMode();
@@ -23,11 +23,12 @@ enableProdMode();
             <br />
         </div>
         <div *ngIf="is_dated">
-            <div *ngFor="let p of computeValues()">
+            <div *ngFor="let p of computeValues(); let i = index">
                 <p>{{ 'actualFrom' | translate }}{{ p.from }}</p>
                 <input *ngIf="p.value.length < 150" type="text" [ngModel]="p.value" class="form-control" readonly>
                 <input *ngIf="p.value.length >= 150" type="text" value="{{ 'dataview.tooLong' | translate }}" class="form-control" readonly>
                 <button type="button" class="btn btn-primary" (click)="dl(p.value)">{{ 'download' | translate }}</button>
+                <button *ngIf="change" type="button" class="btn btn-warning" (click)="rem(i)" [disabled]="computeValues().length < 2">{{ 'remove' | translate }}</button>
             </div>
         </div>
     `
@@ -37,6 +38,8 @@ export class Clearview {
     @Input() data_name: string;
     @Input() decr_data: string;
     @Input() is_dated: boolean;
+    @Input() change: boolean;
+    @Output() notify: EventEmitter<string>;
     private values: {from: Date, value: string}[];
 
     /**
@@ -49,6 +52,7 @@ export class Clearview {
      */
     constructor(private translate: TranslateService, private notif: NotificationsService) {
         this.values = undefined;
+        this.notify = new EventEmitter<string>();
         new window.Clipboard('.btn-copier');
     }
 
@@ -66,6 +70,20 @@ export class Clearview {
                 this.values = undefined;
         }
         return this.values;
+    }
+
+    /**
+     * Removes a milestone.
+     * @function rem
+     * @public
+     * @param {Number} i Index to remove.
+     */
+    rem(i: number) {
+        this.values.splice(i, 1);
+        this.notify.emit(JSON.stringify(this.values.map(function(el) {
+            el.from = el.from.getTime();
+            return el;
+        })));
     }
 
     /**
