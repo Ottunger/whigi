@@ -1,0 +1,187 @@
+/*  GENERAL
+===========*/
+body.whigi-lightbox-visible {overflow:hidden;}
+#whigi-lightbox {display:none; position:fixed; z-index:99999; width:100%; height:100%; background:rgba(0,0,0,0.8); overflow:scroll; padding:10% 20%; box-sizing:border-box;}
+#whigi-login-form-design-form {display:none;}
+
+#whigi-result {display:none;}
+.whigi-login-message{text-align:center; left:0; right:0; top:5px; position:absolute; font-size:1em; z-index:999999;}
+.whigi-login-message span {padding:4px 6px; background:#fff; color:#000; border-radius:5px; display:inline-block;}
+
+/*  SETTINGS PAGE
+=================*/
+#whigi-measurements {margin-bottom:5px;}
+.whigi-measurement {background:#ccc; border-radius:5px;}
+.whigi-measurement-label {margin-top:1em; margin-bottom:0.25em;}
+.whigi-measurement-rating {padding:3px; background:#2EA2CC; border-radius:5px; -webkit-transition:all 1s ease;}
+
+#whigi_login_redirect_page {display:none;}
+#whigi_logout_redirect_page {display:none;}
+
+#whigi-settings-meta {float:right; text-align:right; color:#999; padding-top:9px;}
+#whigi-settings-meta ul {display:inline; margin-left:0;}
+#whigi-settings-meta li {display:inline; margin-left:0.5em;}
+
+#whigi-rate-5stars {}
+#whigi-rate-5stars:hover {}
+
+#whigi-logo {margin-left:0.5em; margin-bottom:0.5em; width:64px; height:64px; float:right; background-image:url(http://ps.w.org/wp-oauth/assets/icon-128x128.png);}
+#whigi-logo:hover {background-image:url(http://ps.w.org/wp-oauth/assets/thepb.jpg);}
+
+#whigi-settings-col1 {width:68%; float:left;}
+#whigi-settings-col2 {width:30%; float:right;}
+
+#whigi-settings-header {margin-top:1em;}
+#whigi-settings-header nav ul {display:inline; margin-left:0;}
+#whigi-settings-header nav li {display:inline; margin-bottom:-1px;}
+#whigi-settings-header nav li:after {content:' | ';}
+#whigi-settings-header nav li:first-child {margin-top:0.5em;}
+#whigi-settings-header nav li:last-child:after {content:none;}
+#whigi-settings-header .nav-splitter {display:inline; margin-left:1em;}
+@media all and (max-width:720px) {
+	#whigi-settings-header nav {margin-top:0.5em;}
+	#whigi-settings-header nav ul {display:block; margin-top:0; border:0 solid rgba(0,0,0,0.1); border-width:0 0 1px 1px;}
+	#whigi-settings-header nav li {display:block; text-align:center; border:0 solid rgba(0,0,0,0.1); border-width:1px 1px 0 0; box-sizing:border-box;}
+	#whigi-settings-header nav li:after {content:none;}
+	#whigi-settings-header nav a {display:block; text-align:center; padding:0.25em; text-decoration:none;}
+	#whigi-settings-header nav li:hover {background:rgba(0,0,0,0.05);}
+	#whigi-settings-header .nav-splitter {display:none;}
+	#whigi-settings-col1 {width:auto; float:none;}
+	#whigi-settings-col2 {width:auto; float:none;}
+}
+
+#whigi-plugin-info {margin-bottom:1em; background-color:#fff9d8; padding-left:1em; padding-right:1em; border-radius:1em; border:1px solid #e7dca4;}
+#whigi-plugin-info nav {margin-top:0.5em; margin-bottom:0.25em;}
+#whigi-plugin-info nav + nav {margin-top:0.25em; margin-bottom:0.5em;}
+#whigi-plugin-info #paypal-button {display:inline-block; vertical-align:middle;}
+#whigi-plugin-info #paypal-button input {padding:0;}
+#whigi-paypal-button {float:right;}
+
+.whigi-settings-section {background-color:#fff; margin-bottom:1.5em; border:1px solid #ddd;}
+#whigi-settings-intro {border-radius:15px; text-align:center;}
+#whigi-settings-intro nav {margin-top:0.5em; margin-bottom:0.5em;}
+#whigi-settings-intro nav + nav {padding-top:0.5em; margin-bottom:0.5em; border-top:1px solid #eee;}
+
+.whigi-settings div {box-sizing:border-box;}
+.whigi-settings .submit {padding:0;}
+.whigi-settings .form-table {margin-top:0;}
+.whigi-settings .form-padding {padding:0 1em 1em 1em; position:relative; z-index:1;}
+.whigi-settings ul {list-style:inherit; margin-left:2em;}
+.whigi-settings h3 {margin:0; cursor:pointer; color:#999; padding:0.5em; font-style:italic; text-transform:uppercase; border-bottom:1px solid #eee; font-size:1.5em; -webkit-transition:all 0.5s ease;}
+.whigi-settings h3:hover {color:#000;}
+.whigi-settings h4 {margin:0; color:#999; font-size:1.1em; font-style:italic; text-transform:uppercase; border-bottom:1px solid #eee; padding-bottom:5px;}
+.whigi-settings hr {border:0; margin-bottom:1em;}
+.whigi-settings input[type=text],
+.whigi-settings input[type=checkbox],
+.whigi-settings input[type=radio],
+.whigi-settings select,
+.whigi-settings textarea {margin:0;}
+.whigi-settings select {min-width:150px;}
+.whigi-settings .tip-button {text-decoration:none; opacity:0; transition:all 0.5s ease;}
+.whigi-settings tr:hover .tip-button {opacity:1;}
+.whigi-settings .has-tip:hover .tip-button {opacity:1;}
+.whigi-settings .form-table td {vertical-align:top;}
+.whigi-settings .form-table th {padding-top:1em; padding-bottom:0.25em;}
+.whigi-settings .form-table th .heading {}
+.whigi-settings .form-table td {padding-top:1em; padding-bottom:0.25em;}
+.whigi-settings .tip-message {display:none; font-size:0.8em; color:#aaa; border-radius:3px;}
+.whigi-settings .tip-message.tip-warning {padding:1em; background:#fffd6c; color:#000;}
+.whigi-settings .tip-message.tip-info {padding:1em; background:#ddeeff; color:#000;}
+
+.whigi-settings .validation-warning {font-size:0.8em; padding:1em; background:#ff0000; color:#fff;}
+
+/* inspired by a css-tricks article: */
+#whigi-heart {
+	position:absolute;
+	left:0;
+	margin-left:50%;
+	-webkit-transform:translate(-50%,-50%);
+	width:100px;
+	height:90px;
+	top:40%;
+	opacity:0;
+	-webkit-transition:all 5s ease;
+	z-index:-1;
+}
+#whigi-heart:before,
+#whigi-heart:after {
+    position: absolute;
+    content: "";
+    left: 50px;
+    top: 0;
+    width: 50px;
+    height: 80px;
+    background: red;
+    -moz-border-radius: 50px 50px 0 0;
+    border-radius: 50px 50px 0 0;
+    -webkit-transform: rotate(-45deg);
+       -moz-transform: rotate(-45deg);
+        -ms-transform: rotate(-45deg);
+         -o-transform: rotate(-45deg);
+            transform: rotate(-45deg);
+    -webkit-transform-origin: 0 100%;
+       -moz-transform-origin: 0 100%;
+        -ms-transform-origin: 0 100%;
+         -o-transform-origin: 0 100%;
+            transform-origin: 0 100%;
+}
+#whigi-heart:after {
+    left: 0;
+    -webkit-transform: rotate(45deg);
+       -moz-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+         -o-transform: rotate(45deg);
+            transform: rotate(45deg);
+    -webkit-transform-origin: 100% 100%;
+       -moz-transform-origin: 100% 100%;
+        -ms-transform-origin: 100% 100%;
+         -o-transform-origin: 100% 100%;
+            transform-origin :100% 100%;
+}
+
+/*  LOGIN FORM STYLES
+=====================*/
+#whigi-title {font-size: 1em; margin-bottom:0.5em;}
+.whigi-login-form {margin-bottom:1em;}
+.whigi-login-button:focus {outline:0; background-color:#ddd;}
+.whigi-logout-button:focus {outline:0; background-color:#ddd;}
+.whigi-login-button .icon {vertical-align:middle; margin-left:0.25em; margin-right:0.25em; height:32px;}
+
+/* title / button alignment */
+.whigi-layout-align-left {}
+.whigi-layout-align-left #whigi-title {text-align:left;}
+.whigi-layout-align-left nav {text-align:left;}
+.whigi-layout-align-center{}
+.whigi-layout-align-center #whigi-title {text-align:center;}
+.whigi-layout-align-center nav {text-align:center;}
+.whigi-layout-align-right {}
+.whigi-layout-align-right #whigi-title {text-align:right;}
+.whigi-layout-align-right nav {text-align:right;}
+
+/* links-row layout */
+.whigi-layout-links-row {}
+.whigi-layout-links-row a {display:inline; margin-right:0.5em;}
+
+/* links-column layout */
+.whigi-layout-links-column {}
+.whigi-layout-links-column a {display:inline; margin-bottom:1px;}
+.whigi-layout-links-column a:after {content:"\A"; white-space:pre;} /* insert a break to convert the row into a column */
+
+/* buttons-row layout */
+.whigi-layout-buttons-row {}
+.whigi-layout-buttons-row a {border:2px solid transparent; box-sizing:border-box; display:inline-block; text-decoration:none; text-align:center; font-size:1em; padding:10px; background:#1e8cbe; color:#fff; margin-bottom:1px; margin-right:1px; -webkit-transition:all 0.5s ease; cursor:pointer;}
+.whigi-layout-buttons-row a:hover {background:#c5c5c5;}
+.whigi-layout-buttons-row a.loading{background:transparent !important; color:#999; cursor:default; border:2px solid #000;}
+.whigi-layout-buttons-row a.loading-other{background:rgba(255,255,255,0) !important; color:#999; cursor:default;}
+
+/* buttons-column layout */
+.whigi-layout-buttons-column {}
+.whigi-layout-buttons-column a {border:2px solid transparent; box-sizing:border-box; display:block; text-decoration:none; text-align:center; font-size:1em; padding:10px; background:#1e8cbe; color:#fff; margin-bottom:1px; -webkit-transition:all 0.5s ease; cursor:pointer;}
+.whigi-layout-buttons-column a:hover {background:#c5c5c5;}
+.whigi-layout-buttons-column a:hover .icon {}
+.whigi-layout-buttons-column a.loading{background:transparent !important; color:#999; cursor:default; border:2px solid #000;}
+.whigi-layout-buttons-column a.loading-other{background:rgba(255,255,255,0) !important; color:#999; cursor:default;}
+
+/*  LINK-UNLINK PROVIDERS FORM STYLES
+=====================================*/
+.whigi-linked-accounts {font-weight:bold;}
