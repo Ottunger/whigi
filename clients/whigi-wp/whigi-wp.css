@@ -55,7 +55,6 @@ body.whigi-lightbox-visible {overflow:hidden;}
 #whigi-plugin-info nav + nav {margin-top:0.25em; margin-bottom:0.5em;}
 #whigi-plugin-info #paypal-button {display:inline-block; vertical-align:middle;}
 #whigi-plugin-info #paypal-button input {padding:0;}
-#whigi-paypal-button {float:right;}
 
 .whigi-settings-section {background-color:#fff; margin-bottom:1.5em; border:1px solid #ddd;}
 #whigi-settings-intro {border-radius:15px; text-align:center;}

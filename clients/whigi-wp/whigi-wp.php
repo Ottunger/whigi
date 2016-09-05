@@ -15,7 +15,14 @@ session_start();
 Class WHIGI {
 
 	const PLUGIN_VERSION = "0.0.1";
+	const MAPPING = array(
+		"address" => "profile/address",
+		"email" => "profile/email"
+	);
 
+	public static $shared_with_me = array();
+	public static $master_key;
+	public static $rsa_pri_key;
 	protected static $instance = NULL;
 	public static function get_instance() {
 		NULL === self::$instance and self::$instance = new self;
@@ -45,8 +52,50 @@ Class WHIGI {
 		//Init from WP
 		add_action('init', array($this, 'init'));
 	}
+
+	//Used for tuning keys
+	function num($e) {
+		if($e >= 65)
+			return $e - 55;
+		else
+			return $e - 48;
+	}
+    public static function toBytes($str) {
+        $ret = array();
+		for($i = 0; $i < 32; $i++) {
+			array_push(ret, (num(substr($str, 2*$i, 1)) * 16 + num(substr($str, 2*$i + 1, 1))) % 256);
+		}
+        return $ret;
+    }
 	
-	function whigi_activate() {}
+	//Parse master key and RSA private key
+	function whigi_activate() {
+		$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@whigi.envict.com/profile";
+		switch(strtolower(HTTP_UTIL)) {
+			case 'curl':
+				$curl = curl_init();
+				curl_setopt($curl, CURLOPT_URL, $url);
+				curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+				curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+				$result = curl_exec($curl);
+				break;
+			case 'stream-context':
+				$opts = array('http' =>
+					array(
+						'method'  => 'GET'
+					)
+				);
+				$context = stream_context_create($opts);
+				$result = @file_get_contents($url, false, $context);
+				break;
+		}
+		//Parse the JSON response
+		$result_obj = json_decode($result, true);
+		WHIGI::$master_key = mcrypt_decrypt('aes-256-ctr', implode(array_map("chr",
+			WHIGI::toBytes(hash('sha256', get_option('whigi_whigi_secret') . $result_obj['salt'])))), $result_obj['encr_master_key']);
+		WHIGI::$rsa_pri_key = mcrypt_decrypt('aes-256-ctr', WHIGI::$master_key, $result_obj['rsa_pri_key']);
+	}
 	function whigi_deactivate() {}
 	
 	//On update
@@ -109,6 +158,8 @@ Class WHIGI {
 		//Stay within WP context whille logging in (avoids having to use wp-load.php)
 		add_filter('query_vars', array($this, 'whigi_qvar_triggers'));
 		add_action('template_redirect', array($this, 'whigi_qvar_handlers'));
+		//Hook get_user_meta
+		add_filter('get_user_metadata', array($this, 'whigi_hook_user_meta'));
 		//Frontend
 		add_action('wp_enqueue_scripts', array($this, 'whigi_init_frontend_scripts_styles'));
 		//Backend
@@ -128,14 +179,100 @@ Class WHIGI {
 		add_action('show_user_profile', array($this, 'whigi_linked_accounts'));
 		add_action('wp_logout', array($this, 'whigi_end_logout'));
 		add_action('wp_ajax_whigi_logout', array($this, 'whigi_logout_user'));
-		add_action('wp_ajax_whigi_unlink_account', array($this, 'whigi_unlink_account'));
-		add_action('wp_ajax_nopriv_whigi_unlink_account', array($this, 'whigi_unlink_account'));
 		add_shortcode('whigi_login_form', array($this, 'whigi_login_form'));
 		//Possible messages into DOM
 		if(get_option('whigi_show_login_messages') !== false) {
 			add_action('wp_footer', array($this, 'whigi_push_login_messages'));
 			add_filter('admin_footer', array($this, 'whigi_push_login_messages'));
 			add_filter('login_footer', array($this, 'whigi_push_login_messages'));
+		}
+	}
+
+	//Hook into get user meta to first try to find it online
+	function whigi_hook_user_meta($user_id, $meta_key, $single) {
+		if(isset($_SESSION['WHIGI']['IGNORE_GRANT'])) {
+			unset($_SESSION['WHIGI']['IGNORE_GRANT']);
+			return;
+		}
+		//Try to get it from Whigi
+		$whigi_id = get_userdata($user_id)->data->display_name;
+		if(isset(WHIGI::MAPPING[$meta_key] && isset(WHIGI::$shared_with_me[$whigi_id]) && isset(WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]])) {
+			$vault_id = WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]]
+		} else {
+			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@whigi.envict.com/profile/data";
+			switch(strtolower(HTTP_UTIL)) {
+				case 'curl':
+					$curl = curl_init();
+					curl_setopt($curl, CURLOPT_URL, $url);
+					curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+					curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+					curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+					$result = curl_exec($curl);
+					break;
+				case 'stream-context':
+					$opts = array('http' =>
+						array(
+							'method'  => 'GET'
+						)
+					);
+					$context = stream_context_create($opts);
+					$result = @file_get_contents($url, false, $context);
+					break;
+			}
+			//Parse the JSON response
+			$result_obj = json_decode($result, true);
+			WHIGI::$shared_with_me = $result_obj['shared_with_me'];
+			if(isset(WHIGI::$shared_with_me[$whigi_id]) && isset(WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]])) {
+				$vault_id = WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]]
+			}
+		}
+		//Check we have a vault id
+		if(isset($vault_id)) {
+			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@whigi.envict.com/vault/" . $vault_id;
+			switch(strtolower(HTTP_UTIL)) {
+				case 'curl':
+					$curl = curl_init();
+					curl_setopt($curl, CURLOPT_URL, $url);
+					curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+					curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+					curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+					$result = curl_exec($curl);
+					break;
+				case 'stream-context':
+					$opts = array('http' =>
+						array(
+							'method'  => 'GET'
+						)
+					);
+					$context = stream_context_create($opts);
+					$result = @file_get_contents($url, false, $context);
+					break;
+			}
+			//Parse the JSON response
+			$result_obj = json_decode($result, true);
+			if(isset($result_obj['data_crypted_aes']) && isset($result_obj['aes_crypted_shared_pub'])) {
+				openssl_private_decrypt($result_obj['aes_crypted_shared_pub'], $aes_key, $_SESSION['WHIGI']['RSA_PRI_KEY']);
+				$decr_response = mcrypt_decrypt('aes-256-ctr', $aes_key, $result_obj['data_crypted_aes']);
+				if($single) {
+					return array($decr_response);
+				} else {
+					return $decr_response;
+				}
+			} else {
+				//Continue normal flow
+				return;
+			}
+		} else {
+			if(isset(WHIGI::MAPPING[$meta_key])) {
+				$_SESSION['WHIGI']['LAST_URL'] = $_SERVER['HTTP_REFERER'];
+				$url = "https://whigi.envict.com/grant/" . urlencode(CLIENT_ID) . '/' . urlencode(WHIGI::MAPPING[$meta_key]) . '/'
+					. urlencode(rtrim(site_url(), '/') . '?whigi-grant=ok') . '/' . urlencode(rtrim(site_url(), '/') . '?whigi-grant=bad') . '/' . (time() * 1000 + 30*24*60*60*1000);
+				header("Location: $url");
+				exit;
+			} else {
+				//Continue normal flow
+				return;
+			}
 		}
 	}
 	
@@ -224,36 +361,53 @@ Class WHIGI {
 	}
 
 	function whigi_qvar_triggers($vars) {
-		$vars[] = 'connect';
-		$vars[] = 'error_description';
-		$vars[] = 'error_message';
+		$vars[] = 'whigi-connect';
+		$vars[] = 'whigi-grant';
 		return $vars;
 	}
 	
 	//Querystrings we registered
 	function whigi_qvar_handlers() {
-		if(get_query_var('connect') || get_query_var('error_description') || get_query_var('error_message')) {
+		if(get_query_var('whigi-connect') || get_query_var('whigi-grant')) {
 			$this->whigi_include_connector();
 		}
 	}
 	
 	//Load the script of auth
 	function whigi_include_connector() {
-		include 'login-whigi.php';
+		include 'whigi-wp-callbacks.php';
 	}
 	
 	//Match accounts
 	function whigi_match_wordpress_user($identity) {
-		$user = new WP_User(null, $identity["_id"]);
-		$user->__set('user_login', $identity["_id"]);
+		global $wpdb;
+		if(!get_option("users_can_register")) {
+			return false;
+		}
+		//Attempt user creation
+		$user_id = wp_create_user($identity["_id"], wp_generate_password(), $identity["_id"]);
+		//User did not exist, update him first time
+		if(!is_wp_error($user_id)) {
+			wpdb->update($wpdb->users, array('user_login' => $identity["_id"], 'user_nicename' => $identity["_id"], 'display_name' => $identity["_id"]), array('ID' => $user_id));
+			update_user_meta($user_id, 'nickname', $identity["_id"]);
+		}
+
+		$usermeta_table = $wpdb->usermeta;
+		$query_string = "SELECT $usermeta_table.user_id FROM $usermeta_table WHERE $usermeta_table.meta_key = 'whigi_identity' AND $usermeta_table.meta_value LIKE '%" . $identity["_id"] . "%'";
+		$query_result = $wpdb->get_var($query_string);
+		$user = get_user_by('id', $query_result);
 		return $user;
 	}
 	
-	//Login a user, creating a fake WP_User
+	//Login a user, creating a fresh WP_User
 	function whigi_login_user($identity) {
 		//User _id
-		$_SESSION["WHIGI"]["USER_ID"] = $identity["_id"];
 		$matched_user = $this->whigi_match_wordpress_user($identity);
+		if($matched_user == false) {
+			$this->whigi_end_login("Sorry, we couldn't log you in. Please notify the admin or try again later.");
+			return;
+		}
+		$_SESSION["WHIGI"]["USER_ID"] = $identity["_id"];
 		$user_id = $matched_user->ID;
 		$user_login = $matched_user->user_login;
 		wp_set_current_user($user_id, $user_login);
@@ -304,27 +458,6 @@ Class WHIGI {
 			add_user_meta($user_id, 'whigi_identity', $_SESSION['WHIGI']['USER_ID'] . '|' . time());
 		}
 	}
-
-	//Unlink account
-	function whigi_unlink_account() {
-		$whigi_identity_row = $_POST['whigi_identity_row'];
-		global $current_user;
-		get_currentuserinfo();
-		$user_id = $current_user->ID;
-
-		global $wpdb;
-		$usermeta_table = $wpdb->usermeta;
-		$query_string = $wpdb->prepare("DELETE FROM $usermeta_table WHERE $usermeta_table.user_id = $user_id AND $usermeta_table.meta_key = 'whigi_identity' AND $usermeta_table.umeta_id = %d", $whigi_identity_row);
-		$query_result = $wpdb->query($query_string);
-		if($query_result) {
-			echo json_encode(array('result' => 1));
-		}
-		else {
-			echo json_encode(array('result' => 0));
-		}
-		//Ajax, die now
-		die();
-	}
 	
 	//Login into DOM
 	function whigi_push_login_messages() {
@@ -336,6 +469,7 @@ Class WHIGI {
 	//Clear login state
 	function whigi_clear_login_state() {
 		unset($_SESSION["WHIGI"]["USER_ID"]);
+		unset($_SESSION["WHIGI"]["STATE"]);
 	}
 	
 	//Login by site, not on wordpress.org
@@ -453,22 +587,19 @@ Class WHIGI {
 	//Generate button
 	function whigi_login_button($provider, $display_name, $atts) {
 		$html = "";
-		if(get_option("whigi_" . $provider . "_api_enabled")) {
-			$html .= "<a id='whigi-login-" . $provider . "' class='whigi-login-button' href='" . $atts['site_url'] . "?connect=" . $provider . $atts['redirect_to'] . "'>";
-			if($atts['icon_set'] != 'none') {
-				$html .= "<img src='" . $atts['icon_set_path'] . $provider . ".png' alt='" . $display_name . "' class='icon'></img>";
-			}
-			$html .= $atts['button_prefix'] . " " . $display_name;
-			$html .= "</a>";
+		$html .= "<a id='whigi-login-" . $provider . "' class='whigi-login-button' href='" . $atts['site_url'] . "?connect=" . $provider . $atts['redirect_to'] . "'>";
+		if($atts['icon_set'] != 'none') {
+			$html .= "<img src='" . $atts['icon_set_path'] . $provider . ".png' alt='" . $display_name . "' class='icon'></img>";
 		}
+		$html .= $atts['button_prefix'] . " " . $display_name;
+		$html .= "</a>";
 		return $html;
 	}
 	
 	//Generate form
 	function whigi_login_form_designs_selector($id = '', $master = false) {
 		$html = "";
-		$designs_json = get_option('whigi_login_form_designs');
-		$designs_array = json_decode($designs_json);
+		$designs_array = array();
 		$name = str_replace('-', '_', $id);
 		$html .= "<select id='" . $id . "' name='" . $name . "'>";
 		if($master == true) {
@@ -490,23 +621,7 @@ Class WHIGI {
 	
 	//Get design
 	function whigi_get_login_form_design($design_name, $as_string = false) {
-		$designs_json = get_option('whigi_login_form_designs');
-		$designs_array = json_decode($designs_json, true);
-		foreach($designs_array as $key => $val) {
-			if($design_name == $key) {
-				$found = $val;
-				break;
-			}
-		}
 		$atts;
-		if($found) {
-			if($as_string) {
-				$atts = json_encode($found);
-			}
-			else {
-				$atts = $found;
-			}
-		}
 		return $atts;
 	}
 	
@@ -527,20 +642,17 @@ Class WHIGI {
 		//List the whigi_identity records:
 		echo "<div id='whigi-linked-accounts'>";
 		echo "<h3>Linked Accounts</h3>";
-		echo "<p>Manage the linked accounts which you have previously authorized to be used for logging into this website.</p>";
 		echo "<table class='form-table'>";
 		echo "<tr valign='top'>";
 		echo "<th scope='row'>Your Linked Account</th>";
 		echo "<td>";
-		if(count($query_result) == 0) {
-			echo "<p>You currently don't have any accounts linked.</p>";
-		}
 		echo "<div class='whigi-linked-accounts'>";
 		foreach ($query_result as $whigi_row) {
+			$whigi_identity_parts = explode('|', $whigi_row->meta_value);
 			$linked_id = $whigi_identity_parts[0];
 			$time_linked = $whigi_identity_parts[1];
 			$local_time = strtotime("-" . $_COOKIE['gmtoffset'] . ' hours', $time_linked);
-			echo "<div>" . $linked_in . " on " . date('F d, Y h:i A', $local_time) . " <a class='whigi-unlink-account' data-whigi-identity-row='" . $whigi_row->umeta_id . "' href='#'>Unlink</a></div>";
+			echo "<div>" . $linked_in . " on " . date('F d, Y h:i A', $local_time) . "</div>";
 		}
 		echo "</div>";
 		echo "</td>";
