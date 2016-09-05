@@ -70,7 +70,13 @@ export class Account implements OnInit, OnDestroy {
             if(!/^https/.test(self.return_url_ok)) {
                 window.location.href = self.return_url_deny;
             }
-            self.dataservice.listData();
+            self.dataservice.listData().then(function() {
+                if('keys/auth/' + self.id_to in self.backend.profile.data) {
+                    window.location.href = self.return_url_ok;
+                }
+            }, function() {
+                window.location.href = self.return_url_deny;
+            });
             self.backend.getUser(self.id_to).then(function(user) {
                 self.requester = user;
                 self.check.tick();

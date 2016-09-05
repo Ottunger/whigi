@@ -64,9 +64,10 @@ export function checkBody(arr: string[]): Function {
  * @function checkOAuth
  * @public
  * @param {Boolean} auto Always deny, else check agains path.
+ * @param {Number} mode Mode for checking grant.
  * @return {Function} An express middleware.
  */
-export function checkOAuth(auto: boolean): Function {
+export function checkOAuth(auto: boolean, mode?: number): Function {
     return function(req, res, next) {
         if(!!req.user.impersonated_prefix) {
             if(auto) {
@@ -74,18 +75,32 @@ export function checkOAuth(auto: boolean): Function {
             } else {
                 req.user.fill().then(function() {
                     var keys = Object.getOwnPropertyNames(req.user.data);
-                    for(var i = 0; i < keys.length; i++) {
-                        if(req.user.data[keys[i]].id == req.params.id) {
-                            if(keys[i].match('^' + req.user.impersonated_prefix)) {
-                                next();
-                                return;
-                            } else {
-                                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
-                                return;
+                    if(mode == 0) {
+                        for(var i = 0; i < keys.length; i++) {
+                            if(req.user.data[keys[i]].id == req.params.id) {
+                                if(keys[i].match('^' + req.user.impersonated_prefix)) {
+                                    next();
+                                    return;
+                                } else {
+                                    res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                                    return;
+                                }
                             }
                         }
+                        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    } else if(mode == 1) {
+                        if(req.body.name.match('^' + req.user.impersonated_prefix + '$'))
+                            next();
+                        else
+                            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    } else if(mode == 2) {
+                        if(req.body.data_name.match('^' + req.user.impersonated_prefix + '$'))
+                            next();
+                        else
+                            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    } else {
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});    
                     }
-                    next();
                 }, function(e) {
                     res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                 });

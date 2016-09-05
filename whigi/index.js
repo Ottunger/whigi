@@ -229,14 +229,14 @@ connect(function(e) {
     app.delete('/api/v:version/oauth/:id', pass.authenticate(['token', 'basic'], {session: false}));
     //API LIMITATIONS FOR OAUTH
     app.post('/api/v:version/profile/info', checks.checkOAuth(true));
-    app.post('/api/v:version/profile/data/new', checks.checkOAuth(true));
+    app.post('/api/v:version/profile/data/new', checks.checkOAuth(false, 1));
     app.post('/api/v:version/profile/update', checks.checkOAuth(true));
     app.post('/api/v:version/profile/token/new', checks.checkOAuth(true));
     app.delete('/api/v:version/profile/token', checks.checkOAuth(true));
     //-----
-    app.get('/api/v:version/data/:id', checks.checkOAuth(false));
+    app.get('/api/v:version/data/:id', checks.checkOAuth(false, 0));
     app.delete('/api/v:version/data/:data_name', checks.checkOAuth(true));
-    app.post('/api/v:version/vault/new', checks.checkOAuth(true));
+    app.post('/api/v:version/vault/new', checks.checkOAuth(false, 2));
     app.delete('/api/v:version/vault/:vault_id', checks.checkOAuth(true));
     app.get('/api/v:version/vault/:vault_id', checks.checkOAuth(true));
     app.get('/api/v:version/vault/time/:vault_id', checks.checkOAuth(true));

@@ -72,13 +72,13 @@ export class Oauth implements OnInit, OnDestroy {
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
             if(!/^https/.test(self.return_url_ok)) {
-                window.location.href = self.return_url_deny + '?reason=https';
+                window.location.href = self.mixin(self.return_url_deny, ['reason=https']);
             }
             self.backend.getUser(self.for_id).then(function(user) {
                 self.requester = user;
                 self.check.tick();
             }, function(e) {
-                window.location.href = self.return_url_deny;
+                window.location.href = self.mixin(self.return_url_deny, ['reason=api']);
             });
         });
     }
@@ -93,6 +93,19 @@ export class Oauth implements OnInit, OnDestroy {
     }
 
     /**
+     * Adds query parameters to a URL.
+     * @function mixin
+     * @private
+     * @param {String} url Base URL.
+     * @param {String[]} params Key=Value mapping.
+     * @return {String} New URL.
+     */
+    private mixin(url: string, params: string[]): string {
+        var ps = params.join('&');
+        return url + (url.indexOf('?') > 0)? '&' : '?' + ps;
+    }
+
+    /**
      * Called once the user has selected whether to accept or deny.
      * @function finish
      * @public
@@ -102,12 +115,12 @@ export class Oauth implements OnInit, OnDestroy {
         var self = this;
         if(ok) {
             this.backend.createOAuth(this.for_id, this.prefix, this.token).then(function(granted) {
-                window.location.href = self.return_url_ok + '?token=' + granted._id + '&key_decryption=' + sessionStorage.getItem('key_decryption');
+                window.location.href = self.mixin(self.return_url_ok, ['token=' + granted._id, 'key_decryption=' + sessionStorage.getItem('key_decryption')]);
             }, function(e) {
-                window.location.href = self.return_url_deny + '?reason=api';
+                window.location.href = self.mixin(self.return_url_deny, ['reason=api']);
             });
         } else {
-            window.location.href = this.return_url_deny + '?reason=deny';
+            window.location.href = self.mixin(this.return_url_deny, ['reason=deny']);
         }
     }
 

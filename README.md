@@ -28,7 +28,8 @@ When registering you will need to provide an URL that Whigi can call to ensure y
 success set to either true or false. It should accept a GET request where the token will be given by ?token= in query parameters.
 
 We therefore restrict what can be done using OAuth:
-  - Only read-only access can be given
+  - Only read-only access to a folder can be given
+  - Writes/grants are limited to a per file basis (still allows apps such as calendars to work)
   - Only one data or folder at a time
   - To use it, send your user to /oauth/[your-for\_id]/encodeURIComponent([the-data-you-need])/[check-token]/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny])
   - On grant, the url will be browsed to with query parameters: token, the access token & key_decryption, a key that allows to decrypt the encrypted master key of the user.

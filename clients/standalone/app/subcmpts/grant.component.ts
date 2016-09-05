@@ -79,14 +79,24 @@ export class Grant implements OnInit, OnDestroy {
      * @public
      */
     ngOnInit(): void {
-        var self = this;
+        var self = this, all: boolean;
         this.sub = this.routed.params.subscribe(function(params) {
+            all = true;
             self.id_to = window.decodeURIComponent(params['id_to']);
             self.expire_epoch = new Date(parseInt(params['expire_epoch']));
             self.forever = self.expire_epoch.getTime() < (new Date).getTime();
             self.data_list = window.decodeURIComponent(params['data_list']).split('//');
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
+            for(var i = 0; i < self.data_list.length; i++) {
+                if(!(self.data_list[i] in self.backend.profile.data) || !(self.id_to in self.backend.profile.data[self.data_list[i]])) {
+                    all = false;
+                    break;
+                }
+            }
+            if(all) {
+                window.location.href = self.return_url_ok;
+            }
             self.backend.getUser(self.id_to).then(function(user) {
                 self.requester = user;
                 self.check.tick();

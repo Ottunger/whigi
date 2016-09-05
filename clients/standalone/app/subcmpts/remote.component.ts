@@ -55,23 +55,23 @@ export class Remote implements OnInit, OnDestroy {
             self.challenge = params['challenge'];
             self.return_url = window.decodeURIComponent(params['return_url']);
             if(!/^https/.test(self.return_url)) {
-                window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;
+                window.location.href = self.mixin(self.return_url, ['response=null', 'user=' + self.backend.profile._id]);
             }
             self.dataservice.listData().then(function() {
                 if(!self.backend.profile.data['keys/auth/' + self.id_to]) {
-                    window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;
+                    window.location.href = self.mixin(self.return_url, ['response=null', 'user=' + self.backend.profile._id]);
                 }
                 self.backend.getData(self.backend.profile.data['keys/auth/' + self.id_to].id).then(function(data) {
                     self.backend.decryptAES(self.backend.str2arr(data.encr_data), self.dataservice.workerMgt(false, function(got) {
                         self.backend.encryptAES(self.challenge, self.dataservice.workerMgt(true, function(got) {
-                            window.location.href = self.return_url + '?response=' + got + '&user=' + self.backend.profile._id;
+                            window.location.href = self.mixin(self.return_url, ['response=' + got, 'user=' + self.backend.profile._id]);
                         }), self.backend.toBytes(got));
                     }));
                 }, function(e) {
-                    window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;
+                    window.location.href = self.mixin(self.return_url, ['response=null', 'user=' + self.backend.profile._id]);
                 });
             }, function(e) {
-                window.location.href = self.return_url + '?response=null&user=' + self.backend.profile._id;
+                window.location.href = self.mixin(self.return_url, ['response=null', 'user=' + self.backend.profile._id]);
             });
         });
     }
@@ -83,6 +83,19 @@ export class Remote implements OnInit, OnDestroy {
      */
     ngOnDestroy(): void {
         this.sub.unsubscribe();
+    }
+
+    /**
+     * Adds query parameters to a URL.
+     * @function mixin
+     * @private
+     * @param {String} url Base URL.
+     * @param {String[]} params Key=Value mapping.
+     * @return {String} New URL.
+     */
+    private mixin(url: string, params: string[]): string {
+        var ps = params.join('&');
+        return url + (url.indexOf('?') > 0)? '&' : '?' + ps;
     }
 
 }
