@@ -101,12 +101,12 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 	header("Location: $url");
 	exit;
 } else {
-	//Pre-auth phase, start the login
+	//Pre-auth phase, start the login (the verb _GET['connect'] is set, but we do not use it)
 	$this->whigi_clear_login_state();
 	$_SESSION['WHIGI']['STATE'] = $challenge;
 	$challenge = uniqid('', true);
-	$urlp2 = URL_LOG . $challenge . urlencode(REDIRECT_URI . '?whigi-connect=ok');
-	$url = URL_REG . urlencode($urlp2) . '/' . urlencode(REDIRECT_URI . '?whigi-connect=bad');
+	$urlp2 = URL_LOG . $challenge . urlencode(REDIRECT_URI . '?connect=ok');
+	$url = URL_REG . urlencode($urlp2) . '/' . urlencode(REDIRECT_URI . '?connect=bad');
 	header("Location: $url");
 	exit;
 }

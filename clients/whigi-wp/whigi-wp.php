@@ -31,11 +31,46 @@ Class WHIGI {
 
 	//Constants used by the plugin
 	private $settings = array(
-        'whigi_login_redirect_url' => '',
-        'whigi_logout_redirect_url' => '',
+        'whigi_login_redirect_url' => '/',
+        'whigi_logout_redirect_url' => '/',
+		'whigi_logo_image' => '',
+		'whigi_bg_image' => '',
+		'whigi_login_form_show_login_screen' => 'Login Screen',
+		'whigi_login_form_show_profile_page' => 'Profile Page',
+		'whigi_login_form_show_comments_section' => 'None',
+		'whigi_login_form_designs' => array(
+			'Login Screen' => array(
+				'icon_set' => 'none',
+				'layout' => 'buttons-column',
+				'align' => 'center',
+				'show_login' => 'conditional',
+				'show_logout' => 'conditional',
+				'button_prefix' => 'Login with',
+				'logged_out_title' => 'Please login:',
+				'logged_in_title' => 'You are already logged in.',
+				'logging_in_title' => 'Logging in...',
+				'logging_out_title' => 'Logging out...',
+				'style' => '',
+				'class' => '',
+			),
+			'Profile Page' => array(
+				'icon_set' => 'none',
+				'layout' => 'buttons-row',
+				'align' => 'left',
+				'show_login' => 'always',
+				'show_logout' => 'never',
+				'button_prefix' => 'Link',
+				'logged_out_title' => 'Select a provider:',
+				'logged_in_title' => 'Select a provider:',
+				'logging_in_title' => 'Authenticating...',
+				'logging_out_title' => 'Logging out...',
+				'style' => '',
+				'class' => '',
+			),
+		),
         'whigi_show_login_messages' => 0,
         'whigi_whigi_id' => '',
-        'whigi_whigi_secret' => ''
+        'whigi_whigi_secret' => '',
 		'whigi_http_util' => 'curl',
 		'whigi_http_util_verify_ssl' => 1,
 		'whigi_restore_default_settings' => 0,
@@ -54,7 +89,7 @@ Class WHIGI {
 	}
 
 	//Used for tuning keys
-	function num($e) {
+	static function num($e) {
 		if($e >= 65)
 			return $e - 55;
 		else
@@ -63,7 +98,7 @@ Class WHIGI {
     public static function toBytes($str) {
         $ret = array();
 		for($i = 0; $i < 32; $i++) {
-			array_push(ret, (num(substr($str, 2*$i, 1)) * 16 + num(substr($str, 2*$i + 1, 1))) % 256);
+			array_push($ret, (WHIGI::num(substr($str, 2*$i, 1)) * 16 + WHIGI::num(substr($str, 2*$i + 1, 1))) % 256);
 		}
         return $ret;
     }
@@ -196,8 +231,8 @@ Class WHIGI {
 		}
 		//Try to get it from Whigi
 		$whigi_id = get_userdata($user_id)->data->display_name;
-		if(isset(WHIGI::MAPPING[$meta_key] && isset(WHIGI::$shared_with_me[$whigi_id]) && isset(WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]])) {
-			$vault_id = WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]]
+		if(null !== WHIGI::MAPPING[$meta_key] && null !== WHIGI::$shared_with_me[$whigi_id] && null !== WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]]) {
+			$vault_id = WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]];
 		} else {
 			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@whigi.envict.com/profile/data";
 			switch(strtolower(HTTP_UTIL)) {
@@ -223,7 +258,7 @@ Class WHIGI {
 			$result_obj = json_decode($result, true);
 			WHIGI::$shared_with_me = $result_obj['shared_with_me'];
 			if(isset(WHIGI::$shared_with_me[$whigi_id]) && isset(WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]])) {
-				$vault_id = WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]]
+				$vault_id = WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]];
 			}
 		}
 		//Check we have a vault id
@@ -263,7 +298,7 @@ Class WHIGI {
 				return;
 			}
 		} else {
-			if(isset(WHIGI::MAPPING[$meta_key])) {
+			if(null !== WHIGI::MAPPING[$meta_key]) {
 				$_SESSION['WHIGI']['LAST_URL'] = $_SERVER['HTTP_REFERER'];
 				$url = "https://whigi.envict.com/grant/" . urlencode(CLIENT_ID) . '/' . urlencode(WHIGI::MAPPING[$meta_key]) . '/'
 					. urlencode(rtrim(site_url(), '/') . '?whigi-grant=ok') . '/' . urlencode(rtrim(site_url(), '/') . '?whigi-grant=bad') . '/' . (time() * 1000 + 30*24*60*60*1000);
@@ -361,6 +396,7 @@ Class WHIGI {
 	}
 
 	function whigi_qvar_triggers($vars) {
+		$vars[] = 'connect';
 		$vars[] = 'whigi-connect';
 		$vars[] = 'whigi-grant';
 		return $vars;
@@ -368,7 +404,7 @@ Class WHIGI {
 	
 	//Querystrings we registered
 	function whigi_qvar_handlers() {
-		if(get_query_var('whigi-connect') || get_query_var('whigi-grant')) {
+		if(get_query_var('connect') || get_query_var('whigi-connect') || get_query_var('whigi-grant')) {
 			$this->whigi_include_connector();
 		}
 	}
@@ -388,7 +424,7 @@ Class WHIGI {
 		$user_id = wp_create_user($identity["_id"], wp_generate_password(), $identity["_id"]);
 		//User did not exist, update him first time
 		if(!is_wp_error($user_id)) {
-			wpdb->update($wpdb->users, array('user_login' => $identity["_id"], 'user_nicename' => $identity["_id"], 'display_name' => $identity["_id"]), array('ID' => $user_id));
+			$wpdb->update($wpdb->users, array('user_login' => $identity["_id"], 'user_nicename' => $identity["_id"], 'display_name' => $identity["_id"]), array('ID' => $user_id));
 			update_user_meta($user_id, 'nickname', $identity["_id"]);
 		}
 
@@ -500,7 +536,7 @@ Class WHIGI {
 	function whigi_login_form($atts){
 		$a = shortcode_atts(array(
 			'design' => '',
-			'icon_set' => 'none',
+			'icon_set' => 'hex',
 			'button_prefix' => '',
 			'layout' => 'links-column',
 			'align' => 'left',
@@ -517,7 +553,7 @@ Class WHIGI {
 		return $html;
 	}
 	
-	// gets the content to be used for displaying the login/logout form:
+	//Get content for forms
 	function whigi_login_form_content($design = '', $icon_set = 'icon_set', $layout = 'links-column', $button_prefix = '', $align = 'left', $show_login = 'conditional', $show_logout = 'conditional', $logged_out_title = 'Please login:', $logged_in_title = 'You are already logged in.', $logging_in_title = 'Logging in...', $logging_out_title = 'Logging out...', $style = '', $class = '') {
 		if(WHIGI::whigi_login_form_design_exists($design)) {
 			$a = WHIGI::whigi_get_login_form_design($design);
@@ -599,7 +635,8 @@ Class WHIGI {
 	//Generate form
 	function whigi_login_form_designs_selector($id = '', $master = false) {
 		$html = "";
-		$designs_array = array();
+		$designs_json = get_option('whigi_login_form_designs');
+		$designs_array = json_decode($designs_json);
 		$name = str_replace('-', '_', $id);
 		$html .= "<select id='" . $id . "' name='" . $name . "'>";
 		if($master == true) {
@@ -621,12 +658,42 @@ Class WHIGI {
 	
 	//Get design
 	function whigi_get_login_form_design($design_name, $as_string = false) {
+		$designs_json = get_option('whigi_login_form_designs');
+		$designs_array = json_decode($designs_json, true);
+		foreach($designs_array as $key => $val) {
+			if ($design_name == $key) {
+				$found = $val;
+				break;
+			}
+		}
 		$atts;
+		//echo print_r($found);
+		if ($found) {
+			if ($as_string) {
+				$atts = json_encode($found);
+			}
+			else {
+				$atts = $found;
+			}
+		}
 		return $atts;
 	}
 	
 	function whigi_login_form_design_exists($design_name) {
-		return false;
+		$designs_json = get_option('whigi_login_form_designs');
+		$designs_array = json_decode($designs_json, true);
+		foreach($designs_array as $key => $val) {
+			if ($design_name == $key) {
+				$found = $val;
+				break;
+			}
+		}
+		if ($found) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	//Show linked account
