@@ -81,7 +81,7 @@ function op_andnot($x, $y) {
   return $x & ~$y;
 }
 
-class BigInteger {
+class BigInteger extends ArrayObject {
 
   public static $ZERO;
   public static $ONE;
