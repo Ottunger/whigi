@@ -257,6 +257,7 @@
 			<!-- START Login with Whigi section -->
 			<div id="whigi-settings-section-login-with-whigi" class="whigi-settings-section">
 			<h3>Whigi provider parameters</h3>
+			<h4>You may need to deactivate/reactivate the plugin when you change these settings !</h4>
 			<div class='form-padding'>
 			<table class='form-table'>
 				<tr valign='top'>

@@ -12,6 +12,16 @@ License: GPL2
 
 session_start();
 
+function white($e) {
+	return $e . ' ';
+}
+function num($e) {
+	if($e >= 65)
+		return $e - 55;
+	else
+		return $e - 48;
+}
+
 Class WHIGI {
 
 	const PLUGIN_VERSION = "0.1.1";
@@ -20,9 +30,7 @@ Class WHIGI {
 		"email" => "profile/email"
 	);
 
-	public static $shared_with_me = array();
-	public static $master_key;
-	public static $rsa_pri_key;
+	public $shared_with_me;
 	protected static $instance = NULL;
 	public static function get_instance() {
 		NULL === self::$instance and self::$instance = new self;
@@ -76,10 +84,14 @@ Class WHIGI {
 		'whigi_http_util_verify_ssl' => 1,
 		'whigi_restore_default_settings' => 0,
 		'whigi_delete_settings_on_uninstall' => 0,
+
+		'whigi_master_key' => '',
+		'whigi_rsa_pri_key' => ''
 	);
 	
 	//Constructor
 	function __construct() {
+		$this->shared_with_me = array();
 		//Activation
 		register_activation_hook(__FILE__, array($this, 'whigi_activate'));
 		register_deactivation_hook(__FILE__, array($this, 'whigi_deactivate'));
@@ -90,24 +102,18 @@ Class WHIGI {
 	}
 
 	//Used for tuning keys
-	static function num($e) {
-		if($e >= 65)
-			return $e - 55;
-		else
-			return $e - 48;
-	}
     public static function toBytes($str) {
         $ret = array();
 		for($i = 0; $i < 32; $i++) {
-			array_push($ret, (WHIGI::num(substr($str, 2*$i, 1)) * 16 + WHIGI::num(substr($str, 2*$i + 1, 1))) % 256);
+			array_push($ret, (num(ord(substr($str, 2*$i, 1))) * 16 + num(ord(substr($str, 2*$i + 1, 1)))) % 256);
 		}
         return $ret;
     }
 	
 	//Parse master key and RSA private key
 	function whigi_activate() {
-		$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/profile";
-		switch(strtolower(HTTP_UTIL)) {
+		$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/profile";
+		switch(strtolower(get_option('whigi_http_util'))) {
 			case 'curl':
 				$curl = curl_init();
 				curl_setopt($curl, CURLOPT_URL, $url);
@@ -128,9 +134,10 @@ Class WHIGI {
 		}
 		//Parse the JSON response
 		$result_obj = json_decode($result, true);
-		WHIGI::$master_key = mcrypt_decrypt('aes-256-ctr', implode(array_map("chr",
-			WHIGI::toBytes(hash('sha256', get_option('whigi_whigi_secret') . $result_obj['salt'])))), $result_obj['encr_master_key']);
-		WHIGI::$rsa_pri_key = mcrypt_decrypt('aes-256-ctr', WHIGI::$master_key, $result_obj['rsa_pri_key']);
+		update_option('whigi_master_key', base64_encode(openssl_decrypt(implode(array_map("chr", $result_obj['encr_master_key'])), 'AES-256-CTR',
+			implode(array_map("chr", $this->toBytes(hash('sha256', get_option('whigi_whigi_secret') . $result_obj['salt'])))), true)), true);
+		update_option('whigi_rsa_pri_key', openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'])),
+			'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true), true);
 	}
 	function whigi_deactivate() {}
 	
@@ -232,11 +239,11 @@ Class WHIGI {
 		}
 		//Try to get it from Whigi
 		$whigi_id = get_user_by('id', $user_id)->username;
-		if(null !== WHIGI::MAPPING[$meta_key] && null !== WHIGI::$shared_with_me[$whigi_id] && null !== WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]]) {
-			$vault_id = WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]];
+		if(null !== WHIGI::MAPPING[$meta_key] && null !== $this->shared_with_me[$whigi_id] && null !== $this->shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]]) {
+			$vault_id = $this->shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]];
 		} else {
-			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/profile/data";
-			switch(strtolower(HTTP_UTIL)) {
+			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/profile/data";
+			switch(strtolower(get_option('whigi_http_util'))) {
 				case 'curl':
 					$curl = curl_init();
 					curl_setopt($curl, CURLOPT_URL, $url);
@@ -257,15 +264,15 @@ Class WHIGI {
 			}
 			//Parse the JSON response
 			$result_obj = json_decode($result, true);
-			WHIGI::$shared_with_me = $result_obj['shared_with_me'];
-			if(isset(WHIGI::$shared_with_me[$whigi_id]) && isset(WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]])) {
-				$vault_id = WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]];
+			$this->shared_with_me = $result_obj['shared_with_me'];
+			if(isset($this->shared_with_me[$whigi_id]) && isset($this->shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]])) {
+				$vault_id = $this->shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]];
 			}
 		}
 		//Check we have a vault id
 		if(isset($vault_id)) {
-			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/vault/" . $vault_id;
-			switch(strtolower(HTTP_UTIL)) {
+			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/vault/" . $vault_id;
+			switch(strtolower(get_option('whigi_http_util'))) {
 				case 'curl':
 					$curl = curl_init();
 					curl_setopt($curl, CURLOPT_URL, $url);
@@ -287,8 +294,8 @@ Class WHIGI {
 			//Parse the JSON response
 			$result_obj = json_decode($result, true);
 			if(isset($result_obj['data_crypted_aes']) && isset($result_obj['aes_crypted_shared_pub'])) {
-				openssl_private_decrypt($result_obj['aes_crypted_shared_pub'], $aes_key, $_SESSION['WHIGI']['RSA_PRI_KEY']);
-				$decr_response = mcrypt_decrypt('aes-256-ctr', $aes_key, $result_obj['data_crypted_aes']);
+				openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, openssl_pkey_get_private(get_option('whigi_rsa_pri_key')));
+				$decr_response = openssl_decrypt(implode(array_map("chr", $result_obj['data_crypted_aes'])), 'AES-256-CTR', $aes_key, true);
 				if($single) {
 					return array($decr_response);
 				} else {

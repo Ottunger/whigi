@@ -1,4 +1,6 @@
 <?php
+set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__ . '/phpseclib');
+include('Crypt/RSA.php');
 
 //Start a PHP session
 session_start();
@@ -11,7 +13,7 @@ define('URL_REG', "https://" . get_option('whigi_whigi_host') . "/account/" . ur
 define('URL_LOG', "https://" . get_option('whigi_whigi_host') . "/remote/" . urlencode(CLIENT_ID) . '/');
 
 //Last URL
-if(null !== $_SESSION['WHIGI']['LAST_URL']) {
+if(!$_SESSION['WHIGI']['LAST_URL']) {
 	$_SESSION['WHIGI']['LAST_URL'] = strtok($_SERVER['HTTP_REFERER'], "?");
 }
 
@@ -21,7 +23,7 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 	//Post-auth phase, verify went OK
 	if($_GET['whigi-connect'] == 'ok' && isset($_GET['user']) && isset($_GET['response']) && $_GET['response'] != 'null') {
 		//Check that $_SESSION['WHIGI']['STATE'] is decrypt(reponse) and build identity
-		$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/profile/data";
+		$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/profile/data";
 		switch(strtolower(HTTP_UTIL)) {
 			case 'curl':
 				$curl = curl_init();
@@ -43,11 +45,11 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 		}
 		//Parse the JSON response
 		$result_obj = json_decode($result, true);
-		WHIGI::$shared_with_me = $result_obj['shared_with_me'];
+		WHIGI::get_instance()->shared_with_me = $result_obj['shared_with_me'];
 		if(isset($result_obj['shared_with_me']) && isset($result_obj['shared_with_me'][$_GET['user']]) &&
 			isset($result_obj['shared_with_me'][$_GET['user']]['keys/auth/' . CLIENT_ID])) {
 			//Retrieve vault
-			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/vault/"
+			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/vault/"
 				. $result_obj['shared_with_me'][$_GET['user']]['keys/auth/' . CLIENT_ID];
 			switch(strtolower(HTTP_UTIL)) {
 				case 'curl':
@@ -71,28 +73,34 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 			//Parse the JSON response
 			$result_obj = json_decode($result, true);
 			if(isset($result_obj['data_crypted_aes']) && isset($result_obj['aes_crypted_shared_pub'])) {
-				openssl_private_decrypt($result_obj['aes_crypted_shared_pub'], $aes_key, $_SESSION['WHIGI']['RSA_PRI_KEY']);
-				$decrypter = WHIGI::toBytes(mcrypt_decrypt('aes-256-ctr', $aes_key, $result_obj['data_crypted_aes']));
-				$decr_response = mcrypt_decrypt('aes-256-ctr', $decrypter, urldecode($_GET['response']));
+				$rsa = new Crypt_RSA();
+				$rsa->loadKey(get_option('whigi_rsa_pri_key'));
+				$aes_key = $rsa->decrypt(base64_decode($result_obj['aes_crypted_shared_pub']));
+				//openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, openssl_pkey_get_private(get_option('whigi_rsa_pri_key')));
+				//var_dump(openssl_error_string());
+				var_dump(unpack("C*", $aes_key));
+				var_dump(openssl_decrypt($result_obj['data_crypted_aes'], 'AES-256-CTR', $aes_key, true)); exit;
+				$decrypter = implode(array_map("chr", WHIGI::toBytes(openssl_decrypt($result_obj['data_crypted_aes'], 'AES-256-CTR', $aes_key, true))));
+				$decr_response = openssl_decrypt(urldecode($_GET['response']), 'AES-256-CTR', $decrypter, true);
 				if($decr_response == $_SESSION['WHIGI']['STATE']) {
 					$this->whigi_login_user(array(
 						"_id" => $_GET['user']
 					));
 				} else {
 					//Cannot log in.
-					$this->whigi_end_login("Sorry, we couldn't log you in. Please notify the admin or try again later.");
+					$this->whigi_end_login("Sorry, we couldn't log you in. We decrypted " . $decr_response . " but the challenge was " . $_SESSION['WHIGI']['STATE']);
 				}
 			} else {
 				//Cannot log in.
-				$this->whigi_end_login("Sorry, we couldn't log you in. Please notify the admin or try again later.");
+				$this->whigi_end_login("Sorry, we couldn't log you in. Our backend connection is corrupted.");
 			}
 		} else {
 			//Cannot log in.
-			$this->whigi_end_login("Sorry, we couldn't log you in. Please notify the admin or try again later.");
+			$this->whigi_end_login("Sorry, we couldn't log you in. It seems that you do not have shared an account to us.");
 		} 
 	} else {
 		//Cannot log in.
-		$this->whigi_end_login("Sorry, we couldn't log you in. Please notify the admin or try again later.");
+		$this->whigi_end_login("Sorry, we couldn't log you in. You have declined the invite.");
 	}
 } elseif(isset($_GET['whigi-grant'])) {
 	if($_GET['whigi-grant'] == 'bad') {
