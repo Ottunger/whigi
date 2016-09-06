@@ -4,17 +4,17 @@
 Plugin Name: Whigi-WP
 Plugin URI: http://envict.com
 Description: Manage user accounts using Whigi
-Version: 0.0.1
+Version: 0.1.1
 Author: Grégoire Mathonet
 Author URI: http://envict.com
-License: GPL
+License: GPL2
 */
 
 session_start();
 
 Class WHIGI {
 
-	const PLUGIN_VERSION = "0.0.1";
+	const PLUGIN_VERSION = "0.1.1";
 	const MAPPING = array(
 		"address" => "profile/address",
 		"email" => "profile/email"
@@ -33,6 +33,7 @@ Class WHIGI {
 	private $settings = array(
         'whigi_login_redirect_url' => '/',
         'whigi_logout_redirect_url' => '/',
+		'whigi_whigi_host' => 'whigi.envict.com',
 		'whigi_logo_image' => '',
 		'whigi_bg_image' => '',
 		'whigi_login_form_show_login_screen' => 'Login Screen',
@@ -105,7 +106,7 @@ Class WHIGI {
 	
 	//Parse master key and RSA private key
 	function whigi_activate() {
-		$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@whigi.envict.com/profile";
+		$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/profile";
 		switch(strtolower(HTTP_UTIL)) {
 			case 'curl':
 				$curl = curl_init();
@@ -194,7 +195,7 @@ Class WHIGI {
 		add_filter('query_vars', array($this, 'whigi_qvar_triggers'));
 		add_action('template_redirect', array($this, 'whigi_qvar_handlers'));
 		//Hook get_user_meta
-		add_filter('get_user_metadata', array($this, 'whigi_hook_user_meta'));
+		//add_filter('get_user_metadata', array($this, 'whigi_hook_user_meta'));
 		//Frontend
 		add_action('wp_enqueue_scripts', array($this, 'whigi_init_frontend_scripts_styles'));
 		//Backend
@@ -230,11 +231,11 @@ Class WHIGI {
 			return;
 		}
 		//Try to get it from Whigi
-		$whigi_id = get_userdata($user_id)->data->display_name;
+		$whigi_id = get_user_by('id', $user_id)->username;
 		if(null !== WHIGI::MAPPING[$meta_key] && null !== WHIGI::$shared_with_me[$whigi_id] && null !== WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]]) {
 			$vault_id = WHIGI::$shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]];
 		} else {
-			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@whigi.envict.com/profile/data";
+			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/profile/data";
 			switch(strtolower(HTTP_UTIL)) {
 				case 'curl':
 					$curl = curl_init();
@@ -263,7 +264,7 @@ Class WHIGI {
 		}
 		//Check we have a vault id
 		if(isset($vault_id)) {
-			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@whigi.envict.com/vault/" . $vault_id;
+			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/vault/" . $vault_id;
 			switch(strtolower(HTTP_UTIL)) {
 				case 'curl':
 					$curl = curl_init();
@@ -300,7 +301,7 @@ Class WHIGI {
 		} else {
 			if(null !== WHIGI::MAPPING[$meta_key]) {
 				$_SESSION['WHIGI']['LAST_URL'] = $_SERVER['HTTP_REFERER'];
-				$url = "https://whigi.envict.com/grant/" . urlencode(CLIENT_ID) . '/' . urlencode(WHIGI::MAPPING[$meta_key]) . '/'
+				$url = "https://" . get_option('whigi_whigi_host') . "/grant/" . urlencode(CLIENT_ID) . '/' . urlencode(WHIGI::MAPPING[$meta_key]) . '/'
 					. urlencode(rtrim(site_url(), '/') . '?whigi-grant=ok') . '/' . urlencode(rtrim(site_url(), '/') . '?whigi-grant=bad') . '/' . (time() * 1000 + 30*24*60*60*1000);
 				header("Location: $url");
 				exit;
@@ -661,18 +662,16 @@ Class WHIGI {
 		$designs_json = get_option('whigi_login_form_designs');
 		$designs_array = json_decode($designs_json, true);
 		foreach($designs_array as $key => $val) {
-			if ($design_name == $key) {
+			if($design_name == $key) {
 				$found = $val;
 				break;
 			}
 		}
 		$atts;
-		//echo print_r($found);
-		if ($found) {
+		if($found) {
 			if ($as_string) {
 				$atts = json_encode($found);
-			}
-			else {
+			} else {
 				$atts = $found;
 			}
 		}
@@ -683,15 +682,14 @@ Class WHIGI {
 		$designs_json = get_option('whigi_login_form_designs');
 		$designs_array = json_decode($designs_json, true);
 		foreach($designs_array as $key => $val) {
-			if ($design_name == $key) {
+			if($design_name == $key) {
 				$found = $val;
 				break;
 			}
 		}
-		if ($found) {
+		if($found) {
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}

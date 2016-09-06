@@ -24,8 +24,8 @@ enableProdMode();
         <p>{{ 'account.id_to' | translate }}{{ id_to }}</p>
         <br />
 
-        <button type="button" class="btn btn-warning" (click)="finish(true)">{{ 'account.ok' | translate }}</button>
-        <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'account.nok' | translate }}</button>
+        <button type="button" class="btn btn-warning" (click)="finish(true)" [disabled]="!ready">{{ 'account.ok' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="finish(false)" [disabled]="!ready">{{ 'account.nok' | translate }}</button>
         <br /><br />
 
         <user-info [user]="requester"></user-info>
@@ -33,6 +33,7 @@ enableProdMode();
 })
 export class Account implements OnInit, OnDestroy {
 
+    public ready: boolean;
     public id_to: string;
     public return_url_ok: string;
     public return_url_deny: string;
@@ -64,13 +65,19 @@ export class Account implements OnInit, OnDestroy {
     ngOnInit(): void {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
+            self.ready = false;
             self.id_to = window.decodeURIComponent(params['id_to']);
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
             if(!/^https/.test(self.return_url_ok)) {
                 window.location.href = self.return_url_deny;
             }
+            var parts = self.return_url_ok.split('https://');
+            if(parts.length == 3) {
+                self.return_url_ok = 'https://' + parts[1] + window.encodeURIComponent('https://' + parts[2]);
+            }
             self.dataservice.listData().then(function() {
+                self.ready = true;
                 if('keys/auth/' + self.id_to in self.backend.profile.data) {
                     window.location.href = self.return_url_ok;
                 }

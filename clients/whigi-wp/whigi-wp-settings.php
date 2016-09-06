@@ -272,11 +272,18 @@
 					<input type='text' name='whigi_whigi_secret' value='<?php echo get_option('whigi_whigi_secret'); ?>' />
 				</td>
 				</tr>
+
+				<tr valign='top'>
+				<th scope='row'>Whigi provider (name:port):</th>
+				<td>
+					<input type='text' name='whigi_whigi_host' value='<?php echo get_option('whigi_whigi_host'); ?>' />
+				</td>
+				</tr>
 			</table> <!-- .form-table -->
 			<p>
 				<strong>Instructions:</strong>
 				<ol>
-					<li>Register any account at <a href='https://whigi.envict.com' target="_blank">whigi.envict.com</a>.</li>
+					<li>Register any account at <a href='https://whigi.envict.com' target="_blank">whigi.envict.com</a>, or another Whigi provider.</li>
 					<li>Paste your account ID/password into the fields above, then click the Save all settings button.</li>
 				</ol>
 			</p>

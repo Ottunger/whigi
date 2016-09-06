@@ -7,11 +7,11 @@ define('HTTP_UTIL', get_option('whigi_http_util'));
 define('CLIENT_ID', get_option('whigi_whigi_id'));
 define('CLIENT_SECRET', get_option('whigi_whigi_secret'));
 define('REDIRECT_URI', rtrim(site_url(), '/') . '/');
-define('URL_REG', "https://whigi.envict.com/account/" . urlencode(CLIENT_ID) . '/');
-define('URL_LOG', "https://whigi.envict.com/remote/" . urlencode(CLIENT_ID) . '/');
+define('URL_REG', "https://" . get_option('whigi_whigi_host') . "/account/" . urlencode(CLIENT_ID) . '/');
+define('URL_LOG', "https://" . get_option('whigi_whigi_host') . "/remote/" . urlencode(CLIENT_ID) . '/');
 
 //Last URL
-if(!$_SESSION['WHIGI']['LAST_URL']) {
+if(null !== $_SESSION['WHIGI']['LAST_URL']) {
 	$_SESSION['WHIGI']['LAST_URL'] = strtok($_SERVER['HTTP_REFERER'], "?");
 }
 
@@ -21,7 +21,7 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 	//Post-auth phase, verify went OK
 	if($_GET['whigi-connect'] == 'ok' && isset($_GET['user']) && isset($_GET['response']) && $_GET['response'] != 'null') {
 		//Check that $_SESSION['WHIGI']['STATE'] is decrypt(reponse) and build identity
-		$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@whigi.envict.com/profile/data";
+		$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/profile/data";
 		switch(strtolower(HTTP_UTIL)) {
 			case 'curl':
 				$curl = curl_init();
@@ -47,7 +47,8 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 		if(isset($result_obj['shared_with_me']) && isset($result_obj['shared_with_me'][$_GET['user']]) &&
 			isset($result_obj['shared_with_me'][$_GET['user']]['keys/auth/' . CLIENT_ID])) {
 			//Retrieve vault
-			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@whigi.envict.com/vault/" . $result_obj['shared_with_me'][$_GET['user']]['keys/auth/' . CLIENT_ID];
+			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/vault/"
+				. $result_obj['shared_with_me'][$_GET['user']]['keys/auth/' . CLIENT_ID];
 			switch(strtolower(HTTP_UTIL)) {
 				case 'curl':
 					$curl = curl_init();
@@ -71,7 +72,8 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 			$result_obj = json_decode($result, true);
 			if(isset($result_obj['data_crypted_aes']) && isset($result_obj['aes_crypted_shared_pub'])) {
 				openssl_private_decrypt($result_obj['aes_crypted_shared_pub'], $aes_key, $_SESSION['WHIGI']['RSA_PRI_KEY']);
-				$decr_response = mcrypt_decrypt('aes-256-ctr', $aes_key, $result_obj['data_crypted_aes']);
+				$decrypter = WHIGI::toBytes(mcrypt_decrypt('aes-256-ctr', $aes_key, $result_obj['data_crypted_aes']));
+				$decr_response = mcrypt_decrypt('aes-256-ctr', $decrypter, urldecode($_GET['response']));
 				if($decr_response == $_SESSION['WHIGI']['STATE']) {
 					$this->whigi_login_user(array(
 						"_id" => $_GET['user']
@@ -103,10 +105,10 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 } else {
 	//Pre-auth phase, start the login (the verb _GET['connect'] is set, but we do not use it)
 	$this->whigi_clear_login_state();
+	$challenge = explode('.', uniqid('', true))[0];
 	$_SESSION['WHIGI']['STATE'] = $challenge;
-	$challenge = uniqid('', true);
-	$urlp2 = URL_LOG . $challenge . urlencode(REDIRECT_URI . '?connect=ok');
-	$url = URL_REG . urlencode($urlp2) . '/' . urlencode(REDIRECT_URI . '?connect=bad');
+	$urlp2 = URL_LOG . $challenge . '/' . urlencode(REDIRECT_URI . '?whigi-connect=ok');
+	$url = URL_REG . urlencode($urlp2) . '/' . urlencode(REDIRECT_URI . '?whigi-connect=bad');
 	header("Location: $url");
 	exit;
 }
