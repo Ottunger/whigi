@@ -54,18 +54,20 @@ Then browse to your gitlab server usring HTTP to set everything up :)
 
 # Launch
 Best practice now is to use npm, issuing npm run build, npm run whigi, npm run whigi-restore.
-- Compile all TS files into JS files. Do not worry about non finding 'Promise', we run node v4.5, so we cannot build against ES6.
-- Just issue node index.js over the several servers
-- Static servers are described by a nginx configuration file
+- Compile all TS files into JS files (=> npm run build). Do not worry about non finding 'Promise', we run node v4.5, so we cannot build against ES6.
 - Don't forget to prepare database using the mongoInit.sh file!
+- Run the servers (=> nohup npm run whigi &; npm run serve)
+- Static server and api path separation are described by a nginx configuration file
+- In the nginx configuration file, if you have specified an upper level listen/SSL configuration, please remove it from your local nginx.conf file.
 Whigi runs over HTTP because it is behind nginx that makes the HTTPS handshake. Whigi-restore and Whigi-RLI run their own HTTPS.
 
 # Data model
 - Whigi
    - Users are stored in a table with their basic profile info and a data array of all id's of their own infos in documents.
    - Documents are stored in another table, alongside.
-- Whigi-restore
-   - User\_id <=> master\_key bijection. This database is populated upon user creation bu Whigi, to communicate servers encrypt a welcoming message and the message. This encryption shared key is obviously of the utmost importance.
+   - Refer to the UML diagram for more information.
+- Whigi-restore is the simpliest provider, and as such, does not even have a database!
+- Whigi-RLI hold knowledge in RAM, as it is soft-stated.
 
 # To have a possibly growing website
 Whigi is based on a CDN for data architecture, or Data-Grid.
@@ -78,7 +80,7 @@ If you want to modify/rebuild the message definitions, you will need to download
 The source and compiled messages definitions are stored in common/cdnize.
 
 # Peer monitoring
-Client side monitoring is done via auditing the retieved HTTPS files. Because the server might still change their responses if they knew requests are coming from Whigi's,
+Client side monitoring is done via auditing the retrieved HTTPS files. Because the server might still change their responses if they knew requests are coming from Whigi's,
 any Whigi is free to use a proxy for retrieving the files, thus making sure the tested server will respond typically sent files. You can change your local proxy in the
 file /common/cdnize/scripts/client.sh
 

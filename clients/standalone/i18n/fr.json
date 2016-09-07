@@ -33,7 +33,7 @@
    "login.password": "Mot de passe (8caractères min)",
    "login.email": "Email",
    "login.forgot": "Mot de passe oublié",
-   "login.sendForgot": "Créez mon compte, merci!",
+   "login.sendForgot": "Récupérez mon compte, merci!",
    "login.noLogin": "Impossible de se logger. Vérifiez vos données",
    "login.noSignup": "Impossible de créer le compte. Essayez un autre nom d'utilisateur?",
    "login.noReset": "Impossible de ocntacter le serveur de récupération",
