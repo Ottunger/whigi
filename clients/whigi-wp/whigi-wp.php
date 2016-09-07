@@ -109,6 +109,34 @@ Class WHIGI {
 		}
         return $ret;
     }
+
+	public static function pkcs1unpad2($b, $bits = 4096) {
+		$i = 0;
+		$n = ($bits + 7) >> 3;
+		$l = strlen($b);
+		while($i < $l && ord($b[$i]) == 0)
+			++$i;
+		if(ord($b[$i]) != 2)
+			return null;
+		++$i;
+		while(ord($b[$i]) != 0)
+			if(++$i >= $l)
+				return null;
+		$ret = "";
+		while(++$i < $l) {
+			$c = ord($b[$i]) & 255;
+			if($c < 128) {
+				$ret .= chr($c);
+			} elseif(($c > 191) && ($c < 224)) {
+				$ret .= chr((($c & 31) << 6) | (ord($b[$i+1]) & 63));
+				++$i;
+			} else {
+				$ret .= chr((($c & 15) << 12) | ((ord($b[$i+1]) & 63) << 6) | (ord($b[$i+2]) & 63));
+				$i += 2;
+			}
+		}
+		return $ret;
+	}
 	
 	//Parse master key and RSA private key
 	function whigi_activate() {
@@ -135,7 +163,7 @@ Class WHIGI {
 		//Parse the JSON response
 		$result_obj = json_decode($result, true);
 		update_option('whigi_master_key', base64_encode(openssl_decrypt(implode(array_map("chr", $result_obj['encr_master_key'])), 'AES-256-CTR',
-			implode(array_map("chr", $this->toBytes(hash('sha256', get_option('whigi_whigi_secret') . $result_obj['salt'])))), true)), true);
+			implode(array_map("chr", WHIGI::toBytes(hash('sha256', get_option('whigi_whigi_secret') . $result_obj['salt'])))), true)), true);
 		update_option('whigi_rsa_pri_key', openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'])),
 			'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true), true);
 	}
@@ -294,8 +322,9 @@ Class WHIGI {
 			//Parse the JSON response
 			$result_obj = json_decode($result, true);
 			if(isset($result_obj['data_crypted_aes']) && isset($result_obj['aes_crypted_shared_pub'])) {
-				openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, openssl_pkey_get_private(get_option('whigi_rsa_pri_key')));
-				$decr_response = openssl_decrypt(implode(array_map("chr", $result_obj['data_crypted_aes'])), 'AES-256-CTR', $aes_key, true);
+				openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, get_option('whigi_rsa_pri_key'), OPENSSL_NO_PADDING);
+				$aes_key = WHIGI::pkcs1unpad2($aes_key);
+				$decr_response = openssl_decrypt(mb_convert_encoding($result_obj['data_crypted_aes'], 'iso-8859-1', 'utf8'), 'AES-256-CTR', $aes_key, true);
 				if($single) {
 					return array($decr_response);
 				} else {
@@ -425,9 +454,6 @@ Class WHIGI {
 	//Match accounts
 	function whigi_match_wordpress_user($identity) {
 		global $wpdb;
-		if(!get_option("users_can_register")) {
-			return false;
-		}
 		//Attempt user creation
 		$user_id = wp_create_user($identity["_id"], wp_generate_password(), $identity["_id"]);
 		//User did not exist, update him first time
@@ -436,10 +462,9 @@ Class WHIGI {
 			update_user_meta($user_id, 'nickname', $identity["_id"]);
 		}
 
-		$usermeta_table = $wpdb->usermeta;
-		$query_string = "SELECT $usermeta_table.user_id FROM $usermeta_table WHERE $usermeta_table.meta_key = 'whigi_identity' AND $usermeta_table.meta_value LIKE '%" . $identity["_id"] . "%'";
-		$query_result = $wpdb->get_var($query_string);
-		$user = get_user_by('id', $query_result);
+		$user = get_userdatabylogin($identity["_id"]);
+		$user->remove_role('contributor');
+		$user->add_role('subscriber');
 		return $user;
 	}
 	

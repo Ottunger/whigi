@@ -1,7 +1,5 @@
 <?php
 
-include 'whigi-rsa.php';
-
 //Start a PHP session
 session_start();
 
@@ -73,16 +71,12 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 			//Parse the JSON response
 			$result_obj = json_decode($result, true);
 			if(isset($result_obj['data_crypted_aes']) && isset($result_obj['aes_crypted_shared_pub'])) {
-				$rsa = new Crypt_RSA();
-				$rsa->loadKey(get_option('whigi_rsa_pri_key'));
-				$aes_key = $rsa->decrypt(base64_decode($result_obj['aes_crypted_shared_pub']));
-				//openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, openssl_pkey_get_private(get_option('whigi_rsa_pri_key')));
-				//var_dump(openssl_error_string());
-				var_dump(unpack("C*", $aes_key));
-				var_dump(openssl_decrypt($result_obj['data_crypted_aes'], 'AES-256-CTR', $aes_key, true)); exit;
-				$decrypter = implode(array_map("chr", WHIGI::toBytes(openssl_decrypt($result_obj['data_crypted_aes'], 'AES-256-CTR', $aes_key, true))));
-				$decr_response = openssl_decrypt(urldecode($_GET['response']), 'AES-256-CTR', $decrypter, true);
-				if($decr_response == $_SESSION['WHIGI']['STATE']) {
+				openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, get_option('whigi_rsa_pri_key'), OPENSSL_NO_PADDING);
+				$aes_key = WHIGI::pkcs1unpad2($aes_key);
+				$encrypter = implode(array_map("chr", WHIGI::toBytes(
+					openssl_decrypt(mb_convert_encoding($result_obj['data_crypted_aes'], 'iso-8859-1', 'utf8'), 'AES-256-CTR', $aes_key, true))));
+				$encr_challenge = openssl_encrypt($_SESSION['WHIGI']['STATE'], 'AES-256-CTR', $encrypter, true);
+				if(unpack("C*", $encr_challenge) === unpack("C*", base64_decode($_GET['response']))) {
 					$this->whigi_login_user(array(
 						"_id" => $_GET['user']
 					));

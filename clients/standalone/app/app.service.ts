@@ -84,7 +84,7 @@ export class Backend {
      */
     arr2str(arr: number[]): string {
         var result = '';
-        for (var i = 0; i < arr.length; i++) {
+        for(var i = 0; i < arr.length; i++) {
             result += String.fromCharCode(arr[i]);
         }
         return result;
@@ -99,7 +99,7 @@ export class Backend {
      */
     str2arr(str: string): number[] {
         var result: number[] = [];
-        for (var i = 0; i < str.length; i++) {
+        for(var i = 0; i < str.length; i++) {
             result.push(window.parseInt(str.charCodeAt(i).toString(10)));
         }
         return result;
