@@ -42,7 +42,7 @@ export class Profileguard implements CanActivate, CanDeactivate<Filesystem> {
             return true;
         if(!('return_url' in localStorage))
             localStorage.setItem('return_url', JSON.stringify(state.url.split('/').map(window.decodeURIComponent)));
-        this.router.navigate(['/']);
+        this.router.navigate(['/llight']);
         return false;
     }
 

@@ -44,7 +44,7 @@ export class Backend {
     constructor(private http: Http, private notif: NotificationsService, private translate: TranslateService) {
         var self = this;
         this.data_loaded = false;
-        this.http.get('/app/generics.json').toPromise().then(function(response) {
+        this.http.get('/api/v1/generics.json').toPromise().then(function(response) {
             self.generics = response.json();
         });
     }

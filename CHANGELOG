@@ -6,6 +6,9 @@ Updated on 21-08-16, 13:30
 Whigi endpoints:
 ****************
 
+/api/v<any>/generics.json
+Retrieves generics as JSON object.
+
 /api/v<any>/peek/<id>: Get
 Retrieves whether a user id exists.
 

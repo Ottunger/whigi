@@ -19,12 +19,14 @@ import {Resethelp} from './subcmpts/resethelp.component';
 import {Account} from './subcmpts/account.component';
 import {Remote} from './subcmpts/remote.component';
 import {Generics} from './subcmpts/generics.component';
+import {Logginglight} from './subcmpts/logginglight.component';
 import {Notfound} from './subcmpts/notfound.component';
 import {Profileguard, Fullguard} from './guards.service';
 
 const appRoutes: Routes = [
     {path: '', component: Logging},
-    {path: 'end', component: Logging},
+    {path: 'end', component: Logginglight},
+    {path: 'llight', component: Logginglight},
     {path: 'profile', component: Profile, canActivate: [Profileguard]},
     {path: 'filesystem/:mode', component: Filesystem, canActivate: [Profileguard], canDeactivate: [Profileguard]},
     {path: 'data/:name', component: Dataview, canActivate: [Fullguard], canDeactivate: [Fullguard]},
