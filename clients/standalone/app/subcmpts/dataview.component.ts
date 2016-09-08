@@ -290,9 +290,9 @@ export class Dataview implements OnInit, OnDestroy {
      */
     register() {
         var self = this;
-        this.dataservice.grantVault(this.new_id, this.data_name, this.data.dec, new Date(this.new_date)).then(function(user, id) {
+        this.dataservice.grantVault(this.new_id, this.data_name, this.decr_data, new Date(this.new_date)).then(function(user, id) {
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;
-            self.timings[user._id] = {la: new Date(0), ee: new Date(self.new_date)};
+            self.timings[user._id] = {la: new Date(0), ee: new Date(self.new_date), seen: false, ends: new Date(self.new_date).getTime() > (new Date).getTime()};
             self.new_id = '';
         }, function() {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));

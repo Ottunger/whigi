@@ -713,6 +713,7 @@ Class WHIGI {
 	function whigi_login_form_design_exists($design_name) {
 		$designs_json = get_option('whigi_login_form_designs');
 		$designs_array = json_decode($designs_json, true);
+		$found = false;
 		foreach($designs_array as $key => $val) {
 			if($design_name == $key) {
 				$found = $val;
