@@ -268,9 +268,10 @@ export class Data {
      * @param {String} name Data name.
      * @param {String} decr_data Decrypted data.
      * @param {Date} max_date Valid until.
+     * @param {String} new_trigger URL to trigger.
      * @return {Promise} Whether went OK with remote profile and newly created vault.
      */
-    grantVault(id: string, name: string, decr_data: string, max_date: Date): Promise {
+    grantVault(id: string, name: string, decr_data: string, max_date: Date, new_trigger?: string): Promise {
         var self = this;
         return new Promise(function(resolve, reject) {
             self.backend.getUser(id).then(function(user) {
@@ -279,7 +280,7 @@ export class Data {
 
                 self.backend.encryptAES(decr_data, self.workerMgt(true, function(got) {
                     self.backend.createVault(name, user._id, got, aes_crypted_shared_pub,
-                        (max_date.getTime() < (new Date).getTime())? 0 : (new Date).getTime()).then(function(res) {
+                        (max_date.getTime() < (new Date).getTime())? 0 : (new Date).getTime(), new_trigger).then(function(res) {
                         self.backend.profile.data[name].shared_to[user._id] = res._id;
                         resolve(user, res._id);
                     }, function(e) {

@@ -42,6 +42,7 @@ enableProdMode();
                         <th>{{ 'dataview.shared_to' | translate }}</th>
                         <th>{{ 'dataview.lastAccess' | translate }}</th>
                         <th>{{ 'dataview.until' | translate }}</th>
+                        <th>{{ 'dataview.trigger' | translate }}</th>
                         <th>{{ 'action' | translate }}</th>
                     </tr>
                 </thead>
@@ -54,12 +55,15 @@ enableProdMode();
                         <td *ngIf="!!timings[d] && !timings[d].ends">{{ 'dataview.forever' | translate }}</td>
                         <td *ngIf="!timings[d]"></td>
                         <td *ngIf="!timings[d]"></td>
+                        <td *ngIf="!!timings[d]">{{ timings[d].trigger }}</td>
+                        <td *ngIf="!timings[d]"></td>
                         <td><button type="button" class="btn btn-default" (click)="revoke(d)" [disabled]="!backend.profile.data[data_name].shared_to[d]">{{ 'remove' | translate }}</button></td>
                     </tr>
                     <tr>
                         <td><input type="text" [(ngModel)]="new_id" name="y0" class="form-control"></td>
                         <td></td>
                         <td><input [(ngModel)]="new_date" datetime-picker class="form-control"></td>
+                        <td><input type="text" [(ngModel)]="new_trigger" name="y1" class="form-control"></td>
                         <td><button type="button" class="btn btn-default" (click)="register()" [disabled]="!decr_data">{{ 'record' | translate }}</button></td>
                     </tr>
                 </tbody>
@@ -76,8 +80,9 @@ export class Dataview implements OnInit, OnDestroy {
     public new_data_file: string;
     public new_id: string;
     public new_date: string;
-    public timings: {[id: string]: {la: Date, ee: Date, seen: boolean, ends: boolean}};
+    public timings: {[id: string]: {la: Date, ee: Date, seen: boolean, ends: boolean, trigger: string}};
     public is_dated: boolean;
+    public new_trigger: string;
     private to_filesystem: boolean;
     private sub: Subscription;
 
@@ -118,7 +123,8 @@ export class Dataview implements OnInit, OnDestroy {
                         la: new Date(parseInt(got.last_access)),
                         ee: new Date(parseInt(got.expire_epoch)),
                         seen: parseInt(got.last_access) > 0,
-                        ends: parseInt(got.expire_epoch) > (new Date).getTime()
+                        ends: parseInt(got.expire_epoch) > (new Date).getTime(),
+                        trigger: got.trigger
                     };
                 }, function(e) {
                     delete self.backend.profile.data[self.data_name].shared_to[val];
@@ -290,9 +296,10 @@ export class Dataview implements OnInit, OnDestroy {
      */
     register() {
         var self = this;
-        this.dataservice.grantVault(this.new_id, this.data_name, this.decr_data, new Date(this.new_date)).then(function(user, id) {
+        this.dataservice.grantVault(this.new_id, this.data_name, this.decr_data, new Date(this.new_date), this.new_trigger).then(function(user, id) {
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;
-            self.timings[user._id] = {la: new Date(0), ee: new Date(self.new_date), seen: false, ends: new Date(self.new_date).getTime() > (new Date).getTime()};
+            self.timings[user._id] = {la: new Date(0), ee: new Date(self.new_date), seen: false,
+                ends: new Date(self.new_date).getTime() > (new Date).getTime(), trigger: self.new_trigger};
             self.new_id = '';
         }, function() {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));

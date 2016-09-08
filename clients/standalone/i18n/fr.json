@@ -99,6 +99,7 @@
    "dataview.lastAccess": "Dernier accès",
    "dataview.neverSeen": "Jamais exploité",
    "dataview.forever": "A jamais valide",
+   "dataview.trigger": "URL HTTPS de changement",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
    "vaultview.expired": "Cette valise a expiré...",

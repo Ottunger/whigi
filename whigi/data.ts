@@ -6,7 +6,7 @@
 
 'use strict';
 declare var require: any
-var http = require('http');
+var https = require('https');
 var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 import {User} from '../common/models/User';
@@ -75,9 +75,11 @@ export function triggerVaults(req, res) {
                         req.user.persist();
                         v.unlink();
                     } else if(v.trigger.length > 1) {
-                        var ht = http.request({
+                        var ht = https.request({
                             host: v.trigger.split('/')[0],
-                            path: v.trigger.split('/', 2)[1]   
+                            path: v.trigger.split('/', 2)[1],
+                            port: 443,
+                            method: 'GET'
                         }, function(res) {
                             var r = '';
                             res.on('data', function(chunk) {
@@ -153,7 +155,7 @@ export function regVault(req, res) {
                     sharer_id: req.user._id,
                     last_access: 0,
                     expire_epoch: got.expire_epoch,
-                    trigger: got.trigger,
+                    trigger: got.trigger.replace(/^http:\/\//, '').replace(/^https:\/\//, ''),
                     is_dated: req.user.data[got.data_name].is_dated
                 }, db);
                 db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {

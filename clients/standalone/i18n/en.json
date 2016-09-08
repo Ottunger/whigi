@@ -99,6 +99,7 @@
    "dataview.lastAccess": "Last access",
    "dataview.neverSeen": "Never seen",
    "dataview.forever": "Always valid",
+   "dataview.trigger": "Trigger on change HTTPS URL",
 
    "vaultview.noData": "Cannot retrieve such vault. Maybe access was revoked...",
    "vaultview.expired": "This vault has expired...",

@@ -53,6 +53,7 @@ export class Grant implements OnInit, OnDestroy {
     public requester: any;
     public new_data: {[id: string]: string};
     public forever: boolean;
+    public trigger: string;
     private sub: Subscription;
 
     /**
@@ -82,6 +83,7 @@ export class Grant implements OnInit, OnDestroy {
         var self = this, all: boolean;
         this.sub = this.routed.params.subscribe(function(params) {
             all = true;
+            self.trigger = (!!params['trigger'])? window.decodeURIComponent(params['trigger']) : '';
             self.id_to = window.decodeURIComponent(params['id_to']);
             self.expire_epoch = new Date(parseInt(params['expire_epoch']));
             self.forever = self.expire_epoch.getTime() < (new Date).getTime();
@@ -134,14 +136,14 @@ export class Grant implements OnInit, OnDestroy {
                         }]);
                     }
                     this.dataservice.newData(this.data_list[i], this.new_data[this.data_list[i]], this.backend.generics[this.data_list[i]].is_dated).then(function(data) {
-                        promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], self.new_data[self.data_list[i]], self.expire_epoch));
+                        promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], self.new_data[self.data_list[i]], self.expire_epoch, self.trigger));
                     }, function(e) {
                         self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));
                     });
                 } else {
                     this.backend.getData(this.backend.profile.data[this.data_list[i]].id).then(function(data) {
                         self.backend.decryptAES(data.encr_data, self.dataservice.workerMgt(false, function(got) {
-                            promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], got, self.expire_epoch));
+                            promises.push(self.dataservice.grantVault(self.id_to, self.data_list[i], got, self.expire_epoch, self.trigger));
                         }));
                     }, function(e) {
                         self.notif.error(self.translate.instant('error'), self.translate.instant('grant.err'));
