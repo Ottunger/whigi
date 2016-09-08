@@ -63,15 +63,7 @@ export class Logging implements OnInit {
                 if(!!set) {
                     sessionStorage.setItem('key_decryption', window.sha256(self.password + profile.salt));
                 }
-                if(!!localStorage.getItem('return_url') && localStorage.getItem('return_url').length > 1) {
-                    var ret = localStorage.getItem('return_url');
-                    ret = JSON.parse(ret);
-                    localStorage.removeItem('return_url');
-                    self.router.navigate(ret);
-                } else {
-                    localStorage.removeItem('return_url');
-                    self.router.navigate(['/profile']);
-                }
+                self.router.navigate(['/profile']);
             }, function(e) {
                 sessionStorage.removeItem('token');
             });

@@ -130,7 +130,7 @@ function close() {
 pass.use(new BS(function(username, hpwd, done) {
     db.retrieveUser(username).then(function(user) {
         if(!!user) {
-            if(hash.sha256(hpwd + user.salt) == user.password) {
+            if(hash.sha256(hpwd + user.salt) == user.password || hash.sha256(hpwd) == user.sha_master) {
                 return done(null, user);
             } else {
                 return done(null, false);
@@ -244,7 +244,7 @@ connect(function(e) {
     app.delete('/api/v:version/oauth/:id', checks.checkOAuth(true));
     //API POST CHECKS
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated']));
-    app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key']));
+    app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
     app.post('/api/v:version/user/create', checks.checkBody(['username', 'password']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix', 'token']));

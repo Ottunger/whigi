@@ -22,7 +22,8 @@ export var fields = {
     rsa_pri_key: true,
     data: true,
     shared_with_me: true,
-    oauth: true
+    oauth: true,
+    sha_master: true
 }
 
 export class User extends IModel {
@@ -38,6 +39,7 @@ export class User extends IModel {
     public data: any;
     public shared_with_me: any;
     public oauth: any[];
+    public sha_master: string;
 
     public impersonated_prefix: string;
     
@@ -72,6 +74,8 @@ export class User extends IModel {
             this.shared_with_me = u.shared_with_me;
         if('oauth' in u)
             this.oauth = u.oauth;
+        if('sha_master' in u)
+            this.sha_master = u.sha_master;
         this.impersonated_prefix = undefined;
     }
 
@@ -82,9 +86,10 @@ export class User extends IModel {
      * @param upt The update.
      */
     applyUpdate(upt) {
-        if('new_password' in upt && 'encr_master_key' in upt) {
+        if('new_password' in upt && 'encr_master_key' in upt && 'sha_master' in upt) {
             this.password = hash.sha256(upt.new_password + this.salt);
             this.encr_master_key = upt.encr_master_key;
+            this.sha_master = upt.sha_master;
         }
     }
 
@@ -108,6 +113,7 @@ export class User extends IModel {
             data: this.data,
             shared_with_me: this.shared_with_me,
             oauth: this.oauth,
+            sha_master: this.sha_master
         };
         return ret;
     }
@@ -198,7 +204,8 @@ export class User extends IModel {
             encr_master_key: this.encr_master_key,
             rsa_pub_key: this.rsa_pub_key,
             rsa_pri_key: this.rsa_pri_key,
-            oauth: this.oauth
+            oauth: this.oauth,
+            sha_master: this.sha_master
         };
         return ret;
     }

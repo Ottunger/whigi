@@ -478,6 +478,7 @@ export class Backend {
         return this.backend(true, 'POST', {
             new_password: window.sha256(new_password),
             encr_master_key: this.encryptMasterAESAsNumber(new_password, this.profile.salt, this.master_key),
+            sha_master: window.sha256(window.sha256(this.arr2str(this.master_key))),
             username: this.profile.username,
             password: window.sha256(password)
         }, 'profile/update', true, false);

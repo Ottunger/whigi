@@ -211,6 +211,7 @@ export function regUser(req, res) {
         u.data = {};
         u.shared_with_me = {};
         u.oauth = [];
+        u.sha_master = hash.sha256(hash.sha256(utils.arr2str(utils.toBytes(pre_master_key))));
         u.encr_master_key = Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
             .encrypt(utils.toBytes(pre_master_key)));
         u.rsa_pub_key = key.exportKey('public');

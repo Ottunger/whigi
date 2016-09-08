@@ -46,6 +46,7 @@ export class Logginglight implements OnInit {
     public username: string;
     public password: string;
     public use_pwd: boolean;
+    public persistent: boolean;
     private onEnd: boolean;
 
     /**
@@ -60,6 +61,7 @@ export class Logginglight implements OnInit {
      */
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService, private dataservice: Data) {
         this.onEnd = true;
+        this.persistent = false;
         this.use_pwd = true;
     }
 
