@@ -58,12 +58,15 @@ Removes an OAuth token specified by id.
 /api/v<any>/data/<id>: Get, needs auth
 Retrieves an encrypted piece of data.
 
+/api/v<any>/data/trigger/<name>: Get, needs auth
+Triggers vaults associated with this data.
+
 /api/v<any>/data/<data_name>: Delete, needs auth
 Removes such a named data and all associated vaults.
 
 /api/v<any>/vault/new: Post, needs auth, needs puzzle
 Creates a new vault for sharing with another user. Set expire_epoch to 0 or negative to never expire.
-{"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string", "data_crypted_aes": "string", "expire_epoch": "number"}
+{"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string", "data_crypted_aes": "string", "expire_epoch": "number", "trigger": "string"}
 
 /api/v<any>/vault/<vault_id>: Delete, needs auth
 Removes a vault from the storage, revoking access grant.

@@ -6,6 +6,7 @@
 
 'use strict';
 declare var require: any
+var http = require('http');
 var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 import {User} from '../common/models/User';
@@ -45,6 +46,52 @@ export function getData(req, res) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         } else {
             res.type('application/json').status(200).json(df.sanitarize());
+        }
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Forges the response to trigger vaults.
+ * @function triggerVaults
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function triggerVaults(req, res) {
+    var name = decodeURIComponent(req.params.data_name);
+    req.user.fill().then(function() {
+        if(name in req.user.data) {
+            var keys = Object.getOwnPropertyNames(req.user.data[name].shared_to);
+            for(var i = 0; i < keys.length; i++) {
+                db.retrieveVault(req.user.data[name].shared_to[keys[i]]).then(function(v: Vault) {
+                    if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
+                        db.retrieveUser(v.shared_to_id, true).then(function(u: User) {
+                            delete u.shared_with_me[v.sharer_id][v.data_name];
+                            u.persist();
+                        });
+                        delete req.user.data[v.data_name].shared_to[v.shared_to_id];
+                        req.user.persist();
+                        v.unlink();
+                    } else if(v.trigger.length > 1) {
+                        var ht = http.request({
+                            host: v.trigger.split('/')[0],
+                            path: v.trigger.split('/', 2)[1]   
+                        }, function(res) {
+                            var r = '';
+                            res.on('data', function(chunk) {
+                                r += chunk;
+                            });
+                            res.on('end', function() {});
+                        }).on('error', function(err) {});
+                        ht.end();
+                    }
+                });
+            }
+            res.type('application/json').status(200).json({error: ''});
+        } else {
+            res.type('application/json').status(200).json({error: ''});
         }
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
@@ -106,6 +153,7 @@ export function regVault(req, res) {
                     sharer_id: req.user._id,
                     last_access: 0,
                     expire_epoch: got.expire_epoch,
+                    trigger: got.trigger,
                     is_dated: req.user.data[got.data_name].is_dated
                 }, db);
                 db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
@@ -256,7 +304,7 @@ export function accessVault(req, res) {
                 res.type('application/json').status(417).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
                 return;
             }
-            res.type('application/json').status(200).json({last_access: v.last_access, expire_epoch: v.expire_epoch});
+            res.type('application/json').status(200).json({last_access: v.last_access, expire_epoch: v.expire_epoch, trigger: v.trigger});
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });

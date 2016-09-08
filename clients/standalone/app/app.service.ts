@@ -44,8 +44,8 @@ export class Backend {
     constructor(private http: Http, private notif: NotificationsService, private translate: TranslateService) {
         var self = this;
         this.data_loaded = false;
-        this.http.get('/api/v1/generics.json').toPromise().then(function(response) {
-            self.generics = response.json();
+        this.backend(true, 'GET', {}, 'generics.json', false, false).then(function(response) {
+            self.generics = response;
         });
     }
 
@@ -582,6 +582,17 @@ export class Backend {
     }
 
     /**
+     * Trigger vaults.
+     * @function triggerVaults
+     * @public
+     * @param {String} name Data name.
+     * @return {Promise} JSON response from backend.
+     */
+    triggerVaults(name: string): Promise {
+        return this.backend(true, 'GET', {}, 'data/trigger/' + name, true, true);
+    }
+
+    /**
      * Deletes a piece of data.
      * @function getData
      * @public
@@ -601,15 +612,17 @@ export class Backend {
      * @param {Bytes} data_crypted_aes Locally crypted data using a freshly generated AES key.
      * @param {String} aes_crypted_shared_pub Locally crypted new AES key using remote public RSA key.
      * @param {Number} expire_epoch Time for expiration.
+     * @param {String} trigger URL that frontend should trigger upon change.
      * @return {Promise} JSON response from backend.
      */
-    createVault(data_name: string, shared_to_id: string, data_crypted_aes: number[], aes_crypted_shared_pub: string, expire_epoch?: number): Promise {
+    createVault(data_name: string, shared_to_id: string, data_crypted_aes: number[], aes_crypted_shared_pub: string, expire_epoch?: number, trigger?: string): Promise {
         return this.backend(true, 'POST', {
             data_name: data_name,
             shared_to_id: shared_to_id,
             data_crypted_aes: this.arr2str(data_crypted_aes),
             aes_crypted_shared_pub: aes_crypted_shared_pub,
-            expire_epoch: (!!expire_epoch)? expire_epoch : 0
+            expire_epoch: (!!expire_epoch)? expire_epoch : 0,
+            trigger: (!!trigger)? trigger : ''
         }, 'vault/new', true, true, true);
     }
 

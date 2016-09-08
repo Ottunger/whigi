@@ -41,7 +41,9 @@ var isHttps = !!process.argv[7]? process.argv[7] : 'true';
  * @param {Function} next 404 Handler.
  */
 function listOptions(path, res, next) {
-    if(path.match(/\/api\/v[1-9]\/peek\/.+\/?$/))
+    if(path.match(/\/api\/v[1-9]\/generics.json\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/peek\/.+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/user\/create\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,POST').type('application/json').status(200).json({error: ''});
@@ -70,6 +72,8 @@ function listOptions(path, res, next) {
     //-----
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/data\/trigger\/[a-zA-Z0-9%]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/new\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/?$/))
@@ -209,6 +213,9 @@ connect(function(e) {
     }
     app.use(body.json({limit: '5000mb'}));
 
+    app.get('/api/v:version/generics.json', function(req, res) {
+        res.type('application/json').status(200).json(require('./generics.json'));
+    });
     //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/profile', pass.authenticate(['token', 'basic'], {session: false}));
@@ -220,6 +227,7 @@ connect(function(e) {
     app.delete('/api/v:version/profile/token', pass.authenticate(['token', 'basic'], {session: false}));
     //-----
     app.get('/api/v:version/data/:id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/data/trigger/:data_name', pass.authenticate(['token', 'basic'], {session: false}));
     app.delete('/api/v:version/data/:data_name', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/vault/new', pass.authenticate(['token', 'basic'], {session: false}));
     app.delete('/api/v:version/vault/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
@@ -249,7 +257,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix', 'token']));
     //-----
-    app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch']));
+    app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch', 'trigger']));
     //API LONG LIVED COMMANDS
     app.get('/api/v:version/user/:id', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/new', checks.checkPuzzle);
@@ -272,6 +280,7 @@ connect(function(e) {
     app.delete('/api/v:version/oauth/:id', user.removeOAuth);
     //------
     app.get('/api/v:version/data/:id', data.getData);
+    app.get('/api/v:version/data/trigger/:data_name', data.triggerVaults);
     app.delete('/api/v:version/data/:data_name', data.removeData);
     app.post('/api/v:version/vault/new', data.regVault);
     app.delete('/api/v:version/vault/:vault_id', data.removeVault);

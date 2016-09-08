@@ -107,6 +107,17 @@ exports.test = function() {
             });
         });
 
+        describe('#triggerVaults()', function() {
+            it('should return 200', function(done) {
+                var f = new fk.FakeRes(false);
+                me.triggerVaults({
+                    user: new user.User(dummy_user, ds),
+                    params: {data_name: 'IIS'}
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(200).notify(done);
+            });
+        });
+
         describe('#removeData()', function() {
             it('should accept silently a non present data', function(done) {
                 var f = new fk.FakeRes(false);

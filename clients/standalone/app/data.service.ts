@@ -218,6 +218,7 @@ export class Data {
             }
         }
         
+        self.backend.triggerVaults(name);
         return new Promise(function(resolve, reject) {
             self.newData(name, value, is_dated, true).then(function() {
                 names.forEach(function(id) {
