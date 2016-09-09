@@ -19,6 +19,7 @@ import {Account} from './subcmpts/account.component';
 import {Remote} from './subcmpts/remote.component';
 import {Generics} from './subcmpts/generics.component';
 import {Logginglight} from './subcmpts/logginglight.component';
+import {User} from './subcmpts/user.component';
 import {Notfound} from './subcmpts/notfound.component';
 import {Profileguard, Fullguard} from './guards.service';
 
@@ -27,6 +28,8 @@ const appRoutes: Routes = [
     {path: 'end', component: Logginglight},
     {path: 'llight', component: Logginglight},
     {path: 'profile', component: Profile, canActivate: [Profileguard]},
+    {path: 'user/:id', component: User, canActivate: [Profileguard]},
+    {path: 'user/:id/:ret', component: User, canActivate: [Profileguard]},
     {path: 'filesystem/:mode', component: Filesystem, canActivate: [Profileguard], canDeactivate: [Profileguard]},
     {path: 'data/:name', component: Dataview, canActivate: [Fullguard], canDeactivate: [Fullguard]},
     {path: 'vault/:username/:id', component: Vaultview, canActivate: [Fullguard]},

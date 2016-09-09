@@ -1,5 +1,5 @@
 /**
- * Component displaying a detailed view of a vault.
+ * Component displaying public info about a user.
  * @module vaultview.component
  * @author Mathonet Grégoire
  */
@@ -12,25 +12,22 @@ import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
 import {Subscription} from 'rxjs/Subscription';
 import {Backend} from '../app.service';
-import {Data} from '../data.service';
 enableProdMode();
 
 @Component({
     template: `
-        <h2>{{ dataservice.sanitarize(sharer_id + '/' + vault.data_name) }}</h2>
+        <h2>{{ 'userinfo.title' | translate }}</h2>
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
 
-        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="vault.data_name" [change]="false"></clear-view>
+        <user-info [user]="user"></user-info>
     `
 })
-export class Vaultview implements OnInit, OnDestroy {
+export class User implements OnInit, OnDestroy {
 
-    public vault: any;
-    public sharer_id: string;
-    public decr_data: string;
-    public is_dated: boolean;
-    private route_back: string;
+    public user: any;
+    public id: string;
+    public ret: string[];
     private sub: Subscription;
 
     /**
@@ -42,12 +39,10 @@ export class Vaultview implements OnInit, OnDestroy {
      * @param backend API service.
      * @param notif Notifications service.
      * @param routed Parameters service.
-     * @param dataservice Data service.
      */
     constructor(private translate: TranslateService, private router: Router, private backend: Backend,
-        private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data) {
-        this.vault = {data_name: ''};
-        this.decr_data = '';
+        private notif: NotificationsService, private routed: ActivatedRoute) {
+        this.user = {};
     }
 
     /**
@@ -58,18 +53,11 @@ export class Vaultview implements OnInit, OnDestroy {
     ngOnInit(): void {
         var self = this;
         this.sub = this.routed.params.subscribe(function(params) {
-            self.route_back = params['route_back'];
-            self.sharer_id = params['username'];
-            self.dataservice.getVault(params['id']).then(function(vault) {
-                self.vault = vault;
-                self.decr_data = vault.decr_data;
-                self.is_dated = vault.is_dated;
+            self.id = window.decodeURIComponent(params['id']);
+            self.ret = !!params['ret']? JSON.parse(window.decodeURIComponent(params['ret'])) : ['/profile'];
+            self.backend.getUser(self.id).then(function(user) {
+                self.user = user;
             }, function(e) {
-                if(e.status == 417)
-                    self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.expired'));
-                else
-                    self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.noData'));
-                delete self.backend.profile.shared_with_me[self.sharer_id][params['data_name']];
                 self.back();
             });
         });
@@ -90,7 +78,7 @@ export class Vaultview implements OnInit, OnDestroy {
      * @public
      */
     back() {
-        this.router.navigate(['/filesystem', 'vault', (!!this.route_back)? {folders: this.route_back} : {}]);
+        this.router.navigate(this.ret);
     }
     
 }

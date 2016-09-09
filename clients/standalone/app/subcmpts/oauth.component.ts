@@ -16,20 +16,22 @@ enableProdMode();
 
 @Component({
     template: `
-        <h2>{{ 'oauth.question' | translate }}</h2>
-        <br />
-        <p>{{ 'oauth.explain' | translate }}</p>
-        <br />
-        <p>{{ 'oauth.for_id' | translate }}{{ for_id }}</p>
-        <br />
-        <p>{{ 'oauth.prefix' | translate }}{{ prefix }}</p>
-        <br />
+        <div style="box-shadow: 0 0 10px 10px black; padding: 10px;">
+            <h2>{{ 'oauth.question' | translate }}</h2>
+            <br />
+            <p>{{ 'oauth.explain' | translate }}</p>
+            <br />
+            <p>{{ 'oauth.for_id' | translate }}{{ for_id }}</p>
+            <br />
+            <p>{{ 'oauth.prefix' | translate }}{{ prefix }}</p>
+            <br />
 
-        <button type="button" class="btn btn-warning" (click)="finish(true)">{{ 'oauth.ok' | translate }}</button>
-        <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'oauth.nok' | translate }}</button>
-        <br /><br />
+            <button type="button" class="btn btn-warning" (click)="finish(true)">{{ 'oauth.ok' | translate }}</button>
+            <button type="button" class="btn btn-primary" (click)="finish(false)">{{ 'oauth.nok' | translate }}</button>
+            <br /><br />
 
-        <user-info [user]="requester"></user-info>
+            <user-info [user]="requester"></user-info>
+        </div>
     `
 })
 export class Oauth implements OnInit, OnDestroy {

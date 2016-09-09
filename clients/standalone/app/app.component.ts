@@ -17,6 +17,8 @@ enableProdMode();
                 <router-outlet></router-outlet>
             </div>
         </div>
+        <br />
+        <br />
         <div class="row bottom-border">
             <div class="col-sm-offset-1 col-sm-10">
                 <div class="btn-toolbar" role="toolbar" aria-label="">

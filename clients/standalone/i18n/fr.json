@@ -139,8 +139,8 @@
    "account.dataField": "Données associées",
    "account.new": "Nouvelle instance",
 
-   "userinfo.title": "Informations à propos du demandeur",
-   "userinfo.trustLevel": "Niveau de confiance accordé par Whigi (0-5): ",
+   "userinfo.title": "Informations à propos de l'utilisateur",
+   "userinfo.trustLevel": "Niveau de confiance accordé par Whigi (0-9): ",
    "userinfo.public": "Informations publiques vérifiées: ",
    "userinfo.name": "Nom de l'organisation: ",
 

@@ -17,57 +17,59 @@ enableProdMode();
 
 @Component({
     template: `
-        <h2>{{ 'account.question' | translate }}</h2>
-        <br />
-        <p>{{ 'account.explain' | translate }}</p>
-        <br />
-        <p>{{ 'account.id_to' | translate }}{{ id_to }}</p>
-        <br />
-        <p *ngIf="with_account != 'false'">{{ 'account.withAccount' | translate }}</p>
-        <br />
-        <p *ngIf="!forever">{{ 'account.until' | translate }}<input [ngModel]="expire_epoch.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></p>
-        <p *ngIf="forever">{{ 'account.forever' | translate }}</p>
-        <br />
+        <div style="box-shadow: 0 0 10px 10px black; padding: 10px;">
+            <h2>{{ 'account.question' | translate }}</h2>
+            <br />
+            <p>{{ 'account.explain' | translate }}</p>
+            <br />
+            <p>{{ 'account.id_to' | translate }}{{ id_to }}</p>
+            <br />
+            <p *ngIf="with_account != 'false'">{{ 'account.withAccount' | translate }}</p>
+            <br />
+            <p *ngIf="!forever">{{ 'account.until' | translate }}<input [ngModel]="expire_epoch.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></p>
+            <p *ngIf="forever">{{ 'account.forever' | translate }}</p>
+            <br />
 
-        <div *ngFor="let p of data_list">
-            <h3>
-                {{ 'account.prefix' | translate }}{{ p }}
-                <img *ngIf="!!backend.generics[p] && !!backend.generics[p].img_url" class="featurette-image img-circle img-responsive pull-right" src="{{ backend.generics[p].img_url }}">
-                <img *ngIf="!backend.generics[p] || !backend.generics[p].img_url" class="featurette-image img-circle img-responsive pull-right" src="favicon.png">
-            </h3>
-            
-            <p *ngIf="!backend.generics[p]"><i>{{ 'account.notShared' | translate }}</i></p>
-            <div *ngIf="!!backend.generics[p] && !backend.generics[p].is_folder">
-                <p *ngIf="!!backend.profile.data[p]">{{ 'account.shared' | translate }}</p>
-                <input *ngIf="!backend.profile.data[p] && !backend.generics[p].is_file" type="text" [(ngModel)]="new_data[p]" class="form-control">
-                <input *ngIf="!backend.profile.data[p] && backend.generics[p].is_file" type="file" (change)="fileLoad($event, p)" class="form-control">
-            </div>
-            <div *ngIf="!!backend.generics[p] && backend.generics[p].is_folder">
-                <select class="form-control" [(ngModel)]="filter[p]">
-                    <option *ngFor="let f of filters(p)" [value]="f"><span *ngIf="f != '/new'">{{ f }}</span><span *ngIf="f == '/new'">{{ 'account.new' | translate }}</span></option>
-                </select>
-                <div *ngIf="filter[p] == '/new'">
-                    {{ 'account.nameField' | translate }}
-                    <input type="text" [(ngModel)]="new_name[p]" name="s18" class="form-control">
-                    {{ 'account.dataField' | translate }}
-                    <input type="text" *ngIf="!backend.generics[p].is_file && !backend.generics[p].json_keys" [(ngModel)]="new_data[p]" name="s1" class="form-control">
-                    <div *ngIf="!backend.generics[p].is_file && !!backend.generics[p].json_keys">
-                        <div class="form-group" *ngFor="let k of backend.generics[p].json_keys">
-                            {{ k | translate }}<br />
-                            <input type="text" [(ngModel)]="new_datas[p][k]" name="s1" class="form-control">
+            <div *ngFor="let p of data_list">
+                <h3>
+                    {{ 'account.prefix' | translate }}{{ p }}
+                    <img *ngIf="!!backend.generics[p] && !!backend.generics[p].img_url" class="featurette-image img-circle img-responsive pull-right" src="{{ backend.generics[p].img_url }}">
+                    <img *ngIf="!backend.generics[p] || !backend.generics[p].img_url" class="featurette-image img-circle img-responsive pull-right" src="favicon.png">
+                </h3>
+                
+                <p *ngIf="!backend.generics[p]"><i>{{ 'account.notShared' | translate }}</i></p>
+                <div *ngIf="!!backend.generics[p] && !backend.generics[p].is_folder">
+                    <p *ngIf="!!backend.profile.data[p]">{{ 'account.shared' | translate }}</p>
+                    <input *ngIf="!backend.profile.data[p] && !backend.generics[p].is_file" type="text" [(ngModel)]="new_data[p]" class="form-control">
+                    <input *ngIf="!backend.profile.data[p] && backend.generics[p].is_file" type="file" (change)="fileLoad($event, p)" class="form-control">
+                </div>
+                <div *ngIf="!!backend.generics[p] && backend.generics[p].is_folder">
+                    <select class="form-control" [(ngModel)]="filter[p]">
+                        <option *ngFor="let f of filters(p)" [value]="f"><span *ngIf="f != '/new'">{{ f }}</span><span *ngIf="f == '/new'">{{ 'account.new' | translate }}</span></option>
+                    </select>
+                    <div *ngIf="filter[p] == '/new'">
+                        {{ 'account.nameField' | translate }}
+                        <input type="text" [(ngModel)]="new_name[p]" name="s18" class="form-control">
+                        {{ 'account.dataField' | translate }}
+                        <input type="text" *ngIf="!backend.generics[p].is_file && !backend.generics[p].json_keys" [(ngModel)]="new_data[p]" name="s1" class="form-control">
+                        <div *ngIf="!backend.generics[p].is_file && !!backend.generics[p].json_keys">
+                            <div class="form-group" *ngFor="let k of backend.generics[p].json_keys">
+                                {{ k | translate }}<br />
+                                <input type="text" [(ngModel)]="new_datas[p][k]" name="s1" class="form-control">
+                            </div>
                         </div>
+                        <input type="file" *ngIf="backend.generics[p].is_file" (change)="fileLoad($event, p)" name="n50" class="form-control">
                     </div>
-                    <input type="file" *ngIf="backend.generics[p].is_file" (change)="fileLoad($event, p)" name="n50" class="form-control">
                 </div>
             </div>
+            <br />
+
+            <button type="button" class="btn btn-warning" (click)="finish(true)" [disabled]="!ready">{{ 'account.ok' | translate }}</button>
+            <button type="button" class="btn btn-primary" (click)="finish(false)" [disabled]="!ready">{{ 'account.nok' | translate }}</button>
+            <br /><br />
+
+            <user-info [user]="requester"></user-info>
         </div>
-        <br />
-
-        <button type="button" class="btn btn-warning" (click)="finish(true)" [disabled]="!ready">{{ 'account.ok' | translate }}</button>
-        <button type="button" class="btn btn-primary" (click)="finish(false)" [disabled]="!ready">{{ 'account.nok' | translate }}</button>
-        <br /><br />
-
-        <user-info [user]="requester"></user-info>
     `
 })
 export class Account implements OnInit, OnDestroy {
@@ -127,14 +129,12 @@ export class Account implements OnInit, OnDestroy {
             self.forever = self.expire_epoch.getTime() < (new Date).getTime();
             
             //We prepare HTTPS
-            if(self.with_account != 'flow' && !/^https/.test(self.return_url_ok)) {
+            if(!/^http/.test(self.return_url_ok)) {
                 window.location.href = self.return_url_deny;
             }
-            if(self.with_account != 'flow') {
-                var parts = self.return_url_ok.split('https://');
-                if(parts.length == 3) {
-                    self.return_url_ok = 'https://' + parts[1] + window.encodeURIComponent('https://' + parts[2]);
-                }
+            var parts = self.return_url_ok.split('https://');
+            if(parts.length == 3) {
+                self.return_url_ok = 'https://' + parts[1] + window.encodeURIComponent('https://' + parts[2]);
             }
 
             //List data, check if permissions already granted
@@ -143,21 +143,21 @@ export class Account implements OnInit, OnDestroy {
                 self.ready = true;
                 self.data_list = (!!params['data_list'] && params['data_list'] != '-')? window.decodeURIComponent(params['data_list']).split('//') : [];
                 for(var i = 0; i < self.data_list.length; i++) {
-                    if(!(self.data_list[i] in self.backend.profile.data) || !(self.id_to in self.backend.profile.data[self.data_list[i]].shared_to)
-                        && self.data_list[i] in self.backend.generics) {
+                    if((!(self.data_list[i] in self.backend.profile.data) || !(self.id_to in self.backend.profile.data[self.data_list[i]].shared_to)) && self.data_list[i] in self.backend.generics) {
                         var ret = self.backend.data_trie.suggestions(self.data_list[i] + '/', '/').sort().filter(function(el: string): boolean {
                             return el.charAt(el.length - 1) != '/';
                         });
                         var nice = false;
-                        for(var i = 0; i < ret.length; i++) {
-                            if(ret[i] in self.backend.profile.data && self.id_to in self.backend.profile.data[ret[i]].shared_to) {
+                        for(var j = 0; j < ret.length; j++) {
+                            if(ret[j] in self.backend.profile.data && self.id_to in self.backend.profile.data[ret[j]].shared_to) {
                                 nice = true;
                                 break;
                             }
                         }
-                        if(!nice)
+                        if(!nice) {
                             all = false;
-                        break;
+                            break;
+                        }
                     }
                 }
                 if(all && (self.with_account == 'false' || ('keys/auth/' + self.id_to in self.backend.profile.data &&

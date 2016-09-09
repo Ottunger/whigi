@@ -64,7 +64,7 @@ enableProdMode();
                 </thead>
                 <tbody>
                     <tr *ngFor="let d of sharedIds()">
-                        <td>{{ d }}</td>
+                        <td><a (click)="user(d)">{{ d }}</a></td>
                         <td *ngIf="!!timings[d] && timings[d].seen"><input [ngModel]="timings[d].la.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></td>
                         <td *ngIf="!!timings[d] && timings[d].ends"><input [ngModel]="timings[d].ee.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></td>
                         <td *ngIf="!!timings[d] && !timings[d].seen">{{ 'dataview.neverSeen' | translate }}</td>
@@ -353,6 +353,7 @@ export class Dataview implements OnInit, OnDestroy {
                 self.backend.getData(self.backend.profile.data[self.gen_name + '/' + self.filter].id).then(function(data) {
                     self.backend.decryptAES(data.encr_data, self.dataservice.workerMgt(false, function(got) {
                         self.dataservice.grantVault(shared_to_id, self.gen_name, self.gen_name + '/' + self.filter, got, new Date(timer.expire_epoch), timer.trigger).then(function() {
+                            self.backend.triggerVaults(self.gen_name + '/' + self.filter);
                             self.notif.success(self.translate.instant('success'), self.translate.instant('dataview.transfered'));
                         }, function(e) {
                             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));
@@ -427,6 +428,15 @@ export class Dataview implements OnInit, OnDestroy {
             self.new_data_file = r.result;
         }
         r.readAsDataURL(file);
+    }
+
+    /**
+     * Go to user page
+     * @function user
+     * @param {String} user The user.
+     */
+    user(user: string) {
+        this.router.navigate(['/user', user, JSON.stringify(this.router.routerState.snapshot.url.split('/').map(window.decodeURIComponent))]);
     }
     
 }

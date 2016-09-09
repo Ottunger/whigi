@@ -17,29 +17,31 @@ enableProdMode();
 
 @Component({
     template: `
-        <form class="form-signin">
-            <div class="heading">
-                <h3 class="form-signin-heading">{{ 'reset.reset' | translate }}</h3>
-            </div>
-            <div class="checkbox">
-                <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
-            </div>
-            <div class="form-group">
-                {{ 'reset.password' | translate }}<br />
-                <input type="password" [(ngModel)]="password" name="n4" class="form-control" [disabled]="!use_pwd" required>
-            </div>
-            <div class="form-group">
-                {{ 'reset.password' | translate }}<br />
-                <input type="password" [(ngModel)]="password2" name="n5" class="form-control" [disabled]="!use_pwd" required>
-            </div>
-            <div class="form-group">
-                {{ 'login.password_file' | translate }}<br />
-                <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" (click)="enter()">{{ 'reset.send' | translate }}</button>
-            </div>
-        </form>
+        <div style="box-shadow: 0 0 10px 10px black; padding: 10px;">
+            <form class="form-signin">
+                <div class="heading">
+                    <h3 class="form-signin-heading">{{ 'reset.reset' | translate }}</h3>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
+                </div>
+                <div class="form-group">
+                    {{ 'reset.password' | translate }}<br />
+                    <input type="password" [(ngModel)]="password" name="n4" class="form-control" [disabled]="!use_pwd" required>
+                </div>
+                <div class="form-group">
+                    {{ 'reset.password' | translate }}<br />
+                    <input type="password" [(ngModel)]="password2" name="n5" class="form-control" [disabled]="!use_pwd" required>
+                </div>
+                <div class="form-group">
+                    {{ 'login.password_file' | translate }}<br />
+                    <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" (click)="enter()">{{ 'reset.send' | translate }}</button>
+                </div>
+            </form>
+        </div>
     `
 })
 export class Reset implements OnInit, OnDestroy {

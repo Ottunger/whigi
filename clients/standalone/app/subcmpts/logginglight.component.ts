@@ -16,29 +16,31 @@ enableProdMode();
 
 @Component({
     template: `
-        <form class="form-signin">
-            <div class="form-group">
-                {{ 'login.username' | translate }}<br />
-                <input type="text" [(ngModel)]="username" name="n0" class="form-control" required>
-            </div>
-            <div class="checkbox">
-                <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
-            </div>
-            <div class="form-group">
-                {{ 'login.password' | translate }}<br />
-                <input type="password" [(ngModel)]="password" name="n1" class="form-control" [disabled]="!use_pwd" required>
-            </div>
-            <div class="form-group">
-                {{ 'login.password_file' | translate }}<br />
-                <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
-            </div>
-            <div class="form-group">
-                <div class="checkbox">
-                    <label><input type="checkbox" name="n2" [(ngModel)]="persistent"> {{ 'login.remember' | translate }}</label>
+        <div style="box-shadow: 0 0 10px 10px black; padding: 10px;">
+            <form class="form-signin">
+                <div class="form-group">
+                    {{ 'login.username' | translate }}<br />
+                    <input type="text" [(ngModel)]="username" name="n0" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary" (click)="enter()">{{ 'login.goOn' | translate }}</button>
-            </div>
-        </form>
+                <div class="checkbox">
+                    <label><input type="checkbox" name="n90" [(ngModel)]="use_pwd" checked> {{ 'login.use_pwd' | translate }}</label>
+                </div>
+                <div class="form-group">
+                    {{ 'login.password' | translate }}<br />
+                    <input type="password" [(ngModel)]="password" name="n1" class="form-control" [disabled]="!use_pwd" required>
+                </div>
+                <div class="form-group">
+                    {{ 'login.password_file' | translate }}<br />
+                    <input type="file" (change)="fileLoad($event)" name="n50" class="form-control" [disabled]="use_pwd" required>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="n2" [(ngModel)]="persistent"> {{ 'login.remember' | translate }}</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" (click)="enter()">{{ 'login.goOn' | translate }}</button>
+                </div>
+            </form>
+        </div>
     `
 })
 export class Logginglight implements OnInit {

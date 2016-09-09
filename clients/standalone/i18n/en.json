@@ -139,8 +139,8 @@
    "account.dataField": "Associated data",
    "account.new": "New instance",
 
-   "userinfo.title": "Information about the requester",
-   "userinfo.trustLevel": "Trust level of whigi about this provider (0-5): ",
+   "userinfo.title": "Information about the user",
+   "userinfo.trustLevel": "Trust level of whigi about this user (0-9): ",
    "userinfo.public": "Publicly advertised and checked information: ",
    "userinfo.name": "Organization name: ",
 
