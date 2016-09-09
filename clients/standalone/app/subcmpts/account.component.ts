@@ -23,7 +23,7 @@ enableProdMode();
         <br />
         <p>{{ 'account.id_to' | translate }}{{ id_to }}</p>
         <br />
-        <p *ngIf="with_account">{{ 'account.withAccount' | translate }}</p>
+        <p *ngIf="with_account != 'false'">{{ 'account.withAccount' | translate }}</p>
         <br />
         <p *ngIf="!forever">{{ 'account.until' | translate }}<input [ngModel]="expire_epoch.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></p>
         <p *ngIf="forever">{{ 'account.forever' | translate }}</p>
@@ -46,7 +46,7 @@ enableProdMode();
                 <select class="form-control" [(ngModel)]="filter[p]">
                     <option *ngFor="let f of filters(p)" [value]="f"><span *ngIf="f != '/new'">{{ f }}</span><span *ngIf="f == '/new'">{{ 'account.new' | translate }}</span></option>
                 </select>
-                <div *ngIf="filter[p] == '/new' || !backend.profile.data[p]">
+                <div *ngIf="filter[p] == '/new'">
                     {{ 'account.nameField' | translate }}
                     <input type="text" [(ngModel)]="new_name[p]" name="s18" class="form-control">
                     {{ 'account.dataField' | translate }}
@@ -85,7 +85,7 @@ export class Account implements OnInit, OnDestroy {
     public new_name: {[id: string]: string};
     public forever: boolean;
     public trigger: string;
-    public with_account: boolean;
+    public with_account: string;
     private sub: Subscription;
 
     /**
@@ -121,18 +121,20 @@ export class Account implements OnInit, OnDestroy {
             self.id_to = window.decodeURIComponent(params['id_to']);
             self.return_url_ok = window.decodeURIComponent(params['return_url_ok']);
             self.return_url_deny = window.decodeURIComponent(params['return_url_deny']);
-            self.with_account = params['with_account'] === 'true';
+            self.with_account = params['with_account'];
             self.trigger = (!!params['trigger'])? window.decodeURIComponent(params['trigger']) : '';
             self.expire_epoch = (!!params['expire_epoch'])? new Date(parseInt(params['expire_epoch'])) : new Date(0);
             self.forever = self.expire_epoch.getTime() < (new Date).getTime();
             
             //We prepare HTTPS
-            if(!/^https/.test(self.return_url_ok)) {
+            if(self.with_account != 'flow' && !/^https/.test(self.return_url_ok)) {
                 window.location.href = self.return_url_deny;
             }
-            var parts = self.return_url_ok.split('https://');
-            if(parts.length == 3) {
-                self.return_url_ok = 'https://' + parts[1] + window.encodeURIComponent('https://' + parts[2]);
+            if(self.with_account != 'flow') {
+                var parts = self.return_url_ok.split('https://');
+                if(parts.length == 3) {
+                    self.return_url_ok = 'https://' + parts[1] + window.encodeURIComponent('https://' + parts[2]);
+                }
             }
 
             //List data, check if permissions already granted
@@ -143,13 +145,32 @@ export class Account implements OnInit, OnDestroy {
                 for(var i = 0; i < self.data_list.length; i++) {
                     if(!(self.data_list[i] in self.backend.profile.data) || !(self.id_to in self.backend.profile.data[self.data_list[i]].shared_to)
                         && self.data_list[i] in self.backend.generics) {
-                        all = false;
+                        var ret = self.backend.data_trie.suggestions(self.data_list[i] + '/', '/').sort().filter(function(el: string): boolean {
+                            return el.charAt(el.length - 1) != '/';
+                        });
+                        var nice = false;
+                        for(var i = 0; i < ret.length; i++) {
+                            if(ret[i] in self.backend.profile.data && self.id_to in self.backend.profile.data[ret[i]].shared_to) {
+                                nice = true;
+                                break;
+                            }
+                        }
+                        if(!nice)
+                            all = false;
                         break;
                     }
                 }
-                if(all && (!self.with_account || ('keys/auth/' + self.id_to in self.backend.profile.data &&
+                if(all && (self.with_account == 'false' || ('keys/auth/' + self.id_to in self.backend.profile.data &&
                     self.id_to in self.backend.profile.data['keys/auth/' + self.id_to].shared_to))) {
-                    window.location.href = self.return_url_ok;
+                    if(self.with_account == 'flow') {
+                        var arr = self.return_url_ok.split('/');
+                        arr.shift();
+                        arr.shift();
+                        arr.shift();
+                        self.router.navigate(arr);
+                    } else {
+                        window.location.href = self.return_url_ok;
+                    }
                 }
             }, function() {
                 window.location.href = self.return_url_deny;
@@ -182,7 +203,7 @@ export class Account implements OnInit, OnDestroy {
         var self = this, acc: Promise, grant: Promise;
         if(ok) {
             acc = new Promise(function(resolve, reject) {
-                if(!self.with_account) {
+                if(self.with_account == 'false') {
                     resolve();
                 } else {
                     var key = self.backend.generateRandomString(64);
@@ -200,7 +221,7 @@ export class Account implements OnInit, OnDestroy {
             grant = new Promise(function(resolve, reject) {
                 var promises: Promise[] = [];
                 self.data_list.forEach(function(adata) {
-                    if(adata in self.backend.generics && (!(adata in self.backend.profile.data) || (adata in self.filter && self.filter[adata] == '/new'))) {
+                    if(adata in self.backend.generics && ((!(adata in self.filter) && !(adata in self.backend.profile.data)) || (adata in self.filter && self.filter[adata] == '/new'))) {
                         if(!!self.backend.generics[adata].json_keys) {
                             var ret = {};
                             for(var i = 0; i < self.backend.generics[adata].json_keys.length; i++) {
@@ -244,7 +265,15 @@ export class Account implements OnInit, OnDestroy {
                 });
             });
             Promise.all([acc, grant]).then(function() {
-                window.location.href = self.return_url_ok;
+                if(self.with_account == 'flow') {
+                    var arr = self.return_url_ok.split('/');
+                    arr.shift();
+                    arr.shift();
+                    arr.shift();
+                    self.router.navigate(arr);
+                } else {
+                    window.location.href = self.return_url_ok;
+                }
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('account.err'));
                 window.setTimeout(function() {

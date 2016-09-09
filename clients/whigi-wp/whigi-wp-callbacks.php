@@ -115,7 +115,7 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 	$data = (count($data) > 0)? implode('//', $data) : '-';
 
 	$urlp2 = URL_LOG . $challenge . '/' . urlencode(REDIRECT_URI . '?whigi-connect=ok');
-	$url = URL_REG . urlencode($urlp2) . '/' . urlencode(REDIRECT_URI . '?whigi-connect=bad') . '/true/' . $data . '/' . 
+	$url = URL_REG . urlencode($urlp2) . '/' . urlencode(REDIRECT_URI . '?whigi-connect=bad') . '/flow/' . $data . '/' . 
 		(time()*1000 + intval(get_option('whigi_whigi_time'))*30*24*60*60*1000) . '/' . urlencode(get_option('whigi_whigi_trigger'));
 	header("Location: $url");
 	exit;

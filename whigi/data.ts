@@ -172,6 +172,13 @@ export function regVault(req, res) {
                         req.user.data[got.real_name].shared_to[got.shared_to_id] = v._id;
                         req.user.persist().then(function() {
                             sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
+                            if(v.data_name in sharee.shared_with_me[req.user._id]) {
+                                db.retrieveVault(sharee.shared_with_me[req.user._id][v.data_name]).then(function(ret: Vault) {
+                                    delete req.user.data[ret.real_name].shared_to[v.shared_to_id];
+                                    req.user.persist();
+                                    ret.unlink();
+                                });
+                            }
                             sharee.shared_with_me[req.user._id][v.data_name] = v._id;
                             sharee.persist().then(function() {
                                 res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});

@@ -2,10 +2,25 @@
 A project to make people possess their own data again.
 The clients should log in using generated token, for ease of unlogging all other clients.
 The clients that remember a token should also remember a combination hash(password + salt), that is able to decrypt the encrypted master key.
-Remember that clients aure authenticated using a match on hash(hash(password) + salt)
+Remember that clients are authenticated using a match on hash(hash(password) + salt).
+
+# Installation
+All Whigi instances run over HTTPS. Whigi-restore and Whigi-RLI are their own HTTPS providers, whereas Whigi is behinf nginx.
+- Clone the gitlab repository.
+- Make sure to have installed node=4.7.X, mongo=3.2.X, nginx>=1.6.X.
+- Modify the nginx.conf package to specify where you cloned your repo and the path to logs. Be careful where the HTTPS endpoint is! Especially if running several nginx in chain.
+- Modify package.json, the script "whigi", to specify the hostname of Whigi-restore to Whigi and vice versa, if theyr do not both run on the same machine.
+- Modify clients/standalone/app/app.service.ts to specify the backend hostname.
+- Install npm dependencies: npm install && cd clients/standalone && npm install && cd ../..
+- Compile all (do not worry about non finding Promise, Buffer, etc): npm run build && cd clients/standalone && npm run build_unix && cd ../..
+- Init database: mongo < mongoInit.sh
+- Launch Whigi: nohup npm run whigi &
+- Copy conf file and restart nginx: npm run serve
+- Launch Whigi-restore and Whigi-RLI if desired. They cannot run on the machine as they will listen on port 443!: nohup npm run whigi-restore &; nohup npm run whigi-rli &
 
 # See CHANGELOG for a description fof API endpoints.
-Note that whigi-restore gets informed of the mappings email <=> master\_key but nevers informs back whigi of the disclosure. A front-end app should therefore request the master\_key then ask whigi for a password change.
+A greater description is given in the documents found in the doc folder.
+Please make sure to update password when you recover it (create a client that does so).
 
 # Third-parties
 - SIMULATE AN ACCOUNT CREATION WITHOUT OAUTH: This is the best method for account creation. Make your user browse to
@@ -52,15 +67,6 @@ sudo apt-get install gitlab-ce
 - sudo gitlab-ctl reconfigure
 
 Then browse to your gitlab server usring HTTP to set everything up :)
-
-# Launch
-Best practice now is to use npm, issuing npm run build, npm run whigi, npm run whigi-restore.
-- Compile all TS files into JS files (=> npm run build). Do not worry about non finding 'Promise', we run node v4.5, so we cannot build against ES6.
-- Don't forget to prepare database using the mongoInit.sh file!
-- Run the servers (=> nohup npm run whigi &; npm run serve)
-- Static server and api path separation are described by a nginx configuration file
-- In the nginx configuration file, if you have specified an upper level listen/SSL configuration, please remove it from your local nginx.conf file.
-Whigi runs over HTTP because it is behind nginx that makes the HTTPS handshake. Whigi-restore and Whigi-RLI run their own HTTPS.
 
 # Data model
 - Whigi
