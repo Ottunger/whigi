@@ -110,9 +110,8 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 	$challenge = explode('.', uniqid('', true))[0];
 	$_SESSION['WHIGI']['STATE'] = $challenge;
 
-	$data = get_option('whigi_whigi_data');
-	$data = array_map(urlencode, $data);
-	$data = (count($data) > 0)? implode('//', $data) : '-';
+	$data = urlencode(get_option('whigi_whigi_data'));
+	$data = strlen($data) > 1? $data : '-';
 
 	$urlp2 = URL_LOG . $challenge . '/' . urlencode(REDIRECT_URI . '?whigi-connect=ok');
 	$url = URL_REG . urlencode($urlp2) . '/' . urlencode(REDIRECT_URI . '?whigi-connect=bad') . '/flow/' . $data . '/' . 

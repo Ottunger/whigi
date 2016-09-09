@@ -42,9 +42,10 @@ Class WHIGI {
         'whigi_login_redirect_url' => '/',
         'whigi_logout_redirect_url' => '/',
 		'whigi_whigi_host' => 'whigi.envict.com',
-		'whigi_whigi_data' => array(),
+		'whigi_whigi_data' => '',
 		'whigi_whigi_time' => '1',
 		'whigi_whigi_trigger' => 'www.wordpress.org',
+		'whigi_whigi_prefix' => 'wordpress',
 		'whigi_logo_image' => '',
 		'whigi_bg_image' => '',
 		'whigi_login_form_show_login_screen' => 'Login Screen',
@@ -89,7 +90,9 @@ Class WHIGI {
 		'whigi_delete_settings_on_uninstall' => 0,
 
 		'whigi_master_key' => '',
-		'whigi_rsa_pri_key' => ''
+		'whigi_rsa_pri_key' => '',
+		'whigi_generics' => '',
+		'whigi_i18n_en' => ''
 	);
 	
 	//Constructor
@@ -169,6 +172,54 @@ Class WHIGI {
 			implode(array_map("chr", WHIGI::toBytes(hash('sha256', get_option('whigi_whigi_secret') . $result_obj['salt'])))), true)), true);
 		update_option('whigi_rsa_pri_key', openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'])),
 			'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true), true);
+
+		$url = "https://" . get_option('whigi_whigi_host') . "/api/v1/generics.json";
+		switch(strtolower(get_option('whigi_http_util'))) {
+			case 'curl':
+				$curl = curl_init();
+				curl_setopt($curl, CURLOPT_URL, $url);
+				curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+				curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+				$result = curl_exec($curl);
+				break;
+			case 'stream-context':
+				$opts = array('http' =>
+					array(
+						'method'  => 'GET'
+					)
+				);
+				$context = stream_context_create($opts);
+				$result = @file_get_contents($url, false, $context);
+				break;
+		}
+		//Parse the JSON response
+		$result_obj = json_decode($result, true);
+		update_option('whigi_generics', $result_obj);
+
+		$url = "https://" . get_option('whigi_whigi_host') . "/i18n/en.json";
+		switch(strtolower(get_option('whigi_http_util'))) {
+			case 'curl':
+				$curl = curl_init();
+				curl_setopt($curl, CURLOPT_URL, $url);
+				curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+				curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+				$result = curl_exec($curl);
+				break;
+			case 'stream-context':
+				$opts = array('http' =>
+					array(
+						'method'  => 'GET'
+					)
+				);
+				$context = stream_context_create($opts);
+				$result = @file_get_contents($url, false, $context);
+				break;
+		}
+		//Parse the JSON response
+		$result_obj = json_decode($result, true);
+		update_option('whigi_i18n_en', $result_obj);
 	}
 	function whigi_deactivate() {}
 	

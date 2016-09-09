@@ -270,7 +270,7 @@
 				<tr valign='top'>
 				<th scope='row'>Secret password:</th>
 				<td>
-					<input type='text' name='whigi_whigi_secret' value='<?php echo get_option('whigi_whigi_secret'); ?>' />
+					<input type='password' name='whigi_whigi_secret' value='<?php echo get_option('whigi_whigi_secret'); ?>' />
 				</td>
 				</tr>
 
@@ -278,6 +278,20 @@
 				<th scope='row'>Whigi provider (name:port):</th>
 				<td>
 					<input type='text' name='whigi_whigi_host' value='<?php echo get_option('whigi_whigi_host'); ?>' />
+				</td>
+				</tr>
+
+				<tr valign='top'>
+				<th scope='row'>Required fields (see generics, separate values with //):</th>
+				<td>
+					<input type='text' name='whigi_whigi_data' value='<?php echo get_option('whigi_whigi_data'); ?>' />
+				</td>
+				</tr>
+
+				<tr valign='top'>
+				<th scope='row'>Directory prefix for newly added data:</th>
+				<td>
+					<input type='text' name='whigi_whigi_prefix' value='<?php echo get_option('whigi_whigi_prefix'); ?>' />
 				</td>
 				</tr>
 
@@ -305,7 +319,26 @@
 			<?php submit_button('Save all settings'); ?>
 			</div> <!-- .form-padding -->
 			</div> <!-- .whigi-settings-section -->
-			<!-- END Login with LinkedIn section -->
+			<!-- END Login with Whigi section -->
+
+			<!-- START Generics section -->
+			<div id="whigi-settings-section-login-with-whigi" class="whigi-settings-section">
+			<h3>Generics requestable definitions</h3>
+			<div class='form-padding'>
+			<table class='form-table'>
+				<?php
+					$i18n = get_option('whigi_i18n_en');
+					foreach(get_option('whigi_generics') as $key => $val) {
+						echo "<tr valign='top'>";
+						echo "<th scope='row'>" . $i18n[$val[descr_key]] . "</th>";
+						echo "<td>" . $key . "</td></tr>";
+						echo "";
+					}
+				?>
+			</table> <!-- .form-table -->
+			</div> <!-- .form-padding -->
+			</div> <!-- .whigi-settings-section -->
+			<!-- END Generics section -->
 			
 			<!-- START Back Channel Configuration section -->
 			<div id="whigi-settings-section-back-channel=configuration" class="whigi-settings-section">
