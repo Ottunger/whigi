@@ -19,7 +19,7 @@ enableProdMode();
     template: `
         <h2>{{ dataservice.sanitarize(data_name) }}</h2>
         <button type="button" class="btn btn-primary" (click)="back(false)">{{ 'back' | translate }}</button>
-        <button *ngIf="!!backend.generics[data_name]" type="button" class="btn btn-primary" (click)="back(true)">{{ 'dataview.toGen' | translate }}</button>
+        <button *ngIf="is_generic" type="button" class="btn btn-primary" (click)="back(true)">{{ 'dataview.toGen' | translate }}</button>
         <br />
         <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="data_name" [change]="true" (notify)="mod($event, false)"></clear-view>
         <br /><br />
@@ -27,8 +27,23 @@ enableProdMode();
         <p *ngIf="!is_dated">{{ 'modify' | translate }}</p>
         <p *ngIf="!!is_dated && is_dated">{{ 'add' | translate }}</p>
         <input *ngIf="!!is_dated && is_dated" [(ngModel)]="new_date" datetime-picker class="form-control">
-        <input type="text" [(ngModel)]="new_data" [disabled]="new_data_file!=''" class="form-control">
-        <input type="file" (change)="fileLoad($event)" class="form-control">
+
+        <div *ngIf="!is_generic">
+            <input type="text" [(ngModel)]="new_data" [disabled]="new_data_file!=''" class="form-control">
+            <input type="file" (change)="fileLoad($event)" class="form-control">
+        </div>
+        <div *ngIf="is_generic">
+            <input type="text" *ngIf="!backend.generics[gen_name].is_file && !backend.generics[gen_name].json_keys" [(ngModel)]="new_data" name="s1" class="form-control">
+            <div *ngIf="!backend.generics[gen_name].is_file && !!backend.generics[gen_name].json_keys">
+                <div class="form-group" *ngFor="let k of backend.generics[gen_name].json_keys">
+                    {{ k | translate }}<br />
+                    <input type="text" [(ngModel)]="new_datas[k]" name="s1" class="form-control">
+                </div>
+            </div>
+            <input type="file" *ngIf="backend.generics[gen_name].is_file" (change)="fileLoad($event)" name="n50" class="form-control">
+        </div>
+
+
         <button type="button" class="btn btn-primary" (click)="modify()" [disabled]="!decr_data">{{ 'filesystem.record' | translate }}</button>
         <button type="button" class="btn btn-warning" (click)="revokeAll()">{{ 'dataview.revokeAll' | translate }}</button>
         <button type="button" class="btn btn-danger" (click)="remove()"
@@ -76,6 +91,7 @@ export class Dataview implements OnInit, OnDestroy {
     public data: any;
     public data_name: string;
     public decr_data: string;
+    public new_datas: {[id: string]: string};
     public new_data: string;
     public new_data_file: string;
     public new_id: string;
@@ -83,6 +99,8 @@ export class Dataview implements OnInit, OnDestroy {
     public timings: {[id: string]: {la: Date, ee: Date, seen: boolean, ends: boolean, trigger: string}};
     public is_dated: boolean;
     public new_trigger: string;
+    public is_generic: boolean;
+    public gen_name: string;
     private to_filesystem: boolean;
     private sub: Subscription;
 
@@ -100,7 +118,9 @@ export class Dataview implements OnInit, OnDestroy {
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data, private check: ApplicationRef) {
         this.decr_data = '[]';
         this.new_data_file = '';
+        this.is_generic = false;
         this.timings = {};
+        this.new_datas = {};
         new window.Clipboard('.btn-copier');
     }
 
@@ -116,6 +136,13 @@ export class Dataview implements OnInit, OnDestroy {
             self.data_name = window.decodeURIComponent(params['name']);
             self.to_filesystem = params['to_filesystem'];
             self.is_dated = self.backend.profile.data[self.data_name].is_dated;
+            if(!!self.backend.generics[self.data_name]) {
+                self.is_generic = true;
+                self.gen_name = self.data_name;
+            } else if(!!self.backend.generics[self.data_name.replace(/\/[^\/]*$/, '')] && self.backend.generics[self.data_name.replace(/\/[^\/]*$/, '')].is_folder) {
+                self.is_generic = true;
+                self.gen_name = self.data_name.replace(/\/[^\/]*$/, '');
+            }
             var keys = Object.getOwnPropertyNames(self.backend.profile.data[self.data_name].shared_to);
             keys.forEach(function(val) {
                 self.backend.getAccessVault(self.backend.profile.data[self.data_name].shared_to[val]).then(function(got) {
@@ -169,6 +196,13 @@ export class Dataview implements OnInit, OnDestroy {
      */
     modify() {
         var replacement, from = new Date(this.new_date).getTime(), done = false;
+        if(this.is_generic && !!this.backend.generics[this.gen_name].json_keys) {
+            var ret = {};
+            for(var i = 0; i < this.backend.generics[this.gen_name].json_keys.length; i++) {
+                ret[this.backend.generics[this.gen_name].json_keys[i]] = this.new_datas[this.backend.generics[this.gen_name].json_keys[i]];
+            }
+            this.new_data = JSON.stringify(ret);
+        }
         if(this.is_dated) {
             replacement = JSON.parse(this.decr_data);
             for(var i = 0; i < replacement.length; i++) {
@@ -206,7 +240,8 @@ export class Dataview implements OnInit, OnDestroy {
         for(var i = 0; i < names.length; i++) {
             dict[names[i]] = this.timings[names[i]].ee;
         }
-        this.dataservice.modifyData(this.data_name, replacement, this.is_dated, dict).then(function() {
+        this.dataservice.modifyData(this.data_name, replacement, this.is_dated, dict, (this.is_generic && this.data_name != this.gen_name)).then(function() {
+            self.new_datas = {};
             self.new_data = '';
             self.decr_data = replacement;
             if(back)
@@ -296,7 +331,7 @@ export class Dataview implements OnInit, OnDestroy {
      */
     register() {
         var self = this;
-        this.dataservice.grantVault(this.new_id, this.data_name, this.decr_data, new Date(this.new_date), this.new_trigger).then(function(user, id) {
+        this.dataservice.grantVault(this.new_id, this.data_name, this.data_name, this.decr_data, new Date(this.new_date), this.new_trigger).then(function(user, id) {
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;
             self.timings[user._id] = {la: new Date(0), ee: new Date(self.new_date), seen: false,
                 ends: new Date(self.new_date).getTime() > (new Date).getTime(), trigger: self.new_trigger};

@@ -20,6 +20,7 @@ export class Vault extends IModel {
     public expire_epoch: number;
     public is_dated: boolean;
     public trigger: string;
+    public real_name: string;
 
     /**
      * Create a Vault from a bare database description.
@@ -48,6 +49,8 @@ export class Vault extends IModel {
             this.is_dated = u.is_dated;
         if('trigger' in u)
             this.trigger = u.trigger;
+        if('real_name' in u)
+            this.real_name = u.real_name;
     }
 
     /**
@@ -67,7 +70,8 @@ export class Vault extends IModel {
             last_access: this.last_access,
             expire_epoch: this.expire_epoch,
             is_dated: this.is_dated,
-            trigger: this.trigger
+            trigger: this.trigger,
+            real_name: this.real_name
         };
         return ret;
     }

@@ -44,7 +44,7 @@ Class WHIGI {
 		'whigi_whigi_host' => 'whigi.envict.com',
 		'whigi_whigi_data' => array(),
 		'whigi_whigi_time' => '1',
-		'whigi_whigi_trigger' => rtrim(site_url(), '/') . '/',
+		'whigi_whigi_trigger' => 'www.wordpress.org',
 		'whigi_logo_image' => '',
 		'whigi_bg_image' => '',
 		'whigi_login_form_show_login_screen' => 'Login Screen',

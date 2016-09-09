@@ -26,24 +26,23 @@ enableProdMode();
         </select>
         <br />
 
-        <div class="table-responsive">
+        <div class="table-responsive" *ngFor="let g of generics()">
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>{{ 'filesystem.data_name' | translate }}</th>
-                        <th>{{ 'generics.descr' | translate }}</th>
                         <th></th>
+                        <th>{{ 'generics.descr' | translate }}</th>
+                        <th>{{ 'filesystem.data_name' | translate }}</th>
                         <th>{{ 'filesystem.data' | translate }}</th>
                         <th>{{ 'action' | translate }}</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr *ngFor="let g of generics()">
-                        <td>{{ g }}</td>
-                        <td>{{ backend.generics[g].descr_key | translate }}</td>
-
+                <tbody *ngIf="!backend.generics[g].is_folder">
+                    <tr>
                         <td *ngIf="!!backend.generics[g].img_url"><img src="{{ backend.generics[g].img_url }}" /></td>
                         <td *ngIf="!backend.generics[g].img_url"><img src="favicon.png" /></td>
+                        <td>{{ backend.generics[g].descr_key | translate }}</td>
+                        <td>{{ g }}</td>
 
                         <td *ngIf="!!backend.profile.data[g]">
                             <i>{{ 'filesystem.mix' | translate }}</i>
@@ -66,13 +65,53 @@ enableProdMode();
                         </td>
                     </tr>
                 </tbody>
+                <tbody *ngIf="backend.generics[g].is_folder">
+                    <tr *ngFor="let d of dataNames(g)">
+                        <td *ngIf="!!backend.generics[g].img_url"><img src="{{ backend.generics[g].img_url }}" /></td>
+                        <td *ngIf="!backend.generics[g].img_url"><img src="favicon.png" /></td>
+                        <td>{{ backend.generics[g].descr_key | translate }}</td>
+                        <td>{{ g }}/{{ d }}</td>
+
+                        <td><i>{{ 'filesystem.mix' | translate }}</i></td>
+
+                        <td><button type="button" class="btn btn-default" (click)="select(g + '/' + d)">{{ 'filesystem.goTo' | translate }}</button></td>
+                    </tr>
+                    <tr>
+                        <td *ngIf="!!backend.generics[g].img_url"><img src="{{ backend.generics[g].img_url }}" /></td>
+                        <td *ngIf="!backend.generics[g].img_url"><img src="favicon.png" /></td>
+                        <td>{{ backend.generics[g].descr_key | translate }}</td>
+                        <td>{{ g }}/<input type="text" [(ngModel)]="new_name" name="s1" class="form-control"></td>
+
+                        <td *ngIf="!backend.generics[g].is_file && !backend.generics[g].json_keys">
+                            <input type="text" [(ngModel)]="new_data" name="s1" class="form-control">
+                        </td>
+                        <td *ngIf="!backend.generics[g].is_file && !!backend.generics[g].json_keys">
+                            <div class="form-group" *ngFor="let k of backend.generics[g].json_keys">
+                                {{ k | translate }}<br />
+                                <input type="text" [(ngModel)]="new_datas[k]" name="s1" class="form-control">
+                            </div>
+                        </td>
+                        <td *ngIf="backend.generics[g].is_file">
+                            <input type="file" (change)="fileLoad($event)" name="n50" class="form-control">
+                        </td>
+
+                        <td *ngIf="!backend.generics[g].is_file">
+                            <button type="button" class="btn btn-default" (click)="register(g, false, new_name)">{{ 'filesystem.record' | translate }}</button>
+                        </td>
+                        <td *ngIf="backend.generics[g].is_file">
+                            <button type="button" class="btn btn-default" (click)="register(g, true, new_name)" [disabled]="new_data_file==''">{{ 'filesystem.record' | translate }}</button>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     `
 })
 export class Generics implements OnInit {
 
+    public new_name: string;
     public new_data: string;
+    public new_datas: {[id: string]: string};
     public new_data_file: string;
     public filter: string;
     private sub: Subscription;
@@ -91,6 +130,7 @@ export class Generics implements OnInit {
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService,
         private dataservice: Data, private check: ApplicationRef) {
         this.filter = 'generics.any';
+        this.new_datas = {};
     }
 
     /**
@@ -99,15 +139,24 @@ export class Generics implements OnInit {
      * @public
      * @param {String} name Name of recorded file.
      * @param {Boolean} as_file Load from file.
+     * @param {String} new_name Subfolder name for foldered data.
      */
-    register(name: string, as_file: boolean) {
+    register(name: string, as_file: boolean, new_name?: string) {
         var self = this, send;
+        new_name = (!!new_name)? ('/' + new_name.replace('/', ':')) : '';
         if(!!this.backend.generics[name].regexp) {
             var re = new RegExp(this.backend.generics[name].regexp);
             if(!re.test(this.new_data)) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('generics.regexp'));
                 return;
             }
+        }
+        if(!!this.backend.generics[name].json_keys) {
+            var ret = {};
+            for(var i = 0; i < this.backend.generics[name].json_keys.length; i++) {
+                ret[this.backend.generics[name].json_keys[i]] = this.new_datas[this.backend.generics[name].json_keys[i]];
+            }
+            this.new_data = JSON.stringify(ret);
         }
         if(this.backend.generics[name].is_dated) {
             send = JSON.stringify([{
@@ -117,15 +166,32 @@ export class Generics implements OnInit {
         } else {
             send = as_file? this.new_data_file : this.new_data;
         }
-        this.dataservice.newData(name, send, this.backend.generics[name].is_dated).then(function() {
+        this.dataservice.newData(name + new_name, send, this.backend.generics[name].is_dated).then(function() {
+            self.new_name = '';
             self.new_data = '';
             self.new_data_file = '';
+            self.new_datas = {};
             self.check.tick();
         }, function(err) {
             if(err == 'server')
                 self.notif.error(self.translate.instant('error'), self.translate.instant('server'));
             else
                 self.notif.error(self.translate.instant('error'), self.translate.instant('filesystem.exists'));
+        });
+    }
+
+    /**
+     * Keys of data names known.
+     * @function dataNames
+     * @public
+     * @param {String} folder to list.
+     * @return {Array} Known fields.
+     */
+    dataNames(folder: string): string[] {
+        return this.backend.data_trie.suggestions(folder + '/', '/').sort().filter(function(el: string): boolean {
+            return el.charAt(el.length - 1) != '/';
+        }).map(function(el: string): string {
+            return el.replace(/.+\//, '');
         });
     }
 

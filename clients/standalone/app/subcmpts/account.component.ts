@@ -30,11 +30,36 @@ enableProdMode();
         <br />
 
         <div *ngFor="let p of data_list">
-            <h3>{{ 'account.prefix' | translate }}{{ p }}</h3>
-            <p *ngIf="!!backend.profile.data[p]">{{ 'account.shared' | translate }}</p>
-            <input *ngIf="!backend.profile.data[p] && !!backend.generics[p] && !backend.generics[p].is_file" type="text" [(ngModel)]="new_data[p]" class="form-control">
-            <input *ngIf="!backend.profile.data[p] && !!backend.generics[p] && backend.generics[p].is_file" type="file" (change)="fileLoad($event, p)" class="form-control">
-            <p *ngIf="!backend.profile.data[p] && !backend.generics[p]"><i>{{ 'account.notShared' | translate }}</i></p>
+            <h3>
+                {{ 'account.prefix' | translate }}{{ p }}
+                <img *ngIf="!!backend.generics[p] && !!backend.generics[p].img_url" class="featurette-image img-circle img-responsive pull-right" src="{{ backend.generics[p].img_url }}">
+                <img *ngIf="!backend.generics[p] || !backend.generics[p].img_url" class="featurette-image img-circle img-responsive pull-right" src="favicon.png">
+            </h3>
+            
+            <p *ngIf="!backend.generics[p]"><i>{{ 'account.notShared' | translate }}</i></p>
+            <div *ngIf="!!backend.generics[p] && !backend.generics[p].is_folder">
+                <p *ngIf="!!backend.profile.data[p]">{{ 'account.shared' | translate }}</p>
+                <input *ngIf="!backend.profile.data[p] && !backend.generics[p].is_file" type="text" [(ngModel)]="new_data[p]" class="form-control">
+                <input *ngIf="!backend.profile.data[p] && backend.generics[p].is_file" type="file" (change)="fileLoad($event, p)" class="form-control">
+            </div>
+            <div *ngIf="!!backend.generics[p] && backend.generics[p].is_folder">
+                <select class="form-control" [(ngModel)]="filter[p]">
+                    <option *ngFor="let f of filters(p)" [value]="f"><span *ngIf="f != '/new'">{{ f }}</span><span *ngIf="f == '/new'">{{ 'account.new' | translate }}</span></option>
+                </select>
+                <div *ngIf="filter[p] == '/new' || !backend.profile.data[p]">
+                    {{ 'account.nameField' | translate }}
+                    <input type="text" [(ngModel)]="new_name[p]" name="s18" class="form-control">
+                    {{ 'account.dataField' | translate }}
+                    <input type="text" *ngIf="!backend.generics[p].is_file && !backend.generics[p].json_keys" [(ngModel)]="new_data[p]" name="s1" class="form-control">
+                    <div *ngIf="!backend.generics[p].is_file && !!backend.generics[p].json_keys">
+                        <div class="form-group" *ngFor="let k of backend.generics[p].json_keys">
+                            {{ k | translate }}<br />
+                            <input type="text" [(ngModel)]="new_datas[p][k]" name="s1" class="form-control">
+                        </div>
+                    </div>
+                    <input type="file" *ngIf="backend.generics[p].is_file" (change)="fileLoad($event, p)" name="n50" class="form-control">
+                </div>
+            </div>
         </div>
         <br />
 
@@ -55,6 +80,9 @@ export class Account implements OnInit, OnDestroy {
     public expire_epoch: Date;
     public requester: any;
     public new_data: {[id: string]: string};
+    public new_datas: {[id: string]: {[id: string]: string}};
+    public filter: {[id: string]: string};
+    public new_name: {[id: string]: string};
     public forever: boolean;
     public trigger: string;
     public with_account: boolean;
@@ -76,6 +104,9 @@ export class Account implements OnInit, OnDestroy {
         private routed: ActivatedRoute, private backend: Backend, private dataservice: Data, private check: ApplicationRef) {
         this.requester = {};
         this.new_data = {};
+        this.new_datas = {};
+        this.new_name = {};
+        this.filter = {};
     }
 
     /**
@@ -110,7 +141,8 @@ export class Account implements OnInit, OnDestroy {
                 self.ready = true;
                 self.data_list = (!!params['data_list'] && params['data_list'] != '-')? window.decodeURIComponent(params['data_list']).split('//') : [];
                 for(var i = 0; i < self.data_list.length; i++) {
-                    if(!(self.data_list[i] in self.backend.profile.data) || !(self.id_to in self.backend.profile.data[self.data_list[i]].shared_to)) {
+                    if(!(self.data_list[i] in self.backend.profile.data) || !(self.id_to in self.backend.profile.data[self.data_list[i]].shared_to)
+                        && self.data_list[i] in self.backend.generics) {
                         all = false;
                         break;
                     }
@@ -155,7 +187,7 @@ export class Account implements OnInit, OnDestroy {
                 } else {
                     var key = self.backend.generateRandomString(64);
                     self.dataservice.newData('keys/auth/' + self.id_to, key, false, true).then(function(dummy) {
-                        self.dataservice.grantVault(self.id_to, 'keys/auth/' + self.id_to, key, new Date(0)).then(function(dummy) {
+                        self.dataservice.grantVault(self.id_to, 'keys/auth/' + self.id_to, 'keys/auth/' + self.id_to, key, new Date(0)).then(function(dummy) {
                             resolve();
                         }, function(e) {
                             reject(e);
@@ -168,22 +200,37 @@ export class Account implements OnInit, OnDestroy {
             grant = new Promise(function(resolve, reject) {
                 var promises: Promise[] = [];
                 self.data_list.forEach(function(adata) {
-                    if(!(adata in self.backend.profile.data) && adata in self.backend.generics) {
+                    if(adata in self.backend.generics && (!(adata in self.backend.profile.data) || (adata in self.filter && self.filter[adata] == '/new'))) {
+                        if(!!self.backend.generics[adata].json_keys) {
+                            var ret = {};
+                            for(var i = 0; i < self.backend.generics[adata].json_keys.length; i++) {
+                                ret[self.backend.generics[adata].json_keys[i]] = self.new_datas[adata][self.backend.generics[adata].json_keys[i]];
+                            }
+                            self.new_data[adata] = JSON.stringify(ret);
+                        }
                         if(self.backend.generics[adata].is_dated) {
                             self.new_data[adata] = JSON.stringify([{
                                 value: self.new_data[adata],
                                 from: 0
                             }]);
                         }
-                        self.dataservice.newData(adata, self.new_data[adata], self.backend.generics[adata].is_dated).then(function(data) {
-                            promises.push(self.dataservice.grantVault(self.id_to, adata, self.new_data[adata], self.expire_epoch, self.trigger));
+                        var name = adata;
+                        if(self.backend.generics[adata].is_folder) {
+                            name += '/' + self.new_name[adata];
+                        }
+                        self.dataservice.newData(name, self.new_data[adata], self.backend.generics[adata].is_dated).then(function(data) {
+                            promises.push(self.dataservice.grantVault(self.id_to, adata, name, self.new_data[adata], self.expire_epoch, self.trigger));
                         }, function(e) {
                             self.notif.error(self.translate.instant('error'), self.translate.instant('account.err'));
                         });
-                    } else {
-                        self.backend.getData(self.backend.profile.data[adata].id).then(function(data) {
+                    } else if(adata in self.backend.generics) {
+                        var name = adata;
+                        if(self.backend.generics[adata].is_folder) {
+                            name += '/' + self.filter[adata];
+                        }
+                        self.backend.getData(self.backend.profile.data[name].id).then(function(data) {
                             self.backend.decryptAES(self.backend.str2arr(data.encr_data), self.dataservice.workerMgt(false, function(got) {
-                                promises.push(self.dataservice.grantVault(self.id_to, adata, got, self.expire_epoch, self.trigger));
+                                promises.push(self.dataservice.grantVault(self.id_to, adata, name, got, self.expire_epoch, self.trigger));
                             }));
                         }, function(e) {
                             self.notif.error(self.translate.instant('error'), self.translate.instant('account.err'));
@@ -224,6 +271,27 @@ export class Account implements OnInit, OnDestroy {
             self.new_data[name] = r.result;
         }
         r.readAsDataURL(file);
+    }
+
+    /**
+     * Keys of data names known.
+     * @function filters
+     * @public
+     * @param {String} folder to list.
+     * @return {Array} Known fields.
+     */
+    filters(folder: string): string[] {
+        var ret = this.backend.data_trie.suggestions(folder + '/', '/').sort().filter(function(el: string): boolean {
+            return el.charAt(el.length - 1) != '/';
+        }).map(function(el: string): string {
+            return el.replace(/.+\//, '');
+        }).concat(['/new']);
+
+        if(!this.new_datas[folder] && !this.filter[folder]) {
+            this.new_datas[folder] = {};
+            this.filter[folder] = ret[0];
+        }
+        return ret;
     }
 
 }

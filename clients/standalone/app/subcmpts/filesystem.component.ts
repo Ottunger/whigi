@@ -139,7 +139,7 @@ export class Filesystem implements OnInit {
      */
     register(as_file: boolean, is_dated: boolean) {
         var self = this, send;
-        if(this.completeName() in this.backend.generics) {
+        if(this.completeName() in this.backend.generics || (this.folders.slice(0, -1) in this.backend.generics && this.backend.generics[this.folders.slice(0, -1)].is_folder)) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('filesystem.generics'));
             return;
         }
@@ -222,7 +222,6 @@ export class Filesystem implements OnInit {
      * @return {Array} Known fields.
      */
     dataNames(): string[] {
-        var self = this;
         return this.listLevel().filter(function(el: string): boolean {
             return el.charAt(el.length - 1) != '/';
         }).map(function(el: string): string {
@@ -237,7 +236,6 @@ export class Filesystem implements OnInit {
      * @return {Array} Known fields.
      */
     folderNames(): string[] {
-        var self = this;
         return this.listLevel().filter(function(el: string): boolean {
             return el.charAt(el.length - 1) == '/';
         }).map(function(el: string): string {

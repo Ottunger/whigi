@@ -69,12 +69,12 @@ export function getUser(req, res) {
     var dec = decodeURIComponent(req.params.id);
     db.retrieveUser(dec).then(function(user) {
         if(!!user) {
-            res.type('application/json').status(200).json(Object.assign({puzzle: req.user.puzzle}, user.sanitarize()));
+            res.type('application/json').status(200).json(user.sanitarize());
         } else {
-            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
+            res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
         }
     }, function(e) {
-        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
 }
 

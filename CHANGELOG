@@ -12,7 +12,7 @@ Retrieves generics as JSON object.
 /api/v<any>/peek/<id>: Get
 Retrieves whether a user id exists.
 
-/api/v<any>/user/<id>: Get, needs auth, needs puzzle
+/api/v<any>/user/<id>: Get, needs auth
 Retrieves public data of user.
 
 /api/v<any>/profile: Get, needs auth
@@ -66,7 +66,8 @@ Removes such a named data and all associated vaults.
 
 /api/v<any>/vault/new: Post, needs auth, needs puzzle
 Creates a new vault for sharing with another user. Set expire_epoch to 0 or negative to never expire.
-{"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string", "data_crypted_aes": "string", "expire_epoch": "number", "trigger": "string"}
+{"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string",
+    "data_crypted_aes": "string", "expire_epoch": "number", "trigger": "string", "real_name": "string"}
 
 /api/v<any>/vault/<vault_id>: Delete, needs auth
 Removes a vault from the storage, revoking access grant.

@@ -122,7 +122,7 @@ export function requestMapping(req, res) {
             whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/recup_id']).then(function(vault) {
                 var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
                 var recup_id = decryptAES(vault.data_crypted_aes, aesKey);
-                whigi('GET', '/vault/' + data.shared_with_me[recup_id]['profile/email']).then(function(vault) {
+                whigi('GET', '/vault/' + data.shared_with_me[recup_id]['profile/email/restore']).then(function(vault) {
                     var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
                     var recup_mail = decryptAES(vault.data_crypted_aes, aesKey);
                     mailer.sendMail({
@@ -140,7 +140,7 @@ export function requestMapping(req, res) {
                 res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
             });
         } else {
-            whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email']).then(function(vault) {
+            whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email/restore']).then(function(vault) {
                 var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
                 var email = decryptAES(vault.data_crypted_aes, aesKey);
                 whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine1']).then(function(vault) {
@@ -178,7 +178,7 @@ export function requestMapping(req, res) {
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
         req.params.id = decodeURIComponent(req.params.id);
         whigi('GET', '/api/v1/profile/data').then(function(data) {
-            if(!!data.shared_with_me[req.params.id]['profile/email'] && !!data.shared_with_me[req.params.id]['keys/pwd/mine1']) {
+            if(!!data.shared_with_me[req.params.id]['profile/email/restore'] && !!data.shared_with_me[req.params.id]['keys/pwd/mine1']) {
                 if(!!data.shared_with_me[req.params.id]['profile/recup_id']) {
                     complete(true, master_key, rsa_key, data);
                 } else if(!!data.shared_with_me[req.params.id]['keys/pwd/mine2']) {
@@ -206,7 +206,7 @@ export function requestMapping(req, res) {
  */
 export function mixMapping(req, res) {
     function complete(mk, pk, data) {
-        whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email']).then(function(vault) {
+        whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email/restore']).then(function(vault) {
             var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
             var email = decryptAES(vault.data_crypted_aes, aesKey);
             whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine1']).then(function(vault) {
@@ -237,7 +237,7 @@ export function mixMapping(req, res) {
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
         req.params.id = decodeURIComponent(req.params.id);
         whigi('GET', '/api/v1/profile/data').then(function(data) {
-            if(!!data.shared_with_me[req.params.id]['profile/email'] && !!data.shared_with_me[req.params.id]['keys/pwd/mine1']) {
+            if(!!data.shared_with_me[req.params.id]['profile/email/restore'] && !!data.shared_with_me[req.params.id]['keys/pwd/mine1']) {
                 complete(master_key, rsa_key, data);
             } else {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});

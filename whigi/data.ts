@@ -71,7 +71,7 @@ export function triggerVaults(req, res) {
                             delete u.shared_with_me[v.sharer_id][v.data_name];
                             u.persist();
                         });
-                        delete req.user.data[v.data_name].shared_to[v.shared_to_id];
+                        delete req.user.data[v.real_name].shared_to[v.shared_to_id];
                         req.user.persist();
                         v.unlink();
                     } else if(v.trigger.length > 1) {
@@ -139,12 +139,16 @@ export function removeData(req, res) {
  */
 export function regVault(req, res) {
     var got = req.body;
+    if(req.user._id == got.shared_to_id) {
+        res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
+        return;
+    }
     req.user.fill().then(function() {
-        if(!(got.data_name in req.user.data)) {
+        if(!(got.real_name in req.user.data)) {
             res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
         } else {
-            if(got.shared_to_id in req.user.data[got.data_name].shared_to) {
-                res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.data_name].shared_to[got.shared_to_id]});
+            if(got.shared_to_id in req.user.data[got.real_name].shared_to) {
+                res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id]});
             } else {
                 var v: Vault = new Vault({
                     _id: utils.generateRandomString(128),
@@ -156,7 +160,8 @@ export function regVault(req, res) {
                     last_access: 0,
                     expire_epoch: got.expire_epoch,
                     trigger: got.trigger.replace(/^http:\/\//, '').replace(/^https:\/\//, ''),
-                    is_dated: req.user.data[got.data_name].is_dated
+                    is_dated: req.user.data[got.data_name].is_dated,
+                    real_name: got.real_name
                 }, db);
                 db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
                     if(!sharee || sharee._id == req.user.id) {
@@ -164,7 +169,7 @@ export function regVault(req, res) {
                         return;
                     }
                     v.persist().then(function() {
-                        req.user.data[got.data_name].shared_to[got.shared_to_id] = v._id;
+                        req.user.data[got.real_name].shared_to[got.shared_to_id] = v._id;
                         req.user.persist().then(function() {
                             sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
                             sharee.shared_with_me[req.user._id][v.data_name] = v._id;
@@ -199,8 +204,8 @@ export function regVault(req, res) {
 export function removeVault(req, res) {
     function complete(v: Vault) {
         v.unlink();
-        if(!!req.user.data[v.data_name])
-            delete req.user.data[v.data_name].shared_to[v.shared_to_id];
+        if(!!req.user.data[v.real_name])
+            delete req.user.data[v.real_name].shared_to[v.shared_to_id];
         req.user.persist().then(function() {
             res.type('application/json').status(200).json({error: ''});
         }, function(e) {
@@ -257,7 +262,7 @@ export function getVault(req, res) {
             }
             if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
                 db.retrieveUser(v.sharer_id, true).then(function(u: User) {
-                    delete u.data[v.data_name].shared_to[v.shared_to_id];
+                    delete u.data[v.real_name].shared_to[v.shared_to_id];
                     u.persist();
                 });
                 delete req.user.shared_with_me[v.sharer_id][v.data_name];
@@ -300,7 +305,7 @@ export function accessVault(req, res) {
                     delete u.shared_with_me[v.sharer_id][v.data_name];
                     u.persist();
                 });
-                delete req.user.data[v.data_name].shared_to[v.shared_to_id];
+                delete req.user.data[v.real_name].shared_to[v.shared_to_id];
                 req.user.persist();
                 v.unlink();
                 res.type('application/json').status(417).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
