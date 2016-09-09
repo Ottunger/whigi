@@ -14,7 +14,6 @@ import {Reset} from './subcmpts/reset.component';
 import {Savekey} from './subcmpts/savekey.component';
 import {Filesystem} from './subcmpts/filesystem.component';
 import {Oauth} from './subcmpts/oauth.component';
-import {Grant} from './subcmpts/grant.component';
 import {Resethelp} from './subcmpts/resethelp.component';
 import {Account} from './subcmpts/account.component';
 import {Remote} from './subcmpts/remote.component';
@@ -35,9 +34,9 @@ const appRoutes: Routes = [
     {path: 'password-recovery/:id/:pwd', component: Reset},
     {path: 'save-key/:key/:value/:is_dated/:return_url', component: Savekey, canActivate: [Fullguard]},
     {path: 'oauth/:for_id/:prefix/:token/:return_url_ok/:return_url_deny', component: Oauth, canActivate: [Profileguard]},
-    {path: 'grant/:id_to/:data_list/:return_url_ok/:return_url_deny/:expire_epoch', component: Grant, canActivate: [Fullguard]},
-    {path: 'grant/:id_to/:data_list/:return_url_ok/:return_url_deny/:expire_epoch/:trigger', component: Grant, canActivate: [Fullguard]},
-    {path: 'account/:id_to/:return_url_ok/:return_url_deny', component: Account, canActivate: [Profileguard]},
+    {path: 'account/:id_to/:return_url_ok/:return_url_deny/:with_account', component: Account, canActivate: [Profileguard]},
+    {path: 'account/:id_to/:return_url_ok/:return_url_deny/:with_account/:data_list/:expire_epoch', component: Account, canActivate: [Profileguard]},
+    {path: 'account/:id_to/:return_url_ok/:return_url_deny/:with_account/:data_list/:expire_epoch/:trigger', component: Account, canActivate: [Profileguard]},
     {path: 'remote/:id_to/:challenge/:return_url', component: Remote, canActivate: [Profileguard]},
     {path: 'generics', component: Generics, canActivate: [Fullguard], canDeactivate: [Fullguard]},
     {path: '**', component: Notfound}

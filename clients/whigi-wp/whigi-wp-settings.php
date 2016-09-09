@@ -280,6 +280,20 @@
 					<input type='text' name='whigi_whigi_host' value='<?php echo get_option('whigi_whigi_host'); ?>' />
 				</td>
 				</tr>
+
+				<tr valign='top'>
+				<th scope='row'>Access time required for granted data in months:</th>
+				<td>
+					<input type='text' name='whigi_whigi_time' value='<?php echo get_option('whigi_whigi_time'); ?>' />
+				</td>
+				</tr>
+
+				<tr valign='top'>
+				<th scope='row'>Trigger URL for shared data change (for compliance with other plugins):</th>
+				<td>
+					<input type='text' name='whigi_whigi_trigger' value='<?php echo get_option('whigi_whigi_trigger'); ?>' />
+				</td>
+				</tr>
 			</table> <!-- .form-table -->
 			<p>
 				<strong>Instructions:</strong>

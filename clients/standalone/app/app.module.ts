@@ -27,7 +27,6 @@ import {Reset} from './subcmpts/reset.component';
 import {Savekey} from './subcmpts/savekey.component';
 import {Filesystem} from './subcmpts/filesystem.component';
 import {Oauth} from './subcmpts/oauth.component';
-import {Grant} from './subcmpts/grant.component';
 import {Resethelp} from './subcmpts/resethelp.component';
 import {Userinfo} from './subcmpts/userinfo.component';
 import {Account} from './subcmpts/account.component';
@@ -57,7 +56,6 @@ import {Notfound} from './subcmpts/notfound.component';
         Savekey,
         Filesystem,
         Oauth,
-        Grant,
         Resethelp,
         Userinfo,
         Account,

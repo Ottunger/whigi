@@ -9,14 +9,15 @@ Note that whigi-restore gets informed of the mappings email <=> master\_key but 
 
 # Third-parties
 - SIMULATE AN ACCOUNT CREATION WITHOUT OAUTH: This is the best method for account creation. Make your user browse to
-/account/encodeURIComponent([your-ID])/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny]). This will create a new dummy data in the user's file named
+/account/encodeURIComponent([your-ID])/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny])/true. This will create a new dummy data in the user's file named
 keys/auth/[your-ID], and share it with you. To log in a user, make him browse to /remote/encodeURIComponent([your-ID])/[challenge]/encodeURIComponent([return\_url]). The URL
 will be visited back with URL query parameters "user", the ID of the user, and "response", your challenge (should be letters and digits) encrypted with the shared
 data you now share with the user. This can be null if no such account exists on our side. You can then just check that this is indeed what you get by decrypting your vault for this ID,
 recover the shared key, and decrypt to match against your challenge.
 - USING THE REQUEST FOR GRANT: This is the most promoted method. You do not need to register anything special to Whigi, a simple account with a mail will do.
 When a user has for instance bought something on your website, just send them to
-/grant/encodeURIComponent([your-ID])/encodeURIComponent([//-separated-list-of-data])/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny])/expire-epoch .
+/account/encodeURIComponent([your-ID])/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny])/false/encodeURIComponent([//-separated-list-of-data])
+/[expire\_epoch]/encodeURIComponent([trigger\_url]) .
 Upon selection, the user will be redirected to one of the two URL's, the "ok" one if the intersection of all the data you asked for and the user's data can be granted,
 the "deny" if the user denied you access or if something went wrong.
 - USING THE API: In order to not polute the namespace of applications data names if you have a plugin that needs specific data, please record data as named

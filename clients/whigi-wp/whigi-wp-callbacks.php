@@ -109,8 +109,14 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 	$this->whigi_clear_login_state();
 	$challenge = explode('.', uniqid('', true))[0];
 	$_SESSION['WHIGI']['STATE'] = $challenge;
+
+	$data = get_option('whigi_whigi_data');
+	$data = array_map(urlencode, $data);
+	$data = (count($data) > 0)? implode('//', $data) : '-';
+
 	$urlp2 = URL_LOG . $challenge . '/' . urlencode(REDIRECT_URI . '?whigi-connect=ok');
-	$url = URL_REG . urlencode($urlp2) . '/' . urlencode(REDIRECT_URI . '?whigi-connect=bad');
+	$url = URL_REG . urlencode($urlp2) . '/' . urlencode(REDIRECT_URI . '?whigi-connect=bad') . '/true/' . $data . '/' . 
+		(time()*1000 + intval(get_option('whigi_whigi_time'))*30*24*60*60*1000) . '/' . urlencode(get_option('whigi_whigi_trigger'));
 	header("Location: $url");
 	exit;
 }
