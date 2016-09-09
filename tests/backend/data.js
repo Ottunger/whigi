@@ -54,6 +54,8 @@ exports.test = function() {
         data_crypted_aes: 'data',
         aes_crypted_shared_pub: 'aes',
         data_name: 'IIS',
+        real_name: 'IIS',
+        trigger: '',
         last_access: 1000,
         expire_epoch: 0
     }
@@ -64,6 +66,8 @@ exports.test = function() {
         data_crypted_aes: 'data',
         aes_crypted_shared_pub: 'aes',
         data_name: 'IIS',
+        real_name: 'IIS',
+        trigger: '',
         last_access: 1000,
         expire_epoch: 0
     }
@@ -142,24 +146,9 @@ exports.test = function() {
                 var f = new fk.FakeRes(false);
                 me.regVault({
                     user: new user.User(dummy_user, ds),
-                    body: {data_name: 'IIS', shared_to_id: dummy_user2._id, aes_crypted_shared_pub: 'aes', data_crypted_aes: 'data'}
+                    body: {data_name: 'IIS', real_name: 'IIS', trigger: '', shared_to_id: dummy_user2._id, aes_crypted_shared_pub: 'aes', data_crypted_aes: 'data'}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(201).notify(done);
-                /*
-                f.promise.then(function(rec) {
-                    chai.expect(db.collection('vaults').findOne({_id: rec._id})).to.eventually.become({
-                        _id: rec._id,
-                        data_name: 'IIS',
-                        shared_to_id: 'colleague',
-                        aes_crypted_shared_pub: 'aes',
-                        data_crypted_aes: 'data',
-                        sharer_id: dummy_user._id,
-                        last_access: 0
-                    }).notify(done);
-                }, function(e) {
-                    done(e);
-                });
-                */
             });
             it('should not create for a non existent data name', function(done) {
                 var f = new fk.FakeRes(false);
@@ -228,7 +217,7 @@ exports.test = function() {
                     user: new user.User(dummy_user, ds),
                     params: {vault_id: dummy_vault._id}
                 }, f);
-                chai.expect(f.promise).to.eventually.become({last_access: 1000, expire_epoch: 0}).notify(done);
+                chai.expect(f.promise).to.eventually.become({last_access: 1000, expire_epoch: 0, trigger: ''}).notify(done);
             });
             it('should not find a non-existent vault', function(done) {
                 var f = new fk.FakeRes(false);

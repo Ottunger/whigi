@@ -21,6 +21,7 @@
    "download": "Download as file",
    "actualFrom": "Actual data since: ",
    "add": "Add a value",
+   "redirect": "Redirect",
 
    "login.title": "Time to log in",
    "login.remember": "Remember me",
@@ -100,6 +101,8 @@
    "dataview.neverSeen": "Never seen",
    "dataview.forever": "Always valid",
    "dataview.trigger": "Trigger on change HTTPS URL",
+   "dataview.redirect": "Select another data source",
+   "dataview.transferred": "Vault transferred",
 
    "vaultview.noData": "Cannot retrieve such vault. Maybe access was revoked...",
    "vaultview.expired": "This vault has expired...",

@@ -58,6 +58,7 @@ enableProdMode();
                         <th>{{ 'dataview.lastAccess' | translate }}</th>
                         <th>{{ 'dataview.until' | translate }}</th>
                         <th>{{ 'dataview.trigger' | translate }}</th>
+                        <th *ngIf="is_generic && data_name != gen_name">{{ 'dataview.redirect' | translate }}</th>
                         <th>{{ 'action' | translate }}</th>
                     </tr>
                 </thead>
@@ -72,13 +73,24 @@ enableProdMode();
                         <td *ngIf="!timings[d]"></td>
                         <td *ngIf="!!timings[d]">{{ timings[d].trigger }}</td>
                         <td *ngIf="!timings[d]"></td>
-                        <td><button type="button" class="btn btn-default" (click)="revoke(d)" [disabled]="!backend.profile.data[data_name].shared_to[d]">{{ 'remove' | translate }}</button></td>
+
+                        <td *ngIf="is_generic && data_name != gen_name">
+                            <select class="form-control" [(ngModel)]="filter">
+                                <option *ngFor="let f of filters()" [value]="f">{{ f | translate }}</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            <button type="button" class="btn btn-primary" (click)="change(d)" [disabled]="filter==''">{{ 'redirect' | translate }}</button>
+                            <button type="button" class="btn btn-default" (click)="revoke(d)">{{ 'remove' | translate }}</button>
+                        </td>
                     </tr>
                     <tr>
                         <td><input type="text" [(ngModel)]="new_id" name="y0" class="form-control"></td>
                         <td></td>
                         <td><input [(ngModel)]="new_date" datetime-picker class="form-control"></td>
                         <td><input type="text" [(ngModel)]="new_trigger" name="y1" class="form-control"></td>
+                        <td *ngIf="is_generic && data_name != gen_name"></td>
                         <td><button type="button" class="btn btn-default" (click)="register()" [disabled]="!decr_data">{{ 'record' | translate }}</button></td>
                     </tr>
                 </tbody>
@@ -101,6 +113,7 @@ export class Dataview implements OnInit, OnDestroy {
     public new_trigger: string;
     public is_generic: boolean;
     public gen_name: string;
+    public filter: string;
     private to_filesystem: boolean;
     private sub: Subscription;
 
@@ -121,6 +134,7 @@ export class Dataview implements OnInit, OnDestroy {
         this.is_generic = false;
         this.timings = {};
         this.new_datas = {};
+        this.filter = '';
         new window.Clipboard('.btn-copier');
     }
 
@@ -187,6 +201,21 @@ export class Dataview implements OnInit, OnDestroy {
      */
     shared(): boolean {
         return Object.getOwnPropertyNames(this.backend.profile.data[this.data_name].shared_to).length != 0;
+    }
+
+    /**
+     * Returns other possible values.
+     * @function filters
+     * @public
+     * @return {String[]} Values.
+     */
+    filters(): string[] {
+        var self = this;
+        return this.backend.data_trie.suggestions(this.gen_name + '/').sort().filter(function(el: string): boolean {
+            return el.charAt(el.length - 1) != '/' && el != self.data_name;
+        }).map(function(el: string): string {
+            return el.replace(/.+\//, '');
+        });
     }
 
     /**
@@ -305,6 +334,36 @@ export class Dataview implements OnInit, OnDestroy {
             delete self.backend.profile.data[self.data_name].shared_to[shared_to_id];
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noRevoke'));
+        });
+    }
+
+    /**
+     * Transfers an access.
+     * @function change
+     * @public
+     * @param {String} shared_to_id Id of sharee.
+     */
+    change(shared_to_id: string) {
+        var self = this;
+        this.backend.getAccessVault(this.backend.profile.data[this.data_name].shared_to[shared_to_id]).then(function(timer) {
+            self.backend.revokeVault(self.backend.profile.data[self.data_name].shared_to[shared_to_id]).then(function() {
+                //Remove actual vault
+                delete self.backend.profile.data[self.data_name].shared_to[shared_to_id];
+                //Get other data and create its vault
+                self.backend.getData(self.backend.profile.data[self.gen_name + '/' + self.filter].id).then(function(data) {
+                    self.backend.decryptAES(data.encr_data, self.dataservice.workerMgt(false, function(got) {
+                        self.dataservice.grantVault(shared_to_id, self.gen_name, self.gen_name + '/' + self.filter, got, new Date(timer.expire_epoch), timer.trigger).then(function() {
+                            self.notif.success(self.translate.instant('success'), self.translate.instant('dataview.transfered'));
+                        }, function(e) {
+                            self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));
+                        });
+                    }));
+                }, function(e) {
+                    self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noData'));
+                });
+            }, function(e) {
+                self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noRevoke'));
+            });
         });
     }
 

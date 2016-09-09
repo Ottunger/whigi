@@ -21,6 +21,7 @@
    "download": "Télécharger comme fichier",
    "actualFrom": "Données en clair depuis le: ",
    "add": "Ajouter une valeur",
+   "redirect": "Redirect",
 
    "login.title": "Heure de se logger",
    "login.remember": "Gardez moi connecté",
@@ -100,6 +101,8 @@
    "dataview.neverSeen": "Jamais exploité",
    "dataview.forever": "A jamais valide",
    "dataview.trigger": "URL HTTPS de changement",
+   "dataview.redirect": "Choisir une autre source",
+   "dataview.transferred": "Valise transférée",
 
    "vaultview.noData": "Impossible de lire le conteneur. Peut-être l'accès est-il supprimé...",
    "vaultview.expired": "Cette valise a expiré...",

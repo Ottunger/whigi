@@ -166,12 +166,13 @@ exports.test = function() {
                 var f = new fk.FakeRes(false);
                 me.updateUser({
                     user: new user.User(dummy_user, ds),
-                    body: {new_password: 'abcdefgh', encr_master_key: 'lol'}
+                    body: {new_password: 'abcdefgh', encr_master_key: 'lol', sha_master: 'lol2'}
                 }, f);
                 f.promise.then(function() {
-                    chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {encr_master_key: true})).to.eventually.become({
+                    chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {encr_master_key: true, sha_master: true})).to.eventually.become({
                         _id: dummy_user._id,
-                        encr_master_key: 'lol'
+                        encr_master_key: 'lol',
+                        sha_master: 'lol2'
                     }).notify(done);
                 }, function(e) {
                     done(e);

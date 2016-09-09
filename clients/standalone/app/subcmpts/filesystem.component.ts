@@ -46,19 +46,20 @@ enableProdMode();
                         <td><i>{{ 'filesystem.mix' | translate }}</i></td>
                         <td><button type="button" class="btn btn-default" (click)="view(d)">{{ 'filesystem.goTo' | translate }}</button></td>
                     </tr>
-                    <tr *ngIf="mode=='data'"  class="info">
+                    <tr *ngIf="mode=='data'" class="info">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td>{{ 'filesystem.folder' | translate }}</td>
                         <td><button type="button" class="btn btn-default" (click)="select(data_name); data_name=''">{{ 'filesystem.newFolder' | translate }}</button></td>
                     </tr>
-                    <tr *ngIf="mode=='data'">
+
+                    <tr *ngIf="mode=='data' && !backend.generics[folders.slice(0, -1)]">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
                         <td>
                             <button type="button" class="btn btn-default" (click)="register(false, false)">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
-                    <tr *ngIf="mode=='data'">
+                    <tr *ngIf="mode=='data' && !backend.generics[folders.slice(0, -1)]">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="file" (change)="fileLoad($event)" name="n50" class="form-control"></td>
                         <td>
@@ -66,7 +67,7 @@ enableProdMode();
                         </td>
                     </tr>
 
-                    <tr *ngIf="mode=='data'">
+                    <tr *ngIf="mode=='data' && !backend.generics[folders.slice(0, -1)]">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
                         <td>
@@ -74,7 +75,7 @@ enableProdMode();
                             <button type="button" class="btn btn-default" (click)="register(false, true)">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
-                    <tr *ngIf="mode=='data'">
+                    <tr *ngIf="mode=='data' && !backend.generics[folders.slice(0, -1)]">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="file" (change)="fileLoad($event)" name="n50" class="form-control"></td>
                         <td>
