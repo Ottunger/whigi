@@ -96,10 +96,12 @@ enableProdMode();
                         </td>
 
                         <td *ngIf="!backend.generics[g].is_file">
-                            <button type="button" class="btn btn-default" (click)="register(g, false, new_name)">{{ 'filesystem.record' | translate }}</button>
+                            <button type="button" class="btn btn-default" (click)="register(g, false, new_name)"
+                                [disabled]="!!backend.generics[g].is_folder && new_name == ''">{{ 'filesystem.record' | translate }}</button>
                         </td>
                         <td *ngIf="backend.generics[g].is_file">
-                            <button type="button" class="btn btn-default" (click)="register(g, true, new_name)" [disabled]="new_data_file==''">{{ 'filesystem.record' | translate }}</button>
+                            <button type="button" class="btn btn-default" (click)="register(g, true, new_name)"
+                                [disabled]="new_data_file=='' || (!!backend.generics[g].is_folder && new_name == '')">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
                 </tbody>
@@ -130,6 +132,7 @@ export class Generics implements OnInit {
     constructor(private translate: TranslateService, private backend: Backend, private router: Router, private notif: NotificationsService,
         private dataservice: Data, private check: ApplicationRef) {
         this.filter = 'generics.any';
+        this.new_name = '';
         this.new_datas = {};
     }
 

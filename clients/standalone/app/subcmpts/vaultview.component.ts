@@ -21,7 +21,8 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
 
-        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="vault.data_name" [change]="false"></clear-view>
+        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="vault.data_name" [change]="false"
+            [is_folder]="is_generic && !!backend.generics[gen_name].json_keys" [gen_name]="vault.data_name"></clear-view>
     `
 })
 export class Vaultview implements OnInit, OnDestroy {
@@ -30,6 +31,7 @@ export class Vaultview implements OnInit, OnDestroy {
     public sharer_id: string;
     public decr_data: string;
     public is_dated: boolean;
+    public is_generic: boolean;
     private route_back: string;
     private sub: Subscription;
 
@@ -48,6 +50,7 @@ export class Vaultview implements OnInit, OnDestroy {
         private notif: NotificationsService, private routed: ActivatedRoute, private dataservice: Data) {
         this.vault = {data_name: ''};
         this.decr_data = '';
+        this.is_generic = false;
     }
 
     /**
@@ -64,6 +67,9 @@ export class Vaultview implements OnInit, OnDestroy {
                 self.vault = vault;
                 self.decr_data = vault.decr_data;
                 self.is_dated = vault.is_dated;
+                if(!!self.backend.generics[vault.data_name]) {
+                    self.is_generic = true;
+                }
             }, function(e) {
                 if(e.status == 417)
                     self.notif.error(self.translate.instant('error'), self.translate.instant('vaultview.expired'));
