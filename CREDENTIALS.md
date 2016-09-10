@@ -1,18 +1,17 @@
-mongodb
+Mongodb
 	global
 		user: admin
 		pass: highersec@envict
 	whigi db
 		user: whigiuser
 		pass: sorryMeND3dIoKwR
-   whigi-restore db
-		user: whigiuser
-		pass: sorryMeND3dIoKwR
-gmail
+Gmail
 	user: whigi.com@gmail.com
 	pass: nNP36gFYmMeND3dIoKwR
 SSL Key
-   key: needapass
+   	key: My tailor is rich
+whigi-restore on Whigi:
+	pass: api
 Captcha
-   public: 6LfleigTAAAAALOtJgNBGWu4A0ZiHRvetRorXkDx
-   private: 6LfleigTAAAAAG_-AGX7NOMgfchlIbzuBtdD5qmw
+   	public: 6LfleigTAAAAALOtJgNBGWu4A0ZiHRvetRorXkDx
+   	private: 6LfleigTAAAAAG_-AGX7NOMgfchlIbzuBtdD5qmw

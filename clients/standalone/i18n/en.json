@@ -49,6 +49,7 @@
    "login.explain": "Make your data yours again",
    "login.titleMuted": " and start spreading the word!",
    "login.mention": "Copyright Envict SCRL 2016",
+   "login.usernameRec": "New username, cannot contain \"whigi\"",
 
    "profile.logout": "Log out",
    "profile.logoutAll": "Remove all authorizations and log out",

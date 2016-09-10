@@ -171,7 +171,7 @@ export class Logging implements OnInit {
             });
         }
 
-        if(this.password.length < 8) {
+        if(this.password.length < 8 || /whigi/i.test(this.username)) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('login.noMatch'));
             return;
         }
