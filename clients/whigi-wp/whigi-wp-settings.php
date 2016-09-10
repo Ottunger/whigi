@@ -282,14 +282,14 @@
 				</tr>
 
 				<tr valign='top'>
-				<th scope='row'>Required fields (see generics, separate values with //):</th>
+				<th scope='row'>Initially required fields (see generics, separate values with //):</th>
 				<td>
 					<input type='text' name='whigi_whigi_data' value='<?php echo get_option('whigi_whigi_data'); ?>' />
 				</td>
 				</tr>
 
 				<tr valign='top'>
-				<th scope='row'>Directory prefix for newly added data:</th>
+				<th scope='row'>Directory prefix for newly added data (should not end with /):</th>
 				<td>
 					<input type='text' name='whigi_whigi_prefix' value='<?php echo get_option('whigi_whigi_prefix'); ?>' />
 				</td>
@@ -306,6 +306,13 @@
 				<th scope='row'>Trigger URL for shared data change (for compliance with other plugins):</th>
 				<td>
 					<input type='text' name='whigi_whigi_trigger' value='<?php echo get_option('whigi_whigi_trigger'); ?>' />
+				</td>
+				</tr>
+
+				<tr valign='top'>
+				<th scope='row'>Prefix for self inserted data into DB (other plugins should use get_option('whigi_db_prefix')):</th>
+				<td>
+					<input type='text' name='whigi_db_prefix' value='<?php echo get_option('whigi_db_prefix'); ?>' />
 				</td>
 				</tr>
 			</table> <!-- .form-table -->

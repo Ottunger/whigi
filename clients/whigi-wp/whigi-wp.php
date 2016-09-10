@@ -25,11 +25,9 @@ function num($e) {
 Class WHIGI {
 
 	const PLUGIN_VERSION = "0.1.1";
-	const MAPPING = array(
-		"address" => "profile/address",
-		"email" => "profile/email"
-	);
+	const NONE = '__whigi-none__';
 
+	public $data;
 	public $shared_with_me;
 	protected static $instance = NULL;
 	public static function get_instance() {
@@ -92,7 +90,8 @@ Class WHIGI {
 		'whigi_master_key' => '',
 		'whigi_rsa_pri_key' => '',
 		'whigi_generics' => '',
-		'whigi_i18n_en' => ''
+		'whigi_i18n_en' => '',
+		'whigi_db_prefix' => 'whigi_wp'
 	);
 	
 	//Constructor
@@ -220,6 +219,31 @@ Class WHIGI {
 		//Parse the JSON response
 		$result_obj = json_decode($result, true);
 		update_option('whigi_i18n_en', $result_obj);
+
+		$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/profile/data";
+			switch(strtolower(get_option('whigi_http_util'))) {
+				case 'curl':
+					$curl = curl_init();
+					curl_setopt($curl, CURLOPT_URL, $url);
+					curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+					curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+					curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+					$result = curl_exec($curl);
+					break;
+				case 'stream-context':
+					$opts = array('http' =>
+						array(
+							'method'  => 'GET'
+						)
+					);
+					$context = stream_context_create($opts);
+					$result = @file_get_contents($url, false, $context);
+					break;
+			}
+			//Parse the JSON response
+			$result_obj = json_decode($result, true);
+			$this->shared_with_me = $result_obj['shared_with_me'];
+			$this->data = $result_obj['data'];
 	}
 	function whigi_deactivate() {}
 	
@@ -284,7 +308,10 @@ Class WHIGI {
 		add_filter('query_vars', array($this, 'whigi_qvar_triggers'));
 		add_action('template_redirect', array($this, 'whigi_qvar_handlers'));
 		//Hook get_user_meta
-		//add_filter('get_user_metadata', array($this, 'whigi_hook_user_meta'));
+		add_filter('get_user_metadata', array($this, 'whigi_hook_get_user_meta'), 10, 4);
+		add_filter('delete_user_metadata', array($this, 'whigi_hook_delete_user_meta'), 10, 5);
+		add_filter('add_user_metadata', array($this, 'whigi_hook_add_user_meta'), 10, 5);
+		add_filter('update_user_metadata', array($this, 'whigi_hook_add_user_meta'), 10, 5);
 		//Frontend
 		add_action('wp_enqueue_scripts', array($this, 'whigi_init_frontend_scripts_styles'));
 		//Backend
@@ -313,17 +340,11 @@ Class WHIGI {
 		}
 	}
 
-	//Hook into get user meta to first try to find it online
-	function whigi_hook_user_meta($user_id, $meta_key, $single) {
-		if(isset($_SESSION['WHIGI']['IGNORE_GRANT'])) {
-			unset($_SESSION['WHIGI']['IGNORE_GRANT']);
-			return;
-		}
-		//Try to get it from Whigi
-		$whigi_id = get_user_by('id', $user_id)->username;
-		if(null !== WHIGI::MAPPING[$meta_key] && null !== $this->shared_with_me[$whigi_id] && null !== $this->shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]]) {
-			$vault_id = $this->shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]];
-		} else {
+	//Find a vault_id for a user/key pair or null
+	function whigi_vault_for($whigi_id, $meta_key, $mapping) {
+		if(array_key_exists($meta_key, $mapping) && array_key_exists($whigi_id, $this->shared_with_me) && array_key_exists($meta_key, $this->shared_with_me[$whigi_id])) {
+			return $this->shared_with_me[$whigi_id][$meta_key];
+		} else if(array_key_exists($meta_key, $mapping)) {
 			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/profile/data";
 			switch(strtolower(get_option('whigi_http_util'))) {
 				case 'curl':
@@ -347,58 +368,251 @@ Class WHIGI {
 			//Parse the JSON response
 			$result_obj = json_decode($result, true);
 			$this->shared_with_me = $result_obj['shared_with_me'];
-			if(isset($this->shared_with_me[$whigi_id]) && isset($this->shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]])) {
-				$vault_id = $this->shared_with_me[$whigi_id][WHIGI::MAPPING[$meta_key]];
+			$this->data = $result_obj['data'];
+			if(array_key_exists($whigi_id, $this->shared_with_me) && array_key_exists($meta_key, $this->shared_with_me[$whigi_id])) {
+				return $this->shared_with_me[$whigi_id][$meta_key];
+			} else {
+				return null;
+			}
+		} else {
+			//Not a sharable data...
+			return null;
+		}
+	}
+
+	//Hook into get user meta to first try to find it online
+	function whigi_hook_get_user_meta($ret, $user_id, $meta_key, $single) {
+		//Globaly used instances
+		global $wpdb;
+		$mapping = get_option('whigi_generics');
+		$prefix = get_option('whigi_db_prefix');
+		$whip = get_option('whigi_whigi_prefix');
+		//Try to get it from Whigi
+		$whigi_id = $wpdb->get_results("SELECT user_login FROM " . $wpdb->users . " WHERE ID = " . $user_id)[0]->user_login;
+
+		if(substr($meta_key, 0, strlen($prefix)) == $prefix) {
+			//Self inserted data, browse own repo!
+			if(array_key_exists($whip . '/' . $prefix . $meta_key . $whigi_id, $this->data)) {
+				$data_id = $this->data[$whip . '/' . $prefix . $meta_key . $whigi_id]['id'];
+				$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/data/" . $data_id;
+				switch(strtolower(get_option('whigi_http_util'))) {
+					case 'curl':
+						$curl = curl_init();
+						curl_setopt($curl, CURLOPT_URL, $url);
+						curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+						curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+						curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+						$result = curl_exec($curl);
+						break;
+					case 'stream-context':
+						$opts = array('http' =>
+							array(
+								'method'  => 'GET'
+							)
+						);
+						$context = stream_context_create($opts);
+						$result = @file_get_contents($url, false, $context);
+						break;
+				}
+				//Parse the JSON response
+				$result_obj = json_decode($result, true);
+				if(isset($result_obj['encr_data'])) {
+					$decr_response = openssl_decrypt(mb_convert_encoding($result_obj['encr_data'], 'iso-8859-1', 'utf8'), 'AES-256-CTR',
+						base64_decode(get_option('whigi_master_key')), true);
+					if(!$single) {
+						$ret = array($decr_response);
+						return array($decr_response);
+					} else {
+						$ret = $decr_response;
+						return $decr_response;
+					}
+				} else {
+					//Bad response
+					$ret = WHIGI::NONE;
+					return WHIGI::NONE;
+				}
+			} else {
+				//cannot find self inserted data
+				$ret = WHIGI::NONE;
+				return WHIGI::NONE;
+			}
+		} else {
+			//Shared data, browse remote repo
+			$vault_id = $this->whigi_vault_for($whigi_id, $meta_key, $mapping);
+			//Check we have a vault id
+			if(null !== $vault_id) {
+				$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/vault/" . $vault_id;
+				switch(strtolower(get_option('whigi_http_util'))) {
+					case 'curl':
+						$curl = curl_init();
+						curl_setopt($curl, CURLOPT_URL, $url);
+						curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+						curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+						curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+						$result = curl_exec($curl);
+						break;
+					case 'stream-context':
+						$opts = array('http' =>
+							array(
+								'method'  => 'GET'
+							)
+						);
+						$context = stream_context_create($opts);
+						$result = @file_get_contents($url, false, $context);
+						break;
+				}
+				//Parse the JSON response
+				$result_obj = json_decode($result, true);
+				if(isset($result_obj['data_crypted_aes']) && isset($result_obj['aes_crypted_shared_pub'])) {
+					openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, get_option('whigi_rsa_pri_key'), OPENSSL_NO_PADDING);
+					$aes_key = WHIGI::pkcs1unpad2($aes_key);
+					$decr_response = openssl_decrypt(mb_convert_encoding($result_obj['data_crypted_aes'], 'iso-8859-1', 'utf8'), 'AES-256-CTR', $aes_key, true);
+					if(!$single) {
+						$ret = array($decr_response);
+						return array($decr_response);
+					} else {
+						$ret = $decr_response;
+						return $decr_response;
+					}
+				} else {
+					//Bad response
+					$ret = WHIGI::NONE;
+					return WHIGI::NONE;
+				}
+			} else {
+				if(array_key_exists($meta_key, $mapping)) {
+					//Here you could ask for a grant, but is that really what we want?
+					/*
+					$_SESSION['WHIGI']['LAST_URL'] = $_SERVER['HTTP_REFERER'];
+					$url = "https://" . get_option('whigi_whigi_host') . "/account/" . urlencode(CLIENT_ID) . '/' . urlencode(rtrim(site_url(), '/') . '?whigi-grant=ok')
+						. '/' . urlencode(rtrim(site_url(), '/') . '?whigi-grant=bad') . '/false/' . urlencode($meta_key) . '/'
+						. (time() * 1000 + intval(get_option('whigi_whigi_time'))*30*24*60*60*1000) . '/' . urlencode(get_option('whigi_whigi_trigger'));
+					header("Location: $url");
+					exit;
+					*/
+					$ret = WHIGI::NONE;
+					return WHIGI::NONE;
+				} else {
+					//Not a sharable data
+					return;
+				}
 			}
 		}
-		//Check we have a vault id
-		if(isset($vault_id)) {
-			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/vault/" . $vault_id;
+	}
+
+	//Hook into delete user meta to first try to find it online
+	function whigi_hook_delete_user_meta($ret, $user_id, $meta_key, $meta_value, $delete_all = false) {
+		//Globaly used instances
+		global $wpdb;
+		$mapping = get_option('whigi_generics');
+		$prefix = get_option('whigi_db_prefix');
+		$whip = get_option('whigi_whigi_prefix');
+		//Try to get it from Whigi
+		$whigi_id = $wpdb->get_results("SELECT user_login FROM " . $wpdb->users . " WHERE ID = " . $user_id)[0]->user_login;
+
+		if(substr($meta_key, 0, strlen($prefix)) == $prefix) {
+			//Self inserted data, browse own repo!
+			if($delete_all == false && array_key_exists($whip . '/' . $prefix . $meta_key . $whigi_id, $this->data)) {
+				$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/data/"
+					. urlencode($whip . '/' . $prefix . $meta_key . $whigi_id);
+				switch(strtolower(get_option('whigi_http_util'))) {
+					case 'curl':
+						$curl = curl_init();
+						curl_setopt($curl, CURLOPT_URL, $url);
+						curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+						curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+						curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+						curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+						$result = curl_exec($curl);
+						break;
+					case 'stream-context':
+						$opts = array('http' =>
+							array(
+								'method'  => 'DELETE'
+							)
+						);
+						$context = stream_context_create($opts);
+						$result = @file_get_contents($url, false, $context);
+						break;
+				}
+			} else if($delete_all) {
+				foreach($this->data as $key => $val) {
+					if(substr($key, 0, strlen($whip . '/' . $prefix . $meta_key)) == $whip . '/' . $prefix . $meta_key) {
+						$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/data/"
+							. urlencode($key);
+						switch(strtolower(get_option('whigi_http_util'))) {
+							case 'curl':
+								$curl = curl_init();
+								curl_setopt($curl, CURLOPT_URL, $url);
+								curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+								curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+								curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+								curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+								$result = curl_exec($curl);
+								break;
+							case 'stream-context':
+								$opts = array('http' =>
+									array(
+										'method'  => 'DELETE'
+									)
+								);
+								$context = stream_context_create($opts);
+								$result = @file_get_contents($url, false, $context);
+								break;
+						}
+					}
+				}
+			}
+			$ret = true;
+			return true;
+		}
+	}
+
+	//Hook into add/update user meta to first try to find it online
+	function whigi_hook_add_user_meta($ret, $user_id, $meta_key, $meta_value, $unique = false) {
+		//Globaly used instances
+		global $wpdb;
+		$mapping = get_option('whigi_generics');
+		$prefix = get_option('whigi_db_prefix');
+		$whip = get_option('whigi_whigi_prefix');
+		//Try to get it from Whigi
+		$whigi_id = $wpdb->get_results("SELECT user_login FROM " . $wpdb->users . " WHERE ID = " . $user_id)[0]->user_login;
+
+		if(substr($meta_key, 0, strlen($prefix)) == $prefix) {
+			//Self inserted data, browse own repo!
+			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/profile/data/new";
+			$encr_data = openssl_encrypt(mb_convert_encoding($meta_value, 'utf-8', 'iso-8859-1'), 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true);
+			$fields = json_encode(array(
+				'encr_data' => $encr_data,
+				'is_dated' => $unique,
+				'data_name' => $whip . '/' . $prefix . $meta_key . $whigi_id
+			));
 			switch(strtolower(get_option('whigi_http_util'))) {
 				case 'curl':
 					$curl = curl_init();
 					curl_setopt($curl, CURLOPT_URL, $url);
+					curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
 					curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 					curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
 					curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+					curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Length: ' . strlen($fields), 'Content-type: application/json')); 
+      				curl_setopt($ch, CURLOPT_POSTFIELDS, $fields); 
 					$result = curl_exec($curl);
 					break;
 				case 'stream-context':
 					$opts = array('http' =>
 						array(
-							'method'  => 'GET'
+							'method'  => 'POST',
+							'content' => $fields,
+							'header' => "Content-type: application/json\r\n" . "Content-Length: " . strlen($fields) . "\r\n"
 						)
 					);
 					$context = stream_context_create($opts);
 					$result = @file_get_contents($url, false, $context);
 					break;
 			}
-			//Parse the JSON response
-			$result_obj = json_decode($result, true);
-			if(isset($result_obj['data_crypted_aes']) && isset($result_obj['aes_crypted_shared_pub'])) {
-				openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, get_option('whigi_rsa_pri_key'), OPENSSL_NO_PADDING);
-				$aes_key = WHIGI::pkcs1unpad2($aes_key);
-				$decr_response = openssl_decrypt(mb_convert_encoding($result_obj['data_crypted_aes'], 'iso-8859-1', 'utf8'), 'AES-256-CTR', $aes_key, true);
-				if($single) {
-					return array($decr_response);
-				} else {
-					return $decr_response;
-				}
-			} else {
-				//Continue normal flow
-				return;
-			}
-		} else {
-			if(null !== WHIGI::MAPPING[$meta_key]) {
-				$_SESSION['WHIGI']['LAST_URL'] = $_SERVER['HTTP_REFERER'];
-				$url = "https://" . get_option('whigi_whigi_host') . "/grant/" . urlencode(CLIENT_ID) . '/' . urlencode(WHIGI::MAPPING[$meta_key]) . '/'
-					. urlencode(rtrim(site_url(), '/') . '?whigi-grant=ok') . '/' . urlencode(rtrim(site_url(), '/') . '?whigi-grant=bad') . '/' . (time() * 1000 + 30*24*60*60*1000);
-				header("Location: $url");
-				exit;
-			} else {
-				//Continue normal flow
-				return;
-			}
+			$ret = true;
+			return true;
 		}
 	}
 	
@@ -513,7 +727,6 @@ Class WHIGI {
 		//User did not exist, update him first time
 		if(!is_wp_error($user_id)) {
 			$wpdb->update($wpdb->users, array('user_login' => $identity["_id"], 'user_nicename' => $identity["_id"], 'display_name' => $identity["_id"]), array('ID' => $user_id));
-			update_user_meta($user_id, 'nickname', $identity["_id"]);
 		}
 
 		$user = get_userdatabylogin($identity["_id"]);
