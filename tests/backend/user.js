@@ -110,10 +110,10 @@ exports.test = function() {
             });
         });
 
-        describe('#goCompany()', function() {
+        describe('#goCompany1()', function() {
             it('should allow changing info up to one max', function(done) {
                 var f = new fk.FakeRes(false);
-                me.goCompany({
+                me.goCompany1({
                     user: new user.User(dummy_user, ds),
                     body: {name: 'Hi'}
                 }, f);
@@ -121,6 +121,24 @@ exports.test = function() {
                     chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {is_company: true})).to.eventually.become({
                         _id: dummy_user._id,
                         is_company: 1
+                    }).notify(done);
+                }, function(e) {
+                    done(e);
+                });
+            });
+        });
+
+        describe('#goCompany9()', function() {
+            it('should allow changing info up to max level', function(done) {
+                var f = new fk.FakeRes(false);
+                me.goCompany9({
+                    user: {name: 'Bonjour'},
+                    myId: dummy_user._id
+                }, f);
+                f.promise.then(function() {
+                    chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {is_company: true})).to.eventually.become({
+                        _id: dummy_user._id,
+                        is_company: 9
                     }).notify(done);
                 }, function(e) {
                     done(e);

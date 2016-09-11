@@ -57,7 +57,7 @@
    "profile.mine": "See my data",
    "profile.shared": "See what is shared with me",
    "profile.noRevoke": "Cannot revoke access",
-   "profile.change": "Change profile",
+   "profile.change": "Change password",
    "profile.current": "Current password",
    "profile.new": "New password (8characters min)",
    "profile.noMatch": "Passwords do not match",
@@ -73,6 +73,7 @@
    "profile.oauth": "OAuth permissions",
    "profile.warnChange": "Password changed, but recovery options not",
    "profile.generics": "Generic data fields",
+   "profile.goCompany": "Register info from eID",
 
    "filesystem.data_name": "Data name",
    "filesystem.data": "Data",
@@ -144,6 +145,11 @@
    "userinfo.trustLevel": "Trust level of whigi about this user (0-9): ",
    "userinfo.public": "Publicly advertised and checked information: ",
    "userinfo.name": "Organization name: ",
+   "userinfo.set": "Set your public data",
+   "userinfo.modify": "Validate changes (reset confidence level to 1)",
+   "userinfo.load": "Load from generics (reset confidence level to 1)",
+   "userinfo.changed": "Data updated",
+   "userinfo.notChanged": "Data could not be updated",
 
    "generics.title": "Create here your generic data",
    "generics.regexp": "Your input does not match expected format",

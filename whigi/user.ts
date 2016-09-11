@@ -91,16 +91,37 @@ export function getProfile(req, res) {
 
 /**
  * Go Company.
- * @function goCompany
+ * @function goCompany1
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.
  */
-export function goCompany(req, res) {
+export function goCompany1(req, res) {
     req.user.is_company = 1;
     req.user.company_info = req.body;
     req.user.persist().then(function() {
         res.type('application/json').status(200).json({error: ''});
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Go Company.
+ * @function goCompany9
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function goCompany9(req, res) {
+    db.retrieveUser(req.myId, true).then(function(u: User) {
+        u.is_company = 9;
+        u.company_info.name = req.user.name;
+        u.persist().then(function() {
+            res.type('application/json').status(200).json({error: ''});
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });

@@ -15,6 +15,7 @@ var hash = require('js-sha256');
 var mc = require('promised-mongo');
 var BS = require('passport-http').BasicStrategy;
 var TS = require('passport-token-auth');
+var SL = require('passport-saml').Strategy;
 var utils = require('../utils/utils');
 var checks = require('../utils/checks');
 var user = require('./user');
@@ -69,6 +70,10 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/oauth\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/eid\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/eid\/callback\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     //-----
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
@@ -125,7 +130,7 @@ function close() {
 
 /**
  * Authenticates a user.
- * @function auth
+ * @function -
  * @public
  * @param {String} user Username.
  * @param {String} pwd User's password.
@@ -149,7 +154,7 @@ pass.use(new BS(function(username, hpwd, done) {
 
 /**
  * Authenticates a user.
- * @function auth
+ * @function -
  * @public
  * @param {String} token Token.
  * @param {Function} callback A callback function to execute with true if authentication was ok.
@@ -193,6 +198,32 @@ pass.use(new TS(function(token, done) {
     });
 }));
 
+/**
+ * Authenticates a user. It uses eid-idp from e-contract.be.
+ * @function -
+ * @public
+ * @param {Object} profile What is known.
+ * @param {Function} callback A callback function to execute with true if authentication was ok.
+ */
+pass.use(new SL({
+    path: '/api/v1/eid/callback',
+    entryPoint: 'https://www.e-contract.be/eid-idp/protocol/saml2/post/auth',
+    cert: "MIIFLTCCBBWgAwIBAgIHS2X8ooaaSzANBgkqhkiG9w0BAQsFADCBtDELMAkGA1UEBhMCVVMxEDAOBgNVBAgTB0FyaXpvbmExEzARBgNVBAcTClNjb3R0c2RhbGUxGjAYBgNVBAoTEUdvRGFkZHkuY29tLCBJbmMuMS0wKwYDVQQLEyRodHRwOi8vY2VydHMuZ29kYWRkeS5jb20vcmVwb3NpdG9yeS8xMzAxBgNVBAMTKkdvIERhZGR5IFNlY3VyZSBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkgLSBHMjAeFw0xNDA0MTEwNDI4MzJaFw0xNzA0MTEwNDI4MzJaMD8xITAfBgNVBAsTGERvbWFpbiBDb250cm9sIFZhbGlkYXRlZDEaMBgGA1UEAxMRd3d3LmUtY29udHJhY3QuYmUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4KtCOOfoeW4HxyKxjRNf0DtXYyI60D/CrB3zoiWlvbNhbQuQeui5HSzDbo90FgOMQE7OGlaC+TInePOVlmPaMjBn1ZvkmI8q1Y2QBu3Rf8gEIMFQorsPKUx69YiUEy94sguSFPmxvCevbREHhPvAL6xfAEZuJyGlGIppkTOZ+AIT8+1HpT5MFX78CxwbIm5GR6mzMCONk+gEd1GdcSOBsXckWDmMVEKoat6OKYF/twuP2cHqqD9WXOkUL347n7q5jUbbuJlcMa1Io9GNoLK5RYMWhIMjqp4gLT2xg2QVd6kqtQX9xzvypYn7wpkysg4zZ3hRr1sCU18nHsBreuR6/AgMBAAGjggG2MIIBsjAPBgNVHRMBAf8EBTADAQEAMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAOBgNVHQ8BAf8EBAMCBaAwNgYDVR0fBC8wLTAroCmgJ4YlaHR0cDovL2NybC5nb2RhZGR5LmNvbS9nZGlnMnMxLTQwLmNybDBTBgNVHSAETDBKMEgGC2CGSAGG/W0BBxcBMDkwNwYIKwYBBQUHAgEWK2h0dHA6Ly9jZXJ0aWZpY2F0ZXMuZ29kYWRkeS5jb20vcmVwb3NpdG9yeS8wdgYIKwYBBQUHAQEEajBoMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5nb2RhZGR5LmNvbS8wQAYIKwYBBQUHMAKGNGh0dHA6Ly9jZXJ0aWZpY2F0ZXMuZ29kYWRkeS5jb20vcmVwb3NpdG9yeS9nZGlnMi5jcnQwHwYDVR0jBBgwFoAUQMK9J47MNIMwojPX+2yz8LQsgM4wKwYDVR0RBCQwIoIRd3d3LmUtY29udHJhY3QuYmWCDWUtY29udHJhY3QuYmUwHQYDVR0OBBYEFKlGMfaulaBUuzpcxgjLT5hJtJjaMA0GCSqGSIb3DQEBCwUAA4IBAQClS6PGpIgNL4OTAxfi3TNnplf6KdJFqMgeYFot9gGrJui2Mw6LI6DrVNscrlqEKvoluUYLRTS3M0b1DPT7t3pniOkDVWj/hYwjapIePVwcYq3j/SpVwd0IPbD+tDcvYhZya2GWLlDbxREG09677U6pQUomQCpkAyL6/9rd8nZIp5sjEAn06U50L1tQdHYbYp11pyJgaIYy+/cnPhoPuYxddZj5U1tU0F6ZirlF0RheRiY48ZsRBNM2lfl+InsxwmrSI/dZ+zqD2S395obTtiI+SG6irUHcHOY1P45fmqXDXDWzx9ES/WN5hy5Kyeypjp3k4gJbKzq9FWI2ufX11759",
+    privateCert: fs.readFileSync('./whigi/whigi-cert.pem', 'utf-8'),
+    acceptedClockSkewMs: 1000,
+    passReqToCallback: true
+}, function(req, profile, done) {
+    if(!!req.query.username) {
+        req.myId = decodeURIComponent(req.query.username);
+        return done(null, profile);
+    } else if(!!req.body && !!req.body.username) {
+        req.myId = req.body.username;
+        return done(null, profile);
+    } else {
+        return done(null, false);
+    }
+}));
+
 //Now connect to DB then start serving requests
 connect(function(e) {
     if(e) {
@@ -225,6 +256,8 @@ connect(function(e) {
     app.post('/api/v:version/profile/update', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/profile/token/new', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/profile/token', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/eid', pass.authenticate('saml', {failureRedirect: '/', session: false}));
+    app.post('/api/v:version/eid/callback', pass.authenticate('saml', {failureRedirect: '/', session: false}));
     //-----
     app.get('/api/v:version/data/:id', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/data/trigger/:data_name', pass.authenticate(['token', 'basic'], {session: false}));
@@ -267,7 +300,7 @@ connect(function(e) {
     app.get('/api/v:version/peek/:id', user.peekUser);
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
-    app.post('/api/v:version/profile/info', user.goCompany);
+    app.post('/api/v:version/profile/info', user.goCompany1);
     app.get('/api/v:version/profile/data', user.listData);
     app.post('/api/v:version/profile/data/new', user.recData);
     app.post('/api/v:version/profile/update', user.updateUser);
@@ -277,6 +310,8 @@ connect(function(e) {
     app.post('/api/v:version/profile/restore-token', user.restoreToken);
     app.post('/api/v:version/oauth/new', user.createOAuth);
     app.delete('/api/v:version/oauth/:id', user.removeOAuth);
+    app.get('/api/v:version/eid', user.goCompany9);
+    app.post('/api/v:version/eid/callback', user.goCompany9)
     //------
     app.get('/api/v:version/data/:id', data.getData);
     app.get('/api/v:version/data/trigger/:data_name', data.triggerVaults);

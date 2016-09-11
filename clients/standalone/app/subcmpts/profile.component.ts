@@ -24,6 +24,7 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/filesystem', 'data'])">{{ 'profile.mine' | translate }}</button>
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/filesystem', 'vault'])">{{ 'profile.shared' | translate }}</button>
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/generics'])">{{ 'profile.generics' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="goCompany()">{{ 'profile.goCompany' | translate }}</button>
         <br /><br />
 
         <form class="form-signin">
@@ -90,6 +91,10 @@ enableProdMode();
                 </tbody>
             </table>
         </div>
+        <br /><br />
+
+        <user-info [user]="backend.profile"></user-info>
+        <br />
     `
 })
 export class Profile implements OnInit {
@@ -239,6 +244,15 @@ export class Profile implements OnInit {
             self.password2 = r.result;
         }
         r.readAsText(file);
+    }
+
+    /**
+     * Moves to goCompany.
+     * @function goCompany
+     * @public
+     */
+    goCompany() {
+        window.location.href = this.backend.BASE_URL + 'eid';
     }
     
 }

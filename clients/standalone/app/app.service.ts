@@ -31,9 +31,9 @@ export class Backend {
         module: string,
         img_url?: string
     }};
+    public BASE_URL = 'https://localhost/api/v1/';
+    public RESTORE_URL = 'https://localhost/api/v1';
     private rsa_key: string;
-    private BASE_URL = 'https://localhost/api/v1/';
-    private RESTORE_URL = 'https://localhost/api/v1';
 
     /**
      * Creates the service.
