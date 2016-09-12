@@ -53,6 +53,8 @@ if(!class_exists('c_ws_plugin__s2member_profile_mods_in'))
 
 					$userdata['ID'] = $user_id; // Needed for database update.
 
+					//Whigi does not allow this...
+					/*
 					if(!empty($_p['ws_plugin__s2member_profile_email']))
 						if(is_email($_p['ws_plugin__s2member_profile_email']) && !email_exists($_p['ws_plugin__s2member_profile_email']))
 						{
@@ -72,6 +74,7 @@ if(!class_exists('c_ws_plugin__s2member_profile_mods_in'))
 
 					if(!empty($_p['ws_plugin__s2member_profile_last_name']))
 						$userdata['last_name'] = $_p['ws_plugin__s2member_profile_last_name'];
+					*/
 
 					wp_update_user(wp_slash($userdata)); // OK. Now send this array for an update.
 
@@ -134,11 +137,11 @@ if(!class_exists('c_ws_plugin__s2member_profile_mods_in'))
 
 					if(!empty($_p['ws_plugin__s2member_profile_opt_in']) && $role && $level >= 0)
 					{
-						c_ws_plugin__s2member_list_servers::process_list_servers($role, $level, $user->user_login, ((!empty($userdata['user_pass'])) ? $userdata['user_pass'] : ''), $user->user_email, $user->first_name, $user->last_name, $_SERVER['REMOTE_ADDR'], TRUE, TRUE, $user_id);
+						c_ws_plugin__s2member_list_servers::process_list_servers($role, $level, $user->user_login, ((!empty($userdata['user_pass'])) ? $userdata['user_pass'] : ''), get_user_meta($user->ID, 'profile/email'), get_user_meta($user->ID, 'profile/first_name'), get_user_meta($user->ID, 'profile/last_name'), $_SERVER['REMOTE_ADDR'], TRUE, TRUE, $user_id);
 					}
 					else if($role && $level >= 0 && $GLOBALS['WS_PLUGIN__']['s2member']['o']['custom_reg_opt_in'])
 					{
-						c_ws_plugin__s2member_list_servers::process_list_server_removals($role, $level, $user->user_login, ((!empty($userdata['user_pass'])) ? $userdata['user_pass'] : ''), $user->user_email, $user->first_name, $user->last_name, $_SERVER['REMOTE_ADDR'], TRUE, $user_id);
+						c_ws_plugin__s2member_list_servers::process_list_server_removals($role, $level, $user->user_login, ((!empty($userdata['user_pass'])) ? $userdata['user_pass'] : ''), get_user_meta($user->ID, 'profile/email'), get_user_meta($user->ID, 'profile/first_name'), get_user_meta($user->ID, 'profile/last_name'), $_SERVER['REMOTE_ADDR'], TRUE, $user_id);
 					}
 					$lwp = c_ws_plugin__s2member_login_redirects::login_redirection_url($user);
 					$lwp = (!$lwp) ? get_page_link($GLOBALS['WS_PLUGIN__']['s2member']['o']['login_welcome_page']) : $lwp;

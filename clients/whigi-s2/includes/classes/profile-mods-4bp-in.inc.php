@@ -110,11 +110,11 @@ if(!class_exists('c_ws_plugin__s2member_profile_mods_4bp_in'))
 
 					if(!empty($_p['ws_plugin__s2member_profile_4bp_opt_in']) && $role && $level >= 0)
 					{
-						c_ws_plugin__s2member_list_servers::process_list_servers($role, $level, $user->user_login, '', $user->user_email, $user->first_name, $user->last_name, $_SERVER['REMOTE_ADDR'], TRUE, TRUE, $user_id);
+						c_ws_plugin__s2member_list_servers::process_list_servers($role, $level, $user->user_login, '', get_user_meta($user->ID, 'profile/email'), get_user_meta($user->ID, 'profile/first_name'), get_user_meta($user->ID, 'profile/last_name'), $_SERVER['REMOTE_ADDR'], TRUE, TRUE, $user_id);
 					}
 					else if($role && $level >= 0 && $GLOBALS['WS_PLUGIN__']['s2member']['o']['custom_reg_opt_in'])
 					{
-						c_ws_plugin__s2member_list_servers::process_list_server_removals($role, $level, $user->user_login, '', $user->user_email, $user->first_name, $user->last_name, $_SERVER['REMOTE_ADDR'], TRUE, $user_id);
+						c_ws_plugin__s2member_list_servers::process_list_server_removals($role, $level, $user->user_login, '', get_user_meta($user->ID, 'profile/email'), get_user_meta($user->ID, 'profile/first_name'), get_user_meta($user->ID, 'profile/last_name'), $_SERVER['REMOTE_ADDR'], TRUE, $user_id);
 					}
 				}
 			}

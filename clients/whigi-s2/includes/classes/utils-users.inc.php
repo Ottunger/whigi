@@ -236,17 +236,16 @@ if(!class_exists('c_ws_plugin__s2member_utils_users'))
 		 * @since 3.5
 		 *
 		 * @param string $user_login A User's Username.
-		 * @param string $user_email A User's Email Address.
 		 *
 		 * @return int|bool If exists, a WordPress User ID, else false.
 		 */
-		public static function user_login_email_exists($user_login = '', $user_email = '')
+		public static function user_login_email_exists($user_login = '')
 		{
 			global $wpdb;
 			/** @var wpdb $wpdb */
 
-			if($user_login && $user_email) // Only if we have both of these.
-				if(($user_id = $wpdb->get_var("SELECT `ID` FROM `".$wpdb->users."` WHERE `user_login` LIKE '".esc_sql(c_ws_plugin__s2member_utils_strings::like_escape($user_login))."' AND `user_email` LIKE '".esc_sql(c_ws_plugin__s2member_utils_strings::like_escape($user_email))."' LIMIT 1")))
+			if($user_login) // Only if we have.
+				if(($user_id = $wpdb->get_var("SELECT `ID` FROM `".$wpdb->users."` WHERE `user_login` LIKE '".esc_sql(c_ws_plugin__s2member_utils_strings::like_escape($user_login))."' LIMIT 1")))
 					return $user_id; // Return the associated WordPress ID.
 
 			return FALSE; // Otherwise, return false.
@@ -261,15 +260,14 @@ if(!class_exists('c_ws_plugin__s2member_utils_users'))
 		 * @since 3.5
 		 *
 		 * @param string     $user_login A User's Username.
-		 * @param string     $user_email A User's Email Address.
 		 * @param int|string $blog_id A numeric WordPress Blog ID.
 		 *
 		 * @return int|bool If exists *(but not on Blog)*, a WordPress User ID, else false.
 		 */
-		public static function ms_user_login_email_exists_but_not_on_blog($user_login = '', $user_email = '', $blog_id = 0)
+		public static function ms_user_login_email_exists_but_not_on_blog($user_login = '', $blog_id = 0)
 		{
-			if($user_login && $user_email) // Only if we have both of these.
-				if(is_multisite() && ($user_id = c_ws_plugin__s2member_utils_users::user_login_email_exists($user_login, $user_email)) && !is_user_member_of_blog($user_id, $blog_id))
+			if($user_login) // Only if we have.
+				if(is_multisite() && ($user_id = c_ws_plugin__s2member_utils_users::user_login_email_exists($user_login)) && !is_user_member_of_blog($user_id, $blog_id))
 					return $user_id;
 
 			return FALSE; // Otherwise, return false.
@@ -286,14 +284,13 @@ if(!class_exists('c_ws_plugin__s2member_utils_users'))
 		 * @since 3.5
 		 *
 		 * @param string     $user_login A User's Username.
-		 * @param string     $user_email A User's Email Address.
 		 * @param int|string $blog_id A numeric WordPress Blog ID.
 		 *
 		 * @return int|bool If exists *(but not on Blog)*, a WordPress User ID, else false.
 		 */
-		public static function ms_user_login_email_can_join_blog($user_login = '', $user_email = '', $blog_id = 0)
+		public static function ms_user_login_email_can_join_blog($user_login = '', $blog_id = 0)
 		{
-			return c_ws_plugin__s2member_utils_users::ms_user_login_email_exists_but_not_on_blog($user_login, $user_email, $blog_id);
+			return c_ws_plugin__s2member_utils_users::ms_user_login_email_exists_but_not_on_blog($user_login, $blog_id);
 		}
 
 		/**

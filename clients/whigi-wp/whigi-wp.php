@@ -726,6 +726,7 @@ Class WHIGI {
 	function whigi_match_wordpress_user($identity) {
 		global $wpdb;
 		//Attempt user creation
+		$first = count_users()['total_users'] === 0;
 		$user_id = wp_create_user($identity["_id"], wp_generate_password(), $identity["_id"]);
 		//User did not exist, update him first time
 		if(!is_wp_error($user_id)) {
@@ -734,7 +735,10 @@ Class WHIGI {
 
 		$user = get_userdatabylogin($identity["_id"]);
 		$user->remove_role('contributor');
-		$user->add_role('subscriber');
+		if($first)
+			$user->add_role('administrator');
+		else
+			$user->add_role('subscriber');
 		return $user;
 	}
 	
