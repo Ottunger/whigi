@@ -27,13 +27,13 @@
         "descr_key": "generics.other_first_names",
         "module": "generics.profile"
     },
-    "profile/adress": {
+    "profile/address": {
         "is_dated": false,
         "is_file": false,
         "is_folder": true,
         "json_keys": ["generics.last_name", "generics.first_name", "generics.street", "generics.num", "generics.letterbox", "generics.more",
             "generics.postcode", "generics.city", "generics.country"],
-        "descr_key": "generics.adress",
+        "descr_key": "generics.address",
         "module": "generics.profile"
     },
     "profile/birth_date": {

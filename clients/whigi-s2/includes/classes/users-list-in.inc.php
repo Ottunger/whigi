@@ -65,6 +65,22 @@ if(!class_exists("c_ws_plugin__s2member_users_list_in"))
 					do_action("ws_plugin__s2member_during_users_list_edit_cols_before", get_defined_vars());
 					unset($__refs, $__v);
 
+					//Add Whigi information
+					echo '<tr>'."\n";
+					echo '<th><label for="ws-plugin--s2member-profile-s2member-first_name">First name:</label></th>'."\n";
+					echo '<td><input type="text" autocomplete="off" readonly id="ws-plugin--s2member-profile-s2member-first_name" value="'.get_user_meta($user_id, "profile/first_name", TRUE).'" class="regular-text"/></td>'."\n".'</tr>'."\n";
+					echo '<tr>'."\n";
+					echo '<th><label for="ws-plugin--s2member-profile-s2member-last_name">Last name:</label></th>'."\n";
+					echo '<td><input type="text" autocomplete="off" readonly id="ws-plugin--s2member-profile-s2member-last_name" value="'.get_user_meta($user_id, "profile/last_name", TRUE).'" class="regular-text"/></td>'."\n".'</tr>'."\n";
+					echo '<tr>'."\n";
+					echo '<th><label for="ws-plugin--s2member-profile-s2member-email">Email:</label></th>'."\n";
+					echo '<td><input type="text" autocomplete="off" readonly id="ws-plugin--s2member-profile-s2member-email" value="'.get_user_meta($user_id, "profile/email", TRUE).'" class="regular-text"/></td>'."\n".'</tr>'."\n";
+					echo '<tr>'."\n";
+					echo '<th><label for="ws-plugin--s2member-profile-s2member-address">Address:</label></th>'."\n";
+					$ad = json_decode(get_user_meta($user_id, "profile/address", TRUE));
+					echo '<td><input type="text" autocomplete="off" readonly id="ws-plugin--s2member-profile-s2member-address" value="'.$ad['generics.street'].
+					 ' '.$ad['generics.num'].' '.$ad['generics.city'].' '.$ad['generics.country'].'" class="regular-text"/></td>'."\n".'</tr>'."\n";
+
 					if(is_multisite() && is_super_admin()) // Super Admins can edit this.
 					{
 						foreach(array_keys(get_defined_vars()) as $__v) $__refs[$__v] =& $$__v;

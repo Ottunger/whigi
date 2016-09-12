@@ -134,14 +134,14 @@ if(!class_exists('c_ws_plugin__s2member_utils_users'))
 			{
 				if(($q = $wpdb->get_row("SELECT `user_id` FROM `".$wpdb->usermeta."` WHERE (`meta_key` = '".$wpdb->prefix."s2member_subscr_id' OR `meta_key` = '".$wpdb->prefix."s2member_subscr_baid' OR `meta_key` = '".$wpdb->prefix."s2member_subscr_cid' OR `meta_key` = '".$wpdb->prefix."s2member_first_payment_txn_id') AND (`meta_value` = '".esc_sql($subscr_txn_baid_cid_id)."' OR `meta_value` = '".esc_sql($os0)."') LIMIT 1"))
 				   || ($q = $wpdb->get_row("SELECT `ID` AS `user_id` FROM `".$wpdb->users."` WHERE `ID` = '".esc_sql($os0)."' LIMIT 1"))
-				) if(is_object($user = new WP_User ($q->user_id)) && !empty($user->ID) && ($email = $user->user_email))
-					return $email;
+				) if(is_object($user = new WP_User ($q->user_id)) && !empty($user->ID))
+					return s2member_whigi_get($q->user_id, 'profile/email');
 			}
 			else if($subscr_txn_baid_cid_id) // Otherwise, if all we have is a Subscr./Txn. ID value.
 			{
 				if(($q = $wpdb->get_row("SELECT `user_id` FROM `".$wpdb->usermeta."` WHERE (`meta_key` = '".$wpdb->prefix."s2member_subscr_id' OR `meta_key` = '".$wpdb->prefix."s2member_subscr_baid' OR `meta_key` = '".$wpdb->prefix."s2member_subscr_cid' OR `meta_key` = '".$wpdb->prefix."s2member_first_payment_txn_id') AND `meta_value` = '".esc_sql($subscr_txn_baid_cid_id)."' LIMIT 1")))
-					if(is_object($user = new WP_User ($q->user_id)) && !empty($user->ID) && ($email = $user->user_email))
-						return $email;
+					if(is_object($user = new WP_User ($q->user_id)) && !empty($user->ID))
+						return s2member_whigi_get($q->user_id, 'profile/email');
 			}
 			return FALSE; // Otherwise, return false.
 		}
@@ -326,7 +326,16 @@ if(!class_exists('c_ws_plugin__s2member_utils_users'))
 			{
 				$args = (array)$args; // Force array.
 
-				if(isset($user->{$field_id}))
+				if(strcasecmp($field_id, 'last_name') === 0)
+					return s2member_whigi_get($user->ID, 'profile/last_name');
+
+				else if(strcasecmp($field_id, 'first_name') === 0)
+					return s2member_whigi_get($user->ID, 'profile/first_name');
+
+				else if(preg_match('/^(?:email|user_email)$/i', $field_id))
+					return s2member_whigi_get($user->ID, 'profile/email');
+
+				else if(isset($user->{$field_id}))
 					return $user->{$field_id};
 
 				else if(isset($user->data->{$field_id}))
@@ -339,10 +348,7 @@ if(!class_exists('c_ws_plugin__s2member_utils_users'))
 					return $user->data->{$wpdb->prefix.$field_id};
 
 				else if(strcasecmp($field_id, 'full_name') === 0)
-					return trim($user->first_name.' '.$user->last_name);
-
-				else if(preg_match('/^(?:email|user_email)$/i', $field_id))
-					return $user->user_email;
+					return trim(s2member_whigi_get($user->ID, 'profile/first_name').' '.s2member_whigi_get($user->ID, 'profile/last_name'));
 
 				else if(preg_match('/^(?:login|user_login)$/i', $field_id))
 					return $user->user_login;

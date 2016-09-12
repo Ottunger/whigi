@@ -704,6 +704,7 @@ Class WHIGI {
 		$vars[] = 'connect';
 		$vars[] = 'whigi-connect';
 		$vars[] = 'whigi-grant';
+		$vars[] = 'whigi-deactivated';
 		return $vars;
 	}
 	
@@ -711,6 +712,8 @@ Class WHIGI {
 	function whigi_qvar_handlers() {
 		if(get_query_var('connect') || get_query_var('whigi-connect') || get_query_var('whigi-grant')) {
 			$this->whigi_include_connector();
+		} else if(get_query_var('whigi-deactivated')) {
+			$_SESSION["WHIGI"]["RESULT"] = urldecode($_GET['whigi-deactivated']);
 		}
 	}
 	

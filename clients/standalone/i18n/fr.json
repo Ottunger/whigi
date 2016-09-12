@@ -165,7 +165,7 @@
    "generics.corporate_name": "Noms d'entreprise",
    "generics.corporate_bcenum": "Codes BCE",
    "generics.corporate_creation_date": "Dates de création d'entreprise (JJ-MM-AAAA)",
-   "generics.adress": "Adresses",
+   "generics.address": "Adresses",
    "generics.street": "Rue",
    "generics.num": "Numéro",
    "generics.letterbox": "Boîte",
