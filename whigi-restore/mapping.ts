@@ -8,6 +8,7 @@
 declare var require: any
 var ndm = require('nodemailer');
 var https = require('https');
+var hash = require('js-sha256');
 var aes = require('aes-js');
 var RSA = require('node-rsa');
 var utils = require('../utils/utils');
@@ -47,7 +48,7 @@ function whigi(method: string, path: string, data?: any): Promise {
         headers: {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(data),
-          'Authorization': 'Basic ' + new Buffer('whigi-restore:' + require('./password.json').pwd).toString('base64')
+          'Authorization': 'Basic ' + new Buffer('whigi-restore:' + hash.sha256(require('./password.json').pwd)).toString('base64')
         }
     };
     return new Promise(function(resolve, reject) {
@@ -199,7 +200,7 @@ export function requestMapping(req, res) {
 
 /**
  * Says the half key and send mail.
- * @function retrieveMapping
+ * @function mixMapping
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.

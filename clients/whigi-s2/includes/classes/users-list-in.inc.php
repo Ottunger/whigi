@@ -78,10 +78,10 @@ if(!class_exists("c_ws_plugin__s2member_users_list_in"))
 							if(!empty($gen[$val]['json_keys'])) {
 								echo '<tr>'."\n";
 								echo '<th><label>'.$i18n[$gen[$val]['descr_key']].':</label></th>'."\n";
-								echo '<td>'
+								echo '<td>';
 								$ad = json_decode(get_user_meta($user_id, $val, TRUE));
 								foreach($gen[$val]['json_keys'] as $key => $val2) {
-									echo '<label for="ws-plugin--s2member-profile-s2member-'.$val2.'">'.$i18n[$gen[$val]['descr_key']].':</label>';
+									echo '<label for="ws-plugin--s2member-profile-s2member-'.$val2.'">'.$i18n[$val2].':</label>';
 									echo '<input type="text" autocomplete="off" disabled="disabled" id="ws-plugin--s2member-profile-s2member-'.$val2.'" value="'.$ad[$val2].'" class="regular-text"/>';
 								}
 								echo '</td></tr>';
