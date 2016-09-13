@@ -9,10 +9,7 @@
     </head>
     <body>
 
-      <form action="https://whigi2-demo.envict.com/account/whigi-giveaway/
-            https%3A%2F%2Fwhigi2-demo.envict.com%2Fremote%2Fwhigi-giveaway%2Fratherhard%2Fhttps%253A%252F%252Fwhigi2-giveaway.envict.com%252Fapi%252Fv1%252Fcreate%253Fchallenge%253Dratherhard
-            https%3A%2F%2Fwhigi2-giveaway.envict.com%2Findex.html/flow/profile%2Femail%2F%2Fprofile%2Fcorporate%2Fname/0"
-            method="get">
+      <form onsubmit="get_action(this);" method="get">
       
         <h1>Get you Whigi WP free now!</h1>
         
@@ -40,6 +37,24 @@
         
         <button type="submit">Create</button>
       </form>
+
+      <script type="text/javascript">
+        var xhttp = new XMLHttpRequest();
+        var challenge = 'undefined';
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                challenge = JSON.parse(this.responseText).challenge;
+            }
+        };
+        xhttp.open('GET', 'https://whigi2-giveaway.envict.com/api/v1/challenge', true);
+        xhttp.send();
+
+        function get_action(form) {
+            form.action = 'https://whigi2-demo.envict.com/account/whigi-giveaway/';
+            form.action += encodeURIComponent('https://whigi2-demo.envict.com/remote/whigi-giveaway/' + challenge + '/' + encodeURIComponent('https://whigi2-giveaway.envict.com/api/v1/create?challenge=' + challenge)) + '/';
+            form.action += encodeURIComponent('https://whigi2-giveaway.envict.com/error.html') + '/flow/' + encodeURIComponent('profile/email//profile/corporate/name') + '/0';
+        }
+      </script>
       
     </body>
 </html>

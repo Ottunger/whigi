@@ -5,6 +5,7 @@
  */
 
 var express = require('express');
+var sess = require('express-session');
 var helmet = require('helmet');
 var body = require('body-parser');
 var http = require('http');
@@ -63,6 +64,7 @@ connect(function(e) {
 
     //Create the express application
     var app = express();
+    app.use(sess({secret: require('./password.json').pwd}));
     if(utils.DEBUG == false) {
         app.use(helmet());
     } else {
@@ -75,6 +77,7 @@ connect(function(e) {
     app.use(body.json({limit: '5000mb'}));
 
     //API ROUTES
+    app.get('/api/v:version/challenge', mapping.challenge);
     app.get('/api/v:version/create', mapping.create);
 
     //Error route

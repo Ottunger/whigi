@@ -44,10 +44,6 @@ Creates a new token for the logged in user to connect without credentials.
 /api/v<any>/profile/token: Delete, needs auth
 Removes tokens granted to bearer. One can use the query parameter "?token=" to remove a specific token only.
 
-/api/v<any>/profile/restore-token: Post, needs auth of whigi
-Creates a token for the specified user.
-{"token_id": "string", "bearer_id"; "string", "key"; "string"}
-
 /api/v<any>/oauth/new: Post, needs auth
 Creates an OAuth token.
 {"for_id": "string", "prefix": "string", "token": "string"}
@@ -91,6 +87,16 @@ Retrieves from local database the specified resource.
 /api/v<any>/any/remove: Post, needs auth of whigi
 Delete from local database the specified resource.
 {"payload": "protobuf", "key": "string"}
+
+
+Whigi-giveaway endpoints:
+************************
+
+/api/v<any>/challenge: Get
+Creates a challenge for logging in.
+
+/api/v<any>/create: Get
+Creates a giveaway if ?response and ?user match.
 
 
 

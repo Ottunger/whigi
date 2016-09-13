@@ -137,6 +137,18 @@ function decryptVault(profile: any, user: string, name: string): Promise {
 }
 
 /**
+ * Creates a challenge for logging in.
+ * @function challenge
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function challenge(req, res) {
+    req.session.challenge = utils.generateRandomString(10);
+    res.type('application/json').status(200).json({challenge: req.session.challenge});
+}
+
+/**
  * Creates a new mapping if not one already.
  * @function create
  * @public
@@ -146,7 +158,6 @@ function decryptVault(profile: any, user: string, name: string): Promise {
 export function create(req, res) {
     var response: string = req.query.response;
     var id: string = req.query.user;
-    var challenge: string = req.query.challenge;
     
     whigi('GET', '/api/v1/profile').then(function(user) {
         if(rsa_key == '') {
@@ -162,8 +173,8 @@ export function create(req, res) {
             user.shared_with_me = data.shared_with_me;
 
             decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
-                if(decryptAES(atob(response), utils.toBytes(vault.decr_data)) == challenge) {
-
+                if(decryptAES(atob(response), utils.toBytes(vault.decr_data)) == req.session.challenge) {
+                    
                 } else {
                     res.redirect('/error.html');
                 }
