@@ -39,7 +39,7 @@ Class WHIGI {
 	private $settings = array(
         'whigi_login_redirect_url' => '/welcome',
         'whigi_logout_redirect_url' => '/',
-		'whigi_whigi_host' => 'whigi.envict.com',
+		'whigi_whigi_host' => 'whigi2-demo.envict.com',
 		'whigi_whigi_data' => '',
 		'whigi_whigi_time' => '1',
 		'whigi_whigi_trigger' => 'www.wordpress.org',

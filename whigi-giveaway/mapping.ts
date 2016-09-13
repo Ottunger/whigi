@@ -11,6 +11,9 @@ var https = require('https');
 var hash = require('js-sha256');
 var aes = require('aes-js');
 var RSA = require('node-rsa');
+var fs = require('fs');
+var sys = require('sys')
+var exec = require('child_process').exec;
 var utils = require('../utils/utils');
 var mailer, db, rsa_key;
 
@@ -174,7 +177,112 @@ export function create(req, res) {
 
             decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
                 if(decryptAES(atob(response), utils.toBytes(vault.decr_data)) == req.session.challenge) {
-                    
+                    var httpport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
+                    var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
+                    decryptVault(user, id, 'profile/email').then(function(vault2) {
+                        var email = vault2.decr_data;
+                        fs.writeFile('/etc/nginx/sites-available/' + id, `
+                            server {
+                                    listen 80;
+                                    server_name  ` + id + `.whigis.envict.com;
+                                    location / {
+                                            proxy_pass      $scheme://localhost:` + httpport + `;
+                                            proxy_set_header    Host            $host;
+                                            proxy_set_header    X-Real-IP       $remote_addr;
+                                            proxy_set_header    X-Forwarded-for $remote_addr;
+                                            port_in_redirect off;
+                                    }
+                            }
+                            server {
+                                    listen 443;
+                                    server_name  ` + id + `.whigis.envict.com;
+                                    error_log /home/gregoire/nginx.err;
+                                    access_log  /home/gregoire/nginx.log;
+                                    location / {
+                                            proxy_pass      $scheme://localhost:` + httpsport + `;
+                                            proxy_set_header    Host            $host;
+                                            proxy_set_header    X-Real-IP       $remote_addr;
+                                            proxy_set_header    X-Forwarded-for $remote_addr;
+                                            port_in_redirect on;
+                                    }
+                            }
+                        `, function(e) {
+                            if(e) {
+                                res.redirect('/error.html');
+                            } else {
+                                fs.writeFile('/etc/apache2/sites-available/' + id + '.conf', `
+                                    <VirtualHost *:` + httpport + `>
+                                        ServerName ` + id + `.whigis.envict.com
+                                        ServerAdmin ` + email + `
+                                        DocumentRoot /var/www/` + id + `
+                                        ErrorLog \${APACHE_LOG_DIR}/error.log
+                                        CustomLog \${APACHE_LOG_DIR}/access.log combined
+                                    </VirtualHost>
+                                    <VirtualHost *:` + httpsport + `>
+                                        SSLEngine On
+                                        SSLCertificateFile /home/gregoire/envict.bundle.crt
+                                        SSLCertificateKeyFile /home/gregoire/envict.com.key
+                                        ServerName ` + id + `.whigis.envict.com
+                                        ServerAdmin ` + email + `
+                                        DocumentRoot /var/www/` + id + `
+                                        ErrorLog \${APACHE_LOG_DIR}/error.log
+                                        CustomLog \${APACHE_LOG_DIR}/access.log combined
+                                    </VirtualHost>
+                                `, function(e) {
+                                    if(e) {
+                                        res.redirect('/error.html');
+                                    } else {
+                                        fs.writeFile('/home/gregoire/wordpress/wp-config.php', `
+                                            define('DB_NAME', '` + id + `');
+                                            define('DB_USER', 'wpshit');
+                                            define('DB_PASSWORD', 'shitty');
+                                            define('DB_HOST', 'localhost');
+                                            define('DB_CHARSET', 'utf8mb4');
+                                            define('DB_COLLATE', '');
+                                            define('AUTH_KEY',         'Jh5I7@7m2OB~HiNSc1}/~s209Z]Nf?.uTv+B}lIpbXzUcs(R*xxn|@lX9VTfA5!o');
+                                            define('SECURE_AUTH_KEY',  'iACos2^0]3+} Mc]N[u/Nf)s1{k|#Q&S%3[6m7InZCmvCFoN2)m+-K[< PpEN7>q');
+                                            define('LOGGED_IN_KEY',    'XD?uYc4%5i+^/Mf!-D0E81GhJ&FfVztoih_M!E D.u+PGX3pk?U.r*JmlLFwboF=');
+                                            define('NONCE_KEY',        '*4+=G<H_MXdr@4-^+oMRmq>k:Oq4gc({->B[l1yJIzPH eAmnLamMFN_?<VzDK6m');
+                                            define('AUTH_SALT',        'K!o$1hATCF9H3Ywq%{O4=G>|3V-%OCb OLJ2ejKlm1RpdABTAlnxf&1])e^$kwL[');
+                                            define('SECURE_AUTH_SALT', 'mp*60}n4vFwzlNA/b<F[ikBlRxM2~yqo~7rx[3d5%S42gd^Y=*Nd4~#K3J!u<BmJ');
+                                            define('LOGGED_IN_SALT',   '7jFxLyq%.uF&5~g2g+M /lWy#2kl-xRRm!}Yegg^X9=xw&ALH>u3I|Cr|cc=G$tL');
+                                            define('NONCE_SALT',       '[i|_-]%Tq1D^<[!P|}fIDZJttmax{}flkW?Ma+m9h%wh2K>B&jPlAr4c<=-S_C?L');
+                                            $table_prefix  = 'wp_';
+                                            define('WP_DEBUG', false);
+                                            define( 'WP_DEBUG_LOG', false );
+                                            if ( !defined('ABSPATH') )
+                                                    define('ABSPATH', dirname(__FILE__) . '/');
+                                            require_once(ABSPATH . 'wp-settings.php');
+                                        `, function(e) {
+                                            if(e) {
+                                                res.redirect('/error.html');
+                                            } else {
+                                                exec(`
+                                                    mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + id + `;"
+                                                    ln -s /etc/nginx/sites-available/` + id + ` /etc/nginx/sites-enabled/` + id + ` &&
+                                                    service nginx restart &&
+                                                    aen2site /etc/apache2/sites-available/` + id + ` &&
+                                                    service apache2 restart &&
+                                                    mkdir -p /var/www/` + id + ` &&
+                                                    cp -r /home/gregoire/wordpress/* /var/www/` + id + `/
+                                                    wp --path=/var/www/` + id + ` user create ` + id + ` ` + email + ` --role=administrator &&
+                                                    wp --path=/var/www/` + id + ` plugin activate whigi-wp s2member &&
+                                                    wp --path=/var/www/` + id + ` option update whigi_whigi_id ` + id + `
+                                                `, function(err, stdout, stderr) {
+                                                    if(err) {
+                                                        res.redirect('/error.html');
+                                                    }
+                                                    res.redirect('/success.html');
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }, function(e) {
+                        res.redirect('/error.html');
+                    });
                 } else {
                     res.redirect('/error.html');
                 }

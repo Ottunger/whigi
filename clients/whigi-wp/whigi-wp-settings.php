@@ -282,7 +282,7 @@
 				</tr>
 
 				<tr valign='top'>
-				<th scope='row'>Initially required fields (see generics, separate values with //):</th>
+				<th scope='row'>Initially required fields (see generics, separate values with //, plugins should set this on their own):</th>
 				<td>
 					<input type='text' name='whigi_whigi_data' value='<?php echo get_option('whigi_whigi_data'); ?>' />
 				</td>
