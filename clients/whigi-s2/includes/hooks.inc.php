@@ -129,7 +129,6 @@ add_action('admin_init', 'c_ws_plugin__s2member_check_activation::check');
 add_action('load-settings.php', 'c_ws_plugin__s2member_op_notices::multisite_ops_notice');
 add_action('load-options-general.php', 'c_ws_plugin__s2member_op_notices::general_ops_notice');
 add_action('load-options-reading.php', 'c_ws_plugin__s2member_op_notices::reading_ops_notice');
-add_action('load-user-new.php', 'c_ws_plugin__s2member_user_new::admin_user_new_fields');
 
 add_action('add_meta_boxes', 'c_ws_plugin__s2member_meta_boxes::add_meta_boxes');
 add_action('save_post', 'c_ws_plugin__s2member_meta_box_saves::save_meta_boxes');

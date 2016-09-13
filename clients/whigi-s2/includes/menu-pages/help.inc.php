@@ -43,10 +43,9 @@ if (!class_exists ("c_ws_plugin__s2member_menu_page_help"))
 						echo '<td class="ws-menu-page-table-l">' . "\n";
 
 						echo '<div class="ws-menu-page-group" title="Modified version for Whigi" default-state="open">' . "\n";
-
 						echo '<div class="ws-menu-page-section ws-plugin--s2member-help">' . "\n";
-						echo '<p>Your free installation base is configured to work with Whigi. This means that your users will be able to self modify their data, and that you will see the changes directly. If you ever need some help with our products, do not hesitate to reach us at the site where you registered this free account, ot at Whigi itself.</p>'."\n";
-
+						echo '<p>Your free installation base is configured to work with Whigi. This means that your users will be able to self modify their data, and that you will see the changes directly. If you ever need some help with our products, do not hesitate to reach us at the site where you registered this free account, ot at Whigi itself.</p><p>For now, Whigi-WP and s2Member (Whigi) are known NOT to work with a vast majority of plugins that rely on meta key names not supported. However, the change required for those plugins is really small, and we expect some to start being compatible rather soon (we will help in this way as well). However, try not to install another plugin that messes up with the login mechanism at the same time, as this is really likely to cause not desired responses.</p>'."\n";
+						echo '</div>' . "\n";
 						echo '</div>' . "\n";
 
 						do_action("ws_plugin__s2member_during_help_page_before_left_sections", get_defined_vars ());

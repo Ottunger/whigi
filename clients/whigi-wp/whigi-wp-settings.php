@@ -2,7 +2,26 @@
 	<div id="whigi-settings-meta">Toggle tips: <ul><li><a id="whigi-settings-tips-on" href="#">On</a></li><li><a id="whigi-settings-tips-off" href="#">Off</a></li></ul><div class="nav-splitter"></div>Toggle sections: <ul><li><a id="whigi-settings-sections-on" href="#">On</a></li><li><a id="whigi-settings-sections-off" href="#">Off</a></li></ul></div>
 	<h2>Whigi-WP Settings</h2>
 	<!-- START Settings Header -->
-	<div id="whigi-settings-header"></div>
+	<div id="whigi-settings-header">
+	<p>
+		Welcome to Whigi-WP. This plugin aims at integrating Whigi into WP, and so modifies a bit the default behavior or Wordpress:
+		Any user can now register always using a Whigi account, because a Whigi account is nothing but an account here as well.$_COOKIE
+		Therefore, we do not need anymore the registration form (login is enough!), the lost password, not the add user manually.
+	</p>
+	<p>
+		Aside this, Whigi-WP also allows other plugins to access the metadata associated to a user. To achieve this, they must register the data
+		that your site will request to your users. 
+	</p>
+	<p>
+		Your free installation base is configured to work with Whigi. This means that your users will be able to self modify their data, and that you
+		will see the changes directly. If you ever need some help with our products, do not hesitate to reach us at the site where you registered this free account, ot at Whigi itself.
+	</p>
+	<p>
+		For now, Whigi-WP and s2Member (Whigi) are known NOT to work with a vast majority of plugins that rely on meta key names not supported. However,
+		the change required for those plugins is really small, and we expect some to start being compatible rather soon (we will help in this way as well).
+		However, try not to install another plugin that messes up with the login mechanism at the same time, as this is really likely to cause not desired responses.
+	</p>
+	</div>
 	<!-- END Settings Header -->
 	<!-- START Settings Body -->
 	<div id="whigi-settings-body">
@@ -319,7 +338,7 @@
 			<p>
 				<strong>Instructions:</strong>
 				<ol>
-					<li>Register any account at <a href='https://whigi.envict.com' target="_blank">whigi.envict.com</a>, or another Whigi provider.</li>
+					<li>Register any account at <a href='https://whigi2-demo.envict.com' target="_blank">whigi2-demo.envict.com</a>, or another Whigi provider.</li>
 					<li>Paste your account ID/password into the fields above, then click the Save all settings button.</li>
 				</ol>
 			</p>
