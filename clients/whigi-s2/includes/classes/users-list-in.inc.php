@@ -66,20 +66,32 @@ if(!class_exists("c_ws_plugin__s2member_users_list_in"))
 					unset($__refs, $__v);
 
 					//Add Whigi information
-					echo '<tr>'."\n";
-					echo '<th><label for="ws-plugin--s2member-profile-s2member-first_name">First name:</label></th>'."\n";
-					echo '<td><input type="text" autocomplete="off" disabled="disabled" id="ws-plugin--s2member-profile-s2member-first_name" value="'.get_user_meta($user_id, "profile/first_name", TRUE).'" class="regular-text"/></td>'."\n".'</tr>'."\n";
-					echo '<tr>'."\n";
-					echo '<th><label for="ws-plugin--s2member-profile-s2member-last_name">Last name:</label></th>'."\n";
-					echo '<td><input type="text" autocomplete="off" disabled="disabled" id="ws-plugin--s2member-profile-s2member-last_name" value="'.get_user_meta($user_id, "profile/last_name", TRUE).'" class="regular-text"/></td>'."\n".'</tr>'."\n";
-					echo '<tr>'."\n";
-					echo '<th><label for="ws-plugin--s2member-profile-s2member-email">Email:</label></th>'."\n";
-					echo '<td><input type="text" autocomplete="off" disabled="disabled" id="ws-plugin--s2member-profile-s2member-email" value="'.get_user_meta($user_id, "profile/email", TRUE).'" class="regular-text"/></td>'."\n".'</tr>'."\n";
-					echo '<tr>'."\n";
-					echo '<th><label for="ws-plugin--s2member-profile-s2member-address">Address:</label></th>'."\n";
-					$ad = json_decode(get_user_meta($user_id, "profile/address", TRUE));
-					echo '<td><input type="text" autocomplete="off" disabled="disabled" id="ws-plugin--s2member-profile-s2member-address" value="'.$ad['generics.street'].
-					 ' '.$ad['generics.num'].' '.$ad['generics.city'].' '.$ad['generics.country'].'" class="regular-text"/></td>'."\n".'</tr>'."\n";
+					$opt = explode('//', get_option('whigi_whigi_data'));
+					$i18n = get_option('whigi_i18n_en');
+					$gen = get_option('whigi_generics');
+					foreach($opt as $key => $val) {
+						if($gen[$val]['is_dated']) {
+							echo '<tr>'."\n";
+							echo '<th><label for="ws-plugin--s2member-profile-s2member-'.$val.'">'.$i18n[$gen[$val]['descr_key']].':</label></th>'."\n";
+							echo '<td><input type="text" autocomplete="off" disabled="disabled" id="ws-plugin--s2member-profile-s2member-'.$val.'" value="Dated fields, see on Whigi" class="regular-text"/></td>'."\n".'</tr>'."\n";
+						} else {
+							if(!empty($gen[$val]['json_keys'])) {
+								echo '<tr>'."\n";
+								echo '<th><label>'.$i18n[$gen[$val]['descr_key']].':</label></th>'."\n";
+								echo '<td>'
+								$ad = json_decode(get_user_meta($user_id, $val, TRUE));
+								foreach($gen[$val]['json_keys'] as $key => $val2) {
+									echo '<label for="ws-plugin--s2member-profile-s2member-'.$val2.'">'.$i18n[$gen[$val]['descr_key']].':</label>';
+									echo '<input type="text" autocomplete="off" disabled="disabled" id="ws-plugin--s2member-profile-s2member-'.$val2.'" value="'.$ad[$val2].'" class="regular-text"/>';
+								}
+								echo '</td></tr>';
+							} else {
+								echo '<tr>'."\n";
+								echo '<th><label for="ws-plugin--s2member-profile-s2member-'.$val.'">'.$i18n[$gen[$val]['descr_key']].':</label></th>'."\n";
+								echo '<td><input type="text" autocomplete="off" disabled="disabled" id="ws-plugin--s2member-profile-s2member-'.$val.'" value="'.get_user_meta($user_id, $val, TRUE).'" class="regular-text"/></td>'."\n".'</tr>'."\n";
+							}
+						}
+					}
 
 					if(is_multisite() && is_super_admin()) // Super Admins can edit this.
 					{

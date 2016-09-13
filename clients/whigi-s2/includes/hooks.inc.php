@@ -52,7 +52,6 @@ add_action('init', 'c_ws_plugin__s2member_labels::config_label_translations', 10
 
 add_action('init', 'c_ws_plugin__s2member_login_redirects_r::remove_login_redirect_filters', 11);
 
-add_action('init', 'c_ws_plugin__s2member_login_checks::monitor_simultaneous_logins', 10);
 
 add_action('admin_init', 'c_ws_plugin__s2member_menu_pages::log_file_downloader');
 add_action('admin_init', 'c_ws_plugin__s2member_menu_pages::logs_zip_downloader');
@@ -74,11 +73,6 @@ add_action('wp_print_scripts', 'c_ws_plugin__s2member_css_js_themes::add_js_w_gl
 add_action('wp_login_failed', 'c_ws_plugin__s2member_brute_force::track_failed_logins');
 add_filter('authenticate', 'c_ws_plugin__s2member_brute_force::stop_brute_force_logins', 100);
 
-add_filter('wp_authenticate_user', 'c_ws_plugin__s2member_login_checks::ms_wp_authenticate_user', 100);
-add_filter('wp_authenticate_user', 'c_ws_plugin__s2member_login_checks::stop_simultaneous_logins', 100);
-add_action('wp_login', 'c_ws_plugin__s2member_login_checks::update_simultaneous_logins', 1);
-add_action('clear_auth_cookie', 'c_ws_plugin__s2member_login_checks::simultaneous_logout', 1);
-
 add_action('delete_user', 'c_ws_plugin__s2member_user_deletions::handle_user_deletions');
 add_action('wpmu_delete_user', 'c_ws_plugin__s2member_user_deletions::handle_ms_user_deletions');
 add_action('remove_user_from_blog', 'c_ws_plugin__s2member_user_deletions::handle_ms_user_deletions', 10, 2);
@@ -96,7 +90,6 @@ add_filter('bp_core_get_site_options', 'c_ws_plugin__s2member_option_forces::che
 
 add_filter('random_password', 'c_ws_plugin__s2member_registrations::generate_password');
 add_action('user_register', 'c_ws_plugin__s2member_registrations::configure_user_registration');
-add_action('register_form', 'c_ws_plugin__s2member_custom_reg_fields::custom_registration_fields');
 add_filter('registration_errors', 'c_ws_plugin__s2member_registrations::custom_registration_field_errors', 10, 3);
 add_filter('send_password_change_email', '__return_false'); // Turn this off in favor of s2Member.
 
@@ -110,22 +103,11 @@ add_filter('wpmu_signup_user_notification_email', 'c_ws_plugin__s2member_email_c
 add_filter('_wpmu_activate_existing_error_', 'c_ws_plugin__s2member_registrations::ms_activate_existing_user', 10, 2);
 add_action('wpmu_activate_user', 'c_ws_plugin__s2member_registrations::configure_user_on_ms_user_activation', 10, 3);
 add_action('wpmu_activate_blog', 'c_ws_plugin__s2member_registrations::configure_user_on_ms_blog_activation', 10, 5);
-add_action('signup_extra_fields', 'c_ws_plugin__s2member_custom_reg_fields::ms_custom_registration_fields');
 
 add_action('plugins_loaded', 'c_ws_plugin__s2member_custom_reg_fields::add_filters_get_user_option', 1);
 
-add_action('bp_after_signup_profile_fields', 'c_ws_plugin__s2member_custom_reg_fields_4bp::custom_registration_fields_4bp');
 add_action('bp_signup_validate', 'c_ws_plugin__s2member_registrations::custom_registration_field_errors_4bp');
-add_action('bp_after_profile_field_content', 'c_ws_plugin__s2member_custom_reg_fields_4bp::custom_profile_fields_4bp');
-add_action('bp_profile_field_item', 'c_ws_plugin__s2member_custom_reg_fields_4bp::custom_profile_field_items_4bp');
 add_action('xprofile_updated_profile', 'c_ws_plugin__s2member_profile_mods_4bp::handle_profile_modifications_4bp', 1000);
-
-add_action('wp_login', 'c_ws_plugin__s2member_login_redirects::login_redirect', 10, 2);
-add_action('login_head', 'c_ws_plugin__s2member_login_customizations::login_header_styles');
-add_filter('login_headerurl', 'c_ws_plugin__s2member_login_customizations::login_header_url');
-add_filter('login_headertitle', 'c_ws_plugin__s2member_login_customizations::login_header_title');
-add_action('login_footer', 'c_ws_plugin__s2member_login_customizations::login_footer_design');
-add_filter("lostpassword_url", "c_ws_plugin__s2member_login_customizations::lost_password_url", 10, 2);
 
 add_action('login_footer', 'c_ws_plugin__s2member_tracking_codes::display_signup_tracking_codes');
 add_action('wp_footer', 'c_ws_plugin__s2member_tracking_codes::display_signup_tracking_codes');

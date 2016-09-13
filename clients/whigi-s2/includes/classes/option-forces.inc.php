@@ -130,26 +130,7 @@ if (!class_exists ("c_ws_plugin__s2member_option_forces"))
 				public static function check_register_access ($users_can_register = FALSE)
 					{
 						global $wpdb; // Global database object reference
-
-						foreach(array_keys(get_defined_vars())as$__v)$__refs[$__v]=&$$__v;
-						do_action("ws_plugin__s2member_before_check_register_access", get_defined_vars ());
-						unset($__refs, $__v);
-
-						$by_default = $users_can_register = $GLOBALS["WS_PLUGIN__"]["s2member"]["o"]["allow_subscribers_in"];
-
-						if (is_multisite () && c_ws_plugin__s2member_utils_conds::is_multisite_farm () && is_main_site ())
-							return apply_filters("ws_plugin__s2member_check_register_access", ($users_can_register = "0"), get_defined_vars ());
-
-						else if (!is_admin () && !$users_can_register) // Do NOT run these security checks on option pages; it's confusing.
-							if (!is_multisite () || !c_ws_plugin__s2member_utils_conds::is_multisite_farm () || !is_main_site () || current_user_can ("create_users") || is_super_admin ())
-								{
-									if (current_user_can ("create_users") || (is_multisite () && is_super_admin ()) || c_ws_plugin__s2member_register_access::reg_cookies_ok ())
-										{
-											return apply_filters("ws_plugin__s2member_check_register_access", ($users_can_register = "1"), get_defined_vars ());
-										}
-								}
-
-						return apply_filters("ws_plugin__s2member_check_register_access", $users_can_register, get_defined_vars ());
+						return FALSE;
 					}
 				/**
 				* Allows access to the main Multisite Registration Form.
@@ -165,73 +146,7 @@ if (!class_exists ("c_ws_plugin__s2member_option_forces"))
 				public static function check_mms_register_access ($users_can_register = FALSE)
 					{
 						global $wpdb; // Global database object reference
-						global /* For Multisite support. */ $current_site, $current_blog;
-
-						foreach(array_keys(get_defined_vars())as$__v)$__refs[$__v]=&$$__v;
-						do_action("ws_plugin__s2member_before_check_register_access", get_defined_vars ());
-						unset($__refs, $__v);
-
-						$by_default = $users_can_register = $GLOBALS["WS_PLUGIN__"]["s2member"]["o"]["mms_registration_grants"];
-
-						if (c_ws_plugin__s2member_utils_conds::bp_is_installed () && is_multisite () && /* BP Multisite / but NOT offering Blogs? */ !c_ws_plugin__s2member_utils_conds::is_multisite_farm ())
-							return apply_filters("ws_plugin__s2member_check_mms_register_access", ($users_can_register = ((c_ws_plugin__s2member_option_forces::check_register_access ()) ? "user" : "none")), get_defined_vars ());
-
-						else if (!is_multisite () || !c_ws_plugin__s2member_utils_conds::is_multisite_farm ()) // Blog Farm?
-							return apply_filters("ws_plugin__s2member_check_mms_register_access", ($users_can_register = "none"), get_defined_vars ());
-
-						else if (!is_network_admin () && $users_can_register !== "all") // Do NOT run these checks on Network option pages; it's confusing.
-							{
-								if ((is_main_site () && current_user_can ("create_users")) || is_super_admin ()) // Creates Users on the Main Site?
-									{
-										return apply_filters("ws_plugin__s2member_check_mms_register_access", ($users_can_register = "all"), get_defined_vars ());
-									}
-
-								else if (is_user_logged_in () && is_object ($user = wp_get_current_user ()) && $user->ID && is_object ($user = new WP_User ($user->ID, $current_site->blog_id)) && $user->ID && $user->has_cap ("access_s2member_level1"))
-									{
-										$mms_options = c_ws_plugin__s2member_utilities::mms_options ();
-										$blogs_allowed = (int)@$mms_options["mms_registration_blogs_level" . c_ws_plugin__s2member_user_access::user_access_level ($user)];
-										$user_blogs = (is_array($blogs = get_blogs_of_user ($user->ID))) ? count ($blogs) - 1 : 0;
-
-										$user_blogs = ($user_blogs >= 0) ? $user_blogs : 0; // NOT less than zero.
-										$blogs_allowed = ($blogs_allowed >= 0) ? $blogs_allowed : 0;
-
-										if ($user_blogs < $blogs_allowed) // Are they within their limit?
-											{
-												return apply_filters("ws_plugin__s2member_check_mms_register_access", ($users_can_register = "all"), get_defined_vars ());
-											}
-									}
-								else if (!is_user_logged_in () && is_main_site () && ($reg_cookies = c_ws_plugin__s2member_register_access::reg_cookies_ok ()) && extract ($reg_cookies))
-									{
-										if (preg_match ($GLOBALS["WS_PLUGIN__"]["s2member"]["c"]["membership_item_number_w_level_regex"], $item_number, $m) && !empty($GLOBALS["WS_PLUGIN__"]["s2member"]["o"]["mms_registration_blogs_level" . $m[1]]))
-											{
-												return apply_filters("ws_plugin__s2member_check_mms_register_access", ($users_can_register = "all"), get_defined_vars ());
-											}
-										else // Otherwise, we MUST allow them to at least create an account; they paid for it! Defaults to `user`.
-											{
-												return apply_filters("ws_plugin__s2member_check_mms_register_access", ($users_can_register = "user"), get_defined_vars ());
-											}
-									}
-							}
-
-						else if (!is_network_admin () && $users_can_register === "all") // Do NOT run these security checks on option pages; it's confusing to a site owner.
-							{
-								if (is_user_logged_in () && !(is_main_site () && current_user_can ("create_users")) && !is_super_admin () && is_object ($user = wp_get_current_user ()) && $user->ID && is_object ($user = new WP_User ($user->ID, $current_site->blog_id)) && $user->ID)
-									{
-										$mms_options = c_ws_plugin__s2member_utilities::mms_options ();
-										$blogs_allowed = (int)@$mms_options["mms_registration_blogs_level" . c_ws_plugin__s2member_user_access::user_access_level ($user)];
-										$user_blogs = (is_array($blogs = get_blogs_of_user ($user->ID))) ? count ($blogs) - 1 : 0;
-
-										$user_blogs = ($user_blogs >= 0) ? $user_blogs : 0; // NOT less than zero.
-										$blogs_allowed = ($blogs_allowed >= 0) ? $blogs_allowed : 0;
-
-										if ($user_blogs >= $blogs_allowed) // Are they at their limit?
-											{
-												return apply_filters("ws_plugin__s2member_check_mms_register_access", ($users_can_register = "none"), get_defined_vars ());
-											}
-									}
-							}
-
-						return apply_filters("ws_plugin__s2member_check_mms_register_access", $users_can_register, get_defined_vars ());
+						return FALSE;
 					}
 				/**
 				* Register access in BuddyPress, for Multisite compatibility.

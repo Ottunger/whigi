@@ -721,7 +721,7 @@ if(!class_exists('c_ws_plugin__s2member_constants'))
 			 * @see http://codex.wordpress.org/Function_Reference/wp_get_current_user wp_get_current_user()
 			 */
 			if(!defined('S2MEMBER_CURRENT_USER_FIRST_NAME'))
-				define ('S2MEMBER_CURRENT_USER_FIRST_NAME', ($c[] = (($user) ? (string)$user->first_name : '')));
+				define ('S2MEMBER_CURRENT_USER_FIRST_NAME', ($c[] = (($user) ? (string)get_user_meta($user->ID, 'profile/first_name') : '')));
 
 			/**
 			 * The current User's Last Name.
@@ -761,7 +761,7 @@ if(!class_exists('c_ws_plugin__s2member_constants'))
 			 * @see http://codex.wordpress.org/Function_Reference/wp_get_current_user wp_get_current_user()
 			 */
 			if(!defined('S2MEMBER_CURRENT_USER_LAST_NAME'))
-				define ('S2MEMBER_CURRENT_USER_LAST_NAME', ($c[] = (($user) ? (string)$user->last_name : '')));
+				define ('S2MEMBER_CURRENT_USER_LAST_NAME', ($c[] = (($user) ? (string)get_user_meta($user->ID, 'profile/last_name') : '')));
 
 			/**
 			 * The current User's Username.
@@ -841,7 +841,7 @@ if(!class_exists('c_ws_plugin__s2member_constants'))
 			 * @see http://codex.wordpress.org/Function_Reference/wp_get_current_user wp_get_current_user()
 			 */
 			if(!defined('S2MEMBER_CURRENT_USER_EMAIL'))
-				define ('S2MEMBER_CURRENT_USER_EMAIL', ($c[] = (($user) ? (string)$user->user_email : '')));
+				define ('S2MEMBER_CURRENT_USER_EMAIL', ($c[] = (($user) ? (string)get_user_meta($user->ID, 'profile/email') : '')));
 
 			/**
 			 * The current User's IP Address (even if/when NOT logged-in).

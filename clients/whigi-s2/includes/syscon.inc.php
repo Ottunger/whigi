@@ -85,7 +85,7 @@ $GLOBALS['WS_PLUGIN__']['s2member']['c']['recaptcha']  = array('public_key' => '
 /*
 Configure the right menu options panel for s2Member.
 */
-$GLOBALS['WS_PLUGIN__']['s2member']['c']['menu_pages'] = array('updates' => TRUE, 'upsell-pro' => TRUE, 'installation' => FALSE, 'tools' => FALSE, 'kb' => TRUE, 'videos' => TRUE, 'support' => TRUE, 'donations' => TRUE, 'beta' => TRUE);
+$GLOBALS['WS_PLUGIN__']['s2member']['c']['menu_pages'] = array('updates' => FALSE, 'upsell-pro' => FALSE, 'installation' => FALSE, 'tools' => FALSE, 'kb' => TRUE, 'videos' => TRUE, 'support' => TRUE, 'donations' => TRUE, 'beta' => TRUE);
 /*
 Check if s2Member has been configured *should be set after the first config via options panel*.
 */
@@ -182,37 +182,13 @@ if(!function_exists('ws_plugin__s2member_configure_options_and_their_defaults'))
 		$default_options['membership_options_page_vars_enable'] = '1';
 		$default_options['membership_options_page_ga_vars_enable'] = '1';
 
-		$default_options['login_reg_design_enabled'] = '1';
-
-		$default_options['login_reg_background_color']        = 'FFFFFF';
-		$default_options['login_reg_background_image']        = $GLOBALS['WS_PLUGIN__']['s2member']['c']['dir_url'].'/images/bg.png';
-		$default_options['login_reg_background_image_repeat'] = 'repeat';
-
-		$default_options['login_reg_background_text_color']        = '000000';
-		$default_options['login_reg_background_text_shadow_color'] = 'EEEEEE';
-		$default_options['login_reg_background_box_shadow_color']  = 'EEEEEE';
-
-		$default_options['login_reg_logo_src']        = $GLOBALS['WS_PLUGIN__']['s2member']['c']['dir_url'].'/images/logo.png';
-		$default_options['login_reg_logo_src_width']  = '550';
-		$default_options['login_reg_logo_src_height'] = '100';
-		$default_options['login_reg_logo_url']        = home_url('/');
-		$default_options['login_reg_logo_title']      = get_bloginfo('name');
-
-		$default_options['login_reg_font_size']       = '12px';
-		$default_options['login_reg_font_family']     = "'Verdana', 'Arial', sans-serif";
-		$default_options['login_reg_font_field_size'] = '18px';
-
-		$default_options['login_reg_footer_backtoblog'] = '0';
-		$default_options['login_reg_footer_design']     = '';
+		$default_options['login_reg_design_enabled'] = '0';
 
 		$default_options['reg_email_from_name']    = get_bloginfo('name');
 		$default_options['reg_email_from_email']   = get_bloginfo('admin_email');
 		$default_options['reg_email_support_link'] = 'mailto:'.get_bloginfo('admin_email');
 
 		$default_options['new_user_emails_enabled'] = '0';
-
-		$default_options['new_user_email_subject'] = sprintf(_x('[%s] Username/Password', 's2member-front', 's2member'), get_bloginfo('name'));
-		$default_options['new_user_email_message'] = sprintf(_x("Your Username/Password for:\n%s\n\nUsername: %%%%user_login%%%%\nTo set your password, visit: %%%%wp_set_pass_url%%%%\n\n%%%%wp_login_url%%%%", 's2member-front', 's2member'), get_bloginfo('name'));
 
 		$default_options['new_user_admin_email_recipients'] = get_bloginfo('admin_email');
 		$default_options['new_user_admin_email_subject']    = sprintf(_x('[%s] New User Registration', 's2member-front', 's2member'), get_bloginfo('name'));
@@ -239,7 +215,7 @@ if(!function_exists('ws_plugin__s2member_configure_options_and_their_defaults'))
 
 		$default_options['signup_email_recipients'] = '"%%full_name%%" <%%payer_email%%>';
 		$default_options['signup_email_subject']    = _x('Congratulations! (your membership has been approved)', 's2member-front', 's2member');
-		$default_options['signup_email_message']    = sprintf(_x("Thanks %%%%first_name%%%%! Your membership has been approved.\n\nIf you haven't already done so, the next step is to Register a Username.\n\nComplete your registration here:\n%%%%registration_url%%%%\n\nIf you have any trouble, please feel free to contact us.\n\nBest Regards,\n%s", 's2member-front', 's2member'), get_bloginfo('name'));
+		$default_options['signup_email_message']    = sprintf(_x("Thanks %%%%first_name%%%%! Your membership has been approved.\n\nIf you haven't already done so, the next step is to Register a Whigi account.\n\nComplete your registration here:\n%%%%registration_url%%%%\n\nIf you have any trouble, please feel free to contact us.\n\nBest Regards,\n%s", 's2member-front', 's2member'), get_bloginfo('name'));
 
 		$default_options['modification_email_recipients'] = '"%%full_name%%" <%%payer_email%%>';
 		$default_options['modification_email_subject']    = _x('Thank you! Your account has been updated.', 's2member-front', 's2member');

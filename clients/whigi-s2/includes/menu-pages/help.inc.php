@@ -42,6 +42,13 @@ if (!class_exists ("c_ws_plugin__s2member_menu_page_help"))
 						echo '<tr class="ws-menu-page-table-tr">' . "\n";
 						echo '<td class="ws-menu-page-table-l">' . "\n";
 
+						echo '<div class="ws-menu-page-group" title="Modified version for Whigi" default-state="open">' . "\n";
+
+						echo '<div class="ws-menu-page-section ws-plugin--s2member-help">' . "\n";
+						echo '<p>Your free installation base is configured to work with Whigi. This means that your users will be able to self modify their data, and that you will see the changes directly. If you ever need some help with our products, do not hesitate to reach us at the site where you registered this free account, ot at Whigi itself.</p>'."\n";
+
+						echo '</div>' . "\n";
+
 						do_action("ws_plugin__s2member_during_help_page_before_left_sections", get_defined_vars ());
 						do_action("ws_plugin__s2member_during_help_page_during_left_sections_before_help", get_defined_vars ());
 

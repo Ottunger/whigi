@@ -61,12 +61,11 @@ if (!class_exists ('c_ws_plugin__s2member_login_redirects_r'))
 						if($GLOBALS['WS_PLUGIN__']['s2member']['o']['login_redirection_always_http'])
 							if($redirect_to && is_string($redirect_to) && strpos($redirect_to, 'wp-admin') === FALSE)
 								{
-									$redirect_to = preg_replace('/^https\:\/\//i', 'http://', $redirect_to);
-									if(stripos($redirect_to, 'http://') !== 0) // Force full URL.
+									if(stripos($redirect_to, 'http://') !== 0 && stripos($redirect_to, 'https://') !== 0) // Force full URL.
 										{
 											$redirect_uri    = $redirect_to; // e.g., `/path/with/?query=args`
 											$home_path       = trim((string)@parse_url(home_url('/'), PHP_URL_PATH), '/');
-											$http_home_base  = trim(preg_replace('/\/'.preg_quote($home_path, '/').'\/$/'.$ci, '', home_url('/', 'http')), '/');
+											$http_home_base  = trim(preg_replace('/\/'.preg_quote($home_path, '/').'\/$/'.$ci, '', home_url('/')), '/');
 											$redirect_to     = $http_home_base.'/'.ltrim($redirect_uri, '/');
 										}
 								}

@@ -37,7 +37,7 @@ Class WHIGI {
 
 	//Constants used by the plugin
 	private $settings = array(
-        'whigi_login_redirect_url' => '/',
+        'whigi_login_redirect_url' => '/welcome',
         'whigi_logout_redirect_url' => '/',
 		'whigi_whigi_host' => 'whigi.envict.com',
 		'whigi_whigi_data' => '',
@@ -326,6 +326,8 @@ Class WHIGI {
 			add_filter('login_headerurl', array($this, 'whigi_logo_link'));
 		}
 		add_filter('login_message', array($this, 'whigi_customize_login_screen'));
+		//Disabled options used for logging
+		add_filter('lostpassword_url', array($this, 'whigi_disable_lost_pwd'), 100, 2);
 		//Globally used hooks
 		add_filter('comment_form_defaults', array($this, 'whigi_customize_comment_form_fields'));
 		add_action('show_user_profile', array($this, 'whigi_linked_accounts'));
@@ -338,6 +340,10 @@ Class WHIGI {
 			add_filter('admin_footer', array($this, 'whigi_push_login_messages'));
 			add_filter('login_footer', array($this, 'whigi_push_login_messages'));
 		}
+	}
+
+	function whigi_disable_lost_pwd($url, $redirect) {
+		return get_option('whigi_whigi_host');
 	}
 
 	//Find a vault_id for a user/key pair or null
@@ -390,6 +396,11 @@ Class WHIGI {
 		//Try to get it from Whigi
 		$whigi_id = $wpdb->get_results("SELECT user_login FROM " . $wpdb->users . " WHERE ID = " . $user_id)[0]->user_login;
 
+		//Maybe cached?
+		if(!empty($_GLOBAL[$user_id . $meta_key])) {
+			$ret = $_GLOBAL[$user_id . $meta_key];
+			return $_GLOBAL[$user_id . $meta_key];
+		}
 		if(substr($meta_key, 0, strlen($prefix)) == $prefix) {
 			//Self inserted data, browse own repo!
 			if(array_key_exists($whip . '/' . $prefix . $meta_key . $whigi_id, $this->data)) {
@@ -419,6 +430,7 @@ Class WHIGI {
 				if(isset($result_obj['encr_data'])) {
 					$decr_response = openssl_decrypt(mb_convert_encoding($result_obj['encr_data'], 'iso-8859-1', 'utf8'), 'AES-256-CTR',
 						base64_decode(get_option('whigi_master_key')), true);
+					$_GLOBAL[$user_id . $meta_key] = $decr_response;
 					if(!$single) {
 						$ret = array($decr_response);
 						return array($decr_response);
@@ -467,6 +479,7 @@ Class WHIGI {
 					openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, get_option('whigi_rsa_pri_key'), OPENSSL_NO_PADDING);
 					$aes_key = WHIGI::pkcs1unpad2($aes_key);
 					$decr_response = openssl_decrypt(mb_convert_encoding($result_obj['data_crypted_aes'], 'iso-8859-1', 'utf8'), 'AES-256-CTR', $aes_key, true);
+					$_GLOBAL[$user_id . $meta_key] = $decr_response;
 					if(!$single) {
 						$ret = array($decr_response);
 						return array($decr_response);
@@ -511,6 +524,7 @@ Class WHIGI {
 		$whigi_id = $wpdb->get_results("SELECT user_login FROM " . $wpdb->users . " WHERE ID = " . $user_id)[0]->user_login;
 
 		if(substr($meta_key, 0, strlen($prefix)) == $prefix) {
+			unset($_GLOBAL[$user_id . $meta_key]);
 			//Self inserted data, browse own repo!
 			if($delete_all == false && array_key_exists($whip . '/' . $prefix . $meta_key . $whigi_id, $this->data)) {
 				$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/data/"
@@ -579,6 +593,7 @@ Class WHIGI {
 		$whigi_id = $wpdb->get_results("SELECT user_login FROM " . $wpdb->users . " WHERE ID = " . $user_id)[0]->user_login;
 
 		if(substr($meta_key, 0, strlen($prefix)) == $prefix) {
+			$_GLOBAL[$user_id . $meta_key] = $meta_value;
 			//Self inserted data, browse own repo!
 			$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/profile/data/new";
 			$encr_data = openssl_encrypt(mb_convert_encoding($meta_value, 'utf-8', 'iso-8859-1'), 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true);
@@ -739,6 +754,8 @@ Class WHIGI {
 			$user->add_role('administrator');
 		else
 			$user->add_role('subscriber');
+
+		do_action('user_registered', $user_id);
 		return $user;
 	}
 	

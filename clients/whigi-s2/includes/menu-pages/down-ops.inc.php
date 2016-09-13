@@ -228,19 +228,6 @@ if(!class_exists("c_ws_plugin__s2member_menu_page_down_ops"))
 			if(apply_filters("ws_plugin__s2member_during_down_ops_page_during_left_sections_display_remote_authorization", TRUE, get_defined_vars()))
 			{
 				do_action("ws_plugin__s2member_during_down_ops_page_during_left_sections_before_remote_authorization", get_defined_vars());
-
-				echo '<div class="ws-menu-page-group" title="Remote Auth / Podcasting">'."\n";
-
-				echo '<div class="ws-menu-page-section ws-plugin--s2member-remote-authorization-section">'."\n";
-				echo '<h3>Remote Header Authorization (optional)</h3>'."\n";
-				echo '<p>This can be enabled on a case-by-case basis. Just add this to the end of your download links: <code>&amp;s2member_file_remote=yes</code></p>'."\n";
-				echo '<p>Shortcode alternative: <code>[s2File download="example-file.zip" remote="yes" /]</code></p>'."\n";
-				echo '<p>Remote Header Authorization allows access to file downloads through an entirely different approach. Instead of asking the Member to log into your site through a browser, a Member will be prompted automatically, to log in through HTTP Header Authorization prompts; which is the same technique used in more traditional security systems via .htaccess files. In other words, Remote Header Authorization makes it possible for your Members to access files through remote applications that may NOT use a browser. This is often the case when a Member needs to access protected files through a software client like iTunes; typical with podcasts. See <a href="http://www.s2member.com/videos/71F49478D6983A9C/" target="_blank" rel="external">tutorial video here</a> for details about how to setup a Podcast for iTunes.</p>'."\n";
-				do_action("ws_plugin__s2member_during_down_ops_page_during_left_sections_during_remote_authorization", get_defined_vars());
-				echo '</div>'."\n";
-
-				echo '</div>'."\n";
-
 				do_action("ws_plugin__s2member_during_down_ops_page_during_left_sections_after_remote_authorization", get_defined_vars());
 			}
 			if(apply_filters("ws_plugin__s2member_during_down_ops_page_during_left_sections_display_amazon_s3", TRUE, get_defined_vars()))
