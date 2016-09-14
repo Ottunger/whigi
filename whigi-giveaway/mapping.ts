@@ -152,9 +152,9 @@ export function create(req, res) {
             user.data = data.data;
             user.shared_with_me = data.shared_with_me;
             decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
-                var res = new Buffer(response, 'base64').toString();
-                var nc = decryptAES(res, utils.toBytes(vault.decr_data));
-                if(!!req.session && nc == req.session.challenge) {
+                var resp: string = utils.atob(response);
+                var nc = decryptAES(resp, utils.toBytes(vault.decr_data));
+                if(nc === req.session.challenge) {
                     var httpport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
                     var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
                     decryptVault(user, id, 'profile/email').then(function(vault2) {
