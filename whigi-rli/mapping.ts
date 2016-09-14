@@ -29,8 +29,8 @@ function sendDelete(host: string, buf: string) {
         path: '/api/v1/any/remove',
         method: 'POST',
         headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(data)
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(data)
         }
     };
     var ht = https.request(options, function(res) {

@@ -83,8 +83,8 @@ export class Downloader {
                     path: endpoints[i].pathQuestion,
                     method: 'POST',
                     headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': Buffer.byteLength(data)
+                        'Content-Type': 'application/json',
+                        'Content-Length': Buffer.byteLength(data)
                     }
                 };
                 var ht = https.request(options, function(res) {

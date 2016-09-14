@@ -50,11 +50,13 @@ function whigi(method: string, path: string, data?: any): Promise {
         path: path,
         method: method,
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(data),
-          'Authorization': 'Basic ' + new Buffer('whigi-restore:' + hash.sha256(require('./password.json').pwd)).toString('base64')
+            'Authorization': 'Basic ' + new Buffer('whigi-giveaway:' + hash.sha256(require('./password.json').pwd)).toString('base64')
         }
     };
+    if(method == 'POST') {
+        options.headers['Content-Type'] = 'application/json';
+        options.headers['Content-Length'] = Buffer.byteLength(data);
+    }
     return new Promise(function(resolve, reject) {
         var ht = https.request(options, function(res) {
             var r = '';
@@ -96,7 +98,7 @@ function str2arr(str: string): number[] {
  * @param {String} rsa_key Key.
  * @return {Bytes} Decrypted data, we use AES keys.
  */
-function decryptRSA(data: string, rsa_key: string): number[] {
+function decryptRSA(data: string, rsa_key: string): number[] {console.log(rsa_key);
     var dec = new RSA();
     dec.setPrivateKey(rsa_key);
     return str2arr(dec.decrypt(data));
@@ -161,7 +163,7 @@ export function challenge(req, res) {
 export function create(req, res) {
     var response: string = req.query.response;
     var id: string = req.query.user;
-    
+
     whigi('GET', '/api/v1/profile').then(function(user) {
         if(rsa_key == '') {
             var key = utils.toBytes(hash.sha256(require('./password.json').pwd + user.salt));
@@ -174,12 +176,13 @@ export function create(req, res) {
         whigi('GET', '/api/v1/profile/data').then(function(data) {
             user.data = data.data;
             user.shared_with_me = data.shared_with_me;
-
             decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
-                if(decryptAES(atob(response), utils.toBytes(vault.decr_data)) == req.session.challenge) {
+                var res = new Buffer(response, 'base64').toString('ascii');console.log(res);
+                var nc = decryptAES(res, utils.toBytes(vault.decr_data));console.log(nc);
+                if(nc == req.session.challenge) {
                     var httpport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
                     var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
-                    decryptVault(user, id, 'profile/email').then(function(vault2) {
+                    decryptVault(user, id, 'profile/email').then(function(vault2) {console.log("here");
                         var email = vault2.decr_data;
                         fs.writeFile('/etc/nginx/sites-available/' + id, `
                             server {
@@ -206,7 +209,7 @@ export function create(req, res) {
                                             port_in_redirect on;
                                     }
                             }
-                        `, function(e) {
+                        `, function(e) {console.log("here");
                             if(e) {
                                 res.redirect('/error.html');
                             } else {
@@ -263,6 +266,8 @@ export function create(req, res) {
                                                     ln -s /etc/nginx/sites-available/` + id + ` /etc/nginx/sites-enabled/` + id + ` &&
                                                     service nginx restart &&
                                                     aen2site /etc/apache2/sites-available/` + id + ` &&
+                                                    echo "` + httpport + `" >> /etc/apache2/ports.conf &&
+                                                    echo "` + httpsport + ` https" >> /etc/apache2/ports.conf &&
                                                     service apache2 restart &&
                                                     mkdir -p /var/www/` + id + ` &&
                                                     rm -rf /var/www/` + id + `/ &&

@@ -34,8 +34,8 @@ function end(msg: any, upt: boolean) {
             path: (upt? endpoints[i].pathPartial : endpoints[i].pathFull),
             method: 'POST',
             headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(data)
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(data)
             }
         };
         var ht = https.request(options, function(res) {

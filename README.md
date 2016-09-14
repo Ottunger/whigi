@@ -19,7 +19,7 @@ Whigi repo is actually a collection of projects working for the Whigi project in
 # Installation of Whigi and Standalone client
 All Whigi instances run over HTTPS. Whigi-restore and Whigi-RLI are their own HTTPS providers, whereas Whigi and Whigi-giveaway are behind nginx.
 - Clone the gitlab repository.
-- Make sure to have installed node=4.7.X, mongo=3.2.X, nginx>=1.6.X.
+- Make sure to have installed node=4.7.X, mongo=3.2.X, nginx>=1.6.X. (A how to can be found in whigi-giveaway/README.md)
 - Modify the nginx.conf package to specify where you cloned your repo and the path to logs. Be careful where the HTTPS endpoint is! Especially if running several nginx in chain.
 - Modify package.json, the script "whigi", to specify the hostname of Whigi-restore to Whigi and vice versa, if they do not both run on the same machine.
 - Modify clients/standalone/app/app.service.ts to specify the backend hostname.

@@ -46,11 +46,13 @@ function whigi(method: string, path: string, data?: any): Promise {
         path: path,
         method: method,
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(data),
           'Authorization': 'Basic ' + new Buffer('whigi-restore:' + hash.sha256(require('./password.json').pwd)).toString('base64')
         }
     };
+    if(method == 'POST') {
+        options.headers['Content-Type'] = 'application/json';
+        options.headers['Content-Length'] = Buffer.byteLength(data);
+    }
     return new Promise(function(resolve, reject) {
         var ht = https.request(options, function(res) {
             var r = '';
