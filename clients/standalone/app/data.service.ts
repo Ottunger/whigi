@@ -284,7 +284,7 @@ export class Data {
                 self.backend.encryptAES(decr_data, self.workerMgt(true, function(got) {
                     self.backend.createVault(name, real_name, user._id, got, aes_crypted_shared_pub,
                         (max_date.getTime() < (new Date).getTime())? 0 : (new Date).getTime(), new_trigger).then(function(res) {
-                        self.backend.profile.data[name].shared_to[user._id] = res._id;
+                        self.backend.profile.data[real_name].shared_to[user._id] = res._id;
                         resolve(user, res._id);
                     }, function(e) {
                         reject(e);

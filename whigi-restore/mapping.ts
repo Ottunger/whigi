@@ -10,7 +10,6 @@ var ndm = require('nodemailer');
 var https = require('https');
 var hash = require('js-sha256');
 var aes = require('aes-js');
-var RSA = require('node-rsa');
 var utils = require('../utils/utils');
 var mailer, db;
 
@@ -72,35 +71,6 @@ function whigi(method: string, path: string, data?: any): Promise {
 }
 
 /**
- * Turns a string to an array of numbers.
- * @function str2arr
- * @public
- * @param {String} str String.
- * @return {Number[]} Array.
- */
-function str2arr(str: string): number[] {
-    var result: number[] = [];
-    for (var i = 0; i < str.length; i++) {
-        result.push(parseInt(str.charCodeAt(i).toString(10)));
-    }
-    return result;
-}
-
-/**
- * Decrypt an AES key using RSA.
- * @function decryptRSA
- * @public
- * @param {String} Encrypted data.
- * @param {String} rsa_key Key.
- * @return {Bytes} Decrypted data, we use AES keys.
- */
-function decryptRSA(data: string, rsa_key: string): number[] {
-    var dec = new RSA();
-    dec.setPrivateKey(rsa_key);
-    return str2arr(dec.decrypt(data));
-}
-
-/**
  * Decrypt a string using master_key in AES.
  * @function decryptAES
  * @public
@@ -109,7 +79,7 @@ function decryptRSA(data: string, rsa_key: string): number[] {
  * @return {String} Result.
  */
 function decryptAES(data: string, key: number[]): string {
-    return aes.util.convertBytesToString(aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(str2arr(data)));
+    return aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(utils.str2arr(data)));
 }
 
 /**
@@ -123,10 +93,10 @@ export function requestMapping(req, res) {
     function complete(recup, mk, pk, data) {
         if(recup) {
             whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/recup_id']).then(function(vault) {
-                var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
                 var recup_id = decryptAES(vault.data_crypted_aes, aesKey);
                 whigi('GET', '/vault/' + data.shared_with_me[recup_id]['profile/email/restore']).then(function(vault) {
-                    var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                    var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
                     var recup_mail = decryptAES(vault.data_crypted_aes, aesKey);
                     mailer.sendMail({
                         from: 'Whigi <' + utils.MAIL_ADDR + '>',
@@ -144,13 +114,13 @@ export function requestMapping(req, res) {
             });
         } else {
             whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email/restore']).then(function(vault) {
-                var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
                 var email = decryptAES(vault.data_crypted_aes, aesKey);
                 whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine1']).then(function(vault) {
-                    var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                    var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
                     var mine1 = decryptAES(vault.data_crypted_aes, aesKey);
                     whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine2']).then(function(vault) {
-                        var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                        var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
                         var mine2 = decryptAES(vault.data_crypted_aes, aesKey);
                         mailer.sendMail({
                             from: 'Whigi <' + utils.MAIL_ADDR + '>',
@@ -176,7 +146,7 @@ export function requestMapping(req, res) {
     whigi('GET', '/api/v1/profile').then(function(profile) {
         var key = this.toBytes(sessionStorage.getItem('key_decryption'));
         var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
-        var master_key = decrypter.decrypt(this.profile.encr_master_key);
+        var master_key = Array.from(decrypter.decrypt(this.profile.encr_master_key));
         decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
         req.params.id = decodeURIComponent(req.params.id);
@@ -210,10 +180,10 @@ export function requestMapping(req, res) {
 export function mixMapping(req, res) {
     function complete(mk, pk, data) {
         whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email/restore']).then(function(vault) {
-            var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+            var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
             var email = decryptAES(vault.data_crypted_aes, aesKey);
             whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine1']).then(function(vault) {
-                var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, pk);
+                var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
                 var mine1 = decryptAES(vault.data_crypted_aes, aesKey);
                 mailer.sendMail({
                     from: 'Whigi <' + utils.MAIL_ADDR + '>',
@@ -235,7 +205,7 @@ export function mixMapping(req, res) {
     whigi('GET', '/api/v1/profile').then(function(profile) {
         var key = this.toBytes(sessionStorage.getItem('key_decryption'));
         var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
-        var master_key = decrypter.decrypt(this.profile.encr_master_key);
+        var master_key = Array.from(decrypter.decrypt(this.profile.encr_master_key));
         decrypter = new aes.ModeOfOperation.ctr(this.master_key, new aes.Counter(0));
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
         req.params.id = decodeURIComponent(req.params.id);

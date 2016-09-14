@@ -10,7 +10,7 @@ Of course, you will need to do a little bit of setup:
 - This package expects to be installed at whigi2-giveaway.envict.com. It also expects Whigi to be available at whigi2-demo.envict.com.
 - Add php7 repo: sudo apt-get install python-software-properties && sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php && sudo apt-get update
 - Install apache2 mysql-server mysql-client php7.0-cli php7.0-common libapache2-mod-php7.0 php7.0 php7.0-mysql php7.0-fpm php7.0-curl php7.0-gd php7.0-bz2 php7.0-mbstring php7.0-xml [using apt-get]
-- When installing mysql, set the root password to be 'api', as whigi-giveaway expects.
+- When installing mysql, set the root password to be 'abcdefgh', as whigi-giveaway expects.
 - Install mongo database v3.2.X and node v4.7.X.
   - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
   - echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list

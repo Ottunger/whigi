@@ -200,71 +200,78 @@ export class Account implements OnInit, OnDestroy {
      * @param {Boolean} ok True if create account.
      */
     finish(ok: boolean) {
-        var self = this, acc: Promise, grant: Promise;
+        var self = this, saves: any[] = [];
         if(ok) {
-            acc = new Promise(function(resolve, reject) {
-                if(self.with_account == 'false') {
-                    resolve();
-                } else {
-                    var key = self.backend.generateRandomString(64);
-                    self.dataservice.newData('keys/auth/' + self.id_to, key, false, true).then(function(dummy) {
-                        self.dataservice.grantVault(self.id_to, 'keys/auth/' + self.id_to, 'keys/auth/' + self.id_to, key, new Date(0)).then(function(dummy) {
-                            resolve();
-                        }, function(e) {
-                            reject(e);
-                        });
-                    }, function(e) {
-                        reject(e);
+            if(this.with_account != 'false') {
+                var key = this.backend.generateRandomString(64);
+                saves.push({
+                    mode: 'new',
+                    data: key,
+                    name: 'keys/auth/' + this.id_to,
+                    is_dated: false,
+                    force: true
+                });
+                saves.push({
+                    mode: 'grant',
+                    data: key,
+                    to: this.id_to,
+                    name: 'keys/auth/' + this.id_to,
+                    real_name: 'keys/auth/' + this.id_to,
+                    until: new Date(0)
+                });
+            }
+            for(var i = 0; i < this.data_list.length; i++) {
+                var adata = this.data_list[i];
+                if(adata in this.backend.generics && ((!(adata in this.filter) && !(adata in this.backend.profile.data)) || (adata in this.filter && this.filter[adata] == '/new'))) {
+                    if(!!this.backend.generics[adata].json_keys) {
+                        var ret = {};
+                        for(var i = 0; i < this.backend.generics[adata].json_keys.length; i++) {
+                            ret[this.backend.generics[adata].json_keys[i]] = this.new_datas[adata][this.backend.generics[adata].json_keys[i]];
+                        }
+                        this.new_data[adata] = JSON.stringify(ret);
+                    }
+                    if(this.backend.generics[adata].is_dated) {
+                        this.new_data[adata] = JSON.stringify([{
+                            value: this.new_data[adata],
+                            from: 0
+                        }]);
+                    }
+                    var name = adata;
+                    if(this.backend.generics[adata].is_folder) {
+                        name += '/' + this.new_name[adata];
+                    }
+                    saves.push({
+                        mode: 'new',
+                        data: this.new_data[adata],
+                        name: name,
+                        is_dated: this.backend.generics[adata].is_dated,
+                        force: false
+                    });
+                    saves.push({
+                        mode: 'grant',
+                        data: this.new_data[adata],
+                        to: this.id_to,
+                        name: adata,
+                        real_name: name,
+                        until: this.expire_epoch,
+                        trigger: this.trigger
+                    });
+                } else if(adata in this.backend.generics) {
+                    var name = adata;
+                    if(this.backend.generics[adata].is_folder) {
+                        name += '/' + this.filter[adata];
+                    }
+                    saves.push({
+                        mode: 'get-and-grant',
+                        to: this.id_to,
+                        name: adata,
+                        real_name: name,
+                        until: this.expire_epoch,
+                        trigger: this.trigger
                     });
                 }
-            });
-            grant = new Promise(function(resolve, reject) {
-                var promises: Promise[] = [];
-                self.data_list.forEach(function(adata) {
-                    if(adata in self.backend.generics && ((!(adata in self.filter) && !(adata in self.backend.profile.data)) || (adata in self.filter && self.filter[adata] == '/new'))) {
-                        if(!!self.backend.generics[adata].json_keys) {
-                            var ret = {};
-                            for(var i = 0; i < self.backend.generics[adata].json_keys.length; i++) {
-                                ret[self.backend.generics[adata].json_keys[i]] = self.new_datas[adata][self.backend.generics[adata].json_keys[i]];
-                            }
-                            self.new_data[adata] = JSON.stringify(ret);
-                        }
-                        if(self.backend.generics[adata].is_dated) {
-                            self.new_data[adata] = JSON.stringify([{
-                                value: self.new_data[adata],
-                                from: 0
-                            }]);
-                        }
-                        var name = adata;
-                        if(self.backend.generics[adata].is_folder) {
-                            name += '/' + self.new_name[adata];
-                        }
-                        self.dataservice.newData(name, self.new_data[adata], self.backend.generics[adata].is_dated).then(function(data) {
-                            promises.push(self.dataservice.grantVault(self.id_to, adata, name, self.new_data[adata], self.expire_epoch, self.trigger));
-                        }, function(e) {
-                            self.notif.error(self.translate.instant('error'), self.translate.instant('account.err'));
-                        });
-                    } else if(adata in self.backend.generics) {
-                        var name = adata;
-                        if(self.backend.generics[adata].is_folder) {
-                            name += '/' + self.filter[adata];
-                        }
-                        self.backend.getData(self.backend.profile.data[name].id).then(function(data) {
-                            self.backend.decryptAES(self.backend.str2arr(data.encr_data), self.dataservice.workerMgt(false, function(got) {
-                                promises.push(self.dataservice.grantVault(self.id_to, adata, name, got, self.expire_epoch, self.trigger));
-                            }));
-                        }, function(e) {
-                            self.notif.error(self.translate.instant('error'), self.translate.instant('account.err'));
-                        });
-                    }
-                });
-                Promise.all(promises).then(function() {
-                    resolve();
-                }, function(e) {
-                    reject(e);
-                });
-            });
-            Promise.all([acc, grant]).then(function() {
+            }
+            this.process(saves).then(function() {
                 if(self.with_account == 'flow') {
                     var arr = self.return_url_ok.split('/');
                     arr.shift();
@@ -283,6 +290,64 @@ export class Account implements OnInit, OnDestroy {
         } else {
             window.location.href = self.return_url_deny;
         }
+    }
+
+    /**
+     * Deals with grantings, etc.
+     * @function process
+     * @private
+     * @param {Object[]} array Tasks.
+     * @return {Promise} When done.
+     */
+    private process(array: any[]): Promise {
+        var self = this, index = 0;
+        return new Promise(function(resolve, reject) {
+            function next() {
+                if(index < array.length) {
+                    var work = array[index];
+                    index++;
+                    switch(work.mode) {
+                        case 'new':
+                            self.dataservice.newData(work.name, work.data, work.is_dated, work.force).then(function() {
+                                next();
+                            }, function(e) {
+                                reject(e);
+                            });
+                            break;
+                        case 'grant':
+                            self.dataservice.grantVault(work.to, work.name, work.real_name, work.data, work.until, work.trigger).then(function() {
+                                next();
+                            }, function(e) {
+                                reject(e);
+                            });
+                            break;
+                        case 'get-and-grant':
+                            self.backend.getData(self.backend.profile.data[work.real_name].id).then(function(data) {
+                                self.backend.decryptAES(self.backend.str2arr(data.encr_data), self.dataservice.workerMgt(false, function(got) {
+                                    array.push({
+                                        mode: 'grant',
+                                        data: got,
+                                        to: work.to,
+                                        name: work.name,
+                                        real_name: work.real_name,
+                                        until: work.until,
+                                        trigger: work.trigger
+                                    });
+                                    next();
+                                }));
+                            }, function(e) {
+                                reject(e);
+                            });
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    resolve();
+                }
+            }
+            next();
+        });
     }
 
     /**

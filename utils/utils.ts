@@ -8,6 +8,8 @@
 declare var require: any
 var querystring = require('querystring');
 var https = require('https');
+var RSA = require('node-rsa');
+var constants = require('constants');
 var strings = {
     en: require('./i18n/en.json'),
     fr: require('./i18n/fr.json')
@@ -161,6 +163,77 @@ export function arr2str(arr: number[]): string {
         result += String.fromCharCode(arr[i]);
     }
     return result;
+}
+
+/**
+ * Turns a string to an array of numbers.
+ * @function str2arr
+ * @public
+ * @param {String} str String.
+ * @return {Number[]} Array.
+ */
+export function str2arr(str: string): number[] {
+    var result: number[] = [];
+    for (var i = 0; i < str.length; i++) {
+        result.push(parseInt(str.charCodeAt(i).toString(10)));
+    }
+    return result;
+}
+
+/**
+ * Unpads for PKCS1type2
+ * @function pkcs1unpad2
+ * @public
+ * @param {Number[]} b Data.
+ * @param {Number} k Number of bits in key.
+ * @return {Number[]} Unpadded.
+ */
+export function pkcs1unpad2(b, k) {
+    var i = 0;
+    var n = (k + 7) >> 3;
+    while(i < b.length && b[i] == 0)
+        ++i;
+    if(b[i] != 2)
+        return null;
+    ++i;
+    while(b[i] != 0)
+        if(++i >= b.length)
+            return null;
+    var ret = '';
+    while(++i < b.length) {
+        var c = b[i] & 255;
+        if(c < 128) {
+            ret += String.fromCharCode(c);
+        } else if((c > 191) && (c < 224)) {
+            ret += String.fromCharCode(((c & 31) << 6) | (b[i+1] & 63));
+            ++i;
+        } else {
+            ret += String.fromCharCode(((c & 15) << 12) | ((b[i+1] & 63) << 6) | (b[i+2] & 63));
+            i += 2;
+        }
+    }
+    return str2arr(ret);
+}
+
+/**
+ * Decrypt an AES key using RSA.
+ * @function decryptRSA
+ * @public
+ * @param {String} Encrypted data.
+ * @param {String} rsa_key Key.
+ * @return {Bytes} Decrypted data, we use AES keys.
+ */
+export function decryptRSA(data: string, rsa_key: string): number[] {
+    var dec = new RSA(
+        rsa_key, 'pkcs1-private-pem', {
+            encryptionScheme: {
+                scheme: 'pkcs1',
+                padding: constants.RSA_NO_PADDING
+            }
+        }
+    );
+    var arr = dec.decrypt(data);
+    return pkcs1unpad2(arr, 4096);
 }
 
 /**

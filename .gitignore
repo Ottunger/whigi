@@ -2,7 +2,7 @@
 /.vscode
 /protoc
 
-/common/*.js
+/common/Datasource.js
 /common/models/*.js
 /common/cdnize/Uploader.js
 /common/cdnize/Downloader.js

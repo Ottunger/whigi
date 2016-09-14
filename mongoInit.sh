@@ -4,8 +4,8 @@ db.createUser({user:'whigiuser', pwd:'sorryMeND3dIoKwR',roles:[{role:'userAdmin'
 
 db.users.update({_id: 'whigi-restore'}, {
    _id: 'whigi-restore',
-   password: '34f1a33e301c1794825aec48fca17eda7e0ec20d717e1dce259b509a9bf770af',
-   salt: 'fb6504919b63efd8204ca74095a8c49a8faf4260a65503d7454c997276ad98ca',
+   password: 'fdf0d8ca0d28574a62e42d81afdb15d1e171386c3438fce633286cde48cf1818',
+   salt: 'UpzkuVtj8rlz2ZBmJtNHZbWRtiDNWnHGlNTVRJoCymvvg8mnE4zMt9Uukj8R8MKQ',
    data: {},
    shared_with_me: {},
    encr_master_key: [43, 190, 248, 102, 10, 136, 210, 184, 123, 191, 147, 15, 241, 190, 157, 194, 23, 46, 193, 135, 9, 182, 132, 235, 193, 177, 114, 132, 69, 34, 22, 227],
@@ -18,8 +18,8 @@ db.users.update({_id: 'whigi-restore'}, {
 }, {upsert: true})
 db.users.update({_id: 'whigi-giveaway'}, {
    _id: 'whigi-giveaway',
-   password: '34f1a33e301c1794825aec48fca17eda7e0ec20d717e1dce259b509a9bf770af',
-   salt: 'fb6504919b63efd8204ca74095a8c49a8faf4260a65503d7454c997276ad98ca',
+   password: 'fdf0d8ca0d28574a62e42d81afdb15d1e171386c3438fce633286cde48cf1818',
+   salt: 'UpzkuVtj8rlz2ZBmJtNHZbWRtiDNWnHGlNTVRJoCymvvg8mnE4zMt9Uukj8R8MKQ',
    data: {},
    shared_with_me: {},
    encr_master_key: [43, 190, 248, 102, 10, 136, 210, 184, 123, 191, 147, 15, 241, 190, 157, 194, 23, 46, 193, 135, 9, 182, 132, 235, 193, 177, 114, 132, 69, 34, 22, 227],

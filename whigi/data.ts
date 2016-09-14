@@ -160,7 +160,7 @@ export function regVault(req, res) {
                     last_access: 0,
                     expire_epoch: got.expire_epoch,
                     trigger: got.trigger.replace(/^http:\/\//, '').replace(/^https:\/\//, ''),
-                    is_dated: req.user.data[got.data_name].is_dated,
+                    is_dated: req.user.data[got.real_name].is_dated,
                     real_name: got.real_name
                 }, db);
                 db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {

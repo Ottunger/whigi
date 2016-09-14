@@ -10,7 +10,6 @@ var ndm = require('nodemailer');
 var https = require('https');
 var hash = require('js-sha256');
 var aes = require('aes-js');
-var RSA = require('node-rsa');
 var fs = require('fs');
 var sys = require('sys')
 var exec = require('child_process').exec;
@@ -76,35 +75,6 @@ function whigi(method: string, path: string, data?: any): Promise {
 }
 
 /**
- * Turns a string to an array of numbers.
- * @function str2arr
- * @public
- * @param {String} str String.
- * @return {Number[]} Array.
- */
-function str2arr(str: string): number[] {
-    var result: number[] = [];
-    for (var i = 0; i < str.length; i++) {
-        result.push(parseInt(str.charCodeAt(i).toString(10)));
-    }
-    return result;
-}
-
-/**
- * Decrypt an AES key using RSA.
- * @function decryptRSA
- * @public
- * @param {String} Encrypted data.
- * @param {String} rsa_key Key.
- * @return {Bytes} Decrypted data, we use AES keys.
- */
-function decryptRSA(data: string, rsa_key: string): number[] {console.log(rsa_key);
-    var dec = new RSA();
-    dec.setPrivateKey(rsa_key);
-    return str2arr(dec.decrypt(data));
-}
-
-/**
  * Decrypt a string using master_key in AES.
  * @function decryptAES
  * @public
@@ -113,7 +83,7 @@ function decryptRSA(data: string, rsa_key: string): number[] {console.log(rsa_ke
  * @return {String} Result.
  */
 function decryptAES(data: string, key: number[]): string {
-    return aes.util.convertBytesToString(aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(str2arr(data)));
+    return aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(utils.str2arr(data)));
 }
 
 /**
@@ -129,8 +99,8 @@ function decryptVault(profile: any, user: string, name: string): Promise {
     return new Promise(function(resolve, reject) {
         if(!!profile.shared_with_me[user] && !!profile.shared_with_me[user][name]) {
             whigi('GET', '/api/v1/vault/' + profile.shared_with_me[user][name]).then(function(vault) {
-                var aesKey: number[] = decryptRSA(vault.aes_crypted_shared_pub, rsa_key);
-                vault.decr_data = decryptAES(vault.encr_data, aesKey);
+                var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, rsa_key);
+                vault.decr_data = decryptAES(vault.data_crypted_aes, aesKey);
                 resolve(vault);
             }, function(e) {
                 reject(e);
@@ -166,23 +136,28 @@ export function create(req, res) {
 
     whigi('GET', '/api/v1/profile').then(function(user) {
         if(rsa_key == '') {
-            var key = utils.toBytes(hash.sha256(require('./password.json').pwd + user.salt));
-            var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
-            var master_key = decrypter.decrypt(user.encr_master_key);
-            decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-            rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key));
+            try {
+                var key = utils.toBytes(hash.sha256(require('./password.json').pwd + user.salt));
+                var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
+                var master_key = Array.from(decrypter.decrypt(user.encr_master_key));
+                decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+                rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key));
+            } catch(e) {
+                console.log('Cannot decrypt our keys.');
+                res.redirect('/error.html');
+            }
         }
 
         whigi('GET', '/api/v1/profile/data').then(function(data) {
             user.data = data.data;
             user.shared_with_me = data.shared_with_me;
             decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
-                var res = new Buffer(response, 'base64').toString('ascii');console.log(res);
-                var nc = decryptAES(res, utils.toBytes(vault.decr_data));console.log(nc);
-                if(nc == req.session.challenge) {
+                var res = new Buffer(response, 'base64').toString();
+                var nc = decryptAES(res, utils.toBytes(vault.decr_data));
+                if(!!req.session && nc == req.session.challenge) {
                     var httpport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
                     var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
-                    decryptVault(user, id, 'profile/email').then(function(vault2) {console.log("here");
+                    decryptVault(user, id, 'profile/email').then(function(vault2) {
                         var email = vault2.decr_data;
                         fs.writeFile('/etc/nginx/sites-available/' + id, `
                             server {
@@ -209,8 +184,9 @@ export function create(req, res) {
                                             port_in_redirect on;
                                     }
                             }
-                        `, function(e) {console.log("here");
+                        `, function(e) {
                             if(e) {
+                                console.log('Cannot write file.');
                                 res.redirect('/error.html');
                             } else {
                                 fs.writeFile('/etc/apache2/sites-available/' + id + '.conf', `
@@ -233,6 +209,7 @@ export function create(req, res) {
                                     </VirtualHost>
                                 `, function(e) {
                                     if(e) {
+                                        console.log('Cannot write file.');
                                         res.redirect('/error.html');
                                     } else {
                                         fs.writeFile('/home/gregoire/wordpress/wp-config.php', `
@@ -258,6 +235,7 @@ export function create(req, res) {
                                             require_once(ABSPATH . 'wp-settings.php');
                                         `, function(e) {
                                             if(e) {
+                                                console.log('Cannot write file.');
                                                 res.redirect('/error.html');
                                             } else {
                                                 exec(`
@@ -277,6 +255,7 @@ export function create(req, res) {
                                                     wp --path=/var/www/` + id + ` option update whigi_whigi_id ` + id + `
                                                 `, function(err, stdout, stderr) {
                                                     if(err) {
+                                                        console.log('Cannot complete OPs.');
                                                         res.redirect('/error.html');
                                                     }
                                                     res.redirect('/success.html');
@@ -288,18 +267,23 @@ export function create(req, res) {
                             }
                         });
                     }, function(e) {
+                        console.log('Cannot read email.');
                         res.redirect('/error.html');
                     });
                 } else {
+                    console.log('Challenge was ' + req.session.challenge + ' but read ' + nc + ' for user ' + id + '.');
                     res.redirect('/error.html');
                 }
             }, function(e) {
+                console.log('Cannot read response.');
                 res.redirect('/error.html');
             });
         }, function(e) {
+            console.log('Cannot read data.');
             res.redirect('/error.html');
         });
     }, function(e) {
+        console.log('Cannot read profile.');
         res.redirect('/error.html');
     });
 }
