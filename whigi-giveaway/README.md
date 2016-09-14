@@ -10,8 +10,12 @@ Of course, you will need to do a little bit of setup:
 - This package expects to be installed at whigi2-giveaway.envict.com. It also expects Whigi to be available at whigi2-demo.envict.com.
 - Add php7 repo: sudo apt-get install python-software-properties && sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php && sudo apt-get update
 - Install apache2 mysql-server mysql-client php7.0-cli php7.0-common libapache2-mod-php7.0 php7.0 php7.0-mysql php7.0-fpm php7.0-curl php7.0-gd php7.0-bz2 php7.0-mbstring php7.0-xml [using apt-get]
-- When installing mongo, set the root password to be 'api', as whigi-giveaway expects.
+- When installing mysql, set the root password to be 'api', as whigi-giveaway expects.
 - Install mongo database .
+  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+  - echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+  - sudo apt-get update
+  - sudo apt-get install -y mongodb-org
 - Using mysql, create a wordpress user and a wordpress database
   - CREATE USER 'wpshit'@'localhost' IDENTIFIED BY 'shitty';
   - GRANT ALL PRIVILEGES ON * . * TO 'wpshit'@'localhost';
@@ -20,12 +24,12 @@ Of course, you will need to do a little bit of setup:
 - Set php7 modules for apache: sudo a2enmod proxy_fcgi setenvif && sudo a2enconf php7.0-fpm && sudo service apache2 reload
 - Load ssl module: sudo a2enmod ssl
 - Download the zip archive of wordpress, and extract its contents to /home/gregoire/wordpress.
-- Clone this repo, and copy the plugins from clients/whigi-wp and clients/whigi-s2 to /home/gregoire/wordpress/wp-content/plugins
+- Clone this repo, and copy the plugins from clients/whigi-wp and clients/whigi-wp-s2 to /home/gregoire/wordpress/wp-content/plugins
 
 - Put the private key and certificate file from \*.envict.com to /home/gregoire folder.
 - You should install wp-cli and make sure that it is available as 'wp' from command line.
 
 - Start this website:
   - Build all whigi: npm run build
-  - Run the API server: npm run whigi-giveaway
+  - Run the API server: nohup npm run whigi-giveaway &
   - Start serving requests: npm run serve-giveaway

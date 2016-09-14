@@ -184,7 +184,7 @@ export function create(req, res) {
                         fs.writeFile('/etc/nginx/sites-available/' + id, `
                             server {
                                     listen 80;
-                                    server_name  ` + id + `.whigis.envict.com;
+                                    server_name  ` + id + `-whigimembers.envict.com;
                                     location / {
                                             proxy_pass      $scheme://localhost:` + httpport + `;
                                             proxy_set_header    Host            $host;
@@ -195,7 +195,7 @@ export function create(req, res) {
                             }
                             server {
                                     listen 443;
-                                    server_name  ` + id + `.whigis.envict.com;
+                                    server_name  ` + id + `-whigimembers.envict.com;
                                     error_log /home/gregoire/nginx.err;
                                     access_log  /home/gregoire/nginx.log;
                                     location / {
@@ -212,7 +212,7 @@ export function create(req, res) {
                             } else {
                                 fs.writeFile('/etc/apache2/sites-available/' + id + '.conf', `
                                     <VirtualHost *:` + httpport + `>
-                                        ServerName ` + id + `.whigis.envict.com
+                                        ServerName ` + id + `-whigimembers.envict.com
                                         ServerAdmin ` + email + `
                                         DocumentRoot /var/www/` + id + `
                                         ErrorLog \${APACHE_LOG_DIR}/error.log
@@ -222,7 +222,7 @@ export function create(req, res) {
                                         SSLEngine On
                                         SSLCertificateFile /home/gregoire/envict.bundle.crt
                                         SSLCertificateKeyFile /home/gregoire/envict.com.key
-                                        ServerName ` + id + `.whigis.envict.com
+                                        ServerName ` + id + `-whigimembers.envict.com
                                         ServerAdmin ` + email + `
                                         DocumentRoot /var/www/` + id + `
                                         ErrorLog \${APACHE_LOG_DIR}/error.log
@@ -258,13 +258,15 @@ export function create(req, res) {
                                                 res.redirect('/error.html');
                                             } else {
                                                 exec(`
-                                                    mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + id + `;"
+                                                    mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + id + `;" &&
+                                                    mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + id + `;" &&
                                                     ln -s /etc/nginx/sites-available/` + id + ` /etc/nginx/sites-enabled/` + id + ` &&
                                                     service nginx restart &&
                                                     aen2site /etc/apache2/sites-available/` + id + ` &&
                                                     service apache2 restart &&
                                                     mkdir -p /var/www/` + id + ` &&
-                                                    cp -r /home/gregoire/wordpress/* /var/www/` + id + `/
+                                                    rm -rf /var/www/` + id + `/ &&
+                                                    cp -r /home/gregoire/wordpress/* /var/www/` + id + `/ &&
                                                     wp --path=/var/www/` + id + ` user create ` + id + ` ` + email + ` --role=administrator &&
                                                     wp --path=/var/www/` + id + ` plugin activate whigi-wp s2member &&
                                                     wp --path=/var/www/` + id + ` option update whigi_whigi_id ` + id + `

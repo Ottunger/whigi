@@ -4,12 +4,24 @@ The clients should log in using generated token, for ease of unlogging all other
 The clients that remember a token should also remember a combination hash(password + salt), that is able to decrypt the encrypted master key.
 Remember that clients are authenticated using a match on hash(hash(password) + salt).
 
-# Installation
-All Whigi instances run over HTTPS. Whigi-restore and Whigi-RLI are their own HTTPS providers, whereas Whigi is behinf nginx.
+# Projects
+Whigi repo is actually a collection of projects working for the Whigi project initially. Larger 3rd parties shall start a new project on their own.
+- Whigi @whigi: Manages the backend of the storage solution
+- Whigi-giveaway @whigi-giveaway: Manages a small website to grant people access to free WP instances, populated for Whigi.
+- Whigi-restore @whigi-restore: Manages a small 3rd party to restore user's passwords.
+- Whigi-RLI @whigi-rli: Network nodes to provide Whigi redundancy.
+- Giveaway @clients/giveaway: Small client that asks for WP instance.
+- Standalone @clients/standalone: Main whigi client that can update users and provide services nearly like OAuth.
+- Whigi-WP-s2Member @clients/whigi-wp-s2: WP plugin to allow membership management in a Whigi-enhanced WP.
+- Whigi-WP @clients/whigi-wp: WP plugin to enhance WP with Whigi services.
+
+
+# Installation of Whigi and Standalone client
+All Whigi instances run over HTTPS. Whigi-restore and Whigi-RLI are their own HTTPS providers, whereas Whigi and Whigi-giveaway are behind nginx.
 - Clone the gitlab repository.
 - Make sure to have installed node=4.7.X, mongo=3.2.X, nginx>=1.6.X.
 - Modify the nginx.conf package to specify where you cloned your repo and the path to logs. Be careful where the HTTPS endpoint is! Especially if running several nginx in chain.
-- Modify package.json, the script "whigi", to specify the hostname of Whigi-restore to Whigi and vice versa, if theyr do not both run on the same machine.
+- Modify package.json, the script "whigi", to specify the hostname of Whigi-restore to Whigi and vice versa, if they do not both run on the same machine.
 - Modify clients/standalone/app/app.service.ts to specify the backend hostname.
 - Install npm dependencies: npm install && cd clients/standalone && npm install && cd ../..
 - Compile all (do not worry about non finding Promise, Buffer, etc): npm run build && cd clients/standalone && npm run build_unix && cd ../..
@@ -18,7 +30,7 @@ All Whigi instances run over HTTPS. Whigi-restore and Whigi-RLI are their own HT
 - Copy conf file and restart nginx: npm run serve
 - Launch Whigi-restore and Whigi-RLI if desired. They cannot run on the machine as they will listen on port 443!: nohup npm run whigi-restore &; nohup npm run whigi-rli &
 
-# See CHANGELOG for a description fof API endpoints.
+# See CHANGELOG for a description of API endpoints.
 A greater description is given in the documents found in the doc folder.
 Please make sure to update password when you recover it (create a client that does so).
 
@@ -73,8 +85,9 @@ Then browse to your gitlab server usring HTTP to set everything up :)
    - Users are stored in a table with their basic profile info and a data array of all id's of their own infos in documents.
    - Documents are stored in another table, alongside.
    - Refer to the UML diagram for more information.
+- Whigi-giveaway does not need to know about what is behind either, as the files are anyhow removed on override.
 - Whigi-restore is the simpliest provider, and as such, does not even have a database!
-- Whigi-RLI hold knowledge in RAM, as it is soft-stated.
+- Whigi-RLI holds knowledge in RAM, as it is soft-stated.
 
 # To have a possibly growing website
 Whigi is based on a CDN for data architecture, or Data-Grid.
