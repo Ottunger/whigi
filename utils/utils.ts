@@ -188,7 +188,7 @@ export function str2arr(str: string): number[] {
  * @param {Number} k Number of bits in key.
  * @return {Number[]} Unpadded.
  */
-export function pkcs1unpad2(b, k) {
+export function pkcs1unpad2(b: number[], k: number): number[] {
     var i = 0;
     var n = (k + 7) >> 3;
     while(i < b.length && b[i] == 0)

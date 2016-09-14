@@ -60,12 +60,12 @@ connect(function(e) {
 
     //Create the express application
     var app = express();
-    app.set('trust proxy', 1);
+    app.set('trust proxy', 2);
     app.use(sess({
         secret: require('./password.json').pwd,
-        resave: false,
+        resave: true,
         saveUninitialized: true,
-        cookie: {secure: true}
+        cookie: {httpOnly: true, secure: false}
     }));
     app.use(helmet());
     app.use(body.json({limit: '5000mb'}));

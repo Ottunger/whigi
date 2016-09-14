@@ -174,8 +174,6 @@ export function regVault(req, res) {
                             sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
                             if(v.data_name in sharee.shared_with_me[req.user._id]) {
                                 db.retrieveVault(sharee.shared_with_me[req.user._id][v.data_name]).then(function(ret: Vault) {
-                                    delete req.user.data[ret.real_name].shared_to[v.shared_to_id];
-                                    req.user.persist();
                                     ret.unlink();
                                 });
                             }
