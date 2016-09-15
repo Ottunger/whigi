@@ -71,9 +71,7 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 			//Parse the JSON response
 			$result_obj = json_decode($result, true);
 			if(isset($result_obj['data_crypted_aes']) && isset($result_obj['aes_crypted_shared_pub'])) {
-				trigger_error(base64_decode($result_obj['aes_crypted_shared_pub']), E_USER_WARNING);
 				openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, get_option('whigi_rsa_pri_key'), OPENSSL_NO_PADDING);
-				trigger_error($aes_key, E_USER_WARNING);
 				$aes_key = WHIGI::pkcs1unpad2($aes_key);
 				$encrypter = implode(array_map("chr", WHIGI::toBytes(
 					openssl_decrypt(mb_convert_encoding($result_obj['data_crypted_aes'], 'iso-8859-1', 'utf8'), 'AES-256-CTR', $aes_key, true))));
