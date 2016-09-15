@@ -154,7 +154,7 @@ export function create(req, res) {
             user.shared_with_me = data.shared_with_me;
             decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
                 var resp: string = utils.atob(response);
-                var nc = decryptAES(resp, utils.toBytes(vault.decr_data));
+                var nc = new Buffer(decryptAES(resp, utils.toBytes(vault.decr_data))).toString('utf8');
                 if(nc === req.session.challenge) {
                     var httpport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
                     var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
@@ -257,6 +257,7 @@ export function create(req, res) {
                                                     rm -rf /var/www/` + lid + ` &&
                                                     mkdir /var/www/` + lid + ` &&
                                                     cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
+                                                    chmod -R 777 /var/www/` + lid + `/ &&
                                                     wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `-whigimembers.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + id + ` --skip-email &&
                                                     wp --allow-root --path=/var/www/` + lid + ` plugin activate whigi-wp whigi-wp-s2 wp-force-https
                                                 `, function(err, stdout, stderr) {
@@ -266,6 +267,11 @@ export function create(req, res) {
                                                     } else {
                                                         res.redirect('/success.html');
                                                         exec('service nginx force-reload');
+                                                        setTimeout(function() {
+                                                            exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
+                                                                exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp');
+                                                            });
+                                                        }, 5000);
                                                     }
                                                 });
                                             }

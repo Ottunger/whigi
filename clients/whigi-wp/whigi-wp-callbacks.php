@@ -76,13 +76,13 @@ if(!CLIENT_ID || !CLIENT_SECRET) {
 				$encrypter = implode(array_map("chr", WHIGI::toBytes(
 					openssl_decrypt(mb_convert_encoding($result_obj['data_crypted_aes'], 'iso-8859-1', 'utf8'), 'AES-256-CTR', $aes_key, true))));
 				$encr_challenge = openssl_encrypt($_SESSION['WHIGI']['STATE'], 'AES-256-CTR', $encrypter, true);
-				if(unpack("C*", $encr_challenge) === unpack("C*", base64_decode($_GET['response']))) {
+				if(count(array_diff(unpack('C*', base64_encode($encr_challenge)), unpack('C*', $_GET['response']))) < 3) {
 					$this->whigi_login_user(array(
 						"_id" => $_GET['user']
 					));
 				} else {
 					//Cannot log in.
-					$this->whigi_end_login("Sorry, we couldn't log you in. We decrypted " . $decr_response . " but the challenge was " . $_SESSION['WHIGI']['STATE']);
+					$this->whigi_end_login("Sorry, we couldn't log you in. We decrypted '" . $decr_response . "' but the challenge was '" . $_SESSION['WHIGI']['STATE'] . "'");
 				}
 			} else {
 				//Cannot log in.
