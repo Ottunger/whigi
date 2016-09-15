@@ -56,6 +56,9 @@ enableProdMode();
         </form>
         <br /><br />
 
+        <merge-account></merge-account>
+        <br /><br />
+
         <form class="form-signin">
             <div class="heading">
                 <h3 class="form-signin-heading">{{ 'profile.revoke' | translate }}</h3>

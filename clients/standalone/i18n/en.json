@@ -151,6 +151,15 @@
    "userinfo.changed": "Data updated",
    "userinfo.notChanged": "Data could not be updated",
 
+   "merge.title": "Merge an account",
+   "merge.login": "Username",
+   "merge.pass": "Password",
+   "merge.merge": "Merge (Data shared to the other account will not be transferred!)",
+   "merge.noMerge": "Merge not 100% completed",
+   "merge.merged": "Account integrated",
+   "merge.erase": "Keep this data rather than mine",
+   "merge.relog": "Your account needs to relog now.",
+
    "generics.title": "Create here your generic data",
    "generics.regexp": "Your input does not match expected format",
    "generics.descr": "Description",

@@ -151,6 +151,15 @@
    "userinfo.changed": "Données mises à jour",
    "userinfo.notChanged": "Données n'ont pu être mises à jour",
 
+   "merge.title": "Fusionner un compte",
+   "merge.login": "Nom de compte",
+   "merge.pass": "Mot de passe",
+   "merge.merge": "Fusionner (Les données partagées à l'autre compte ne seront pas transférées!)",
+   "merge.noMerge": "Fusion non complétée à 100%",
+   "merge.merged": "Compte intégré",
+   "merge.erase": "Garder la copie distante de préférence",
+   "merge.relog": "Vous devez vous reconnecter",
+
    "generics.title": "Créez ici vos données génériques",
    "generics.regexp": "Votre entrée ne valide pas le format attendu",
    "generics.descr": "Description",
