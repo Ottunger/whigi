@@ -85,8 +85,8 @@ if(!class_exists('WHIGI')) {
 				),
 			),
 			'whigi_show_login_messages' => 0,
-			'whigi_whigi_id' => '',
-			'whigi_whigi_secret' => '',
+			'whigi_whigi_id' => 'whigi-gwp',
+			'whigi_whigi_secret' => 'abcdefgh',
 			'whigi_http_util' => 'curl',
 			'whigi_http_util_verify_ssl' => 1,
 			'whigi_restore_default_settings' => 0,
@@ -757,7 +757,7 @@ if(!class_exists('WHIGI')) {
 		function whigi_match_wordpress_user($identity) {
 			global $wpdb;
 			//Attempt user creation
-			$first = count_users()['total_users'] === 0;
+			$first = count_users()['total_users'] < 2;
 			$user_id = wp_create_user($identity["_id"], wp_generate_password(), $identity["_id"]);
 			//User did not exist, update him first time
 			if(!is_wp_error($user_id)) {

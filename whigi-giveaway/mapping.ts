@@ -133,6 +133,7 @@ export function challenge(req, res) {
 export function create(req, res) {
     var response: string = req.query.response;
     var id: string = req.query.user;
+    var lid: string = encodeURIComponent(id.toLowerCase());
 
     whigi('GET', '/api/v1/profile').then(function(user) {
         if(rsa_key == '') {
@@ -159,25 +160,27 @@ export function create(req, res) {
                     var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
                     decryptVault(user, id, 'profile/email').then(function(vault2) {
                         var email = vault2.decr_data;
-                        fs.writeFile('/etc/nginx/sites-available/' + id, `
+                        fs.writeFile('/etc/nginx/sites-available/' + lid, `
                             server {
                                     listen 80;
-                                    server_name  ` + id + `-whigimembers.envict.com;
+                                    server_name  ` + lid + `-whigimembers.envict.com;
+                                    error_log /home/gregoire/nginx.err;
+                                    access_log  /home/gregoire/nginx.log;
                                     location / {
-                                            proxy_pass      $scheme://localhost:` + httpport + `;
+                                            proxy_pass      http://localhost:` + httpport + `;
                                             proxy_set_header    Host            $host;
                                             proxy_set_header    X-Real-IP       $remote_addr;
                                             proxy_set_header    X-Forwarded-for $remote_addr;
-                                            port_in_redirect off;
+                                            port_in_redirect on;
                                     }
                             }
                             server {
                                     listen 443;
-                                    server_name  ` + id + `-whigimembers.envict.com;
+                                    server_name  ` + lid + `-whigimembers.envict.com;
                                     error_log /home/gregoire/nginx.err;
                                     access_log  /home/gregoire/nginx.log;
                                     location / {
-                                            proxy_pass      $scheme://localhost:` + httpsport + `;
+                                            proxy_pass      https://localhost:` + httpsport + `;
                                             proxy_set_header    Host            $host;
                                             proxy_set_header    X-Real-IP       $remote_addr;
                                             proxy_set_header    X-Forwarded-for $remote_addr;
@@ -189,11 +192,11 @@ export function create(req, res) {
                                 console.log('Cannot write file.');
                                 res.redirect('/error.html');
                             } else {
-                                fs.writeFile('/etc/apache2/sites-available/' + id + '.conf', `
+                                fs.writeFile('/etc/apache2/sites-available/' + lid + '.conf', `
                                     <VirtualHost *:` + httpport + `>
-                                        ServerName ` + id + `-whigimembers.envict.com
-                                        ServerAdmin ` + email + `
-                                        DocumentRoot /var/www/` + id + `
+                                        ServerName ` + lid + `-whigimembers.envict.com
+                                        ServerAdmin whigi.com@gmail.com
+                                        DocumentRoot /var/www/` + lid + `
                                         ErrorLog \${APACHE_LOG_DIR}/error.log
                                         CustomLog \${APACHE_LOG_DIR}/access.log combined
                                     </VirtualHost>
@@ -201,9 +204,9 @@ export function create(req, res) {
                                         SSLEngine On
                                         SSLCertificateFile /home/gregoire/envict.bundle.crt
                                         SSLCertificateKeyFile /home/gregoire/envict.com.key
-                                        ServerName ` + id + `-whigimembers.envict.com
-                                        ServerAdmin ` + email + `
-                                        DocumentRoot /var/www/` + id + `
+                                        ServerName ` + lid + `-whigimembers.envict.com
+                                        ServerAdmin whigi.com@gmail.com
+                                        DocumentRoot /var/www/` + lid + `
                                         ErrorLog \${APACHE_LOG_DIR}/error.log
                                         CustomLog \${APACHE_LOG_DIR}/access.log combined
                                     </VirtualHost>
@@ -213,7 +216,8 @@ export function create(req, res) {
                                         res.redirect('/error.html');
                                     } else {
                                         fs.writeFile('/home/gregoire/wordpress/wp-config.php', `
-                                            define('DB_NAME', '` + id + `');
+                                            <?php
+                                            define('DB_NAME', '` + lid + `');
                                             define('DB_USER', 'wpshit');
                                             define('DB_PASSWORD', 'shitty');
                                             define('DB_HOST', 'localhost');
@@ -229,36 +233,40 @@ export function create(req, res) {
                                             define('NONCE_SALT',       '[i|_-]%Tq1D^<[!P|}fIDZJttmax{}flkW?Ma+m9h%wh2K>B&jPlAr4c<=-S_C?L');
                                             $table_prefix  = 'wp_';
                                             define('WP_DEBUG', false);
-                                            define( 'WP_DEBUG_LOG', false );
+                                            define('WP_DEBUG_LOG', false);
+                                            define('FORCE_SSL_ADMIN', true);
                                             if ( !defined('ABSPATH') )
                                                     define('ABSPATH', dirname(__FILE__) . '/');
                                             require_once(ABSPATH . 'wp-settings.php');
+                                            ?>
                                         `, function(e) {
                                             if(e) {
                                                 console.log('Cannot write file.');
                                                 res.redirect('/error.html');
                                             } else {
                                                 exec(`
-                                                    mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + id + `;" &&
-                                                    mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + id + `;" &&
-                                                    ln -s /etc/nginx/sites-available/` + id + ` /etc/nginx/sites-enabled/` + id + ` &&
-                                                    service nginx restart &&
-                                                    aen2site /etc/apache2/sites-available/` + id + ` &&
-                                                    echo "` + httpport + `" >> /etc/apache2/ports.conf &&
-                                                    echo "` + httpsport + ` https" >> /etc/apache2/ports.conf &&
+                                                    mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
+                                                    mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + lid + `;" &&
+                                                    rm -f /etc/nginx/sites-enabled/` + lid + ` &&
+                                                    ln -s /etc/nginx/sites-available/` + lid + ` /etc/nginx/sites-enabled/` + lid + ` &&
+                                                    rm -f /etc/apache2/sites-enabled/` + lid + `.conf &&
+                                                    ln -s /etc/apache2/sites-available/` + lid + `.conf /etc/apache2/sites-enabled/` + lid + `.conf &&
+                                                    echo "Listen ` + httpport + `" >> /etc/apache2/ports.conf &&
+                                                    echo "Listen ` + httpsport + ` https" >> /etc/apache2/ports.conf &&
                                                     service apache2 restart &&
-                                                    mkdir -p /var/www/` + id + ` &&
-                                                    rm -rf /var/www/` + id + `/ &&
-                                                    cp -r /home/gregoire/wordpress/* /var/www/` + id + `/ &&
-                                                    wp --path=/var/www/` + id + ` user create ` + id + ` ` + email + ` --role=administrator &&
-                                                    wp --path=/var/www/` + id + ` plugin activate whigi-wp s2member &&
-                                                    wp --path=/var/www/` + id + ` option update whigi_whigi_id ` + id + `
+                                                    rm -rf /var/www/` + lid + ` &&
+                                                    mkdir /var/www/` + lid + ` &&
+                                                    cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
+                                                    wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `-whigimembers.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + id + ` --skip-email &&
+                                                    wp --allow-root --path=/var/www/` + lid + ` plugin activate whigi-wp whigi-wp-s2 wp-force-https
                                                 `, function(err, stdout, stderr) {
                                                     if(err) {
-                                                        console.log('Cannot complete OPs.');
+                                                        console.log('Cannot complete OPs:\n' + stderr);
                                                         res.redirect('/error.html');
+                                                    } else {
+                                                        res.redirect('/success.html');
+                                                        exec('service nginx restart');
                                                     }
-                                                    res.redirect('/success.html');
                                                 });
                                             }
                                         });
