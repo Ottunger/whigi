@@ -172,3 +172,6 @@ if (!class_exists ('c_ws_plugin__s2member_email_configs'))
 
 						return apply_filters('ws_plugin__s2member_after_email_filter', $array, get_defined_vars ());
 					}
+
+			}
+	}

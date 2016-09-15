@@ -78,30 +78,30 @@ export class Logginglight implements OnInit {
         if(this.onEnd && /end/.test(window.location.href)) {
             //Session has expired
             this.onEnd = false;
-            sessionStorage.removeItem('token');
-            sessionStorage.removeItem('key_decryption');
+            localStorage.removeItem('token');
+            localStorage.removeItem('key_decryption');
             window.setTimeout(function() {
                 self.notif.alert(self.translate.instant('error'), self.translate.instant('sessionExpired'));
             }, 1500);
         }
-        if('token' in sessionStorage) {
+        if('token' in localStorage) {
             this.backend.getProfile().then(function(profile) {
                 //Router.go...
                 self.backend.profile = profile;
                 if(!!set) {
-                    sessionStorage.setItem('key_decryption', window.sha256(self.password + profile.salt));
+                    localStorage.setItem('key_decryption', window.sha256(self.password + profile.salt));
                 }
-                if(!!localStorage.getItem('return_url') && localStorage.getItem('return_url').length > 1) {
-                    var ret = localStorage.getItem('return_url');
+                if(!!sessionStorage.getItem('return_url') && sessionStorage.getItem('return_url').length > 1) {
+                    var ret = sessionStorage.getItem('return_url');
                     ret = JSON.parse(ret);
-                    localStorage.removeItem('return_url');
+                    sessionStorage.removeItem('return_url');
                     self.router.navigate(ret);
                 } else {
-                    localStorage.removeItem('return_url');
+                    sessionStorage.removeItem('return_url');
                     self.router.navigate(['/profile']);
                 }
             }, function(e) {
-                sessionStorage.removeItem('token');
+                localStorage.removeItem('token');
             });
         }
     }
@@ -114,7 +114,7 @@ export class Logginglight implements OnInit {
     enter() {
         var self = this;
         this.backend.createToken(this.username, this.password, this.persistent).then(function(ticket) {
-            sessionStorage.setItem('token', ticket._id);
+            localStorage.setItem('token', ticket._id);
             self.ngOnInit(true);
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('login.noLogin'));

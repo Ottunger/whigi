@@ -117,7 +117,7 @@ export class Oauth implements OnInit, OnDestroy {
         var self = this;
         if(ok) {
             this.backend.createOAuth(this.for_id, this.prefix, this.token).then(function(granted) {
-                window.location.href = self.mixin(self.return_url_ok, ['token=' + granted._id, 'key_decryption=' + sessionStorage.getItem('key_decryption')]);
+                window.location.href = self.mixin(self.return_url_ok, ['token=' + granted._id, 'key_decryption=' + localStorage.getItem('key_decryption')]);
             }, function(e) {
                 window.location.href = self.mixin(self.return_url_deny, ['reason=api']);
             });

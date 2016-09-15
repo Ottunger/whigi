@@ -42,7 +42,7 @@ if(!class_exists('WHIGI')) {
 
 		//Constants used by the plugin
 		private $settings = array(
-			'whigi_login_redirect_url' => '/welcome',
+			'whigi_login_redirect_url' => '/',
 			'whigi_logout_redirect_url' => '/',
 			'whigi_whigi_host' => 'whigi2-demo.envict.com',
 			'whigi_whigi_data' => '',
@@ -93,7 +93,21 @@ if(!class_exists('WHIGI')) {
 			'whigi_delete_settings_on_uninstall' => 0,
 
 			'whigi_master_key' => '',
-			'whigi_rsa_pri_key' => '',
+			'whigi_rsa_pri_key' => '-----BEGIN RSA PRIVATE KEY-----
+MIICWwIBAAKBgQCmL1BWiJEUXOrOPAnMM6VM7Iy3mAV5hOsP1lIj/6lDzpQ3Q+7f
+PkG8jBHHoSJM3wLWNtKQMBpu0VsxFnoMIuwkVc/+vZj7nlYMBLrSqOZfY8FBSrOt
+7Xv+IvgiYgShBAG4L9bVp5ABJGcsoZnEDa1TfW2HlwoPk7sd5wmY7J6f9wIDAQAB
+AoGAHLJs6BR7IQ4OigB6HKYKdGcgwY9h2qMmSDzVQFwkqY3hsE1t0WUZyupRI6zi
+lG2qOr2KzNVRqzNB0Q81kiTxq+lIqDNVzpWVfQU7qDQ+MDDp3AmJKdsdUVLUtm1o
+TdP6M6MtjASZwezsnbx5V7Lcn+osoVEHAbVrjpFRd8LEVOECQQDYTwRmGQg1zFkc
+xzD/Lw+KeVACpQ7p9XYB4NDeswFiU8FZFY4X4knEzVXU9T2Cbj0Cn385VWcsAvv+
+1LSJ6keRAkEAxK3Blhdr9/PMrXBaV3r+tJyLqORyccaJ74FhtO6yg3rlJAvVWGX5
+Rm8vEFhVraU51zLXt2PW7TLlYGPrR5R7BwJAOdh3vq33ChwJwK5sJfH53/gtM2fc
+oyhnVH1Ani2Usyzeyen/w9daDu0yhO7Icjb0zdzFcxmpq5Voum87kJ48YQJAOeSX
+ljGgw2TNO8RVo2h97vYhmf5cvabeVVS1SQf2HgOfzWN6UkH6BUSXCu2lkq6O/wxl
+OQM3cazInf3rdK99IwJAVKYi2RLe5rflCLslT8tpZ5gQZrysTjl6h50UA7QjlHS5
+yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
+-----END RSA PRIVATE KEY-----',
 			'whigi_generics' => '',
 			'whigi_i18n_en' => '',
 			'whigi_db_prefix' => 'whigi_wp'
@@ -174,8 +188,9 @@ if(!class_exists('WHIGI')) {
 			$result_obj = json_decode($result, true);
 			update_option('whigi_master_key', base64_encode(openssl_decrypt(implode(array_map("chr", $result_obj['encr_master_key'])), 'AES-256-CTR',
 				implode(array_map("chr", WHIGI::toBytes(hash('sha256', get_option('whigi_whigi_secret') . $result_obj['salt'])))), true)), true);
-			update_option('whigi_rsa_pri_key', openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'])),
-				'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true), true);
+			$new = openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'])), 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true);
+			if(isset($new) || get_option('whigi_rsa_pri_key') == '')
+				update_option('whigi_rsa_pri_key', $new, true);
 
 			$url = "https://" . get_option('whigi_whigi_host') . "/api/v1/generics.json";
 			switch(strtolower(get_option('whigi_http_util'))) {
@@ -762,6 +777,7 @@ if(!class_exists('WHIGI')) {
 			//User did not exist, update him first time
 			if(!is_wp_error($user_id)) {
 				$wpdb->update($wpdb->users, array('user_login' => $identity["_id"], 'user_nicename' => $identity["_id"], 'display_name' => $identity["_id"]), array('ID' => $user_id));
+				do_action('user_registered', $user_id);
 			}
 
 			$user = get_userdatabylogin($identity["_id"]);
@@ -770,8 +786,6 @@ if(!class_exists('WHIGI')) {
 				$user->add_role('administrator');
 			else
 				$user->add_role('subscriber');
-
-			do_action('user_registered', $user_id);
 			return $user;
 		}
 		

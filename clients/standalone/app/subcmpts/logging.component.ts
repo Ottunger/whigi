@@ -56,16 +56,16 @@ export class Logging implements OnInit {
      */
     ngOnInit(set: boolean): void {
         var self = this;
-        if('token' in sessionStorage) {
+        if('token' in localStorage) {
             this.backend.getProfile().then(function(profile) {
                 //Router.go...
                 self.backend.profile = profile;
                 if(!!set) {
-                    sessionStorage.setItem('key_decryption', window.sha256(self.password + profile.salt));
+                    localStorage.setItem('key_decryption', window.sha256(self.password + profile.salt));
                 }
                 self.router.navigate(['/profile']);
             }, function(e) {
-                sessionStorage.removeItem('token');
+                localStorage.removeItem('token');
             });
         }
         if(this.createCaptcha) {
@@ -84,7 +84,7 @@ export class Logging implements OnInit {
     enter() {
         var self = this;
         this.backend.createToken(this.username, this.password, this.persistent).then(function(ticket) {
-            sessionStorage.setItem('token', ticket._id);
+            localStorage.setItem('token', ticket._id);
             self.ngOnInit(true);
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('login.noLogin'));
@@ -137,10 +137,10 @@ export class Logging implements OnInit {
         function complete() {
             self.backend.createUser(self.username, self.password).then(function() {
                 self.backend.createToken(self.username, self.password, false).then(function(token) {
-                    sessionStorage.setItem('token', token._id);
+                    localStorage.setItem('token', token._id);
                     self.backend.getProfile().then(function(user) {
                         self.backend.profile = user;
-                        sessionStorage.setItem('key_decryption', window.sha256(self.password + user.salt));
+                        localStorage.setItem('key_decryption', window.sha256(self.password + user.salt));
                         self.dataservice.listData().then(function() {
                             self.dataservice.newData('profile/email/restore', self.email, false, true).then(function(email) {
                                 self.dataservice.newData('profile/recup_id', self.recup_id, false, true).then(function(email) {

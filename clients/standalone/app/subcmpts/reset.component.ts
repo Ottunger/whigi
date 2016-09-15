@@ -102,10 +102,10 @@ export class Reset implements OnInit, OnDestroy {
         }
         if(this.password == this.password2) {
             this.backend.createToken(this.id, this.pwd, false).then(function(token) {
-                sessionStorage.setItem('token', token._id);
+                localStorage.setItem('token', token._id);
                 self.backend.getProfile().then(function(user) {
                     self.backend.profile = user;
-                    sessionStorage.setItem('key_decryption', window.sha256(self.pwd + user.salt));
+                    localStorage.setItem('key_decryption', window.sha256(self.pwd + user.salt));
                     self.dataservice.listData().then(function() {
                         self.backend.updateProfile(self.password, self.pwd).then(function() {
                             self.dataservice.modifyData('keys/pwd/mine1', self.password.slice(0, 4), false, self.backend.profile.data['keys/pwd/mine1'].shared_to).then(function() {

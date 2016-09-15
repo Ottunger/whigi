@@ -8,6 +8,7 @@
 declare var window: any
 import {Injectable} from '@angular/core';
 import {Headers, Http, Response} from '@angular/http';
+import {Router} from '@angular/router';
 import {NotificationsService} from 'angular2-notifications';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 import * as toPromise from 'rxjs/add/operator/toPromise';
@@ -42,8 +43,9 @@ export class Backend {
      * @param http HTTP service.
      * @param notif Notification service.
      * @param translate Translation service.
+     * @param router Routing service.
      */
-    constructor(private http: Http, private notif: NotificationsService, private translate: TranslateService) {
+    constructor(private http: Http, private notif: NotificationsService, private translate: TranslateService, private router: Router) {
         var self = this;
         this.data_loaded = false;
         this.backend(true, 'GET', {}, 'generics.json', false, false).then(function(response) {
@@ -130,7 +132,7 @@ export class Backend {
      */
     decryptMaster() {
         try {
-            var key = this.toBytes(sessionStorage.getItem('key_decryption'));
+            var key = this.toBytes(localStorage.getItem('key_decryption'));
             var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
             this.master_key = decrypter.decrypt(this.profile.encr_master_key);
 
@@ -260,7 +262,7 @@ export class Backend {
             var res = e.json() || {};
             e.msg = res.error || '';
             if('puzzle' in res) {
-                sessionStorage.setItem('puzzle', res.puzzle);
+                localStorage.setItem('puzzle', res.puzzle);
             }
         } catch(e) {}
     }
@@ -289,7 +291,7 @@ export class Backend {
         function accept(resolve, response) {
             var res = response.json();
             if('puzzle' in res) {
-                sessionStorage.setItem('puzzle', res.puzzle);
+                localStorage.setItem('puzzle', res.puzzle);
             }
             resolve(res);
         }
@@ -299,18 +301,18 @@ export class Backend {
                 self.backend(whigi, method, data, url, auth, token, puzzle, resolve, reject, num + 1);
             } else {
                 if(e.status == 401 && token) { 
-                    window.location.href = '/end/';
+                    self.router.navigate(['/end']);
                 }
                 reject(e);
             }
         }
 
         if(auth && token) {
-            headers.append('Authorization', 'Bearer ' + btoa(sessionStorage.getItem('token')));
+            headers.append('Authorization', 'Bearer ' + btoa(localStorage.getItem('token')));
         } else if(auth) {
             headers.append('Authorization', 'Basic ' + btoa(data.username + ':' + data.password));
         }
-        headers.append('Accept-Language', (('lang' in sessionStorage)? sessionStorage.getItem('lang') : 'en') + ';q=1');
+        headers.append('Accept-Language', (('lang' in localStorage)? localStorage.getItem('lang') : 'en') + ';q=1');
         dest = (whigi? this.BASE_URL : this.RESTORE_URL) + url + (puzzle? this.regPuzzle() : '');
 
         switch(method) {
@@ -378,10 +380,10 @@ export class Backend {
      */
     private regPuzzle(): string {
         var i = 0, complete;
-        if(!('puzzle' in sessionStorage))
+        if(!('puzzle' in localStorage))
             return '?puzzle=0'
         do {
-            complete = window.sha256(sessionStorage.getItem('puzzle') + i);
+            complete = window.sha256(localStorage.getItem('puzzle') + i);
             i++;
         } while(complete.charAt(0) != '0' || complete.charAt(1) != '0' || complete.charAt(2) != '0' || complete.charAt(3) != '0');
         return '?puzzle=' + (i - 1);
@@ -541,7 +543,7 @@ export class Backend {
      * @return {Promise} JSON response from backend.
      */
     removeTokens(all: boolean): Promise {
-        return this.backend(true, 'DELETE', {}, 'profile/token' + (all? '' : ('?token=' + sessionStorage.getItem('token'))), true, true);
+        return this.backend(true, 'DELETE', {}, 'profile/token' + (all? '' : ('?token=' + localStorage.getItem('token'))), true, true);
     }
 
     /**

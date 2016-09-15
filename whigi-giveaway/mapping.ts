@@ -253,7 +253,7 @@ export function create(req, res) {
                                                     ln -s /etc/apache2/sites-available/` + lid + `.conf /etc/apache2/sites-enabled/` + lid + `.conf &&
                                                     echo "Listen ` + httpport + `" >> /etc/apache2/ports.conf &&
                                                     echo "Listen ` + httpsport + ` https" >> /etc/apache2/ports.conf &&
-                                                    service apache2 restart &&
+                                                    service apache2 reload &&
                                                     rm -rf /var/www/` + lid + ` &&
                                                     mkdir /var/www/` + lid + ` &&
                                                     cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
@@ -265,7 +265,7 @@ export function create(req, res) {
                                                         res.redirect('/error.html');
                                                     } else {
                                                         res.redirect('/success.html');
-                                                        exec('service nginx restart');
+                                                        exec('service nginx force-reload');
                                                     }
                                                 });
                                             }

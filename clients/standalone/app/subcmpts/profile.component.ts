@@ -146,8 +146,8 @@ export class Profile implements OnInit {
     logout(all: boolean) {
         var self = this;
         this.backend.removeTokens(all).then(function() {
-            sessionStorage.removeItem('token');
-            sessionStorage.removeItem('key_decryption');
+            localStorage.removeItem('token');
+            localStorage.removeItem('key_decryption');
             window.location.href = '/';
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noLogout'));

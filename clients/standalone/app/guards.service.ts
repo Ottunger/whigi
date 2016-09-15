@@ -38,10 +38,10 @@ export class Profileguard implements CanActivate, CanDeactivate<Filesystem> {
      * @return {Boolean} Can go through.
      */
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption') && !!this.backend.profile)
+        if(!!localStorage.getItem('token') && !!localStorage.getItem('key_decryption') && !!this.backend.profile)
             return true;
-        if(!('return_url' in localStorage))
-            localStorage.setItem('return_url', JSON.stringify(state.url.split('/').map(window.decodeURIComponent)));
+        if(!('return_url' in sessionStorage))
+            sessionStorage.setItem('return_url', JSON.stringify(state.url.split('/').map(window.decodeURIComponent)));
         this.router.navigate(['/llight']);
         return false;
     }
@@ -89,11 +89,11 @@ export class Fullguard implements CanActivate, CanDeactivate<Dataview> {
      * @return {Boolean} Can go through.
      */
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        if(!!sessionStorage.getItem('token') && !!sessionStorage.getItem('key_decryption') && !!this.backend.profile
+        if(!!localStorage.getItem('token') && !!localStorage.getItem('key_decryption') && !!this.backend.profile
             && !!this.backend.data_loaded)
             return true;
-        if(!('return_url' in localStorage))
-            localStorage.setItem('return_url', JSON.stringify(state.url.split('/').map(window.decodeURIComponent)));
+        if(!('return_url' in sessionStorage))
+            sessionStorage.setItem('return_url', JSON.stringify(state.url.split('/').map(window.decodeURIComponent)));
         this.router.navigate(['/profile']);
         return false;
     }
