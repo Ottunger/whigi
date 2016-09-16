@@ -227,7 +227,7 @@ export class Backend {
      * Encrypt an AES key using RSA.
      * @function encryptRSA
      * @public
-     * @param {Bytes} AES key to be encrypted.
+     * @param {Number[]} AES key to be encrypted.
      * @param {String} RSA public key.
      * @return {String} Encrypted data.
      */
@@ -242,7 +242,7 @@ export class Backend {
      * @function decryptRSA
      * @public
      * @param {String} Encrypted data.
-     * @return {Bytes} Decrypted data, we use AES keys.
+     * @return {Number[]} Decrypted data, we use AES keys.
      */
     decryptRSA(data: string): number[] {
         if(this.rsa_key.length == 0) {

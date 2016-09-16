@@ -136,19 +136,24 @@ export function removeData(req, res) {
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.
+ * @param {Boolean} respond Should respond.
  */
-export function regVault(req, res) {
+export function regVault(req, res, respond?: boolean) {
     var got = req.body;
+    respond = respond || true;
     if(req.user._id == got.shared_to_id) {
-        res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
+        if(!!respond)
+            res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
         return;
     }
     req.user.fill().then(function() {
         if(!(got.real_name in req.user.data)) {
-            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+            if(!!respond)
+                res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
         } else {
             if(got.shared_to_id in req.user.data[got.real_name].shared_to) {
-                res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id]});
+                if(!!respond)
+                    res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id]});
             } else {
                 var v: Vault = new Vault({
                     _id: utils.generateRandomString(128),
@@ -165,7 +170,8 @@ export function regVault(req, res) {
                 }, db);
                 db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
                     if(!sharee || sharee._id == req.user.id) {
-                        res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
+                        if(!!respond)
+                            res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
                         return;
                     }
                     v.persist().then(function() {
@@ -179,23 +185,29 @@ export function regVault(req, res) {
                             }
                             sharee.shared_with_me[req.user._id][v.data_name] = v._id;
                             sharee.persist().then(function() {
-                                res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
+                                if(!!respond)
+                                    res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
                             }, function(e) {
-                                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                                if(!!respond)
+                                    res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                             });
                         }, function(e) {
-                            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                            if(!!respond)
+                                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                         });
                     }, function(e) {
-                        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                        if(!!respond)
+                            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                     });
                 }, function(e) {
-                    res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                    if(!!respond)
+                        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                 });
             }
         }
     }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        if(!!respond)
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
 }
 

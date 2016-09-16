@@ -163,33 +163,13 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			return $ret;
 		}
 
-		public static function pkcs1pad2($s, $bits = 4096) {
-			$n = ($bits + 7) >> 3;
-			$l = strlen($s);
-			if($n < $l + 11) {
-				return null;
-			}
-			$ba = '';
-			$i = $l - 1;
-			while($i >= 0 && $n > 0) {
-				$c = ord($s[$i--]);
-				if($c < 128) {
-					$ba[--$n] = $c;
-				} else if($c > 127) {
-					$ba[--$n] = ($c & 63) | 128;
-					$ba[--$n] = ($c >> 6) | 192;
-				}
-			}
-			$ba[--$n] = 0;
-			while($n > 2) {
-				$ba[$n] = 0;
-				while($ba[$n] == 0)
-					$ba[$n] = openssl_random_pseudo_bytes(1);
-				--$n;
-			}
-			$ba[--$n] = 2;
-			$ba[--$n] = 0;
-			return $ba;
+		public static function puzzle($puzzle) {
+			$i = 0;
+			do {
+				$complete = hash('sha256', $puzzle . $i);
+				$i++;
+			} while($complete[0] != '0' || $complete[1] != '0' || $complete[2] != '0' || $complete[3] != '0');
+			return $i - 1;
 		}
 		
 		//Parse master key and RSA private key
@@ -222,6 +202,7 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			$new = openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'][0])), 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true);
 			if(isset($new) || get_option('whigi_rsa_pri_key') == '')
 				update_option('whigi_rsa_pri_key', $new, true);
+			update_option('whigi_whigi_puzzle', $result_obj['puzzle']);
 
 			$url = "https://" . get_option('whigi_whigi_host') . "/api/v1/generics.json";
 			switch(strtolower(get_option('whigi_http_util'))) {
@@ -657,12 +638,13 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			if(substr($meta_key, 0, strlen($prefix)) == $prefix) {
 				$_GLOBAL[$user_id . $meta_key] = $meta_value;
 				//Self inserted data, browse own repo!
-				$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/profile/data/new";
-				$encr_data = openssl_encrypt(mb_convert_encoding($meta_value, 'utf-8', 'iso-8859-1'), 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true);
+				$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@"
+					. get_option('whigi_whigi_host') . "/api/v1/profile/data/new?puzzle=" . WHIGI::puzzle(get_option('whigi_whigi_puzzle'));
+				$encr_data = mb_convert_encoding(openssl_encrypt($meta_value, 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true), 'utf-8');
 				$fields = json_encode(array(
 					'encr_data' => $encr_data,
 					'is_dated' => $unique,
-					'data_name' => $whip . '/' . $prefix . $meta_key . $whigi_id
+					'name' => $whip . '/' . $prefix . $meta_key . $whigi_id
 				));
 				switch(strtolower(get_option('whigi_http_util'))) {
 					case 'curl':
@@ -688,6 +670,8 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 						$result = @file_get_contents($url, false, $context);
 						break;
 				}
+				$result_obj = json_decode($result, true);
+				update_option('whigi_whigi_puzzle', $result_obj['puzzle']);
 				$ret = true;
 				return true;
 			}

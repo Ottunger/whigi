@@ -39,7 +39,7 @@ Updates password. When updated password, can send the password hashed but needs 
 
 /api/v<any>/user/create: Post, needs captcha
 Creates a new entry if none matches. The password is this only time sent in clear.
-{"username": "string", "password": "string"}
+{"username": "string", "password": "string", "more"?: "array"}
 
 /api/v<any>/profile/token/new: Post, needs auth (basic only), needs puzzle
 Creates a new token for the logged in user to connect without credentials.

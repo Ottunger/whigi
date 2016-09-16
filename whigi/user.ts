@@ -11,6 +11,7 @@ var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 var hash = require('js-sha256');
 var aes = require('aes-js');
+import * as data from './data';
 import {User} from '../common/models/User';
 import {Datafragment} from '../common/models/Datafragment';
 import {Token} from '../common/models/Token';
@@ -36,7 +37,7 @@ export function managerInit(dbg: Datasource) {
         }
     });
     db = dbg;
-    rsa = new RSAPool(10, utils.DEBUG? 1024 : 4096, false);
+    rsa = new RSAPool(10, 4096, false);
 }
 
 /**
@@ -250,34 +251,41 @@ export function listData(req, res) {
  * @param {Request} req The request.
  * @param {Response} res The response.
  * @param {Boolean} respond Whether to answer in res.
+ * @return {Promise} When completed.
  */
-export function recData(req, res, respond?: boolean) {
+export function recData(req, res, respond?: boolean): Promise {
     var got = req.body;
     respond = respond || true;
-    req.user.fill().then(function() {
-        var newid = utils.generateRandomString(128);
-        req.user.data[got.name] = {
-            id: newid,
-            length: Buffer.byteLength(got.encr_data, 'utf8'),
-            is_dated: got.is_dated,
-            shared_to: {}
-        }
-        var frg: Datafragment = new Datafragment(newid, got.encr_data, db);
-        frg.persist().then(function() {
-            req.user.persist().then(function() {
-                if(!!respond)
-                    res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid});
+    return new Promise(function(resolve, reject) {
+        req.user.fill().then(function() {
+            var newid = utils.generateRandomString(128);
+            req.user.data[got.name] = {
+                id: newid,
+                length: Buffer.byteLength(got.encr_data, 'utf8'),
+                is_dated: got.is_dated,
+                shared_to: {}
+            }
+            var frg: Datafragment = new Datafragment(newid, got.encr_data, db);
+            frg.persist().then(function() {
+                req.user.persist().then(function() {
+                    if(!!respond)
+                        res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid});
+                    resolve();
+                }, function(e) {
+                    if(!!respond)
+                        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                    reject();
+                });
             }, function(e) {
                 if(!!respond)
                     res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                reject();
             });
         }, function(e) {
             if(!!respond)
                 res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+            reject();
         });
-    }, function(e) {
-        if(!!respond)
-            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
     });
 }
 
@@ -311,16 +319,50 @@ export function updateUser(req, res) {
  */
 export function regUser(req, res) {
     var user = req.body;
+    var pre_master_key: string = utils.generateRandomString(64);
+
     function end(u: User) {
         u.persist().then(function() {
             res.type('application/json').status(201).json({error: ''});
+            if('more' in req.body) {
+                for(var i = 0; i < req.body.more.length; i++) {
+                    recData({
+                        user: u,
+                        body: {
+                            name: req.body.more[i].real_name,
+                            is_dated: req.body.more[i].is_dated,
+                            encr_data: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
+                                .encrypt(aes.util.covertStringToBytes(req.body.more[i].data))))
+                        }
+                    }, {}, false).then(function() {
+                        for(var j = 0; j < req.body.more[i].shared_to.length; j++) {
+                            db.retrieveUser(req.body.more[i].shared_to[j]).then(function(rem: User) {
+                                var pub_key = rem.rsa_pub_key;
+                                var naes = utils.toBytes(utils.generateRandomString(64));
+                                data.regVault({
+                                    user: u,
+                                    body: {
+                                        shared_to_id: req.body.more[i].shared_to[j],
+                                        real_name: req.body.more[i].real_name,
+                                        data_name: req.body.more[i].shared_as,
+                                        trigger: req.body.more[i].trigger,
+                                        expire_epoch: req.body.more[i].epoch,
+                                        aes_crypted_shared_pub: new Buffer(utils.encryptRSA(naes, pub_key)).toString('base64'),
+                                        data_crypted_aes: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
+                                            .encrypt(aes.util.covertStringToBytes(req.body.more[i].data))))
+                                    }
+                                }, {}, false);
+                            });
+                        }
+                    });
+                }
+            }
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
     }
     function complete() {
         var u: User = new User(user, db);
-        var pre_master_key: string = utils.generateRandomString(64);
         var key = rsa.nextKeyPair();
 
         u._id = user.username;

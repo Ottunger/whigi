@@ -69,39 +69,6 @@ export function loopOn(array: any[], apply: Function, callin: Function, callback
 }
 
 /**
- * Sends a mail on behalf of the machine.
- * @function sendMail
- * @public
- * @param {Object} options The options and subject.
- * @param {Function} callback Function to be called with a boolean indicating an error.
- */
-export function sendMail(options: any, callback: Function) {
-    var spawn = require('child_process').spawn;
-    var mail = 'MIME-Version: 1.0\n' +
-        'X-Mailer: Whigi\n' +
-        'Date: ' + new Date().toUTCString() + '\n' +
-        'Message-Id: <' + generateRandomString(16) + '@Whigi>\n' +
-        'From: ' + options.from + '\n' +
-        'To: ' + options.to + '\n' +
-        'Subject: ' + options.subject + '\n' +
-        'Content-Type: text/html; charset=utf-8\n' +
-        'Content-Transfer-Encoding: quoted-printable\n\n' +
-        options.html;
-
-    var sendmail = spawn('sudo', ['sendmail', '-i', '-f', options.from, options.to]);
-
-    sendmail.stdout.pipe(process.stdout);
-    sendmail.stderr.pipe(process.stderr);
-
-    sendmail.on('exit', function(code){
-        callback(code != 0)
-    });
-
-    sendmail.stdin.write(mail);
-    sendmail.stdin.end();
-}
-
-/**
  * Tries to translate a string into the given language.
  * @function i18n
  * @public
@@ -216,12 +183,54 @@ export function pkcs1unpad2(b: number[], k: number): number[] {
 }
 
 /**
+ * Pads for PKCS1type2
+ * @function pkcs1pad2
+ * @public
+ * @param {Number[]} b Data.
+ * @param {Number} k Number of bits in key.
+ * @return {Number[]} Padded.
+ */
+export function pkcs1pad2(s: string, k: number): number[] {
+    var n = (k + 7) >> 3;
+    if(n < s.length + 11) {
+        return null;
+    }
+    var ba = new Array();
+    var i = s.length - 1;
+    while(i >= 0 && n > 0) {
+        var c = s.charCodeAt(i--);
+        if(c < 128) {
+            ba[--n] = c;
+        } else if((c > 127) && (c < 2048)) {
+            ba[--n] = (c & 63) | 128;
+            ba[--n] = (c >> 6) | 192;
+        } else {
+            ba[--n] = (c & 63) | 128;
+            ba[--n] = ((c >> 6) & 63) | 128;
+            ba[--n] = (c >> 12) | 224;
+        }
+    }
+    ba[--n] = 0;
+    var rng = new Random();
+    var x = new Array();
+    while(n > 2) {
+        ba[n] = 0;
+        while(ba[n] == 0)
+            ba[n] = Math.floor(Math.random() * 254 + 1);
+        --n;
+    }
+    ba[--n] = 2;
+    ba[--n] = 0;
+    return ba;
+}
+
+/**
  * Decrypt an AES key using RSA.
  * @function decryptRSA
  * @public
  * @param {String} Encrypted data.
  * @param {String} rsa_key Key.
- * @return {Bytes} Decrypted data, we use AES keys.
+ * @return {Number[]} Decrypted data, we use AES keys.
  */
 export function decryptRSA(data: string, rsa_key: string): number[] {
     var dec = new RSA(
@@ -234,6 +243,27 @@ export function decryptRSA(data: string, rsa_key: string): number[] {
     );
     var arr = dec.decrypt(data);
     return pkcs1unpad2(arr, 4096);
+}
+
+/**
+ * Encrypt an AES key using RSA.
+ * @function encryptRSA
+ * @public
+ * @param {Number[]} Decrypted data.
+ * @param {String} rsa_key Key.
+ * @return {Number[]} Encrypted data, we use AES keys.
+ */
+export function encryptRSA(data: string, rsa_key: string): number[] {
+    var dec = new RSA(
+        rsa_key, 'pkcs1-private-pem', {
+            encryptionScheme: {
+                scheme: 'pkcs1',
+                padding: constants.RSA_NO_PADDING
+            }
+        }
+    );
+    var arr = dec.encrypt(pkcs1pad2(data, 4096));
+    return arr;
 }
 
 /**
@@ -320,45 +350,4 @@ export function registerMapping(id: string, email: string, master_key: string, s
     });
     ht.write(data);
     ht.end();
-}
-
-/**
- * Ask Whigi to create a token on behalf of Whigi-restore.
- * @function persistToken
- * @public
- * @param {String} newid The token.
- * @param {String} bearer_id Bearer id.
- * @return {Promise} Promise that resolves when Whigi has saved the token.
- */
-export function persistToken(newid: string, bearer_id: string): Promise {
-    var data = {
-        token_id: newid,
-        bearer_id: bearer_id,
-        key: require('../common/key.json').key
-    };
-    var options = {
-        host: WHIGIHOST,
-        port: 443,
-        path: '/api/v1/new',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(data)
-        }
-    };
-    return new Promise(function(resolve, reject) {
-        var ht = https.request(options, function(res) {
-            var r = '';
-            res.on('data', function(chunk) {
-                r += chunk;
-            });
-            res.on('end', function() {
-                resolve();
-            });
-        }).on('error', function(err) {
-            reject(err);
-        });
-        ht.write(data);
-        ht.end();
-    });
 }

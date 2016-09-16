@@ -15,47 +15,17 @@ if(!defined('WPINC'))
             } else {
                 $i18n = get_option('whigi_i18n_en');
                 $gen = get_option('whigi_generics');
-                $fields = get_option('whigi_whigi_data').split('//');
-                $csv = fopen($_FILEs['file']['tmp_name'], "r");
+                $req = explode('//', get_option('whigi_whigi_data'));
+                $csv = fopen($_FILES['file']['tmp_name'], "r");
                 while(($row = fgetcsv($csv, 0, ',', '\'', '\\')) != FALSE) {
                     $username = 'tmp' . explode('.', uniqid('', true))[0];
                     $password = 'tmp' . explode('.', uniqid('', true))[0];
                     $hpwd = hash('sha256', $password);
-                    
-                    //Create account
-                    $url = "https://" . get_option('whigi_whigi_host') . "/api/v1/user/create?captcha=" . $_POST['g-recaptcha-response'];
-                    $fields = json_encode(array(
-                        'username' => $username,
-                        'password' => $password
-                    ));
-                    $curl = curl_init();
-                    curl_setopt($curl, CURLOPT_URL, $url);
-                    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
-                    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Length: ' . strlen($fields), 'Content-type: application/json')); 
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields); 
-                    $result = json_decode(curl_exec($curl), true);
-                    if($result['error'] != '') {
-                        echo 'Cannot register one user.<br />';
-                        continue;
-                    }
-
-                    //Retrieve profile
-                    $url = "https://" . $username . ":" . $hpwd . "@" . get_option('whigi_whigi_host') . "/api/v1/profile";
-                    $curl = curl_init();
-                    curl_setopt($curl, CURLOPT_URL, $url);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
-                    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
-                    $result = json_decode(curl_exec($curl), true);
-                    $msk = openssl_decrypt(implode(array_map("chr", $result['encr_master_key'])), 'AES-256-CTR',
-                        implode(array_map("chr", WHIGI::toBytes(hash('sha256', $password . $result['salt'])))), true);
 
                     //Creates data's and shares'
+                    $more = array();
                     $index = 0;
-                    foreach($fields as $key => $val) {
+                    foreach($req as $key => $val) {
                         if($gen[$val]['is_dated']) {
                             $row[$index] = json_decode($row[$index], true);
                             foreach($row[$index] as $k => $v) {
@@ -64,57 +34,17 @@ if(!defined('WPINC'))
                             $row[$index] = json_encode($row[$index]);
                         }
 
-                        //Data
-                        $url = "https://" . $username . ":" . $hpwd . "@" . get_option('whigi_whigi_host') . "/api/v1/profile/data/new";
-                        $encr_data = openssl_encrypt(mb_convert_encoding($row[$index], 'utf-8', 'iso-8859-1'), 'AES-256-CTR', $msk, true);
-                        $fields = json_encode(array(
-                            'encr_data' => $encr_data,
+                        array_push($more, array(
+                            'data' => $row[$index],
+                            'real_name' => $val . (($gen[$val]['is_folder'])? '/default' : ''),
                             'is_dated' => $gen[$val]['is_dated'],
-                            'data_name' => $val . ($gen[$val]['is_folder'])? '/default' : ''
+                            'shared_as' => $val,
+                            'shared_trigger' => get_option('whigi_whigi_trigger'),
+                            'shared_epoch' => 0,
+                            'shared_to' => array(
+                                get_option('whigi_whigi_id')
+                            )
                         ));
-                        $curl = curl_init();
-                        curl_setopt($curl, CURLOPT_URL, $url);
-                        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
-                        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
-                        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
-                        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Length: ' . strlen($fields), 'Content-type: application/json')); 
-                        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields); 
-                        $result = json_decode(curl_exec($curl), true);
-                        if($result['error'] != '') {
-                            echo 'Cannot register one key for a user.<br />';
-                            $index++;
-                            continue;
-                        }
-
-                        //Share
-                        $url = "https://" . $username . ":" . $hpwd . "@" . get_option('whigi_whigi_host') . "/api/v1/vault/new";
-                        $nk = openssl_random_pseudo_bytes(32);
-                        openssl_public_encrypt(WHIGI::pkcs1pad2($nk), $encr_aes, get_option('whigi_rsa_pub_key'), OPENSSL_NO_PADDING);
-                        $encr_data = openssl_encrypt(mb_convert_encoding($row[$index], 'utf-8', 'iso-8859-1'), 'AES-256-CTR', $nk, true);
-                        $fields = json_encode(array(
-                            'data_name' => $val,
-                            'shared_to_id' => get_option('whigi_whigi_id'),
-                            'aes_crypted_shared_pub' => base64_encode($encr_aes),
-                            'data_crypted_aes' => $encr_data,
-                            'expire_epoch' => 0,
-                            'trigger' => get_option('whigi_whigi_trigger'),
-                            'real_name' => $val . ($gen[$val]['is_folder'])? '/default' : ''
-                        ));
-                        $curl = curl_init();
-                        curl_setopt($curl, CURLOPT_URL, $url);
-                        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
-                        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
-                        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
-                        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Length: ' . strlen($fields), 'Content-type: application/json')); 
-                        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields); 
-                        $result = json_decode(curl_exec($curl), true);
-                        if($result['error'] != '') {
-                            echo 'Cannot register one grant for a user.<br />';
-                            $index++;
-                            continue;
-                        }
 
                         if($val == 'profile/email') {
                             wp_mail($row[$index], "Account created for you at " . get_bloginfo('name'), 'The administrator at <a href="' . get_bloginfo('url') . '">'
@@ -125,12 +55,33 @@ if(!defined('WPINC'))
                         }
                         $index++;
                     }
+                    
+                    //Create account
+                    $url = "https://" . get_option('whigi_whigi_host') . "/api/v1/user/create?captcha=" . $_POST['g-recaptcha-response'];
+                    $fields = str_replace('\/', '/', json_encode(array(
+                        'username' => $username,
+                        'password' => $password,
+                        'more' => $more
+                    )));
+                    $curl = curl_init();
+                    curl_setopt($curl, CURLOPT_URL, $url);
+                    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, (get_option('whigi_http_util_verify_ssl') == 1 ? 1 : 0));
+                    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, (get_option('whigi_http_util_verify_ssl') == 1 ? 2 : 0));
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Length: ' . strlen($fields), 'Content-type: application/json')); 
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $fields); 
+                    $result = json_decode(curl_exec($curl), true);
+                    if($result['error'] != '') {
+                        echo '<a href="' . get_bloginfo('url') . '/wp-admin">Back</a><p>Cannot register one user: ' . var_dump($result) . '</p>';
+                        continue;
+                    }
 
                     //Register user as WP user to be displayed.
                     WHIGI::get_instance()->whigi_match_wordpress_user(array(
                         '_id' => $username
                     ));
-                    echo 'User successfully imported.<br />';
+                    echo '<a href="' . get_bloginfo('url') . '/wp-admin">Back</a><p>User successfully imported.</p>';
                 }
             }
         } else { ?>
@@ -152,12 +103,12 @@ if(!defined('WPINC'))
                     using a backslash character.<br />
 
                     <script src="https://www.google.com/recaptcha/api.js"></script>
-                    <form enctype="multipart/form-data" action="/wp-admin?whigi-new=true" method="post">
-                    <input type="hidden" name="MAX_FILE_SIZE" value="18000000" />
-                    Select your CSV file: <input name="file" type="file" />
-                    <div class="g-recaptcha" data-sitekey="6LfleigTAAAAALOtJgNBGWu4A0ZiHRvetRorXkDx"></div>
-                    <input type="submit" value="Process the file" />
-                </form>
+                    <form enctype="multipart/form-data" action="/?whigi-new=true" method="post">
+                        <input type="hidden" name="MAX_FILE_SIZE" value="18000000" />
+                        Select your CSV file: <input name="file" type="file" />
+                        <div class="g-recaptcha" data-sitekey="6LfleigTAAAAALOtJgNBGWu4A0ZiHRvetRorXkDx"></div>
+                        <input type="submit" value="Process the file" />
+                    </form>
                 <?php } ?>
             <p>    
         <?php } ?>
