@@ -107,31 +107,40 @@ export class Logging implements OnInit {
                             self.dataservice.grantVault('whigi-restore', 'profile/recup_id', 'profile/recup_id', self.recup_id, new Date(0)).then(function() {
                                 self.dataservice.grantVault(self.recup_id, 'keys/pwd/mine2', 'keys/pwd/mine2', self.password.slice(4), new Date(0)).then(function() {
                                     self.notif.success(self.translate.instant('success'), self.translate.instant('login.sent'));
+                                    self.logout();
                                 }, function(e) {
                                     self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                                    self.logout();
                                 });
                             }, function(e) {
                                 self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                                self.logout();
                             });
                         }, function(e) {
                             self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                            self.logout();
                         });
                     } else {
                         self.dataservice.grantVault('whigi-restore', 'keys/pwd/mine1', 'keys/pwd/mine1', self.password.slice(0, 4), new Date(0)).then(function() {
                             self.dataservice.grantVault('whigi-restore', 'keys/pwd/mine2', 'keys/pwd/mine2', self.password.slice(4), new Date(0)).then(function() {
                                 self.notif.success(self.translate.instant('success'), self.translate.instant('login.sent'));
+                                self.logout();
                             }, function(e) {
                                 self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                                self.logout();
                             });
                         }, function(e) {
                             self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                            self.logout();
                         });
                     }
                 }, function(e) {
                     self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                    self.logout();
                 });
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                self.logout();
             });
         }
         function complete() {
@@ -149,19 +158,24 @@ export class Logging implements OnInit {
                                             safe();
                                         }, function() {
                                             self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                                            self.logout();
                                         });
                                     } else {
                                         self.notif.success(self.translate.instant('success'), self.translate.instant('login.sent'));
+                                        self.logout();
                                     }
                                 }, function(e) {
                                     self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                                    self.logout();
                                 });
                             }, function() {
                                 self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                                self.logout();
                             });
                         });
                     }, function(e) {
                         self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
+                        self.logout();
                     });
                 }, function(e) {
                     self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));
@@ -205,6 +219,23 @@ export class Logging implements OnInit {
             self.notif.success(self.translate.instant('success'), self.translate.instant('login.sent'));
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('login.noReset'));
+        });
+    }
+
+    /**
+     * Logouts.
+     * @function logout
+     * @private
+     */
+    logout() {
+        var self = this;
+        this.backend.removeTokens(false).then(function() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('key_decryption');
+            self.backend.forceReload();
+            delete self.backend.profile;
+        }, function(e) {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noLogout'));
         });
     }
 

@@ -151,7 +151,9 @@ export class Profile implements OnInit {
         this.backend.removeTokens(all).then(function() {
             localStorage.removeItem('token');
             localStorage.removeItem('key_decryption');
-            window.location.href = '/';
+            self.backend.forceReload();
+            delete self.backend.profile;
+            self.router.navigate(['/']);
         }, function(e) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('profile.noLogout'));
         });

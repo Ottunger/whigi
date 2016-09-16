@@ -35,7 +35,7 @@ export class User extends IModel {
     public puzzle: string;
     public encr_master_key: string;
     public rsa_pub_key: string;
-    public rsa_pri_key: string;
+    public rsa_pri_key: number[][];
     public data: any;
     public shared_with_me: any;
     public oauth: any[];

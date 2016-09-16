@@ -50,6 +50,8 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET,POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/close\/.+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/info\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/data\/?$/))
@@ -249,6 +251,7 @@ connect(function(e) {
     //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/profile', pass.authenticate(['token', 'basic'], {session: false}));
+    app.post('/api/v:version/close/:id', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/profile/info', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/profile/data', pass.authenticate(['token', 'basic'], {session: false}));
     app.post('/api/v:version/profile/data/new', pass.authenticate(['token', 'basic'], {session: false}));
@@ -268,6 +271,7 @@ connect(function(e) {
     app.post('/api/v:version/oauth/new', pass.authenticate(['token', 'basic'], {session: false}));
     app.delete('/api/v:version/oauth/:id', pass.authenticate(['token', 'basic'], {session: false}));
     //API LIMITATIONS FOR OAUTH
+    app.post('/api/v:version/close/:id', checks.checkOAuth(true));
     app.post('/api/v:version/profile/info', checks.checkOAuth(true));
     app.post('/api/v:version/profile/data/new', checks.checkOAuth(false, 1));
     app.post('/api/v:version/profile/update', checks.checkOAuth(true));
@@ -283,6 +287,7 @@ connect(function(e) {
     app.post('/api/v:version/oauth/new', checks.checkOAuth(true));
     app.delete('/api/v:version/oauth/:id', checks.checkOAuth(true));
     //API POST CHECKS
+    app.post('/api/v:version/close/:id', checks.checkBody(['new_keys']));
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated']));
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
     app.post('/api/v:version/user/create', checks.checkBody(['username', 'password']));
@@ -291,6 +296,7 @@ connect(function(e) {
     //-----
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch', 'trigger', 'real_name']));
     //API LONG LIVED COMMANDS
+    app.post('/api/v:version/close/:id', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/new', checks.checkPuzzle);
     app.post('/api/v:version/profile/token/new', checks.checkPuzzle);
     //-----
@@ -299,6 +305,7 @@ connect(function(e) {
     app.get('/api/v:version/peek/:id', user.peekUser);
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
+    app.post('/api/v:version/close/:id', user.closeTo);
     app.post('/api/v:version/profile/info', user.goCompany1);
     app.get('/api/v:version/profile/data', user.listData);
     app.post('/api/v:version/profile/data/new', user.recData);

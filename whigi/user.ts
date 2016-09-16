@@ -15,6 +15,7 @@ import {User} from '../common/models/User';
 import {Datafragment} from '../common/models/Datafragment';
 import {Token} from '../common/models/Token';
 import {Oauth} from '../common/models/Oauth';
+import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
 import {RSAPool} from '../utils/RSAPool';
 var mailer;
@@ -47,7 +48,7 @@ export function managerInit(dbg: Datasource) {
  */
 export function peekUser(req, res) {
     var dec = decodeURIComponent(req.params.id);
-    db.retrieveUser(dec).then(function(user) {
+    db.retrieveUser(dec).then(function(user: User) {
         if(!!user) {
             res.type('application/json').status(200).json({error: ''});
         } else {
@@ -67,7 +68,7 @@ export function peekUser(req, res) {
  */
 export function getUser(req, res) {
     var dec = decodeURIComponent(req.params.id);
-    db.retrieveUser(dec).then(function(user) {
+    db.retrieveUser(dec).then(function(user: User) {
         if(!!user) {
             res.type('application/json').status(200).json(user.sanitarize());
         } else {
@@ -87,6 +88,103 @@ export function getUser(req, res) {
  */
 export function getProfile(req, res) {
     res.type('application/json').status(200).json(req.user.fields());
+}
+
+/**
+ * Closes an account to another profile.
+ * @function closeTo
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function closeTo(req, res) {
+    var new_keys: number[][] = req.body.new_keys;
+    var dec = decodeURIComponent(req.params.id);
+    var changes = {};
+
+    function end(nu: User) {
+        Object.getOwnPropertyNames(changes).forEach(function(key) {
+            if(key != req.user._id) {
+                db.retrieveUser(key, true).then(function(user: User) {
+                    if(!!user) {
+                        var fs = Object.getOwnPropertyNames(changes[key]);
+                        for(var j = 0; j < fs.length; j++) {
+                            var id = user.data[fs[j]].shared_to[req.user._id];
+                            delete user.data[fs[j]].shared_to[req.user._id];
+                            if(changes[key][fs[j]])
+                                user.data[fs[j]].shared_to[nu._id] = id;
+                        }
+                        user.persist();
+                    }
+                });
+            }
+        });
+        nu.persist();
+    }
+
+    if(dec == req.user._id) {
+        res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
+        return;
+    }
+    db.retrieveUser(dec, true).then(function(user: User) {
+        if(!!user) {
+            for(var i = 0; i < new_keys.length; i++)
+                user.rsa_pri_key.push(new_keys[i]);
+            user.persist().then(function() {
+                var keys = Object.getOwnPropertyNames(req.user.shared_with_me), done = 0;
+                for(var i = 0; i < keys.length; i++) {
+                    var fs = Object.getOwnPropertyNames(req.user.shared_with_me[keys[i]]), num = 0;
+                    for(var j = 0; j < fs.length; j++) {
+                        db.retrieveVault(req.user.shared_with_me[keys[i]][fs[j]]).then(function(v: Vault) {
+                            if(!!v) {
+                                v.shared_to_id = dec;
+                                v.persist();
+                                changes[v.sharer_id] = changes[v.sharer_id] || {};
+                                //Give transient, junk...
+                                if(!user.shared_with_me[v.sharer_id] || !user.shared_with_me[v.sharer_id][v.data_name]) {
+                                    //New user did not have this data from remote user
+                                    user.shared_with_me[v.sharer_id] = user.shared_with_me[v.sharer_id] || {};
+                                    user.shared_with_me[v.sharer_id][v.data_name] = v._id;
+                                    changes[v.sharer_id][v.real_name] = true;
+                                } else {
+                                    //New user already had this data!
+                                    changes[v.sharer_id][v.real_name] = false;
+                                }
+                            }
+                            num++;
+                            if(num == fs.length) {
+                                done++;
+                                if(done == keys.length) {
+                                    end(user);
+                                }
+                            }
+                        }, function(e) {
+                            num++;
+                            if(num == fs.length) {
+                                done++;
+                                if(done == keys.length) {
+                                    end(user);
+                                }
+                            }
+                        });
+                    }
+                    if(fs.length == 0) {
+                        done++;
+                        if(done == keys.length) {
+                            end(user);
+                        }
+                    }
+                }
+                res.type('application/json').status(200).json({puzzle: req.user.puzzle});
+            }, function(e) {
+                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+            });
+        } else {
+            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
+        }
+    }, function(e) {
+        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+    });
 }
 
 /**
@@ -236,8 +334,8 @@ export function regUser(req, res) {
         u.encr_master_key = Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(hash.sha256(user.password + u.salt)), new aes.Counter(0))
             .encrypt(utils.toBytes(pre_master_key)));
         u.rsa_pub_key = key.exportKey('public');
-        u.rsa_pri_key = Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
-            .encrypt(aes.util.convertStringToBytes(key.exportKey('private'))));
+        u.rsa_pri_key = [Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
+            .encrypt(aes.util.convertStringToBytes(key.exportKey('private'))))];
         u.is_company = !!user.company_info? 1 : 0;
         u.company_info = !!user.company_info? user.company_info : {};
         end(u);

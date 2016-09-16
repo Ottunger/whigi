@@ -18,6 +18,10 @@ Retrieves public data of user.
 /api/v<any>/profile: Get, needs auth
 Retrieves own data.
 
+/api/v<any>/close/<id>: Post, needs auth, needs puzzle
+Closes account to another account.
+{"new_keys": "array of array of numbers"}
+
 /api/v<any>/profile/info: Post, needs auth
 Go company mode, set public info
 {"...": "..."}

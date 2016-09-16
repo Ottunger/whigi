@@ -36,7 +36,7 @@ exports.test = function() {
             'xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4' +
             'gwQco1KRMDSmXSMkDwIDAQAB' +
             '-----END PUBLIC KEY-----',
-        rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33]
+        rsa_pri_key: [[162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33]]
     }
     var dummy_user2 = {
         _id: 'smthg',

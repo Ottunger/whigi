@@ -188,7 +188,7 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			$result_obj = json_decode($result, true);
 			update_option('whigi_master_key', base64_encode(openssl_decrypt(implode(array_map("chr", $result_obj['encr_master_key'])), 'AES-256-CTR',
 				implode(array_map("chr", WHIGI::toBytes(hash('sha256', get_option('whigi_whigi_secret') . $result_obj['salt'])))), true)), true);
-			$new = openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'])), 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true);
+			$new = openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'][0])), 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true);
 			if(isset($new) || get_option('whigi_rsa_pri_key') == '')
 				update_option('whigi_rsa_pri_key', $new, true);
 

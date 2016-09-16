@@ -142,7 +142,7 @@ export function create(req, res) {
                 var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
                 var master_key = Array.from(decrypter.decrypt(user.encr_master_key));
                 decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-                rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key));
+                rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key[0]));
             } catch(e) {
                 console.log('Cannot decrypt our keys.');
                 res.redirect('/error.html');

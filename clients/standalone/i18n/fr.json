@@ -154,11 +154,12 @@
    "merge.title": "Fusionner un compte",
    "merge.login": "Nom de compte",
    "merge.pass": "Mot de passe",
-   "merge.merge": "Fusionner (Les données partagées à l'autre compte ne seront pas transférées!)",
+   "merge.merge": "Fusionner",
    "merge.noMerge": "Fusion non complétée à 100%",
    "merge.merged": "Compte intégré",
    "merge.erase": "Garder la copie distante de préférence",
    "merge.relog": "Vous devez vous reconnecter",
+   "merge.explain": "Quand vous fusionnez deux comptes, vous citez un compte ici et copiez ses données dans l'actuel. Les données qu'il possède, ainsi que la façon dont il les partage, sont parfaitement transférées. Cependant, les données qui lui sont partagées ne peuvent être directement transférées, même si de nouveaux changement se récupercuteront dorénavant sur votre compte principal. Entre temps, vous n'y aurez plus accès. Ainsi, si vous possédez des clés de récupération de mot de passe, nous vous encourageons à demander aux tierces parties de les mettre à jour.",
 
    "generics.title": "Créez ici vos données génériques",
    "generics.regexp": "Votre entrée ne valide pas le format attendu",

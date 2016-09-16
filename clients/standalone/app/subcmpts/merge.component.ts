@@ -19,6 +19,7 @@ enableProdMode();
         <form class="form-signin">
             <div class="heading">
                 <h3 class="form-signin-heading">{{ 'merge.title' | translate }}</h3>
+                <p>{{ 'merge.explain' | translate }}</p>
             </div>
             <div class="form-group">
                 {{ 'merge.login' | translate }}<br />
@@ -67,6 +68,9 @@ export class Merge {
         var self = this;
         var currentToken = localStorage.getItem('token'), newToken;
         var currentKey = localStorage.getItem('key_decryption'), newKey;
+        this.backend.decryptMaster();
+        var my_master = this.backend.master_key, my_id = this.backend.profile._id;
+        this.backend.forceReload();
 
         if(this.backend.profile._id == this.login) {
             this.login = '';
@@ -85,19 +89,21 @@ export class Merge {
                     var array: any[] = [], index = 0, mapping = {};
                     var datakeys = Object.getOwnPropertyNames(add.data);
                     for(var i = 0; i < datakeys.length; i++) {
-                        array.push({
-                            mode: 'get',
-                            name: datakeys[i],
-                            index: 0,
-                            is_dated: add.data[datakeys[i]].is_dated,
-                            shared_to: add.data[datakeys[i]].shared_to,
-                            is_folder: (!!self.backend.generics[datakeys[i].replace(/\/[^\/]*$/, '')] && self.backend.generics[datakeys[i].replace(/\/[^\/]*$/, '')].is_folder)
-                        });
+                        if(datakeys[i].indexOf('keys/pwd/') != 0) {
+                            array.push({
+                                mode: 'get',
+                                name: datakeys[i],
+                                index: 0,
+                                is_dated: add.data[datakeys[i]].is_dated,
+                                shared_to: add.data[datakeys[i]].shared_to,
+                                is_folder: (!!self.backend.generics[datakeys[i].replace(/\/[^\/]*$/, '')] && self.backend.generics[datakeys[i].replace(/\/[^\/]*$/, '')].is_folder)
+                            });
+                        }
                     }
                     
                     function next() {
                         if(index < array.length) {
-                            var work = array[index];console.log(work.mode);
+                            var work = array[index];
                             index++;
                             switch(work.mode) {
                                 case 'get':
@@ -172,10 +178,15 @@ export class Merge {
                                     break;
                             }
                         } else {
-                            self.notif.success(self.translate.instant('success'), self.translate.instant('merge.merged'));
-                            self.login = '';
-                            self.password = '';
-                            self.reloadProfile(currentToken, currentKey);
+                            self.backend.closeTo(my_id, my_master).then(function() {
+                                self.notif.success(self.translate.instant('success'), self.translate.instant('merge.merged'));
+                                self.login = '';
+                                self.password = '';
+                                self.reloadProfile(currentToken, currentKey);
+                            }, function(e) {
+                                self.notif.error(self.translate.instant('error'), self.translate.instant('merge.noMerge'));
+                                self.reloadProfile(currentToken, currentKey);
+                            })
                         }
                     }
                     next();
@@ -195,10 +206,12 @@ export class Merge {
         var self = this;
         localStorage.setItem('token', ct);
         localStorage.setItem('key_decryption', ck);
+        this.backend.forceReload();
 
         this.check.tick();
         this.backend.getProfile().then(function(profile) {
             self.backend.profile = profile;
+            self.check.tick();
             self.dataservice.listData();
         }, function(e) {
             delete self.backend.profile;

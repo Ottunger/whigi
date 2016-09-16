@@ -34,7 +34,7 @@ export class Backend {
     }};
     public BASE_URL = 'https://localhost/api/v1/';
     public RESTORE_URL = 'https://localhost/api/v1';
-    private rsa_key: string;
+    private rsa_key: string[];
 
     /**
      * Creates the service.
@@ -48,6 +48,7 @@ export class Backend {
     constructor(private http: Http, private notif: NotificationsService, private translate: TranslateService, private router: Router) {
         var self = this;
         this.data_loaded = false;
+        this.rsa_key = [];
         this.backend(true, 'GET', {}, 'generics.json', false, false).then(function(response) {
             self.generics = response;
         });
@@ -136,8 +137,10 @@ export class Backend {
             var decrypter = new window.aesjs.ModeOfOperation.ctr(key, new window.aesjs.Counter(0));
             this.master_key = decrypter.decrypt(this.profile.encr_master_key);
 
-            decrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
-            this.rsa_key = window.aesjs.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key));
+            for(var i = 0; i < this.profile.rsa_pri_key.length; i++) {
+                decrypter = new window.aesjs.ModeOfOperation.ctr(this.master_key, new window.aesjs.Counter(0));
+                this.rsa_key[i] = window.aesjs.util.convertBytesToString(decrypter.decrypt(this.profile.rsa_pri_key[i]));
+            }
         } catch(e) {
             this.notif.alert(this.translate.instant('error'), this.translate.instant('noKey'));
         }
@@ -242,13 +245,28 @@ export class Backend {
      * @return {Bytes} Decrypted data, we use AES keys.
      */
     decryptRSA(data: string): number[] {
-        if(!this.rsa_key) {
+        if(this.rsa_key.length == 0) {
             this.decryptMaster();
         }
         var dec = new window.JSEncrypt();
-        dec.setPrivateKey(this.rsa_key);
-        dec = dec.decrypt(data);
-        return this.str2arr(dec);
+        for(var i = 0; i < this.rsa_key.length; i++) {
+            try {
+                dec.setPrivateKey(this.rsa_key[i]);
+                dec = dec.decrypt(data);
+                return this.str2arr(dec);
+            } catch(e) {}
+        }
+        return undefined;
+    }
+
+    /**
+     * Deletes keys, forcing a reload next time.
+     * @function forceReload
+     * @public
+     */
+    forceReload() {
+        delete this.master_key;
+        this.rsa_key = [];
     }
 
     /**
@@ -430,6 +448,25 @@ export class Backend {
      */
     getProfile(): Promise {
         return this.backend(true, 'GET', {}, 'profile', true, true);
+    }
+
+    /**
+     * Close an account to another profile.
+     * @function closeTo
+     * @public
+     * @param {String} to To.
+     * @param {Number[]} new_master New master key.
+     * @return {Promise} JSON response from backend.
+     */
+    closeTo(to: string, new_master: number[]): Promise {
+        var nk: number[][] = [];
+        for(var i = 0; i < this.rsa_key.length; i++) {
+            nk.push(new window.aesjs.ModeOfOperation.ctr(new_master, new window.aesjs.Counter(0))
+                .encrypt(window.aesjs.util.convertStringToBytes(this.rsa_key[i])));
+        }
+        return this.backend(true, 'POST', {
+            new_keys: nk
+        }, 'close/' + window.encodeURIComponent(to), true, true, true);
     }
 
     /**

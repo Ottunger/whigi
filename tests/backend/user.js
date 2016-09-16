@@ -34,7 +34,7 @@ exports.test = function() {
             'xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4' +
             'gwQco1KRMDSmXSMkDwIDAQAB' +
             '-----END PUBLIC KEY-----',
-        rsa_pri_key: [162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33],
+        rsa_pri_key: [[162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33]],
         is_company: 0
     }
     var dummy_token0 = {
@@ -107,6 +107,25 @@ exports.test = function() {
                     user: new user.User(dummy_user, ds)
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(200).notify(done);
+            });
+        });
+
+        describe('#closeTO()', function() {
+            it('should not allow closing to unknown', function(done) {
+                var f = new fk.FakeRes(false);
+                me.closeTo({
+                    params: {id: 'wtf'},
+                    user: new user.User(dummy_user, ds)
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(404).notify(done);
+            });
+            it('should not allow closing to self', function(done) {
+                var f = new fk.FakeRes(false);
+                me.closeTo({
+                    params: {id: dummy_user._id},
+                    user: new user.User(dummy_user, ds)
+                }, f);
+                chai.expect(f.promise).to.eventually.equal(403).notify(done);
             });
         });
 
