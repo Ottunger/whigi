@@ -343,7 +343,7 @@ export function regUser(req, res) {
 
     if(user.password.length >= 8 || /whigi/i.test(user.username)) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
-            if(ok || utils.DEBUG) {
+            if(ok || utils.DEBUG || !req.query.captcha) {
                 db.retrieveUser(user.username).then(function(u) {
                     if(u == undefined)
                         complete();

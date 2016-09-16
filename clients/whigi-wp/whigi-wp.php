@@ -93,6 +93,7 @@ if(!class_exists('WHIGI')) {
 			'whigi_delete_settings_on_uninstall' => 0,
 
 			'whigi_master_key' => '',
+			'whigi_rsa_pub_key' => '',
 			'whigi_rsa_pri_key' => '-----BEGIN RSA PRIVATE KEY-----
 MIICWwIBAAKBgQCmL1BWiJEUXOrOPAnMM6VM7Iy3mAV5hOsP1lIj/6lDzpQ3Q+7f
 PkG8jBHHoSJM3wLWNtKQMBpu0VsxFnoMIuwkVc/+vZj7nlYMBLrSqOZfY8FBSrOt
@@ -188,6 +189,7 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			$result_obj = json_decode($result, true);
 			update_option('whigi_master_key', base64_encode(openssl_decrypt(implode(array_map("chr", $result_obj['encr_master_key'])), 'AES-256-CTR',
 				implode(array_map("chr", WHIGI::toBytes(hash('sha256', get_option('whigi_whigi_secret') . $result_obj['salt'])))), true)), true);
+			update_option('whigi_rsa_pub_key', $result_obj['rsa_pub_key']);
 			$new = openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'][0])), 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true);
 			if(isset($new) || get_option('whigi_rsa_pri_key') == '')
 				update_option('whigi_rsa_pri_key', $new, true);
@@ -374,7 +376,7 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 
 		function whigi_no_new() {
 			while(@ob_end_clean());
-			header('Location: /wp-admin?whigi-deactivated='.urlencode('Disabled functionality'));
+			header('Location: /wp-admin?whigi-new=true');
 		}
 
 		//Find a vault_id for a user/key pair or null
@@ -751,21 +753,19 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			$vars[] = 'whigi-connect';
 			$vars[] = 'whigi-grant';
 			$vars[] = 'whigi-deactivated';
+			$vars[] = 'whigi-new';
 			return $vars;
 		}
 		
 		//Querystrings we registered
 		function whigi_qvar_handlers() {
 			if(get_query_var('connect') || get_query_var('whigi-connect') || get_query_var('whigi-grant')) {
-				$this->whigi_include_connector();
+				include 'whigi-wp-callbacks.php';
 			} else if(get_query_var('whigi-deactivated')) {
 				$_SESSION["WHIGI"]["RESULT"] = urldecode($_GET['whigi-deactivated']);
+			} else if(get_wuery_var('whigi-new')) {
+				include './whigi-wp-new.php';
 			}
-		}
-		
-		//Load the script of auth
-		function whigi_include_connector() {
-			include 'whigi-wp-callbacks.php';
 		}
 		
 		//Match accounts
