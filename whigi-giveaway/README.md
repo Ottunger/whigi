@@ -38,6 +38,14 @@ Of course, you will need to do a little bit of setup:
 - Change your /etc/apache2/ports.conf file so that it has but: Listen 81
 - Reload apache
 
+- You will need a mail server for testing mailing lists and user imports:
+  - sudo apt-get install vim postfix mailutils libsasl2-2 ca-certificates libsasl2-modules
+  - open /etc/postfix/main.cf to add relayhost = [smtp.gmail.com]:587; smtp\_sasl\_auth\_enable = yes; smtp\_sasl\_password\_maps = hash:/etc/postfix/sasl\_passwd; smtp\_sasl\_security\_options = noanonymous; smtp\_tls\_cert\_file=/etc/ssl/certs/ssl-cert-snakeoil.pem; smtp\_tls\_key\_file=/etc/ssl/private/ssl-cert-snakeoil.key; smtp\_use\_tls=yes
+  - open /etc/postfix/sasl\_passwd to add [smtp.gmail.com]:587 whigi.com@gmail.com:nNP36gFYmMeND3dIoKwR
+  - sudo chmod 400 /etc/postfix/sasl\_passwd
+  - sudo postmap /etc/postfix/sasl\_passwd
+  - sudo /etc/init.d/postfix reload
+
 - Start this website:
   - Install dependencies: npm install
   - Build all whigi: npm run build

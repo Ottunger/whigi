@@ -359,9 +359,9 @@
 						echo "<th scope='row'>" . $i18n[$val["descr_key"]] . "</th>";
 						$held = "No keys";
 						if(!empty($val['json_keys'])) {
-							$held = "Keys: "
-							foreach($val['json_keys'] as $key => $val) {
-								$held .= $val . "(" . $i18n[$val] . "), ";
+							$held = "Keys: ";
+							foreach($val['json_keys'] as $ks => $vals) {
+								$held .= $vals . "(" . $i18n[$vals] . "), ";
 							}
 						}
 						echo "<td>" . $key . "</td><td>" . (($val['is_dated'])? 'Dated field' : 'Not dated') . "</td><td>" . $held . "</td></tr>";

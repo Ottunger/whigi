@@ -147,7 +147,7 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			while(ord($b[$i]) != 0)
 				if(++$i >= $l)
 					return null;
-			$ret = "";
+			$ret = '';
 			while(++$i < $l) {
 				$c = ord($b[$i]) & 255;
 				if($c < 128) {
@@ -161,6 +161,35 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 				}
 			}
 			return $ret;
+		}
+
+		public static function pkcs1pad2($s, $bits = 4096) {
+			$n = ($bits + 7) >> 3;
+			$l = strlen($s);
+			if($n < $l + 11) {
+				return null;
+			}
+			$ba = '';
+			$i = $l - 1;
+			while($i >= 0 && $n > 0) {
+				$c = ord($s[$i--]);
+				if($c < 128) {
+					$ba[--$n] = $c;
+				} else if($c > 127) {
+					$ba[--$n] = ($c & 63) | 128;
+					$ba[--$n] = ($c >> 6) | 192;
+				}
+			}
+			$ba[--$n] = 0;
+			while($n > 2) {
+				$ba[$n] = 0;
+				while($ba[$n] == 0)
+					$ba[$n] = openssl_random_pseudo_bytes(1);
+				--$n;
+			}
+			$ba[--$n] = 2;
+			$ba[--$n] = 0;
+			return $ba;
 		}
 		
 		//Parse master key and RSA private key
@@ -376,7 +405,7 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 
 		function whigi_no_new() {
 			while(@ob_end_clean());
-			header('Location: /wp-admin?whigi-new=true');
+			header('Location: /?whigi-new=true');
 		}
 
 		//Find a vault_id for a user/key pair or null
@@ -763,8 +792,9 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 				include 'whigi-wp-callbacks.php';
 			} else if(get_query_var('whigi-deactivated')) {
 				$_SESSION["WHIGI"]["RESULT"] = urldecode($_GET['whigi-deactivated']);
-			} else if(get_wuery_var('whigi-new')) {
-				include './whigi-wp-new.php';
+			} else if(get_query_var('whigi-new')) {
+				include 'whigi-wp-new.php';
+				exit();
 			}
 		}
 		
