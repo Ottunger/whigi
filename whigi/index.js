@@ -112,6 +112,7 @@ function connect(callback) {
         db = new datasources.Datasource(d, process.argv[8]);
         user.managerInit(db);
         data.managerInit(db);
+        checks.prepareRL();
         callback(false)
     } else {
         callback(true);

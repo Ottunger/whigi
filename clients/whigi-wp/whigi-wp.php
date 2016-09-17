@@ -1088,8 +1088,9 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			$str .= "<h1>Linked Accounts</h1>";
 			$str .= "<h2>Your account on this site is a shared Whigi account. Therefore, you cannot edit it here, you should edit it at your whigi provider,"
 				. " which will forward it automatically everywhere, including here.</h2></div>";
-			for($i = 0; $i < 3; $i++)
-				$str .= "<div style='display: none;'>";
+			if(preg_match("/s2Member/", $cnt) === FALSE)
+				for($i = 0; $i < 3; $i++)
+					$str .= "<div style='display: none;'>";
 			while(@ob_get_clean());
 			echo $str;
 		}

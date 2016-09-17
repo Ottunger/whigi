@@ -9,6 +9,7 @@
   "client.userExists": "Client error: User already exists",
   "client.puzzle": "Client error: Puzzle reference is corrupted.",
   "client.captcha": "Client error: No robot here!",
+  "client.burst": "Client error: Rate limiting exceeded.",
   "internal.db": "Internal error: No database connection",
   "internal.noStats": "Internal error: No retrievable stats",
   "internal.noTickets": "Internal error: No retrievable tickets",

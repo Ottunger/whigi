@@ -13,6 +13,7 @@
     "google-protobuf": "^3.0.0",
     "helmet": "^2.1.2",
     "js-sha256": "^0.3.0",
+    "limiter": "^1.1.0",
     "mocha": "^3.0.2",
     "node-rsa": "^0.4.0",
     "node-schedule": "^1.1.1",

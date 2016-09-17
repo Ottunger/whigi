@@ -5,7 +5,7 @@
 	<div id="whigi-settings-header">
 	<p>
 		Welcome to Whigi-WP. This plugin aims at integrating Whigi into WP, and so modifies a bit the default behavior or Wordpress:
-		Any user can now register always using a Whigi account, because a Whigi account is nothing but an account here as well.$_COOKIE
+		Any user can now register always using a Whigi account, because a Whigi account is nothing but an account here as well.
 		Therefore, we do not need anymore the registration form (login is enough!), the lost password, not the add user manually.
 	</p>
 	<p>

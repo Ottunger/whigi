@@ -426,7 +426,10 @@ export class Dataview implements OnInit, OnDestroy {
         var file: File = e.target.files[0]; 
         var r: FileReader = new FileReader();
         r.onloadend = function(e) {
-            self.new_data_file = r.result;
+            if(/^data:;base64,/.test(r.result))
+                self.new_data_file = atob(r.result.split(',')[1]);
+            else
+                self.new_data_file = r.result;
         }
         r.readAsDataURL(file);
     }

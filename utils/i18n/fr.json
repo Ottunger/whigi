@@ -9,6 +9,7 @@
   "client.userExists": "Erreur client: Utilisateur existe déjà",
   "client.puzzle": "Erreur client: Mauvaise référence puzzle.",
   "client.captcha": "Erreur client: Pas de robot ici!",
+  "client.burst": "Erreur client: Limite de flux atteinte.",
   "internal.db": "Erreur interne: Pas de connexion à la base de données",
   "internal.noStats": "Erreur interne: Pas de statistiques",
   "internal.noTickets": "Erreur interne: Pas de tickets",

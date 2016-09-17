@@ -132,7 +132,10 @@ export class Logginglight implements OnInit {
         var file: File = e.target.files[0]; 
         var r: FileReader = new FileReader();
         r.onloadend = function(e) {
-            self.password = r.result;
+            if(/^data:;base64,/.test(r.result))
+                self.password = atob(r.result.split(',')[1]);
+            else
+                self.password = r.result;
         }
         r.readAsText(file);
     }

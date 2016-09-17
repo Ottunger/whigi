@@ -7,7 +7,18 @@
 'use strict';
 declare var require: any
 var hash = require('js-sha256').sha256;
+var RL = require('limiter').RateLimiter;
 var utils = require('./utils');
+var rl;
+
+/**
+ * Prepare the rate limiting.
+ * @function prepareRL
+ * @public
+ */
+export function prepareRL() {
+    rl = new RL(30 * 1024 * 1024, 'second', true);
+}
 
 /**
  * Verifies that the client has generated an OK solution. Anyways, generate a new challenge.
@@ -27,7 +38,13 @@ export function checkPuzzle(req, res, next) {
         if(complete.charAt(0) == '0' && complete.charAt(1) == '0' && complete.charAt(2) == '0' && complete.charAt(3) == '0') {
             req.user.puzzle = utils.generateRandomString(16);
             req.user.persist();
-            next();
+            rl.removeTokens(Buffer.byteLength(req.body, 'utf8'), function(e, r) {
+                if(r < 0) {
+                    res.type('application/json').status(429).json({error: utils.i18n('client.burst', req), puzzle: req.user.puzzle});
+                } else {
+                    next();
+                }
+            });
         } else {
             req.user.puzzle = utils.generateRandomString(16);
             req.user.persist();

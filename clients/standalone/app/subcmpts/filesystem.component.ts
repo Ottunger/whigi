@@ -278,7 +278,10 @@ export class Filesystem implements OnInit {
         var file: File = e.target.files[0]; 
         var r: FileReader = new FileReader();
         r.onloadend = function(e) {
-            self.data_value_file = r.result;
+            if(/^data:;base64,/.test(r.result))
+                self.data_value_file = atob(r.result.split(',')[1]);
+            else
+                self.data_value_file = r.result;
         }
         r.readAsDataURL(file);
     }
