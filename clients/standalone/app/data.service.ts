@@ -250,8 +250,8 @@ export class Data {
     getVault(id: string): Promise {
         var self = this;
         return new Promise(function(resolve, reject) {
-            self.backend.getVault(id).then(function(vault) {
-                var aesKey: number[] = self.backend.decryptRSA(vault.aes_crypted_shared_pub);
+            self.backend.getVault(id).then(function(vault) {console.log(vault.aes_crypted_shared_pub);
+                var aesKey: number[] = self.backend.decryptRSA(vault.aes_crypted_shared_pub);console.log(aesKey);
                 self.backend.decryptAES(self.backend.str2arr(vault.data_crypted_aes), self.workerMgt(false, function(got) {
                     vault.decr_data = got;
                     resolve(vault);

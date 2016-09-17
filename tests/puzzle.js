@@ -1,7 +1,7 @@
 /**
  * Compute puzzle for front-end test.
  * @module puzzle
- * @author Mathonet Grégoire
+ * @author Mathonet GrÃ©goire
  */
 
 var hash = require('js-sha256');

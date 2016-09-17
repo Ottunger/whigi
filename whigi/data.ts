@@ -137,77 +137,90 @@ export function removeData(req, res) {
  * @param {Request} req The request.
  * @param {Response} res The response.
  * @param {Boolean} respond Should respond.
+ * @return {Promise} When complete.
  */
-export function regVault(req, res, respond?: boolean) {
+export function regVault(req, res, respond?: boolean): Promise {
     var got = req.body;
-    respond = respond || true;
-    if(req.user._id == got.shared_to_id) {
-        if(!!respond)
-            res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
-        return;
-    }
-    req.user.fill().then(function() {
-        if(!(got.real_name in req.user.data)) {
-            if(!!respond)
-                res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
-        } else {
-            if(got.shared_to_id in req.user.data[got.real_name].shared_to) {
-                if(!!respond)
-                    res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id]});
+    respond = respond !== false;
+    return new Promise(function(resolve, reject) {
+        if(req.user._id == got.shared_to_id) {
+            if(respond === true)
+                res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
+            reject();
+            return;
+        }
+        req.user.fill().then(function() {
+            if(!(got.real_name in req.user.data)) {
+                if(respond === true)
+                    res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+                reject();
             } else {
-                var v: Vault = new Vault({
-                    _id: utils.generateRandomString(128),
-                    shared_to_id: got.shared_to_id,
-                    data_name: got.data_name,
-                    aes_crypted_shared_pub: got.aes_crypted_shared_pub,
-                    data_crypted_aes: got.data_crypted_aes,
-                    sharer_id: req.user._id,
-                    last_access: 0,
-                    expire_epoch: got.expire_epoch,
-                    trigger: got.trigger.replace(/^http:\/\//, '').replace(/^https:\/\//, ''),
-                    is_dated: req.user.data[got.real_name].is_dated,
-                    real_name: got.real_name
-                }, db);
-                db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
-                    if(!sharee || sharee._id == req.user.id) {
-                        if(!!respond)
-                            res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
-                        return;
-                    }
-                    v.persist().then(function() {
-                        req.user.data[got.real_name].shared_to[got.shared_to_id] = v._id;
-                        req.user.persist().then(function() {
-                            sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
-                            if(v.data_name in sharee.shared_with_me[req.user._id]) {
-                                db.retrieveVault(sharee.shared_with_me[req.user._id][v.data_name]).then(function(ret: Vault) {
-                                    ret.unlink();
+                if(got.shared_to_id in req.user.data[got.real_name].shared_to) {
+                    if(respond === true)
+                        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id]});
+                    reject();
+                } else {
+                    var v: Vault = new Vault({
+                        _id: utils.generateRandomString(128),
+                        shared_to_id: got.shared_to_id,
+                        data_name: got.data_name,
+                        aes_crypted_shared_pub: got.aes_crypted_shared_pub,
+                        data_crypted_aes: got.data_crypted_aes,
+                        sharer_id: req.user._id,
+                        last_access: 0,
+                        expire_epoch: got.expire_epoch,
+                        trigger: got.trigger.replace(/^http:\/\//, '').replace(/^https:\/\//, ''),
+                        is_dated: req.user.data[got.real_name].is_dated,
+                        real_name: got.real_name
+                    }, db);
+                    db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
+                        if(!sharee || sharee._id == req.user.id) {
+                            if(respond === true)
+                                res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
+                            reject();
+                            return;
+                        }console.log(v);
+                        v.persist().then(function() {
+                            req.user.data[got.real_name].shared_to[got.shared_to_id] = v._id;
+                            req.user.persist().then(function() {
+                                sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
+                                if(v.data_name in sharee.shared_with_me[req.user._id]) {
+                                    db.retrieveVault(sharee.shared_with_me[req.user._id][v.data_name]).then(function(ret: Vault) {
+                                        ret.unlink();
+                                    });
+                                }
+                                sharee.shared_with_me[req.user._id][v.data_name] = v._id;
+                                sharee.persist().then(function() {
+                                    if(respond === true)
+                                        res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
+                                    resolve();
+                                }, function(e) {
+                                    if(respond === true)
+                                        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                                    reject();
                                 });
-                            }
-                            sharee.shared_with_me[req.user._id][v.data_name] = v._id;
-                            sharee.persist().then(function() {
-                                if(!!respond)
-                                    res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
                             }, function(e) {
-                                if(!!respond)
+                                if(respond === true)
                                     res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                                reject();
                             });
                         }, function(e) {
-                            if(!!respond)
+                            if(respond === true)
                                 res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                            reject();
                         });
                     }, function(e) {
-                        if(!!respond)
+                        if(respond === true)
                             res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                        reject();
                     });
-                }, function(e) {
-                    if(!!respond)
-                        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
-                });
+                }
             }
-        }
-    }, function(e) {
-        if(!!respond)
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        }, function(e) {
+            if(respond === true)
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            reject();
+        });
     });
 }
 

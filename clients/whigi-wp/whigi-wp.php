@@ -135,7 +135,7 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			return $ret;
 		}
 
-		public static function pkcs1unpad2($b, $bits = 4096) {
+		public static function pkcs1unpad2($b, $bits = 1024) {
 			$i = 0;
 			$n = ($bits + 7) >> 3;
 			$l = strlen($b);

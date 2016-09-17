@@ -22,7 +22,7 @@ enableProdMode();
         <br />
 
         <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="vault.data_name" [change]="false"
-            [is_folder]="is_generic && !!backend.generics[gen_name] && !!backend.generics[gen_name].json_keys" [gen_name]="vault.data_name"></clear-view>
+            [is_folder]="is_generic && !!backend.generics[vault.data_name] && !!backend.generics[vault.data_name].json_keys" [gen_name]="vault.data_name"></clear-view>
     `
 })
 export class Vaultview implements OnInit, OnDestroy {

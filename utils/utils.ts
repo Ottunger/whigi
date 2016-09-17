@@ -190,34 +190,27 @@ export function pkcs1unpad2(b: number[], k: number): number[] {
  * @param {Number} k Number of bits in key.
  * @return {Number[]} Padded.
  */
-export function pkcs1pad2(s: string, k: number): number[] {
+export function pkcs1pad2(s: number[], k: number): number[] {
     var n = (k + 7) >> 3;
     if(n < s.length + 11) {
         return null;
     }
-    var ba = new Array();
+    var ba = new Array(n);
     var i = s.length - 1;
     while(i >= 0 && n > 0) {
-        var c = s.charCodeAt(i--);
+        var c = s[i--];
         if(c < 128) {
             ba[--n] = c;
-        } else if((c > 127) && (c < 2048)) {
-            ba[--n] = (c & 63) | 128;
-            ba[--n] = (c >> 6) | 192;
         } else {
             ba[--n] = (c & 63) | 128;
-            ba[--n] = ((c >> 6) & 63) | 128;
-            ba[--n] = (c >> 12) | 224;
+            ba[--n] = (c >> 6) | 192;
         }
     }
     ba[--n] = 0;
-    var rng = new Random();
-    var x = new Array();
     while(n > 2) {
-        ba[n] = 0;
+        ba[--n] = 0;
         while(ba[n] == 0)
             ba[n] = Math.floor(Math.random() * 254 + 1);
-        --n;
     }
     ba[--n] = 2;
     ba[--n] = 0;
@@ -242,7 +235,7 @@ export function decryptRSA(data: string, rsa_key: string): number[] {
         }
     );
     var arr = dec.decrypt(data);
-    return pkcs1unpad2(arr, 4096);
+    return pkcs1unpad2(arr, 1024);
 }
 
 /**
@@ -253,17 +246,18 @@ export function decryptRSA(data: string, rsa_key: string): number[] {
  * @param {String} rsa_key Key.
  * @return {Number[]} Encrypted data, we use AES keys.
  */
-export function encryptRSA(data: string, rsa_key: string): number[] {
+export function encryptRSA(data: number[], rsa_key: string): number[] {
     var dec = new RSA(
-        rsa_key, 'pkcs1-private-pem', {
+        rsa_key, 'pkcs8-public', {
             encryptionScheme: {
                 scheme: 'pkcs1',
-                padding: constants.RSA_NO_PADDING
+                //padding: constants.RSA_NO_PADDING
             }
         }
     );
-    var arr = dec.encrypt(pkcs1pad2(data, 4096));
-    return arr;
+    //var arr = pkcs1pad2(data, 1024);
+    var arr = data
+    return dec.encrypt(arr);
 }
 
 /**

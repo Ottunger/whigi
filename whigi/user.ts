@@ -37,7 +37,7 @@ export function managerInit(dbg: Datasource) {
         }
     });
     db = dbg;
-    rsa = new RSAPool(10, 4096, false);
+    rsa = new RSAPool(10, 1024, false);
 }
 
 /**
@@ -255,7 +255,7 @@ export function listData(req, res) {
  */
 export function recData(req, res, respond?: boolean): Promise {
     var got = req.body;
-    respond = respond || true;
+    respond = respond !== false;
     return new Promise(function(resolve, reject) {
         req.user.fill().then(function() {
             var newid = utils.generateRandomString(128);
@@ -264,25 +264,25 @@ export function recData(req, res, respond?: boolean): Promise {
                 length: Buffer.byteLength(got.encr_data, 'utf8'),
                 is_dated: got.is_dated,
                 shared_to: {}
-            }
+            };
             var frg: Datafragment = new Datafragment(newid, got.encr_data, db);
             frg.persist().then(function() {
                 req.user.persist().then(function() {
-                    if(!!respond)
+                    if(respond === true)
                         res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid});
-                    resolve();
+                    resolve(req.pass);
                 }, function(e) {
-                    if(!!respond)
+                    if(respond === true)
                         res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                     reject();
                 });
             }, function(e) {
-                if(!!respond)
+                if(respond === true)
                     res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                 reject();
             });
         }, function(e) {
-            if(!!respond)
+            if(respond === true)
                 res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
             reject();
         });
@@ -320,40 +320,74 @@ export function updateUser(req, res) {
 export function regUser(req, res) {
     var user = req.body;
     var pre_master_key: string = utils.generateRandomString(64);
+    var rd: Function = recData;
+    var array: any[] = [], index = 0;
 
+    function next(u: User) {
+        if(index < array.length) {
+            var work = array[index];
+            index++;
+
+            db.retrieveUser(work.shared_to_id).then(function(rem: User) {
+                if(!!rem) {
+                    var pub_key: string = rem.rsa_pub_key;
+                    var naes: number[] = utils.toBytes(utils.generateRandomString(64));
+                    console.log(work.real_name);
+                    console.log(naes);
+                    console.log(new Buffer(utils.encryptRSA(naes, pub_key)).toString('base64'));
+                    data.regVault({
+                        user: u,
+                        body: {
+                            shared_to_id: rem._id,
+                            real_name: work.real_name,
+                            data_name: work.shared_as,
+                            trigger: work.shared_trigger,
+                            expire_epoch: work.shared_epoch,
+                            aes_crypted_shared_pub: new Buffer(utils.encryptRSA(naes, pub_key)).toString('base64'),
+                            data_crypted_aes: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
+                                .encrypt(aes.util.convertStringToBytes(work.data))))
+                        }
+                    }, {}, false).then(function() {
+                        next(u);
+                    }, function(e) {
+                        next(u);
+                    });
+                }
+            }, function(e) {
+                next(u);
+            });
+        }
+    }
     function end(u: User) {
         u.persist().then(function() {
             res.type('application/json').status(201).json({error: ''});
             if('more' in req.body) {
+                var done = 0;
                 for(var i = 0; i < req.body.more.length; i++) {
-                    recData({
+                    var encr = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
+                        .encrypt(aes.util.convertStringToBytes(req.body.more[i].data))));
+                    rd({
                         user: u,
                         body: {
                             name: req.body.more[i].real_name,
                             is_dated: req.body.more[i].is_dated,
-                            encr_data: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
-                                .encrypt(aes.util.covertStringToBytes(req.body.more[i].data))))
-                        }
-                    }, {}, false).then(function() {
-                        for(var j = 0; j < req.body.more[i].shared_to.length; j++) {
-                            db.retrieveUser(req.body.more[i].shared_to[j]).then(function(rem: User) {
-                                var pub_key = rem.rsa_pub_key;
-                                var naes = utils.toBytes(utils.generateRandomString(64));
-                                data.regVault({
-                                    user: u,
-                                    body: {
-                                        shared_to_id: req.body.more[i].shared_to[j],
-                                        real_name: req.body.more[i].real_name,
-                                        data_name: req.body.more[i].shared_as,
-                                        trigger: req.body.more[i].trigger,
-                                        expire_epoch: req.body.more[i].epoch,
-                                        aes_crypted_shared_pub: new Buffer(utils.encryptRSA(naes, pub_key)).toString('base64'),
-                                        data_crypted_aes: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
-                                            .encrypt(aes.util.covertStringToBytes(req.body.more[i].data))))
-                                    }
-                                }, {}, false);
+                            encr_data: encr
+                        },
+                        pass: req.body.more[i]
+                    }, {}, false).then(function(passed) {
+                        for(var j = 0; j < passed.shared_to.length; j++) {
+                            array.push({
+                                shared_to_id: passed.shared_to[j],
+                                real_name: passed.real_name,
+                                shared_as: passed.shared_as,
+                                shared_trigger: passed.shared_trigger,
+                                shared_epoch: passed.shared_epoch,
+                                data: passed.data
                             });
                         }
+                        done++;
+                        if(done == req.body.more.length)
+                            next(u);
                     });
                 }
             }
