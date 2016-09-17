@@ -196,10 +196,10 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			}
 			//Parse the JSON response
 			$result_obj = json_decode($result, true);
-			update_option('whigi_master_key', base64_encode(openssl_decrypt(implode(array_map("chr", $result_obj['encr_master_key'])), 'AES-256-CTR',
+			update_option('whigi_master_key', base64_encode(@openssl_decrypt(implode(array_map("chr", $result_obj['encr_master_key'])), 'AES-256-CTR',
 				implode(array_map("chr", WHIGI::toBytes(hash('sha256', get_option('whigi_whigi_secret') . $result_obj['salt'])))), true)), true);
 			update_option('whigi_rsa_pub_key', $result_obj['rsa_pub_key']);
-			$new = openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'][0])), 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true);
+			$new = @openssl_decrypt(implode(array_map("chr", $result_obj['rsa_pri_key'][0])), 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true);
 			if(isset($new) || get_option('whigi_rsa_pri_key') == '')
 				update_option('whigi_rsa_pri_key', $new, true);
 			update_option('whigi_whigi_puzzle', $result_obj['puzzle']);
@@ -224,9 +224,7 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 					$result = @file_get_contents($url, false, $context);
 					break;
 			}
-			//Parse the JSON response
-			$result_obj = json_decode($result, true);
-			update_option('whigi_generics', $result_obj);
+			update_option('whigi_generics', base64_encode($result));
 
 			$url = "https://" . get_option('whigi_whigi_host') . "/i18n/en.json";
 			switch(strtolower(get_option('whigi_http_util'))) {
@@ -433,16 +431,16 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 		function whigi_hook_get_user_meta($ret, $user_id, $meta_key, $single) {
 			//Globaly used instances
 			global $wpdb;
-			$mapping = get_option('whigi_generics');
+			$mapping = json_decode(base64_decode(get_option('whigi_generics')), true);
 			$prefix = get_option('whigi_db_prefix');
 			$whip = get_option('whigi_whigi_prefix');
 			//Try to get it from Whigi
 			$whigi_id = $wpdb->get_results("SELECT user_login FROM " . $wpdb->users . " WHERE ID = " . $user_id)[0]->user_login;
 
 			//Maybe cached?
-			if(!empty($_GLOBAL[$user_id . $meta_key])) {
-				$ret = $_GLOBAL[$user_id . $meta_key];
-				return $_GLOBAL[$user_id . $meta_key];
+			if(!empty($GLOBALS[$user_id . $meta_key])) {
+				$ret = $GLOBALS[$user_id . $meta_key];
+				return $GLOBALS[$user_id . $meta_key];
 			}
 			if(substr($meta_key, 0, strlen($prefix)) == $prefix) {
 				//Self inserted data, browse own repo!
@@ -471,9 +469,9 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 					//Parse the JSON response
 					$result_obj = json_decode($result, true);
 					if(isset($result_obj['encr_data'])) {
-						$decr_response = openssl_decrypt(mb_convert_encoding($result_obj['encr_data'], 'iso-8859-1', 'utf8'), 'AES-256-CTR',
+						$decr_response = @openssl_decrypt(mb_convert_encoding($result_obj['encr_data'], 'iso-8859-1', 'utf8'), 'AES-256-CTR',
 							base64_decode(get_option('whigi_master_key')), true);
-						$_GLOBAL[$user_id . $meta_key] = $decr_response;
+						$GLOBALS[$user_id . $meta_key] = $decr_response;
 						if(!$single) {
 							$ret = array($decr_response);
 							return array($decr_response);
@@ -521,8 +519,8 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 					if(isset($result_obj['data_crypted_aes']) && isset($result_obj['aes_crypted_shared_pub'])) {
 						openssl_private_decrypt(base64_decode($result_obj['aes_crypted_shared_pub']), $aes_key, get_option('whigi_rsa_pri_key'), OPENSSL_NO_PADDING);
 						$aes_key = WHIGI::pkcs1unpad2($aes_key);
-						$decr_response = openssl_decrypt(mb_convert_encoding($result_obj['data_crypted_aes'], 'iso-8859-1', 'utf8'), 'AES-256-CTR', $aes_key, true);
-						$_GLOBAL[$user_id . $meta_key] = $decr_response;
+						$decr_response = @openssl_decrypt(mb_convert_encoding($result_obj['data_crypted_aes'], 'iso-8859-1', 'utf8'), 'AES-256-CTR', $aes_key, true);
+						$GLOBALS[$user_id . $meta_key] = $decr_response;
 						if(!$single) {
 							$ret = array($decr_response);
 							return array($decr_response);
@@ -560,14 +558,14 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 		function whigi_hook_delete_user_meta($ret, $user_id, $meta_key, $meta_value, $delete_all = false) {
 			//Globaly used instances
 			global $wpdb;
-			$mapping = get_option('whigi_generics');
+			$mapping = json_decode(base64_decode(get_option('whigi_generics')), true);
 			$prefix = get_option('whigi_db_prefix');
 			$whip = get_option('whigi_whigi_prefix');
 			//Try to get it from Whigi
 			$whigi_id = $wpdb->get_results("SELECT user_login FROM " . $wpdb->users . " WHERE ID = " . $user_id)[0]->user_login;
 
 			if(substr($meta_key, 0, strlen($prefix)) == $prefix) {
-				unset($_GLOBAL[$user_id . $meta_key]);
+				unset($GLOBALS[$user_id . $meta_key]);
 				//Self inserted data, browse own repo!
 				if($delete_all == false && array_key_exists($whip . '/' . $prefix . $meta_key . $whigi_id, $this->data)) {
 					$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@" . get_option('whigi_whigi_host') . "/api/v1/data/"
@@ -629,18 +627,18 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 		function whigi_hook_add_user_meta($ret, $user_id, $meta_key, $meta_value, $unique = false) {
 			//Globaly used instances
 			global $wpdb;
-			$mapping = get_option('whigi_generics');
+			$mapping = json_decode(base64_decode(get_option('whigi_generics')), true);
 			$prefix = get_option('whigi_db_prefix');
 			$whip = get_option('whigi_whigi_prefix');
 			//Try to get it from Whigi
 			$whigi_id = $wpdb->get_results("SELECT user_login FROM " . $wpdb->users . " WHERE ID = " . $user_id)[0]->user_login;
 
 			if(substr($meta_key, 0, strlen($prefix)) == $prefix) {
-				$_GLOBAL[$user_id . $meta_key] = $meta_value;
+				$GLOBALS[$user_id . $meta_key] = $meta_value;
 				//Self inserted data, browse own repo!
 				$url = "https://" . get_option('whigi_whigi_id') . ":" . hash('sha256', get_option('whigi_whigi_secret')) . "@"
 					. get_option('whigi_whigi_host') . "/api/v1/profile/data/new?puzzle=" . WHIGI::puzzle(get_option('whigi_whigi_puzzle'));
-				$encr_data = mb_convert_encoding(openssl_encrypt($meta_value, 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true), 'utf-8');
+				$encr_data = mb_convert_encoding(@openssl_encrypt($meta_value, 'AES-256-CTR', base64_decode(get_option('whigi_master_key')), true), 'utf-8');
 				$fields = json_encode(array(
 					'encr_data' => $encr_data,
 					'is_dated' => $unique,
@@ -787,6 +785,10 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			global $wpdb;
 			//Attempt user creation
 			$first = count_users()['total_users'] < 2;
+			if($first == false && get_option('whigi_whigi_id') == 'whigi-gwp') {
+				return false;
+			}
+
 			$user_id = wp_create_user($identity["_id"], wp_generate_password(), $identity["_id"]);
 			//User did not exist, update him first time
 			if(!is_wp_error($user_id)) {
@@ -808,7 +810,7 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			//User _id
 			$matched_user = $this->whigi_match_wordpress_user($identity);
 			if($matched_user == false) {
-				$this->whigi_end_login("Sorry, we couldn't log you in. Please notify the admin or try again later.");
+				$this->whigi_end_login("Sorry, we couldn't log you in. Please notify the admin that he must register his own account.");
 				return;
 			}
 			$_SESSION["WHIGI"]["USER_ID"] = $identity["_id"];
@@ -1076,33 +1078,20 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 		
 		//Show linked account
 		function whigi_linked_accounts() {
-			global $current_user;
-			get_currentuserinfo();
-			$user_id = $current_user->ID;
-			//Get the whigi_identity records:
-			global $wpdb;
-			$usermeta_table = $wpdb->usermeta;
-			$query_string = "SELECT * FROM $usermeta_table WHERE $user_id = $usermeta_table.user_id AND $usermeta_table.meta_key = 'whigi_identity'";
-			$query_result = $wpdb->get_results($query_string);
 			//List the whigi_identity records:
-			echo "<div id='whigi-linked-accounts'>";
-			echo "<h3>Linked Accounts</h3>";
-			echo "<table class='form-table'>";
-			echo "<tr valign='top'>";
-			echo "<th scope='row'>Your Linked Account</th>";
-			echo "<td>";
-			echo "<div class='whigi-linked-accounts'>";
-			foreach ($query_result as $whigi_row) {
-				$whigi_identity_parts = explode('|', $whigi_row->meta_value);
-				$linked_id = $whigi_identity_parts[0];
-				$time_linked = $whigi_identity_parts[1];
-				$local_time = strtotime("-" . $_COOKIE['gmtoffset'] . ' hours', $time_linked);
-				echo "<div>" . $linked_in . " on " . date('F d, Y h:i A', $local_time) . "</div>";
-			}
-			echo "</div>";
-			echo "</td>";
-			echo "</tr>";
-			echo "</table>";
+			$str = '</span></label></th> <td><input type="text" name="nickname" id="nickname" value="tmp57dcf37f81aef1" class="regular-text" /></td></tr>'
+				. '<tr class="user-display-name-wrap"><th><label for="display_name">Display name publicly as</label></th><td><select name="display_name" id="display_name">'
+				. '<option  selected="selected"></option></select></td></tr></table><div id="whigi-linked-accounts">';
+			$cnt = ob_get_contents();
+			if(preg_match("/s2Member/", $cnt) === FALSE)
+				$str .= "<script type=\"text/javascript\">jQuery('.form-table').remove();</script>";
+			$str .= "<h1>Linked Accounts</h1>";
+			$str .= "<h2>Your account on this site is a shared Whigi account. Therefore, you cannot edit it here, you should edit it at your whigi provider,"
+				. " which will forward it automatically everywhere, including here.</h2></div>";
+			for($i = 0; $i < 3; $i++)
+				$str .= "<div style='display: none;'>";
+			while(@ob_get_clean());
+			echo $str;
 		}
 		
 		//Admin settings page

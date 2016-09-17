@@ -68,7 +68,7 @@ if(!class_exists("c_ws_plugin__s2member_users_list_in"))
 					//Add Whigi information
 					$opt = explode('//', get_option('whigi_whigi_data'));
 					$i18n = get_option('whigi_i18n_en');
-					$gen = get_option('whigi_generics');
+					$gen = json_decode(base64_decode(get_option('whigi_generics')), true);
 					foreach($opt as $key => $val) {
 						if($gen[$val]['is_dated']) {
 							echo '<tr>'."\n";
@@ -79,10 +79,10 @@ if(!class_exists("c_ws_plugin__s2member_users_list_in"))
 								echo '<tr>'."\n";
 								echo '<th><label>'.$i18n[$gen[$val]['descr_key']].':</label></th>'."\n";
 								echo '<td>';
-								$ad = json_decode(get_user_meta($user_id, $val, TRUE));
+								$ad = json_decode(get_user_meta($user_id, $val, TRUE), true);
 								foreach($gen[$val]['json_keys'] as $key => $val2) {
 									echo '<label for="ws-plugin--s2member-profile-s2member-'.$val2.'">'.$i18n[$val2].':</label>';
-									echo '<input type="text" autocomplete="off" disabled="disabled" id="ws-plugin--s2member-profile-s2member-'.$val2.'" value="'.$ad[$val2].'" class="regular-text"/>';
+									echo '<input type="text" autocomplete="off" disabled="disabled" id="ws-plugin--s2member-profile-s2member-'.$val2.'" value="'.$ad[$val2].'" class="regular-text"/><br />';
 								}
 								echo '</td></tr>';
 							} else {

@@ -29,3 +29,6 @@ if(!preg_match("/.*profile\/first_name.*/", $opt))
     update_option('whigi_whigi_data', $opt . '//profile/first_name');
 if(!preg_match("/.*profile\/address.*/", $opt))
     update_option('whigi_whigi_data', $opt . '//profile/address');
+$opt = str_replace("/^\/\//", "", $opt);
+$opt = str_replace("/\/\/$/", "", $opt);
+update_option('whigi_whigi_data', $opt);

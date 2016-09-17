@@ -179,7 +179,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                                 res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
                             reject();
                             return;
-                        }console.log(v);
+                        }
                         v.persist().then(function() {
                             req.user.data[got.real_name].shared_to[got.shared_to_id] = v._id;
                             req.user.persist().then(function() {

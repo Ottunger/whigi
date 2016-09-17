@@ -332,9 +332,6 @@ export function regUser(req, res) {
                 if(!!rem) {
                     var pub_key: string = rem.rsa_pub_key;
                     var naes: number[] = utils.toBytes(utils.generateRandomString(64));
-                    console.log(work.real_name);
-                    console.log(naes);
-                    console.log(new Buffer(utils.encryptRSA(naes, pub_key)).toString('base64'));
                     data.regVault({
                         user: u,
                         body: {
