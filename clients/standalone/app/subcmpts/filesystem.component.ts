@@ -71,7 +71,12 @@ enableProdMode();
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="text" [(ngModel)]="data_value" name="s1" class="form-control"></td>
                         <td>
-                            <input [(ngModel)]="new_date" datetime-picker class="form-control">
+                            <div class='input-group date' id='pick1'>
+                                <input type='text' class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
                             <button type="button" class="btn btn-default" (click)="register(false, true)">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
@@ -79,7 +84,12 @@ enableProdMode();
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td><input type="file" (change)="fileLoad($event)" name="n50" class="form-control"></td>
                         <td>
-                            <input [(ngModel)]="new_date" datetime-picker class="form-control">
+                            <div class='input-group date' id='pick2'>
+                                <input type='text' class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
                             <button type="button" class="btn btn-default" (click)="register(true, true)" [disabled]="data_value_file==''">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
@@ -93,7 +103,6 @@ export class Filesystem implements OnInit {
     public data_name: string;
     public data_value: string;
     public data_value_file: string;
-    public new_date: string;
     private mode: string;
     private folders: string;
     private sub: Subscription;
@@ -128,6 +137,10 @@ export class Filesystem implements OnInit {
             if(!!params['folders'])
                 self.folders = params['folders'];
             self.mode = params['mode'];
+            setTimeout(function() {
+                window.$('#pick1').datetimepicker();
+                window.$('#pick2').datetimepicker();
+            }, 100);
         });
     }
 
@@ -147,7 +160,7 @@ export class Filesystem implements OnInit {
         if(is_dated) {
             send = JSON.stringify([{
                 value: as_file? this.data_value_file : this.data_value,
-                from: new Date(this.new_date).getTime()
+                from: window.$('#pick1').date.valueOf()
             }]);
         } else {
             send = as_file? this.data_value_file : this.data_value;

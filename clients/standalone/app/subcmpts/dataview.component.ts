@@ -27,7 +27,12 @@ enableProdMode();
 
         <p *ngIf="!is_dated">{{ 'modify' | translate }}</p>
         <p *ngIf="!!is_dated && is_dated">{{ 'add' | translate }}</p>
-        <input *ngIf="!!is_dated && is_dated" [(ngModel)]="new_date" datetime-picker class="form-control">
+        <div *ngIf="!!is_dated && is_dated" class='input-group date' id='pick4'>
+            <input type='text' class="form-control"/>
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
 
         <div *ngIf="!is_generic">
             <input type="text" [(ngModel)]="new_data" [disabled]="new_data_file!=''" class="form-control">
@@ -66,8 +71,22 @@ enableProdMode();
                 <tbody>
                     <tr *ngFor="let d of sharedIds()">
                         <td><a (click)="user(d)">{{ d }}</a></td>
-                        <td *ngIf="!!timings[d] && timings[d].seen"><input [ngModel]="timings[d].la.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></td>
-                        <td *ngIf="!!timings[d] && timings[d].ends"><input [ngModel]="timings[d].ee.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></td>
+                        <td *ngIf="!!timings[d] && timings[d].seen">
+                            <div class='input-group date' id='pick-id{{ d }}'>
+                                <input type='text' class="form-control" readonly="readonly"/>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </td>
+                        <td *ngIf="!!timings[d] && timings[d].ends">
+                            <div class='input-group date' id='pick-id2{{ d }}'>
+                                <input type='text' class="form-control" readonly="readonly"/>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </td>
                         <td *ngIf="!!timings[d] && !timings[d].seen">{{ 'dataview.neverSeen' | translate }}</td>
                         <td *ngIf="!!timings[d] && !timings[d].ends">{{ 'dataview.forever' | translate }}</td>
                         <td *ngIf="!timings[d]"></td>
@@ -89,7 +108,14 @@ enableProdMode();
                     <tr>
                         <td><input type="text" [(ngModel)]="new_id" name="y0" class="form-control"></td>
                         <td></td>
-                        <td><input [(ngModel)]="new_date" datetime-picker class="form-control"></td>
+                        <td>
+                            <div class='input-group date' id='pick5'>
+                                <input type='text' class="form-control"/>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </td>
                         <td><input type="text" [(ngModel)]="new_trigger" name="y1" class="form-control"></td>
                         <td *ngIf="is_generic && data_name != gen_name"></td>
                         <td><button type="button" class="btn btn-default" (click)="register()" [disabled]="!decr_data">{{ 'record' | translate }}</button></td>
@@ -108,7 +134,6 @@ export class Dataview implements OnInit, OnDestroy {
     public new_data: string;
     public new_data_file: string;
     public new_id: string;
-    public new_date: string;
     public timings: {[id: string]: {la: Date, ee: Date, seen: boolean, ends: boolean, trigger: string}};
     public is_dated: boolean;
     public new_trigger: string;
@@ -182,6 +207,8 @@ export class Dataview implements OnInit, OnDestroy {
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noData'));
             });
+            window.$('#pick4').datetimepicker();
+            window.$('#pick5').datetimepicker({widgetPositioning: {vertical: 'bottom'}});
         });
     }
 
@@ -225,7 +252,7 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     modify() {
-        var replacement, from = new Date(this.new_date).getTime(), done = false;
+        var replacement, from = window.$('#pick4').date.valueOf(), done = false;
         if(this.is_generic && !!this.backend.generics[this.gen_name].json_keys) {
             var ret = {};
             for(var i = 0; i < this.backend.generics[this.gen_name].json_keys.length; i++) {
@@ -305,9 +332,17 @@ export class Dataview implements OnInit, OnDestroy {
      * @return {Array} Known fields.
      */
     sharedIds(): string[] {
+        var self = this;
         if(!this.backend.profile.data[this.data_name])
             return [];
-        return Object.getOwnPropertyNames(this.backend.profile.data[this.data_name].shared_to);
+        var ret = Object.getOwnPropertyNames(this.backend.profile.data[this.data_name].shared_to);
+        ret.forEach(function(d) {
+            window.$('#pick-id' + d).datetimepicker();
+            window.$('#pick-id' + d).setValue(self.timings[d].la.getTime());
+            window.$('#pick-id2' + d).datetimepicker();
+            window.$('#pick-id2' + d).setValue(self.timings[d].ee.getTime());
+        })
+        return ret;
     }
 
     /**
@@ -392,10 +427,10 @@ export class Dataview implements OnInit, OnDestroy {
      */
     register() {
         var self = this;
-        this.dataservice.grantVault(this.new_id, this.data_name, this.data_name, this.decr_data, new Date(this.new_date), this.new_trigger).then(function(user, id) {
+        this.dataservice.grantVault(this.new_id, this.data_name, this.data_name, this.decr_data, window.$('#pick5').date.toDate(), this.new_trigger).then(function(user, id) {
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;
-            self.timings[user._id] = {la: new Date(0), ee: new Date(self.new_date), seen: false,
-                ends: new Date(self.new_date).getTime() > (new Date).getTime(), trigger: self.new_trigger};
+            self.timings[user._id] = {la: new Date(0), ee: window.$('#pick5').date.toDate(), seen: false,
+                ends: window.$('#pick5').date.valueOf() > (new Date).getTime(), trigger: self.new_trigger};
             self.new_id = '';
         }, function() {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));

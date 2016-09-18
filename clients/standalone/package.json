@@ -22,25 +22,32 @@
     "@angular/upgrade": "2.0.0-rc.6",
     "angular2-notifications": "0.3.3",
     "core-js": "2.4.1",
-    "ng2-datetime-picker": "0.7.1",
     "ng2-translate": "2.4.3",
     "reflect-metadata": "0.1.8",
     "rxjs": "5.0.0-beta.11",
-    "systemjs": "0.19.37",
     "zone.js": "0.6.17"
   },
   "devDependencies": {
+    "css-loader": "^0.25.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "file-loader": "^0.9.0",
+    "html-loader": "^0.4.4",
+    "html-webpack-plugin": "^2.22.0",
     "lite-server": "^2.2.2",
-    "recursive-uglifyjs": "^1.0.0"
+    "null-loader": "^0.1.1",
+    "raw-loader": "^0.5.1",
+    "style-loader": "^0.13.1",
+    "ts-loader": "^0.8.2",
+    "typescript": "^1.8.10",
+    "webpack": "^1.13.2"
   },
   "scripts": {
     "serve": "lite-server index.html",
-    "build_module_win": "call ../../node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/app.module.ts && echo ok || echo not ok",
-    "build_main_win": "call ../../node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/main.ts && echo ok || echo not ok",
-    "build_module_unix": "../../node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/app.module.ts && echo ok || echo not ok",
-    "build_main_unix": "../../node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/main.ts && echo ok || echo not ok",
-    "build_win": "npm run build_module_win && npm run build_main_win && npm run minify",
-    "build_unix": "npm run build_module_unix && npm run build_main_unix && npm run minify",
-    "minify": "recursive-uglifyjs ./app"
+    "build_module": "node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/app.module.ts && echo ok || echo not ok",
+    "build_main": "node_modules/.bin/tsc --experimentalDecorators --emitDecoratorMetadata --removeComments app/main.ts && echo ok || echo not ok",
+    "build": "npm run build_vendor && npm run build_polyfill && npm run build_module && npm run build_main && npm run dist",
+    "dist": "node_modules/.bin/webpack",
+    "build_vendor": "node_modules/.bin/tsc app/vendor.ts && echo ok || echo not ok",
+    "build_polyfill": "node_modules/.bin/tsc app/polyfill.ts && echo ok || echo not ok"
   }
 }

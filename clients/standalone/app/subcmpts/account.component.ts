@@ -26,7 +26,15 @@ enableProdMode();
             <br />
             <p *ngIf="with_account != 'false'">{{ 'account.withAccount' | translate }}</p>
             <br />
-            <p *ngIf="!forever">{{ 'account.until' | translate }}<input [ngModel]="expire_epoch.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></p>
+            <div *ngIf="!forever">
+                {{ 'account.until' | translate }}
+                <div class='input-group date' id='pick3'>
+                    <input type='text' class="form-control" readonly="readonly" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
             <p *ngIf="forever">{{ 'account.forever' | translate }}</p>
             <br />
 
@@ -127,6 +135,9 @@ export class Account implements OnInit, OnDestroy {
             self.trigger = (!!params['trigger'])? window.decodeURIComponent(params['trigger']) : '';
             self.expire_epoch = (!!params['expire_epoch'])? new Date(parseInt(params['expire_epoch'])) : new Date(0);
             self.forever = self.expire_epoch.getTime() < (new Date).getTime();
+
+            window.$('#pick3').datetimepicker();
+            window.$('#pick3').setValue(parseInt(params['expire_epoch']));
             
             //We prepare HTTPS
             if(!/^http/.test(self.return_url_ok)) {

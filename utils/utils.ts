@@ -267,7 +267,7 @@ export function encryptRSA(data: number[], rsa_key: string): number[] {
         }
     );
     //var arr = pkcs1pad2(data, 1024);
-    var arr = data
+    var arr = data;
     return dec.encrypt(arr);
 }
 

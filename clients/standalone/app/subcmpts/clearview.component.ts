@@ -34,7 +34,14 @@ enableProdMode();
         </div>
         <div *ngIf="is_dated">
             <div *ngFor="let p of computeValues(); let i = index">
-                <p>{{ 'actualFrom' | translate }}<input [ngModel]="p.from.toLocaleString()" datetime-picker [disabled]="true" class="form-control"></p>
+                <div>{{ 'actualFrom' | translate }}
+                    <div class='input-group date' id='pick-id{{ p }}'>
+                        <input type='text' class="form-control" readonly="readonly"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
                 <div *ngIf="!is_folder">
                     <input *ngIf="p.value.length < 150" type="text" [ngModel]="p.value" class="form-control" readonly>
                     <input *ngIf="p.value.length >= 150" type="text" value="{{ 'dataview.tooLong' | translate }}" class="form-control" readonly>
@@ -86,8 +93,11 @@ export class Clearview {
     computeValues(): {from: Date, value: string}[] {
         if(!this.values) {
             this.values = JSON.parse(this.decr_data);
-            for(var i = 0; i < this.values.length; i++)
+            for(var i = 0; i < this.values.length; i++) {
+                window.$('#pick-id' + this.values[i]).datetimepicker();
+                window.$('#pick-id' + this.values[i]).setValue(this.values[i].from);
                 this.values[i].from = new Date(this.values[i].from);
+            }
             if(this.values.length == 0)
                 this.values = undefined;
         }
