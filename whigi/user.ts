@@ -126,7 +126,7 @@ export function closeTo(req, res) {
         nu.persist();
     }
 
-    if(dec == req.user._id) {
+    if(dec == req.user._id || /whigi/.test(dec)) {
         res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
         return;
     }
@@ -313,14 +313,19 @@ export function goBCE(req, res) {
             'Accept-Language': 'fr-FR,fr;q=1'
         }
     };
-    var ht = https.request(options, function(res) {
+    var ht = https.request(options, function(resp) {
         var r = '';
-        res.on('data', function(chunk) {
+        resp.on('data', function(chunk) {
             r += chunk;
         });
-        res.on('end', function() {
-            var table = /(<table id="toon".*?<\/table>)/.exec(r)[0];
-            var rows = /(<tr>.*?<\/tr>)/.exec(table);
+        resp.on('end', function() {
+            var table = /(<table id="toon".*?<\/table>)/.exec(r);
+            if(!table) {
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                return;
+            }
+            var tab = table[0];
+            var rows = /(<tr>.*?<\/tr>)/.exec(tab);
             var mn: string = req.user.company_info.name.toLowerCase();
             while(rows != null) {
                 var name = /<td.*?<\/td>.*?(<td>.*?<\/td>)/.exec(rows[0])[0];
@@ -335,8 +340,8 @@ export function goBCE(req, res) {
                     return;
                 }
 
-                table = table.replace(/(<tr>.*?<\/tr>)/g, '');
-                rows = /(<tr>.*?<\/tr>)/.exec(table);
+                tab = tab.replace(/(<tr>.*?<\/tr>)/g, '');
+                rows = /(<tr>.*?<\/tr>)/.exec(tab);
             }
             res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
         });

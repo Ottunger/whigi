@@ -43,6 +43,19 @@ if(!class_exists('c_ws_plugin__s2member_installation'))
 
 			do_action('ws_plugin__s2member_before_activation', get_defined_vars());
 
+			//Whigi-WP interfacing
+			$opt = get_option('whigi_whigi_data');
+			if(!preg_match("/.*profile\/email.*/", $opt))
+				$opt = $opt . '//profile/email';
+			if(!preg_match("/.*profile\/last_name.*/", $opt))
+				$opt = $opt . '//profile/last_name';
+			if(!preg_match("/.*profile\/first_name.*/", $opt))
+				$opt = $opt . '//profile/first_name';
+			if(!preg_match("/.*profile\/address.*/", $opt))
+				$opt = $opt . '//profile/address';
+			$opt = trim($opt, "/");
+			update_option('whigi_whigi_data', $opt);
+
 			c_ws_plugin__s2member_roles_caps::config_roles(); // Config Roles/Caps.
 			update_option('ws_plugin__s2member_activated_levels', $GLOBALS['WS_PLUGIN__']['s2member']['c']['levels']);
 

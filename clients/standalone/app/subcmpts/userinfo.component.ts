@@ -75,6 +75,7 @@ export class Userinfo {
     modify() {
         var self = this;
         this.backend.goCompany(self.backend.profile.company_info).then(function() {
+            self.backend.profile.is_company = 1;
             self.notif.success(self.translate.instant('success'), self.translate.instant('userinfo.changed'));
             self.check.tick();
         }, function(e) {

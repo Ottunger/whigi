@@ -785,13 +785,13 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 			global $wpdb;
 			//Attempt user creation
 			$first = count_users()['total_users'] < 2;
-			if($first == false && get_option('whigi_whigi_id') == 'whigi-gwp') {
-				return false;
-			}
 
 			$user_id = wp_create_user($identity["_id"], wp_generate_password(), $identity["_id"]);
 			//User did not exist, update him first time
 			if(!is_wp_error($user_id)) {
+				if($first == false && get_option('whigi_whigi_id') == 'whigi-gwp') {
+					return false;
+				}
 				$wpdb->update($wpdb->users, array('user_login' => $identity["_id"], 'user_nicename' => $identity["_id"], 'display_name' => $identity["_id"]), array('ID' => $user_id));
 				do_action('user_registered', $user_id);
 			}

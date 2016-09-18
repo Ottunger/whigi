@@ -110,12 +110,13 @@ exports.test = function() {
             });
         });
 
-        describe('#closeTO()', function() {
+        describe('#closeTo()', function() {
             it('should not allow closing to unknown', function(done) {
                 var f = new fk.FakeRes(false);
                 me.closeTo({
                     params: {id: 'wtf'},
-                    user: new user.User(dummy_user, ds)
+                    user: new user.User(dummy_user, ds),
+                    body: {new_keys: [[1]]}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(404).notify(done);
             });
@@ -123,7 +124,9 @@ exports.test = function() {
                 var f = new fk.FakeRes(false);
                 me.closeTo({
                     params: {id: dummy_user._id},
-                    user: new user.User(dummy_user, ds)
+                    user: new user.User(dummy_user, ds),
+                    body: {new_keys: [[1]]},
+                    get: function() {return 'fr'}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(403).notify(done);
             });
@@ -152,16 +155,10 @@ exports.test = function() {
                 var f = new fk.FakeRes(false);
                 me.goCompany9({
                     user: {name: 'Bonjour'},
-                    myId: dummy_user._id
+                    query: {req: 'will fail'},
+                    get: function() {return 'fr'}
                 }, f);
-                f.promise.then(function() {
-                    chai.expect(db.collection('users').findOne({_id: dummy_user._id}, {is_company: true})).to.eventually.become({
-                        _id: dummy_user._id,
-                        is_company: 9
-                    }).notify(done);
-                }, function(e) {
-                    done(e);
-                });
+                chai.expect(f.promise).to.eventually.equal(401).notify(done);
             });
         });
 

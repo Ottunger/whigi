@@ -143,12 +143,6 @@ export function regVault(req, res, respond?: boolean): Promise {
     var got = req.body;
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
-        if(req.user._id == got.shared_to_id) {
-            if(respond === true)
-                res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
-            reject();
-            return;
-        }
         req.user.fill().then(function() {
             if(!(got.real_name in req.user.data)) {
                 if(respond === true)
@@ -174,6 +168,10 @@ export function regVault(req, res, respond?: boolean): Promise {
                         real_name: got.real_name
                     }, db);
                     db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
+                        if(sharee._id == req.user._id) {
+                            //Make sure only object is printed to DB
+                            sharee = req.user;
+                        }
                         if(!sharee || sharee._id == req.user.id) {
                             if(respond === true)
                                 res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});

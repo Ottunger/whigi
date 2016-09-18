@@ -259,7 +259,7 @@ export function create(req, res) {
                                                     cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
                                                     chmod -R 777 /var/www/` + lid + `/ &&
                                                     wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `-whigimembers.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + id + ` --skip-email &&
-                                                    wp --allow-root --path=/var/www/` + lid + ` plugin activate whigi-wp whigi-wp-s2 wp-force-https
+                                                    wp --allow-root --path=/var/www/` + lid + ` plugin activate whigi-wp wp-force-https
                                                 `, function(err, stdout, stderr) {
                                                     if(err) {
                                                         console.log('Cannot complete OPs:\n' + stderr);
@@ -270,7 +270,13 @@ export function create(req, res) {
                                                         setTimeout(function() {
                                                             exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
                                                                 setTimeout(function() {
-                                                                    exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp');
+                                                                    exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp', function() {
+                                                                        exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp-s2', function() {
+                                                                            setTimeout(function() {
+                                                                                exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp-s2');
+                                                                            }, 5000);
+                                                                        });
+                                                                    });
                                                                 }, 5000);
                                                             });
                                                         }, 5000);

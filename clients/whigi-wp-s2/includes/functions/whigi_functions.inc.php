@@ -22,13 +22,12 @@ if(!function_exists('s2member_whigi_get_current')) {
 
 $opt = get_option('whigi_whigi_data');
 if(!preg_match("/.*profile\/email.*/", $opt))
-    update_option('whigi_whigi_data', $opt . '//profile/email');
+    $opt = $opt . '//profile/email';
 if(!preg_match("/.*profile\/last_name.*/", $opt))
-    update_option('whigi_whigi_data', $opt . '//profile/last_name');
+    $opt = $opt . '//profile/last_name';
 if(!preg_match("/.*profile\/first_name.*/", $opt))
-    update_option('whigi_whigi_data', $opt . '//profile/first_name');
+    $opt = $opt . '//profile/first_name';
 if(!preg_match("/.*profile\/address.*/", $opt))
-    update_option('whigi_whigi_data', $opt . '//profile/address');
-$opt = str_replace("/^\/\//", "", $opt);
-$opt = str_replace("/\/\/$/", "", $opt);
+    $opt = $opt . '//profile/address';
+$opt = trim($opt, "/");
 update_option('whigi_whigi_data', $opt);
