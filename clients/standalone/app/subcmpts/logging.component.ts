@@ -62,6 +62,7 @@ export class Logging implements OnInit {
                 self.backend.profile = profile;
                 if(!!set) {
                     localStorage.setItem('key_decryption', window.sha256(self.password + profile.salt));
+                    localStorage.setItem('psha', window.sha256(self.password));
                 }
                 self.router.navigate(['/profile']);
             }, function(e) {
@@ -150,6 +151,7 @@ export class Logging implements OnInit {
                     self.backend.getProfile().then(function(user) {
                         self.backend.profile = user;
                         localStorage.setItem('key_decryption', window.sha256(self.password + user.salt));
+                        localStorage.setItem('psha', window.sha256(self.password));
                         self.dataservice.listData().then(function() {
                             self.dataservice.newData('profile/email/restore', self.email, false, true).then(function(email) {
                                 self.dataservice.newData('profile/recup_id', self.recup_id, false, true).then(function(email) {
@@ -232,6 +234,7 @@ export class Logging implements OnInit {
         this.backend.removeTokens(false).then(function() {
             localStorage.removeItem('token');
             localStorage.removeItem('key_decryption');
+            localStorage.removeItem('psha');
             self.backend.forceReload();
             delete self.backend.profile;
         }, function(e) {

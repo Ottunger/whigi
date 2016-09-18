@@ -8,6 +8,8 @@
 declare var require: any
 var hash = require('js-sha256').sha256;
 var RL = require('limiter').RateLimiter;
+var querystring = require('querystring');
+var crypto = require('crypto');
 var utils = require('./utils');
 var rl;
 
@@ -74,6 +76,29 @@ export function checkBody(arr: string[]): Function {
             next();
         }
     }
+}
+
+/**
+ * Checks if a signature is OK.
+ * @function eidSig
+ * @public
+ * @param {Object} load Payload.
+ * @return {Boolean} If signature OK.
+ */
+export function eidSig(load: any): boolean {
+    var signed = load['openid.signed'];
+    if(!signed)
+        return false;
+    signed = signed.split(',');
+    var check = {};
+    for(var i = 0; i < signed.length; i++) {
+        check[signed[i]] = load['openid.' + signed[i]];
+    }
+    check = querystring.stringify(check);
+
+    var hmac = crypto.createHmac('sha256', '???');
+    hmac.update(check);
+    return hmac.digest('base64') == load['openid.sig'];
 }
 
 /**

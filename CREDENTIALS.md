@@ -17,3 +17,5 @@ whigi-giveaway on Whigi:
 Captcha
    	public: 6LfleigTAAAAALOtJgNBGWu4A0ZiHRvetRorXkDx
    	private: 6LfleigTAAAAAG_-AGX7NOMgfchlIbzuBtdD5qmw
+E-Contract
+	SHA256 HMAC shared secret: ???

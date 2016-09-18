@@ -55,12 +55,11 @@ Creates an OAuth token.
 /api/v<any>/oauth/<id>: Delete, needs auth
 Removes an OAuth token specified by id.
 
-/api/v<any>/eid?username=<id>: Get
+/api/v<any>/eid: Get, needs auth
 Reads data from eID.
 
 /api/v<any>/eid/callback: Post
 Reads data from eID.
-{"username": "string"}
 
 /api/v<any>/data/<id>: Get, needs auth
 Retrieves an encrypted piece of data.

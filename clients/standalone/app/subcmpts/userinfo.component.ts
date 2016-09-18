@@ -20,6 +20,8 @@ enableProdMode();
         <h3>{{ 'userinfo.trustLevel' | translate }}{{ user.is_company }}</h3>
         <h3>{{ 'userinfo.public' | translate }}</h3>
         <p *ngIf="!!user.company_info && !!user.company_info.name">{{ 'userinfo.name' | translate }}{{ user.company_info.name }}</p>
+        <p *ngIf="!!user.company_info && !!user.company_info.rrn">{{ 'generics.rrn' | translate }}: {{ user.company_info.rrn }}</p>
+        <p *ngIf="!!user.company_info && getAddr() != ''">{{ 'userinfo.addr' | translate }}: {{ getAddr() }}</p>
 
         <div *ngIf="user._id == backend.profile._id">
             <form class="form-signin">
@@ -33,6 +35,7 @@ enableProdMode();
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary" (click)="modify()">{{ 'userinfo.modify' | translate }}</button>
                     <button type="submit" class="btn btn-default" (click)="load()">{{ 'userinfo.load' | translate }}</button>
+                    <button type="button" class="btn btn-primary" (click)="goCompany()">{{ 'userinfo.goCompany' | translate }}</button>
                 </div>
             </form>
         </div>
@@ -80,12 +83,19 @@ export class Userinfo {
      */
     load() {
         var self = this;
-        if(!!this.backend.profile.data['profile/last_name']) {
+        if(!!this.backend.profile.data['profile/last_name'] && !!this.backend.profile.data['profile/first_name']) {
             this.backend.getData(this.backend.profile.data['profile/last_name'].id).then(function(data) {
                 var encr_data = self.backend.str2arr(data.encr_data);
-                self.backend.decryptAES(encr_data, self.dataservice.workerMgt(false, function(got) {
-                    self.backend.profile.company_info.name = got;
-                    self.modify();
+                self.backend.decryptAES(encr_data, self.dataservice.workerMgt(false, function(lname) {
+                    self.backend.getData(self.backend.profile.data['profile/last_name'].id).then(function(data) {
+                        var encr_data = self.backend.str2arr(data.encr_data);
+                        self.backend.decryptAES(encr_data, self.dataservice.workerMgt(false, function(fname) {
+                            self.backend.profile.company_info.name = fname + ' ' + lname;
+                            self.modify();
+                        }));
+                    }, function(e) {
+                        self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noData'));
+                    });
                 }));
             }, function(e) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noData'));
@@ -93,6 +103,29 @@ export class Userinfo {
         } else {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noData'));
         }
+    }
+
+    /**
+     * Computes adress
+     * @function getAddr
+     * @public
+     * @return {String} Address.
+     */
+    getAddr(): string {
+        if(!!this.user.company_info && !!this.user.company_info.address) {
+            var ret = JSON.parse(this.user.company_info.address);
+            return ret['generics.street'] + ' ' + ret['generics.num'] + ', ' + ret['generics.postcode'] + ' ' + ret['generics.city']; 
+        }
+        return '';
+    }
+
+    /**
+     * Moves to goCompany.
+     * @function goCompany
+     * @public
+     */
+    goCompany() {
+        window.location.href = 'https://' + this.backend.profile._id + ':' + localStorage.getItem('psha') + '@' + this.backend.EID_HOST;
     }
 
 }

@@ -24,7 +24,6 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/filesystem', 'data'])">{{ 'profile.mine' | translate }}</button>
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/filesystem', 'vault'])">{{ 'profile.shared' | translate }}</button>
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/generics'])">{{ 'profile.generics' | translate }}</button>
-        <button type="button" class="btn btn-primary" (click)="goCompany()">{{ 'profile.goCompany' | translate }}</button>
         <br /><br />
 
         <form class="form-signin">
@@ -108,6 +107,7 @@ export class Profile implements OnInit {
     public ask_data: string;
     public revoke_id: string;
     public use_pwd: boolean;
+    private onEid: boolean;
 
     /**
      * Creates the component.
@@ -121,6 +121,7 @@ export class Profile implements OnInit {
     constructor(private translate: TranslateService, private notif: NotificationsService, private backend: Backend,
         private router: Router, private dataservice: Data) {
         this.use_pwd = true;
+        this.onEid = true;
     }
 
     /**
@@ -130,6 +131,17 @@ export class Profile implements OnInit {
      */
     ngOnInit(): void {
         var self = this;
+        if(this.onEid && /eidok/.test(window.location.href)) {
+            //Back from eID
+            this.onEid = false;
+            this.notif.success(this.translate.instant('success'), this.translate.instant('profile.eidRead'));
+            this.backend.getProfile().then(function(profile) {
+                self.backend.profile = profile;
+                self.dataservice.newData('profile/address/eid', self.backend.profile.company_info.address, false).then(function() {
+                    self.dataservice.newData('profile/rrn', self.backend.profile.company_info.rrn, false);
+                });
+            });
+        }
         this.dataservice.listData().then(function() {
             if(!!localStorage.getItem('return_url') && localStorage.getItem('return_url').length > 1) {
                 var ret = localStorage.getItem('return_url');
@@ -151,6 +163,7 @@ export class Profile implements OnInit {
         this.backend.removeTokens(all).then(function() {
             localStorage.removeItem('token');
             localStorage.removeItem('key_decryption');
+            localStorage.removeItem('psha');
             self.backend.forceReload();
             delete self.backend.profile;
             self.router.navigate(['/']);
@@ -252,15 +265,6 @@ export class Profile implements OnInit {
             self.password2 = self.password;
         }
         r.readAsText(file);
-    }
-
-    /**
-     * Moves to goCompany.
-     * @function goCompany
-     * @public
-     */
-    goCompany() {
-        window.location.href = this.backend.BASE_URL + 'eid';
     }
     
 }

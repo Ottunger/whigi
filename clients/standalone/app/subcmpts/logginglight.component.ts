@@ -80,6 +80,7 @@ export class Logginglight implements OnInit {
             this.onEnd = false;
             localStorage.removeItem('token');
             localStorage.removeItem('key_decryption');
+            localStorage.removeItem('psha');
             window.setTimeout(function() {
                 self.notif.alert(self.translate.instant('error'), self.translate.instant('sessionExpired'));
             }, 1500);
@@ -90,6 +91,7 @@ export class Logginglight implements OnInit {
                 self.backend.profile = profile;
                 if(!!set) {
                     localStorage.setItem('key_decryption', window.sha256(self.password + profile.salt));
+                    localStorage.setItem('psha', window.sha256(self.password));
                 }
                 if(!!sessionStorage.getItem('return_url') && sessionStorage.getItem('return_url').length > 1) {
                     var ret = sessionStorage.getItem('return_url');

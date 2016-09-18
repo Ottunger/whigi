@@ -44,6 +44,14 @@
         "regexp": "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d$",
         "module": "generics.profile"
     },
+    "profile/rrn": {
+        "is_dated": false,
+        "is_file": false,
+        "is_folder": false,
+        "descr_key": "generics.rrn",
+        "regexp": "^[0-9]{11}$",
+        "module": "generics.profile"
+    },
     "profile/corporate/name": {
         "is_dated": true,
         "is_file": false,

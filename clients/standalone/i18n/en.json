@@ -73,7 +73,7 @@
    "profile.oauth": "OAuth permissions",
    "profile.warnChange": "Password changed, but recovery options not",
    "profile.generics": "Generic data fields",
-   "profile.goCompany": "Register info from eID",
+   "profile.eidRead": "Data imported from eID",
 
    "filesystem.data_name": "Data name",
    "filesystem.data": "Data",
@@ -148,8 +148,10 @@
    "userinfo.set": "Set your public data",
    "userinfo.modify": "Validate changes (reset confidence level to 1)",
    "userinfo.load": "Load from generics (reset confidence level to 1)",
+   "userinfo.goCompany": "Register info from eID (set confidence level to 9)",
    "userinfo.changed": "Data updated",
    "userinfo.notChanged": "Data could not be updated",
+   "userinfo.addr": "Home address",
 
    "merge.title": "Merge an account",
    "merge.login": "Username",
@@ -183,6 +185,7 @@
    "generics.postcode": "Postcode",
    "generics.city": "City",
    "generics.country": "Country",
+   "generics.rrn": "National registry number",
 
    "error.notfound": "Not found"
 }

@@ -28,6 +28,7 @@ const appRoutes: Routes = [
     {path: 'end', component: Logginglight},
     {path: 'llight', component: Logginglight},
     {path: 'profile', component: Profile, canActivate: [Profileguard]},
+    {path: 'profile/eidok', component: Profile, canActivate: [Profileguard]},
     {path: 'user/:id', component: User, canActivate: [Profileguard]},
     {path: 'user/:id/:ret', component: User, canActivate: [Profileguard]},
     {path: 'filesystem/:mode', component: Filesystem, canActivate: [Profileguard], canDeactivate: [Profileguard]},

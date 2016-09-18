@@ -354,7 +354,7 @@
 			<table class='form-table'>
 				<?php
 					$i18n = get_option('whigi_i18n_en');
-					foreach(get_option('whigi_generics') as $key => $val) {
+					foreach(json_decode(base64_decode(get_option('whigi_generics')), true) as $key => $val) {
 						echo "<tr valign='top'>";
 						echo "<th scope='row'>" . $i18n[$val["descr_key"]] . "</th>";
 						$held = "No keys";

@@ -269,7 +269,9 @@ export function create(req, res) {
                                                         exec('service nginx force-reload');
                                                         setTimeout(function() {
                                                             exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
-                                                                exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp');
+                                                                setTimeout(function() {
+                                                                    exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp');
+                                                                }, 5000);
                                                             });
                                                         }, 5000);
                                                     }
