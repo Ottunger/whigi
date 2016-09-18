@@ -482,6 +482,17 @@ export class Backend {
     }
 
     /**
+     * Loads data from BCE.
+     * @function goBCE
+     * @public
+     * @param {String} bce BCE code.
+     * @return {Promise} JSON response from backend.
+     */
+    goBCE(bce: string): Promise {
+        return this.backend(true, 'GET', {}, 'eid/bce/' + bce, true, true);
+    }
+
+    /**
      * Returns the data of the user.
      * @function listData
      * @public

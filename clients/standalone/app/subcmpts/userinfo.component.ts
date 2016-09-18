@@ -141,7 +141,12 @@ export class Userinfo {
      * @public
      */
     goBCE() {
-        window.location.href = 'https://' + this.backend.profile._id + ':' + localStorage.getItem('psha') + '@' + this.backend.EID_HOST;
+        var self = this;
+        this.backend.goBCE(this.bce).then(function() {
+            self.notif.success(self.translate.instant('success'), self.translate.instant('userinfo.changed'));
+        }, function(e) {
+            self.notif.error(self.translate.instant('error'), self.translate.instant('userinfo.notChanged'));
+        });
     }
 
 }
