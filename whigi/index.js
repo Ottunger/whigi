@@ -75,6 +75,8 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/eid\/callback\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/eid\/bce\/[0-9]{10}\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     //-----
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
@@ -234,6 +236,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/token/new', pass.authenticate('basic', {session: false}));
     app.delete('/api/v:version/profile/token', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/eid', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/eid/bce/:bce', pass.authenticate(['token', 'basic'], {session: false}));
     //-----
     app.get('/api/v:version/data/:id', pass.authenticate(['token', 'basic'], {session: false}));
     app.get('/api/v:version/data/trigger/:data_name', pass.authenticate(['token', 'basic'], {session: false}));
@@ -251,6 +254,8 @@ connect(function(e) {
     app.post('/api/v:version/profile/update', checks.checkOAuth(true));
     app.post('/api/v:version/profile/token/new', checks.checkOAuth(true));
     app.delete('/api/v:version/profile/token', checks.checkOAuth(true));
+    app.get('/api/v:version/eid', checks.checkOAuth(true));
+    app.get('/api/v:version/eid/bce/:bce', checks.checkOAuth(true));
     //-----
     app.get('/api/v:version/data/:id', checks.checkOAuth(false, 0));
     app.delete('/api/v:version/data/:data_name', checks.checkOAuth(true));
@@ -293,6 +298,7 @@ connect(function(e) {
     app.get('/api/v:version/eid', user.prepGoCompany9);
     app.post('/api/v:version/eid/callback', body.urlencoded({extended: true}));
     app.post('/api/v:version/eid/callback', user.goCompany9);
+    app.get('/api/v:version/eid/bce/:bce', user.goBCE);
     //------
     app.get('/api/v:version/data/:id', data.getData);
     app.get('/api/v:version/data/trigger/:data_name', data.triggerVaults);

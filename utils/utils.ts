@@ -294,6 +294,8 @@ export function checkCaptcha(c: string, callback: Function) {
             else
                 callback(false);
         });
+    }).on('error', function(err) {
+        callback(false);
     });
     ht.write(data);
     ht.end();

@@ -152,6 +152,8 @@
    "userinfo.changed": "Données mises à jour",
    "userinfo.notChanged": "Données n'ont pu être mises à jour",
    "userinfo.addr": "Adresse du domicile",
+   "userinfo.bce": "Numéro BCE: ",
+   "userinfo.goBCE": "Charger le nom d'entreprise depuis le numéro BCE",
 
    "merge.title": "Fusionner un compte",
    "merge.login": "Nom de compte",

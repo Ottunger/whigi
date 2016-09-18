@@ -263,7 +263,7 @@ export function goCompany9(req, res) {
                 u.is_company = 9;
                 u.company_info.name = req.body['openid.ax.value.attr21'];
                 u.company_info.rrn = req.body['openid.ax.value.attr18'];
-                var home: string[] = req.body['openid.ax.value.attr5'].split(' ');
+                var home: string[] = req.body['openid.ax.value.attr5'].trim().split(' ');
                 var num = home.pop();
                 u.company_info.address = JSON.stringify({
                     "generics.last_name": req.body['openid.ax.value.attr20'],
@@ -288,6 +288,62 @@ export function goCompany9(req, res) {
     } else {
         res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
     }
+}
+
+/**
+ * Changes public name for admins.
+ * @function goBCE
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function goBCE(req, res) {
+    if(req.user.is_company != 9) {
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+        return;
+    }
+
+    var bce = req.params.bce.replace('.', '');
+    var options = {
+        host: 'kbopub.economie.fgov.be',
+        port: 443,
+        path: '/kbopub/zoeknummerform.html?nummer=' + bce + '&actionLu=Recherche',
+        method: 'GET',
+        headers: {
+            'Accept-Language': 'fr-FR,fr;q=1'
+        }
+    };
+    var ht = https.request(options, function(res) {
+        var r = '';
+        res.on('data', function(chunk) {
+            r += chunk;
+        });
+        res.on('end', function() {
+            var table = /(<table id="toon".*?<\/table>)/.exec(r)[0];
+            var rows = /(<tr>.*?<\/tr>)/.exec(table);
+            var mn: string = req.user.company_info.name.toLowerCase();
+            while(rows != null) {
+                var name = /<td.*?<\/td>.*?(<td>.*?<\/td>)/.exec(rows[0])[0];
+                var parts = name.trim().split(',');
+                if(/Administrateur/.test(rows[0]) && mn.indexOf(parts[0].trim().toLowerCase()) > -1 && mn.indexOf(parts[1].trim().toLowerCase()) > -1) {
+                    req.user.company_info.name = /nomination sociale:<\/td><td class="QL" colspan="3">(.*?)<br>/.exec(r)[0].trim();
+                    req.user.persist().then(function() {
+                        res.type('application/json').status(200).json({error: '', name: req.user.company_info.name});
+                    }, function(e) {
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    });
+                    return;
+                }
+
+                table = table.replace(/(<tr>.*?<\/tr>)/g, '');
+                rows = /(<tr>.*?<\/tr>)/.exec(table);
+            }
+            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+        });
+    }).on('error', function(err) {
+        res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+    });
+    ht.end();
 }
 
 /**

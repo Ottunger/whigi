@@ -61,6 +61,9 @@ Reads data from eID.
 /api/v<any>/eid/callback: Post
 Reads data from eID.
 
+/api/v<any>/eid/bce/<bce>: Get, needs auth
+Changes public name for the one of the admin.
+
 /api/v<any>/data/<id>: Get, needs auth
 Retrieves an encrypted piece of data.
 

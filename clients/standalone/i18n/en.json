@@ -152,6 +152,8 @@
    "userinfo.changed": "Data updated",
    "userinfo.notChanged": "Data could not be updated",
    "userinfo.addr": "Home address",
+   "userinfo.bce": "BCE number: ",
+   "userinfo.goBCE": "Load your company name from BCE",
 
    "merge.title": "Merge an account",
    "merge.login": "Username",

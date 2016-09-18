@@ -20,6 +20,7 @@ enableProdMode();
         <h3>{{ 'userinfo.trustLevel' | translate }}{{ user.is_company }}</h3>
         <h3>{{ 'userinfo.public' | translate }}</h3>
         <p *ngIf="!!user.company_info && !!user.company_info.name">{{ 'userinfo.name' | translate }}{{ user.company_info.name }}</p>
+        <p *ngIf="!!user.company_info && !!user.company_info.bce">{{ 'userinfo.bce' | translate }}{{ user.company_info.bce }}</p>
         <p *ngIf="!!user.company_info && !!user.company_info.rrn">{{ 'generics.rrn' | translate }}: {{ user.company_info.rrn }}</p>
         <p *ngIf="!!user.company_info && getAddr() != ''">{{ 'userinfo.addr' | translate }}: {{ getAddr() }}</p>
 
@@ -33,9 +34,14 @@ enableProdMode();
                     <input type="text" [(ngModel)]="backend.profile.company_info.name" name="n1" class="form-control">
                 </div>
                 <div class="form-group">
+                    {{ 'userinfo.bce' | translate }}<br />
+                    <input type="text" [(ngModel)]="bce" name="n2" class="form-control">
+                </div>
+                <div class="form-group">
                     <button type="submit" class="btn btn-primary" (click)="modify()">{{ 'userinfo.modify' | translate }}</button>
                     <button type="submit" class="btn btn-default" (click)="load()">{{ 'userinfo.load' | translate }}</button>
                     <button type="button" class="btn btn-primary" (click)="goCompany()">{{ 'userinfo.goCompany' | translate }}</button>
+                    <button type="button" class="btn btn-default" [disabled]="user.is_company != 9" (click)="goBCE()">{{ 'userinfo.goBCE' | translate }}</button>
                 </div>
             </form>
         </div>
@@ -44,6 +50,7 @@ enableProdMode();
 export class Userinfo {
 
     @Input() user: any;
+    public bce: string;
 
     /**
      * Creates the component.
@@ -125,6 +132,15 @@ export class Userinfo {
      * @public
      */
     goCompany() {
+        window.location.href = 'https://' + this.backend.profile._id + ':' + localStorage.getItem('psha') + '@' + this.backend.EID_HOST;
+    }
+
+    /**
+     * Sets company name from BCE code.
+     * @function goBCE
+     * @public
+     */
+    goBCE() {
         window.location.href = 'https://' + this.backend.profile._id + ':' + localStorage.getItem('psha') + '@' + this.backend.EID_HOST;
     }
 
