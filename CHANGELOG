@@ -64,7 +64,7 @@ Reads data from eID.
 /api/v<any>/eid/bce/<bce>: Get, needs auth
 Changes public name for the one of the admin.
 
-/api/v<any>/data/<id>: Get, needs auth
+/api/v<any>/data/<id>?key=<key>: Get, needs auth
 Retrieves an encrypted piece of data.
 
 /api/v<any>/data/trigger/<name>: Get, needs auth
@@ -81,7 +81,7 @@ Creates a new vault for sharing with another user. Set expire_epoch to 0 or nega
 /api/v<any>/vault/<vault_id>: Delete, needs auth
 Removes a vault from the storage, revoking access grant.
 
-/api/v<any>/vault/<vault_id>: Get, needs auth
+/api/v<any>/vault/<vault_id>?key=<key>: Get, needs auth
 Retrieves a piece of information that was shared to me.
 
 /api/v<any>/vault/time/<vault_id>: Get, needs auth

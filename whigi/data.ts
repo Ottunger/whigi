@@ -8,6 +8,7 @@
 declare var require: any
 var https = require('https');
 var ndm = require('nodemailer');
+var aes = require('aes-js');
 var utils = require('../utils/utils');
 import {User} from '../common/models/User';
 import {Vault} from '../common/models/Vault';
@@ -45,7 +46,13 @@ export function getData(req, res) {
         if(!df) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         } else {
-            res.type('application/json').status(200).json(df.sanitarize());
+            var ret = df.sanitarize();
+            if((req.query.key !== undefined)) {
+                ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(utils.atob(utils.str2arr(req.query.key)),
+                    new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
+                delete ret.encr_data;
+            }
+            res.type('application/json').status(200).json(ret);
         }
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
@@ -301,7 +308,14 @@ export function getVault(req, res) {
             }
             v.last_access = (new Date).getTime();
             v.persist();
-            res.type('application/json').status(200).json(v.sanitarize());
+            var ret = v.sanitarize();
+            if((req.query.key !== undefined)) {
+                var key: number[] = utils.decryptRSA(ret.aes_crypted_shared_pub, req.query.key);
+                ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(utils.str2arr(ret.data_crypted_aes)));
+                delete ret.aes_crypted_shared_pub;
+                delete ret.data_crypted_aes;
+            }
+            res.type('application/json').status(200).json(ret);
         } else {
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         }

@@ -32,6 +32,17 @@ export function atob(str: string): string {
 }
 
 /**
+ * Returns the encoded version of a string as binary base64.
+ * @function btoa
+ * @private
+ * @param {String} str Decoded string.
+ * @return {String} Encoded string.
+ */
+export function btoa(str: string): string {
+    return new Buffer(str).toString('base64');
+}
+
+/**
  * Generates a random string.
  * @function generateRandomString
  * @public
