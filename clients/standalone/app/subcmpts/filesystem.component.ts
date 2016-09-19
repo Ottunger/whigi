@@ -139,7 +139,9 @@ export class Filesystem implements OnInit {
             self.mode = params['mode'];
             setTimeout(function() {
                 window.$('#pick1').datetimepicker();
+                window.$('#pick1').datetimepicker('date', window.moment());
                 window.$('#pick2').datetimepicker();
+                window.$('#pick2').datetimepicker('date', window.moment());
             }, 100);
         });
     }
@@ -160,7 +162,7 @@ export class Filesystem implements OnInit {
         if(is_dated) {
             send = JSON.stringify([{
                 value: as_file? this.data_value_file : this.data_value,
-                from: window.$('#pick1').date.valueOf()
+                from: window.$('#pick1').datetimepicker('date').toDate().getTime()
             }]);
         } else {
             send = as_file? this.data_value_file : this.data_value;

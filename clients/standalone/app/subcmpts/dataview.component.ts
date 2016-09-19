@@ -208,7 +208,10 @@ export class Dataview implements OnInit, OnDestroy {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noData'));
             });
             window.$('#pick4').datetimepicker();
-            window.$('#pick5').datetimepicker({widgetPositioning: {vertical: 'bottom'}});
+            window.$('#pick4').datetimepicker('date', window.moment());
+            window.$('#pick5').datetimepicker();
+            window.$('#pick5').datetimepicker('date', window.moment());
+            window.$('#pick5').datetimepicker('options', {widgetPositioning: {vertical: 'bottom'}});
         });
     }
 
@@ -252,7 +255,7 @@ export class Dataview implements OnInit, OnDestroy {
      * @public
      */
     modify() {
-        var replacement, from = window.$('#pick4').date.valueOf(), done = false;
+        var replacement, from = window.$('#pick4').datetimepicker('date').toDate(), done = false;
         if(this.is_generic && !!this.backend.generics[this.gen_name].json_keys) {
             var ret = {};
             for(var i = 0; i < this.backend.generics[this.gen_name].json_keys.length; i++) {
@@ -339,9 +342,9 @@ export class Dataview implements OnInit, OnDestroy {
         ret.forEach(function(d) {
             if(!!self.timings[d]) {
                 window.$('#pick-id' + d).datetimepicker();
-                window.$('#pick-id' + d).date(window.moment(self.timings[d].la.getTime()));
+                window.$('#pick-id' + d).datetimepicker('date', window.moment(self.timings[d].la.getTime()));
                 window.$('#pick-id2' + d).datetimepicker();
-                window.$('#pick-id2' + d).date(window.moment(self.timings[d].ee.getTime()));
+                window.$('#pick-id2' + d).datetimepicker('date', window.moment(self.timings[d].ee.getTime()));
             }
         })
         return ret;
@@ -429,10 +432,11 @@ export class Dataview implements OnInit, OnDestroy {
      */
     register() {
         var self = this;
-        this.dataservice.grantVault(this.new_id, this.data_name, this.data_name, this.decr_data, window.$('#pick5').date.toDate(), this.new_trigger).then(function(user, id) {
+        var date: Date = window.$('#pick5').datetimepicker('date').toDate();
+        this.dataservice.grantVault(this.new_id, this.data_name, this.data_name, this.decr_data, date, this.new_trigger).then(function(user, id) {
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;
-            self.timings[user._id] = {la: new Date(0), ee: window.$('#pick5').date.toDate(), seen: false,
-                ends: window.$('#pick5').date.valueOf() > (new Date).getTime(), trigger: self.new_trigger};
+            self.timings[user._id] = {la: new Date(0), ee: date, seen: false,
+                ends: date.getTime() > (new Date).getTime(), trigger: self.new_trigger};
             self.new_id = '';
         }, function() {
             self.notif.error(self.translate.instant('error'), self.translate.instant('dataview.noGrant'));

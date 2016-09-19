@@ -134,10 +134,10 @@ export class Account implements OnInit, OnDestroy {
             self.with_account = params['with_account'];
             self.trigger = (!!params['trigger'])? window.decodeURIComponent(params['trigger']) : '';
             self.expire_epoch = (!!params['expire_epoch'])? new Date(parseInt(params['expire_epoch'])) : new Date(0);
-            self.forever = self.expire_epoch.getTime() < (new Date).getTime();
+            self.forever = parseInt(params['expire_epoch']) < (new Date).getTime();
 
             window.$('#pick3').datetimepicker();
-            window.$('#pick3').date(window.moment(parseInt(params['expire_epoch'])));
+            window.$('#pick3').datetimepicker('date', window.moment(parseInt(params['expire_epoch'])));
             
             //We prepare HTTPS
             if(!/^http/.test(self.return_url_ok)) {
