@@ -337,10 +337,12 @@ export class Dataview implements OnInit, OnDestroy {
             return [];
         var ret = Object.getOwnPropertyNames(this.backend.profile.data[this.data_name].shared_to);
         ret.forEach(function(d) {
-            window.$('#pick-id' + d).datetimepicker();
-            window.$('#pick-id' + d).setValue(self.timings[d].la.getTime());
-            window.$('#pick-id2' + d).datetimepicker();
-            window.$('#pick-id2' + d).setValue(self.timings[d].ee.getTime());
+            if(!!self.timings[d]) {
+                window.$('#pick-id' + d).datetimepicker();
+                window.$('#pick-id' + d).date(window.moment(self.timings[d].la.getTime()));
+                window.$('#pick-id2' + d).datetimepicker();
+                window.$('#pick-id2' + d).date(window.moment(self.timings[d].ee.getTime()));
+            }
         })
         return ret;
     }

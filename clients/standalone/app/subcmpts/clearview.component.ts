@@ -95,7 +95,7 @@ export class Clearview {
             this.values = JSON.parse(this.decr_data);
             for(var i = 0; i < this.values.length; i++) {
                 window.$('#pick-id' + this.values[i]).datetimepicker();
-                window.$('#pick-id' + this.values[i]).setValue(this.values[i].from);
+                window.$('#pick-id' + this.values[i]).date(window.moment(this.values[i].from));
                 this.values[i].from = new Date(this.values[i].from);
             }
             if(this.values.length == 0)

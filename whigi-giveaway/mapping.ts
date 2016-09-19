@@ -169,6 +169,7 @@ export function create(req, res) {
                                     gzip on;
                                     gzip_min_length 1000;
                                     gzip_proxied any;
+                                    gzip_comp_level 7;
                                     gzip_types *;
                                     location / {
                                             proxy_pass      http://localhost:` + httpport + `;
@@ -186,6 +187,7 @@ export function create(req, res) {
                                     gzip on;
                                     gzip_min_length 1000;
                                     gzip_proxied any;
+                                    gzip_comp_level 7;
                                     gzip_types *;
                                     location / {
                                             proxy_pass      https://localhost:` + httpsport + `;
