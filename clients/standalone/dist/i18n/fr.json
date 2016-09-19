@@ -189,5 +189,8 @@
    "generics.country": "Pays",
    "generics.rrn": "Numéro d'ordre national",
 
+   "/": "Dossier principal",
+   "profile/": "Dossier profil",
+
    "error.notfound": "Introuvable"
 }

@@ -15,6 +15,7 @@ enableProdMode();
 @Component({
     selector: 'clear-view',
     template: `
+        <h3 *ngIf="is_generic">{{ backend.generics[gen_name].descr_key | translate }}</h3><br />
         <div *ngIf="!is_dated">
             <p>{{ 'actual' | translate }}</p>
             <div *ngIf="!is_folder">
@@ -66,6 +67,7 @@ export class Clearview {
     @Input() is_dated: boolean;
     @Input() change: boolean;
     @Input() is_folder: boolean;
+    @Input() is_generic: boolean;
     @Input() gen_name: string;
     @Output() notify: EventEmitter<string>;
     private values: {from: Date, value: string}[];

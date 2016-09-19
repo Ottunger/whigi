@@ -21,6 +21,8 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="router.navigate(['/profile'])">{{ 'back' | translate }}</button>
         <br />
 
+        <h3 *ngIf="!!hasKey()">{{ hasKey() | translate }}</h3><br />
+
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
@@ -299,6 +301,19 @@ export class Filesystem implements OnInit {
                 self.data_value_file = r.result;
         }
         r.readAsDataURL(file);
+    }
+
+    /**
+     * Allows to display a context of the folder.
+     * @function hasKey
+     * @return {String} A key to describe the folder or undefined.
+     */
+    hasKey(): string {
+        if(!this.folders || this.folders == '') {
+            return '/';
+        }
+        var key = (this.mode == 'data')? this.folders : this.folders.replace(/^[^\/]*\//, '');
+        return this.translate.instant(key) == key? undefined : key;
     }
     
 }

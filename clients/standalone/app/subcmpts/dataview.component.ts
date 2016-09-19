@@ -22,7 +22,7 @@ enableProdMode();
         <button *ngIf="is_generic" type="button" class="btn btn-primary" (click)="back(true)">{{ 'dataview.toGen' | translate }}</button>
         <br />
         <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="data_name" [change]="true" [is_folder]="is_generic && !!backend.generics[gen_name].json_keys"
-            (notify)="mod($event, false)" [gen_name]="gen_name"></clear-view>
+            (notify)="mod($event, false)" [gen_name]="gen_name" [is_generic]="is_generic"></clear-view>
         <br /><br />
 
         <p *ngIf="!is_dated">{{ 'modify' | translate }}</p>

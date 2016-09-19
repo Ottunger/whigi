@@ -14,7 +14,7 @@ if(!defined('WPINC'))
                 die('<p>Cannot load your file.</p>');
             } else {
                 $i18n = get_option('whigi_i18n_en');
-                $gen = get_option('whigi_generics');
+                $gen = json_decode(base64_decode(get_option('whigi_generics')), true);
                 $req = explode('//', get_option('whigi_whigi_data'));
                 $csv = fopen($_FILES['file']['tmp_name'], "r");
                 while(($row = fgetcsv($csv, 0, ',', '\'', '\\')) != FALSE) {
@@ -52,6 +52,7 @@ if(!defined('WPINC'))
                                 . 'Using this Whigi account will allow both of you to manage data more consistently, learn more about it <a href="' . 
                                 get_option('whigi_whigi_host') . '">Whigi</a>. If you already have a Whigi account, feel free to merge this one into it.<br />'
                                 . 'Username: ' . $username . ' Password: ' . $password, 'Content-type: text/html');
+                            echo '<p>Mail sent to: ' . $row[$index] . '</p>';
                         }
                         $index++;
                     }

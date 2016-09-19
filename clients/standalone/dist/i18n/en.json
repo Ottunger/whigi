@@ -189,5 +189,8 @@
    "generics.country": "Country",
    "generics.rrn": "National registry number",
 
+   "/": "Root folder",
+   "profile/": "Profile folder",
+
    "error.notfound": "Not found"
 }

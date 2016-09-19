@@ -21,7 +21,7 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
 
-        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="vault.data_name" [change]="false"
+        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="vault.data_name" [change]="false" [is_generic]="is_generic"
             [is_folder]="is_generic && !!backend.generics[vault.data_name] && !!backend.generics[vault.data_name].json_keys" [gen_name]="vault.data_name"></clear-view>
     `
 })

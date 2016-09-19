@@ -261,13 +261,11 @@ export function encryptRSA(data: number[], rsa_key: string): number[] {
     var dec = new RSA(
         rsa_key, 'pkcs8-public', {
             encryptionScheme: {
-                scheme: 'pkcs1',
-                //padding: constants.RSA_NO_PADDING
+                scheme: 'pkcs1'
             }
         }
     );
-    //var arr = pkcs1pad2(data, 1024);
-    var arr = data;
+    var arr = pkcs1pad2(data, 1024);
     return dec.encrypt(arr);
 }
 
