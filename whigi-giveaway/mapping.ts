@@ -166,6 +166,10 @@ export function create(req, res) {
                                     server_name  ` + lid + `-whigimembers.envict.com;
                                     error_log /home/gregoire/nginx.err;
                                     access_log  /home/gregoire/nginx.log;
+                                    gzip on;
+                                    gzip_min_length 1000;
+                                    gzip_proxied any;
+                                    gzip_types *;
                                     location / {
                                             proxy_pass      http://localhost:` + httpport + `;
                                             proxy_set_header    Host            $host;
@@ -179,6 +183,10 @@ export function create(req, res) {
                                     server_name  ` + lid + `-whigimembers.envict.com;
                                     error_log /home/gregoire/nginx.err;
                                     access_log  /home/gregoire/nginx.log;
+                                    gzip on;
+                                    gzip_min_length 1000;
+                                    gzip_proxied any;
+                                    gzip_types *;
                                     location / {
                                             proxy_pass      https://localhost:` + httpsport + `;
                                             proxy_set_header    Host            $host;
