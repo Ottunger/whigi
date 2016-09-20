@@ -20,6 +20,7 @@ window.download = require('../js/download.min.js');
 window.Clipboard = require('../js/clipboard.min.js');
 window.$ = window.jQuery = require('../js/jquery.slim.min.js');
 window.moment = require('../js/moment.js');
+require('../js/moment.locales/moment.locales.js');
 require('../js/bootstrap-datetimepicker.min.js');
 
 import '../css/bootstrap.min.css';

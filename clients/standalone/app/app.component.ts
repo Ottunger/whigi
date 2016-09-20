@@ -5,6 +5,7 @@
  */
 
 'use strict';
+declare var window : any
 import {Component, enableProdMode} from '@angular/core';
 import {TranslateService} from 'ng2-translate/ng2-translate';
 enableProdMode();

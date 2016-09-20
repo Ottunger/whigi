@@ -51,7 +51,9 @@ enableProdMode();
                     <tr *ngIf="mode=='data'" class="info">
                         <td><input type="text" [(ngModel)]="data_name" name="s0" class="form-control"></td>
                         <td>{{ 'filesystem.folder' | translate }}</td>
-                        <td><button type="button" class="btn btn-default" (click)="select(data_name); data_name=''">{{ 'filesystem.newFolder' | translate }}</button></td>
+                        <td>
+                            <button type="button" class="btn btn-default" (click)="select(data_name); data_name=''" [disabled]="!data_name || data_name==''">{{ 'filesystem.newFolder' | translate }}</button>
+                        </td>
                     </tr>
 
                     <tr *ngIf="mode=='data' && !backend.generics[folders.slice(0, -1)]">
