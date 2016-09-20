@@ -23,7 +23,8 @@ export var fields = {
     data: true,
     shared_with_me: true,
     oauth: true,
-    sha_master: true
+    sha_master: true,
+    cert: true
 }
 
 export class User extends IModel {
@@ -40,6 +41,7 @@ export class User extends IModel {
     public shared_with_me: any;
     public oauth: any[];
     public sha_master: string;
+    public cert: string;
 
     public impersonated_prefix: string;
     
@@ -76,6 +78,8 @@ export class User extends IModel {
             this.oauth = u.oauth;
         if('sha_master' in u)
             this.sha_master = u.sha_master;
+        if('cert' in u)
+            this.cert = u.cert;
         this.impersonated_prefix = undefined;
     }
 
@@ -113,7 +117,8 @@ export class User extends IModel {
             data: this.data,
             shared_with_me: this.shared_with_me,
             oauth: this.oauth,
-            sha_master: this.sha_master
+            sha_master: this.sha_master,
+            cert: true
         };
         return ret;
     }
@@ -182,7 +187,8 @@ export class User extends IModel {
             is_company: this.is_company,
             company_info: this.company_info,
             rsa_pub_key: this.rsa_pub_key,
-            _id: this._id
+            _id: this._id,
+            cert: this.cert
         };
         return ret;
     }
@@ -205,7 +211,8 @@ export class User extends IModel {
             rsa_pub_key: this.rsa_pub_key,
             rsa_pri_key: this.rsa_pri_key,
             oauth: this.oauth,
-            sha_master: this.sha_master
+            sha_master: this.sha_master,
+            cert: this.cert
         };
         return ret;
     }

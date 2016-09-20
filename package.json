@@ -23,6 +23,7 @@
     "passport-local": "^1.0.0",
     "passport-openid": "^0.4.0",
     "passport-token-auth": "^0.1.2",
+    "pem": "^1.8.3",
     "promise": "^7.1.1",
     "promised-mongo": "^1.2.0",
     "querystring": "^0.2.0",
