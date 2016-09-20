@@ -22,7 +22,7 @@ export class Backend {
     public shared_with_me_trie: Trie;
     public data_loaded: boolean;
     public master_key: number[];
-    public generics: {[id: string]: {
+    public generics: {[id: string]: [{
         is_dated: boolean,
         is_file: boolean,
         is_folder: boolean,
@@ -31,7 +31,7 @@ export class Backend {
         json_keys?: string[],
         module: string,
         img_url?: string
-    }};
+    }]};
     public EID_HOST = '192.168.1.61/api/v1/eid';
     public BASE_URL = 'https://192.168.1.61/api/v1/';
     public RESTORE_URL = 'https://192.168.1.61/api/v1/';
@@ -508,14 +508,16 @@ export class Backend {
      * @public
      * @param {String} name Data name.
      * @param {String} encr_data Locally crypted data.
+     * @param {Number} version Data version.
      * @param {Boolean} is_dated True to register as a dated data.
      * @return {Promise} JSON response from backend.
      */
-    postData(name: string, encr_data: number[], is_dated?: boolean): Promise {
+    postData(name: string, encr_data: number[], version: number, is_dated?: boolean): Promise {
         return this.backend(true, 'POST', {
             name: name,
             encr_data: this.arr2str(encr_data),
-            is_dated: (!!is_dated)? is_dated : false
+            is_dated: (!!is_dated)? is_dated : false,
+            version: version
         }, 'profile/data/new', true, true, true);
     }
 
@@ -665,11 +667,13 @@ export class Backend {
      * @param {String} shared_to_id Id of person with who to share.
      * @param {Bytes} data_crypted_aes Locally crypted data using a freshly generated AES key.
      * @param {String} aes_crypted_shared_pub Locally crypted new AES key using remote public RSA key.
+     * @param {Number} version Vault version.
      * @param {Number} expire_epoch Time for expiration.
      * @param {String} trigger URL that frontend should trigger upon change.
      * @return {Promise} JSON response from backend.
      */
-    createVault(data_name: string, real_name: string, shared_to_id: string, data_crypted_aes: number[], aes_crypted_shared_pub: string, expire_epoch?: number, trigger?: string): Promise {
+    createVault(data_name: string, real_name: string, shared_to_id: string, data_crypted_aes: number[], aes_crypted_shared_pub: string,
+        version: number, expire_epoch?: number, trigger?: string): Promise {
         return this.backend(true, 'POST', {
             data_name: data_name,
             shared_to_id: shared_to_id,
@@ -677,7 +681,8 @@ export class Backend {
             aes_crypted_shared_pub: aes_crypted_shared_pub,
             expire_epoch: (!!expire_epoch)? expire_epoch : 0,
             trigger: (!!trigger)? trigger : '',
-            real_name: real_name
+            real_name: real_name,
+            version: version
         }, 'vault/new', true, true, true);
     }
 

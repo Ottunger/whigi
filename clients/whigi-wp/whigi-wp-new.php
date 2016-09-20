@@ -26,7 +26,7 @@ if(!defined('WPINC'))
                     $more = array();
                     $index = 0;
                     foreach($req as $key => $val) {
-                        if($gen[$val]['is_dated']) {
+                        if($gen[$val][count($gen[$val]) - 1]['is_dated']) {
                             $row[$index] = json_decode($row[$index], true);
                             foreach($row[$index] as $k => $v) {
                                 $row[$index][$k]['from'] = strtotime($v['from']) * 1000;
@@ -36,14 +36,15 @@ if(!defined('WPINC'))
 
                         array_push($more, array(
                             'data' => $row[$index],
-                            'real_name' => $val . (($gen[$val]['is_folder'])? '/default' : ''),
-                            'is_dated' => $gen[$val]['is_dated'],
+                            'real_name' => $val . (($gen[$val][count($gen[$val]) - 1]['is_folder'])? '/default' : ''),
+                            'is_dated' => $gen[$val][count($gen[$val]) - 1]['is_dated'],
                             'shared_as' => $val,
                             'shared_trigger' => get_option('whigi_whigi_trigger'),
                             'shared_epoch' => 0,
                             'shared_to' => array(
                                 get_option('whigi_whigi_id')
-                            )
+                            ),
+                            'version' => count($gen[$val]) - 1
                         ));
 
                         if($val == 'profile/email') {

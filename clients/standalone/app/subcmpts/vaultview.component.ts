@@ -21,8 +21,8 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="back()">{{ 'back' | translate }}</button>
         <br />
 
-        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="vault.data_name" [change]="false" [is_generic]="is_generic"
-            [is_folder]="is_generic && !!backend.generics[vault.data_name] && !!backend.generics[vault.data_name].json_keys" [gen_name]="vault.data_name"></clear-view>
+        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="vault.data_name" [change]="false" [is_generic]="is_generic" [version]="version"
+            [is_folder]="is_generic && !!backend.generics[vault.data_name] && !!backend.generics[vault.data_name][version].json_keys" [gen_name]="vault.data_name"></clear-view>
     `
 })
 export class Vaultview implements OnInit, OnDestroy {
@@ -32,6 +32,7 @@ export class Vaultview implements OnInit, OnDestroy {
     public decr_data: string;
     public is_dated: boolean;
     public is_generic: boolean;
+    public version: number;
     private route_back: string;
     private sub: Subscription;
 
@@ -51,6 +52,7 @@ export class Vaultview implements OnInit, OnDestroy {
         this.vault = {data_name: ''};
         this.decr_data = '';
         this.is_generic = false;
+        this.version = 0;
     }
 
     /**
@@ -69,6 +71,7 @@ export class Vaultview implements OnInit, OnDestroy {
                 self.is_dated = vault.is_dated;
                 if(!!self.backend.generics[vault.data_name]) {
                     self.is_generic = true;
+                    self.version = vault.version;
                 }
             }, function(e) {
                 if(e.status == 417)

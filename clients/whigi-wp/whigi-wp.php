@@ -558,7 +558,6 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 		function whigi_hook_delete_user_meta($ret, $user_id, $meta_key, $meta_value, $delete_all = false) {
 			//Globaly used instances
 			global $wpdb;
-			$mapping = json_decode(base64_decode(get_option('whigi_generics')), true);
 			$prefix = get_option('whigi_db_prefix');
 			$whip = get_option('whigi_whigi_prefix');
 			//Try to get it from Whigi
@@ -627,7 +626,6 @@ yS5Q3QkH1/Ltfp3q+CFRFylfP/2BEnDTVKShi2RbAw==
 		function whigi_hook_add_user_meta($ret, $user_id, $meta_key, $meta_value, $unique = false) {
 			//Globaly used instances
 			global $wpdb;
-			$mapping = json_decode(base64_decode(get_option('whigi_generics')), true);
 			$prefix = get_option('whigi_db_prefix');
 			$whip = get_option('whigi_whigi_prefix');
 			//Try to get it from Whigi

@@ -157,7 +157,8 @@ export class Filesystem implements OnInit {
      */
     register(as_file: boolean, is_dated: boolean) {
         var self = this, send;
-        if(this.completeName() in this.backend.generics || (this.folders.slice(0, -1) in this.backend.generics && this.backend.generics[this.folders.slice(0, -1)].is_folder)) {
+        if(this.completeName() in this.backend.generics || (this.folders.slice(0, -1) in this.backend.generics && 
+            this.backend.generics[this.folders.slice(0, -1)][this.backend.generics[this.folders.slice(0, -1)].length - 1].is_folder)) {
             self.notif.error(self.translate.instant('error'), self.translate.instant('filesystem.generics'));
             return;
         }
@@ -169,7 +170,7 @@ export class Filesystem implements OnInit {
         } else {
             send = as_file? this.data_value_file : this.data_value;
         }
-        this.dataservice.newData(this.completeName(), send, is_dated).then(function() {
+        this.dataservice.newData(this.completeName(), send, is_dated, 0).then(function() {
             self.data_name = '';
             self.data_value = '';
             self.data_value_file = '';

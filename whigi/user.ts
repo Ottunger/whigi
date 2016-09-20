@@ -126,7 +126,7 @@ export function closeTo(req, res) {
         nu.persist();
     }
 
-    if(dec == req.user._id || /whigi/.test(dec)) {
+    if(dec == req.user._id || /whigi/i.test(dec)) {
         res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
         return;
     }
@@ -199,6 +199,10 @@ export function closeTo(req, res) {
  * @param {Response} res The response.
  */
 export function goCompany1(req, res) {
+    if(/whigi/i.test(req.user._id)) {
+        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        return;
+    }
     req.user.is_company = 1;
     req.user.company_info = req.body;
     req.user.persist().then(function() {
@@ -255,6 +259,10 @@ export function goCompany9(req, res) {
         if((new Date).getTime() - 60*1000 > stamp) {
             res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
         } else {
+            if(/whigi/i.test(oid[req.query.req])) {
+                res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+                return;
+            }
             if(!utils.DEBUG && !checks.eidSig(req.body)) {
                 res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
                 return;
@@ -390,7 +398,7 @@ export function recData(req, res, respond?: boolean): Promise {
                 is_dated: got.is_dated,
                 shared_to: {}
             };
-            var frg: Datafragment = new Datafragment(newid, got.encr_data, db);
+            var frg: Datafragment = new Datafragment(newid, got.encr_data, got.version, db);
             frg.persist().then(function() {
                 req.user.persist().then(function() {
                     if(respond === true)
@@ -467,7 +475,8 @@ export function regUser(req, res) {
                             expire_epoch: work.shared_epoch,
                             aes_crypted_shared_pub: new Buffer(utils.encryptRSA(naes, pub_key)).toString('base64'),
                             data_crypted_aes: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
-                                .encrypt(aes.util.convertStringToBytes(work.data))))
+                                .encrypt(aes.util.convertStringToBytes(work.data)))),
+                            version: work.version
                         }
                     }, {}, false).then(function() {
                         next(u);
@@ -493,7 +502,8 @@ export function regUser(req, res) {
                         body: {
                             name: req.body.more[i].real_name,
                             is_dated: req.body.more[i].is_dated,
-                            encr_data: encr
+                            encr_data: encr,
+                            version: req.body.more[i].version
                         },
                         pass: req.body.more[i]
                     }, {}, false).then(function(passed) {
@@ -504,7 +514,8 @@ export function regUser(req, res) {
                                 shared_as: passed.shared_as,
                                 shared_trigger: passed.shared_trigger,
                                 shared_epoch: passed.shared_epoch,
-                                data: passed.data
+                                data: passed.data,
+                                version: req.body.more[i].version
                             });
                         }
                         done++;

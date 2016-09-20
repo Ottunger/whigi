@@ -96,7 +96,6 @@ export class Merge {
                                 index: 0,
                                 is_dated: add.data[datakeys[i]].is_dated,
                                 shared_to: add.data[datakeys[i]].shared_to,
-                                is_folder: (!!self.backend.generics[datakeys[i].replace(/\/[^\/]*$/, '')] && self.backend.generics[datakeys[i].replace(/\/[^\/]*$/, '')].is_folder)
                             });
                         }
                     }
@@ -111,7 +110,9 @@ export class Merge {
                                         var encr = self.backend.str2arr(data.encr_data);
                                         self.backend.decryptAES(encr, self.dataservice.workerMgt(false, function(got) {
                                             work.mode = 'getVault',
+                                            work.version = data.version;
                                             work.decr_data = got;
+                                            work.is_folder = (!!self.backend.generics[work.name.replace(/\/[^\/]*$/, '')] && self.backend.generics[work.name.replace(/\/[^\/]*$/, '')][data.version].is_folder);
                                             array.push(work);
                                             next();
                                         }));
@@ -142,7 +143,7 @@ export class Merge {
                                     }
                                     break;
                                 case 'new':
-                                    self.dataservice.newData(work.name, work.decr_data, work.is_dated, self.erase).then(function() {
+                                    self.dataservice.newData(work.name, work.decr_data, work.is_dated, work.version, self.erase).then(function() {
                                         work.mode = 'giveVault',
                                         work.index = 0;
                                         array.push(work);
@@ -162,7 +163,7 @@ export class Merge {
                                 case 'giveVault':
                                     if(work.shared_to.length > work.index) {
                                         var key = Object.getOwnPropertyNames(work.shared_to)[work.index];
-                                        self.dataservice.grantVault(key, work.is_folder? work.name.replace(/\/[^\/]*$/, '') : work.name, work.name, work.decr_data, work.shared_to[key].ee, work.shared_to[key].trigger).then(function() {
+                                        self.dataservice.grantVault(key, work.is_folder? work.name.replace(/\/[^\/]*$/, '') : work.name, work.name, work.decr_data, work.version, work.shared_to[key].ee, work.shared_to[key].trigger).then(function() {
                                             work.index++;
                                             array.push(work);
                                             next();

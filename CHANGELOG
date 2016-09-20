@@ -31,7 +31,7 @@ Retrieves list of owned fragments, and list of shared with me vaults.
 
 /api/v<any>/profile/data/new: Post, needs auth, needs puzzle
 Saves a new data fragment. The API sends back the newly generated id for that data_name.
-{"name": "string", "encr_data": "string", "is_dated": "boolean"}
+{"name": "string", "encr_data": "string", "is_dated": "boolean", "version": "number"}
 
 /api/v<any>/profile/update: Post, needs auth
 Updates password. When updated password, can send the password hashed but needs to send the new ecrypted master key as well.
@@ -75,7 +75,7 @@ Removes such a named data and all associated vaults.
 
 /api/v<any>/vault/new: Post, needs auth, needs puzzle
 Creates a new vault for sharing with another user. Set expire_epoch to 0 or negative to never expire.
-{"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string",
+{"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string", "version": "number",
     "data_crypted_aes": "string", "expire_epoch": "number", "trigger": "string", "real_name": "string"}
 
 /api/v<any>/vault/<vault_id>: Delete, needs auth

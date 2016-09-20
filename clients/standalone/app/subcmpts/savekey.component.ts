@@ -12,6 +12,7 @@ import {TranslateService} from 'ng2-translate/ng2-translate';
 import {NotificationsService} from 'angular2-notifications';
 import {Subscription} from 'rxjs/Subscription';
 import {Data} from '../data.service';
+import {Backend} from '../app.service';
 enableProdMode();
 
 @Component({
@@ -35,9 +36,10 @@ export class Savekey implements OnInit, OnDestroy {
      * @param notif Notification service.
      * @param routed Activated route service.
      * @param dataservice Data service.
+     * @param backend App service.
      */
     constructor(private translate: TranslateService, private router: Router, private notif: NotificationsService,
-        private routed: ActivatedRoute, private dataservice: Data) {
+        private routed: ActivatedRoute, private dataservice: Data, private backend: Backend) {
 
     }
 
@@ -52,12 +54,19 @@ export class Savekey implements OnInit, OnDestroy {
             self.key = window.decodeURIComponent(params['key']);
             self.value = window.decodeURIComponent(params['value']);
             self.return_url = window.decodeURIComponent(params['return_url']);
-            self.dataservice.newData(self.key, self.value, params['is_dated']).then(function() {
-                self.notif.success(self.translate.instant('success'), self.translate.instant('savekey.rec'));
+            if(self.key in self.backend.generics || (self.key.replace(/\/[^\/]*/, '') in self.backend.generics &&
+                self.backend.generics[self.key.replace(/\/[^\/]*/, '')][self.backend.generics[self.key.replace(/\/[^\/]*/, '')].length - 1].is_folder))
                 window.location.href = self.return_url;
+            self.dataservice.newData(self.key, self.value, params['is_dated'], 0).then(function() {
+                self.notif.success(self.translate.instant('success'), self.translate.instant('savekey.rec'));
+                setTimeout(function() {
+                    window.location.href = self.return_url;
+                }, 1500);
             }, function(err) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('server'));
-                window.location.href = self.return_url;
+                setTimeout(function() {
+                    window.location.href = self.return_url;
+                }, 1500);
             });
         });
     }

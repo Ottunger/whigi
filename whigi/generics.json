@@ -1,33 +1,33 @@
 {
-    "profile/email": {
+    "profile/email": [{
         "is_dated": false,
         "is_file": false,
         "is_folder": true,
         "descr_key": "generics.email",
         "module": "generics.profile"
-    },
-    "profile/last_name": {
+    }],
+    "profile/last_name": [{
         "is_dated": false,
         "is_file": false,
         "is_folder": false,
         "descr_key": "generics.last_name",
         "module": "generics.profile"
-    },
-    "profile/first_name": {
+    }],
+    "profile/first_name": [{
         "is_dated": false,
         "is_file": false,
         "is_folder": false,
         "descr_key": "generics.first_name",
         "module": "generics.profile"
-    },
-    "profile/other_first_names": {
+    }],
+    "profile/other_first_names": [{
         "is_dated": false,
         "is_file": false,
         "is_folder": false,
         "descr_key": "generics.other_first_names",
         "module": "generics.profile"
-    },
-    "profile/address": {
+    }],
+    "profile/address": [{
         "is_dated": false,
         "is_file": false,
         "is_folder": true,
@@ -35,43 +35,43 @@
             "generics.postcode", "generics.city", "generics.country"],
         "descr_key": "generics.address",
         "module": "generics.profile"
-    },
-    "profile/birth_date": {
+    }],
+    "profile/birth_date": [{
         "is_dated": false,
         "is_file": false,
         "is_folder": true,
         "descr_key": "generics.birth_date",
         "regexp": "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d$",
         "module": "generics.profile"
-    },
-    "profile/rrn": {
+    }],
+    "profile/rrn": [{
         "is_dated": false,
         "is_file": false,
         "is_folder": false,
         "descr_key": "generics.rrn",
         "regexp": "^[0-9]{11}$",
         "module": "generics.profile"
-    },
-    "profile/corporate/name": {
+    }],
+    "profile/corporate/name": [{
         "is_dated": true,
         "is_file": false,
         "is_folder": true,
         "descr_key": "generics.corporate_name",
         "module": "generics.corporate"
-    },
-    "profile/corporate/bcenum": {
+    }],
+    "profile/corporate/bcenum": [{
         "is_dated": false,
         "is_file": false,
         "is_folder": true,
         "descr_key": "generics.corporate_bcenum",
         "module": "generics.corporate"
-    },
-    "profile/corporate/creation_date": {
+    }],
+    "profile/corporate/creation_date": [{
         "is_dated": false,
         "is_file": false,
         "is_folder": true,
         "descr_key": "generics.corporate_creation_date",
         "regexp": "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d$",
         "module": "generics.corporate"
-    }
+    }]
 }

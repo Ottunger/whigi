@@ -137,8 +137,8 @@ export class Profile implements OnInit {
             this.notif.success(this.translate.instant('success'), this.translate.instant('profile.eidRead'));
             this.backend.getProfile().then(function(profile) {
                 self.backend.profile = profile;
-                self.dataservice.newData('profile/address/eid', self.backend.profile.company_info.address, false).then(function() {
-                    self.dataservice.newData('profile/rrn', self.backend.profile.company_info.rrn, false);
+                self.dataservice.newData('profile/address/eid', self.backend.profile.company_info.address, false, 0).then(function() {
+                    self.dataservice.newData('profile/rrn', self.backend.profile.company_info.rrn, false, 0);
                 });
             });
         }

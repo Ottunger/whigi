@@ -41,17 +41,17 @@ enableProdMode();
             <div *ngFor="let p of data_list">
                 <h3>
                     {{ 'account.prefix' | translate }}{{ p }}
-                    <img *ngIf="!!backend.generics[p] && !!backend.generics[p].img_url" class="featurette-image img-circle img-responsive pull-right" src="{{ backend.generics[p].img_url }}">
-                    <img *ngIf="!backend.generics[p] || !backend.generics[p].img_url" class="featurette-image img-circle img-responsive pull-right" src="favicon.png">
+                    <img *ngIf="!!backend.generics[p] && !!backend.generics[p][backend.generics[p].length - 1].img_url" class="featurette-image img-circle img-responsive pull-right" src="{{ backend.generics[p][backend.generics[p].length - 1].img_url }}">
+                    <img *ngIf="!backend.generics[p] || !backend.generics[p][backend.generics[p].length - 1].img_url" class="featurette-image img-circle img-responsive pull-right" src="favicon.png">
                 </h3>
                 
                 <p *ngIf="!backend.generics[p]"><i>{{ 'account.notShared' | translate }}</i></p>
-                <div *ngIf="!!backend.generics[p] && !backend.generics[p].is_folder">
+                <div *ngIf="!!backend.generics[p] && !backend.generics[p][backend.generics[p].length - 1].is_folder">
                     <p *ngIf="!!backend.profile.data[p]">{{ 'account.shared' | translate }}</p>
-                    <input *ngIf="!backend.profile.data[p] && !backend.generics[p].is_file" type="text" [(ngModel)]="new_data[p]" class="form-control">
-                    <input *ngIf="!backend.profile.data[p] && backend.generics[p].is_file" type="file" (change)="fileLoad($event, p)" class="form-control">
+                    <input *ngIf="!backend.profile.data[p] && !backend.generics[p][backend.generics[p].length - 1].is_file" type="text" [(ngModel)]="new_data[p]" class="form-control">
+                    <input *ngIf="!backend.profile.data[p] && backend.generics[p][backend.generics[p].length - 1].is_file" type="file" (change)="fileLoad($event, p)" class="form-control">
                 </div>
-                <div *ngIf="!!backend.generics[p] && backend.generics[p].is_folder">
+                <div *ngIf="!!backend.generics[p] && backend.generics[p][backend.generics[p].length - 1].is_folder">
                     <select class="form-control" [(ngModel)]="filter[p]">
                         <option *ngFor="let f of filters(p)" [value]="f"><span *ngIf="f != '/new'">{{ f }}</span><span *ngIf="f == '/new'">{{ 'account.new' | translate }}</span></option>
                     </select>
@@ -59,14 +59,14 @@ enableProdMode();
                         {{ 'account.nameField' | translate }}
                         <input type="text" [(ngModel)]="new_name[p]" name="s18" class="form-control">
                         {{ 'account.dataField' | translate }}
-                        <input type="text" *ngIf="!backend.generics[p].is_file && !backend.generics[p].json_keys" [(ngModel)]="new_data[p]" name="s1" class="form-control">
-                        <div *ngIf="!backend.generics[p].is_file && !!backend.generics[p].json_keys">
-                            <div class="form-group" *ngFor="let k of backend.generics[p].json_keys">
+                        <input type="text" *ngIf="!backend.generics[p][backend.generics[p].length - 1].is_file && !backend.generics[p][backend.generics[p].length - 1].json_keys" [(ngModel)]="new_data[p]" name="s1" class="form-control">
+                        <div *ngIf="!backend.generics[p][backend.generics[p].length - 1].is_file && !!backend.generics[p][backend.generics[p].length - 1].json_keys">
+                            <div class="form-group" *ngFor="let k of backend.generics[p][backend.generics[p].length - 1].json_keys">
                                 {{ k | translate }}<br />
                                 <input type="text" [(ngModel)]="new_datas[p][k]" name="s1" class="form-control">
                             </div>
                         </div>
-                        <input type="file" *ngIf="backend.generics[p].is_file" (change)="fileLoad($event, p)" name="n50" class="form-control">
+                        <input type="file" *ngIf="backend.generics[p][backend.generics[p].length - 1].is_file" (change)="fileLoad($event, p)" name="n50" class="form-control">
                     </div>
                 </div>
             </div>
@@ -220,7 +220,8 @@ export class Account implements OnInit, OnDestroy {
                     data: key,
                     name: 'keys/auth/' + this.id_to,
                     is_dated: false,
-                    force: true
+                    force: true,
+                    version : 0
                 });
                 saves.push({
                     mode: 'grant',
@@ -228,34 +229,36 @@ export class Account implements OnInit, OnDestroy {
                     to: this.id_to,
                     name: 'keys/auth/' + this.id_to,
                     real_name: 'keys/auth/' + this.id_to,
-                    until: new Date(0)
+                    until: new Date(0),
+                    version: 0
                 });
             }
             for(var i = 0; i < this.data_list.length; i++) {
                 var adata = this.data_list[i];
                 if(adata in this.backend.generics && ((!(adata in this.filter) && !(adata in this.backend.profile.data)) || (adata in this.filter && this.filter[adata] == '/new'))) {
-                    if(!!this.backend.generics[adata].json_keys) {
+                    if(!!this.backend.generics[adata][this.backend.generics[adata].length - 1].json_keys) {
                         var ret = {};
-                        for(var i = 0; i < this.backend.generics[adata].json_keys.length; i++) {
-                            ret[this.backend.generics[adata].json_keys[i]] = this.new_datas[adata][this.backend.generics[adata].json_keys[i]];
+                        for(var i = 0; i < this.backend.generics[adata][this.backend.generics[adata].length - 1].json_keys.length; i++) {
+                            ret[this.backend.generics[adata][this.backend.generics[adata].length - 1].json_keys[i]] = this.new_datas[adata][this.backend.generics[adata][this.backend.generics[adata].length - 1].json_keys[i]];
                         }
                         this.new_data[adata] = JSON.stringify(ret);
                     }
-                    if(this.backend.generics[adata].is_dated) {
+                    if(this.backend.generics[adata][this.backend.generics[adata].length - 1].is_dated) {
                         this.new_data[adata] = JSON.stringify([{
                             value: this.new_data[adata],
                             from: 0
                         }]);
                     }
                     var name = adata;
-                    if(this.backend.generics[adata].is_folder) {
+                    if(this.backend.generics[adata][this.backend.generics[adata].length - 1].is_folder) {
                         name += '/' + this.new_name[adata];
                     }
                     saves.push({
                         mode: 'new',
                         data: this.new_data[adata],
                         name: name,
-                        is_dated: this.backend.generics[adata].is_dated,
+                        is_dated: this.backend.generics[adata][this.backend.generics[adata].length - 1].is_dated,
+                        version: this.backend.generics[adata].length - 1,
                         force: false
                     });
                     saves.push({
@@ -265,11 +268,12 @@ export class Account implements OnInit, OnDestroy {
                         name: adata,
                         real_name: name,
                         until: this.expire_epoch,
+                        version: this.backend.generics[adata].length - 1,
                         trigger: this.trigger
                     });
                 } else if(adata in this.backend.generics) {
                     var name = adata;
-                    if(this.backend.generics[adata].is_folder) {
+                    if(this.backend.generics[adata][this.backend.generics[adata].length - 1].is_folder) {
                         name += '/' + this.filter[adata];
                     }
                     saves.push({
@@ -319,14 +323,14 @@ export class Account implements OnInit, OnDestroy {
                     index++;
                     switch(work.mode) {
                         case 'new':
-                            self.dataservice.newData(work.name, work.data, work.is_dated, work.force).then(function() {
+                            self.dataservice.newData(work.name, work.data, work.is_dated, work.version, work.force).then(function() {
                                 next();
                             }, function(e) {
                                 reject(e);
                             });
                             break;
                         case 'grant':
-                            self.dataservice.grantVault(work.to, work.name, work.real_name, work.data, work.until, work.trigger).then(function() {
+                            self.dataservice.grantVault(work.to, work.name, work.real_name, work.data, work.version, work.until, work.trigger).then(function() {
                                 next();
                             }, function(e) {
                                 reject(e);
@@ -342,7 +346,8 @@ export class Account implements OnInit, OnDestroy {
                                         name: work.name,
                                         real_name: work.real_name,
                                         until: work.until,
-                                        trigger: work.trigger
+                                        trigger: work.trigger,
+                                        version: data.version
                                     });
                                     next();
                                 }));

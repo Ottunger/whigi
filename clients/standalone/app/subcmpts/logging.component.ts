@@ -222,12 +222,12 @@ export class Logging implements OnInit {
         var self = this;
 
         function safe() {
-            self.dataservice.newData('keys/pwd/mine1', self.password.slice(0, 4), false).then(function() {
-                self.dataservice.newData('keys/pwd/mine2', self.password.slice(4), false).then(function() {
+            self.dataservice.newData('keys/pwd/mine1', self.password.slice(0, 4), false, 0).then(function() {
+                self.dataservice.newData('keys/pwd/mine2', self.password.slice(4), false, 0).then(function() {
                     if(self.safe) {
-                        self.dataservice.grantVault('whigi-restore', 'keys/pwd/mine1', 'keys/pwd/mine1', self.password.slice(0, 4), new Date(0)).then(function() {
-                            self.dataservice.grantVault('whigi-restore', 'profile/recup_id', 'profile/recup_id', self.recup_id, new Date(0)).then(function() {
-                                self.dataservice.grantVault(self.recup_id, 'keys/pwd/mine2', 'keys/pwd/mine2', self.password.slice(4), new Date(0)).then(function() {
+                        self.dataservice.grantVault('whigi-restore', 'keys/pwd/mine1', 'keys/pwd/mine1', self.password.slice(0, 4), 0, new Date(0)).then(function() {
+                            self.dataservice.grantVault('whigi-restore', 'profile/recup_id', 'profile/recup_id', self.recup_id, 0, new Date(0)).then(function() {
+                                self.dataservice.grantVault(self.recup_id, 'keys/pwd/mine2', 'keys/pwd/mine2', self.password.slice(4), 0, new Date(0)).then(function() {
                                     self.notif.success(self.translate.instant('success'), self.translate.instant('login.sent'));
                                     self.logout();
                                 }, function(e) {
@@ -243,8 +243,8 @@ export class Logging implements OnInit {
                             self.logout();
                         });
                     } else {
-                        self.dataservice.grantVault('whigi-restore', 'keys/pwd/mine1', 'keys/pwd/mine1', self.password.slice(0, 4), new Date(0)).then(function() {
-                            self.dataservice.grantVault('whigi-restore', 'keys/pwd/mine2', 'keys/pwd/mine2', self.password.slice(4), new Date(0)).then(function() {
+                        self.dataservice.grantVault('whigi-restore', 'keys/pwd/mine1', 'keys/pwd/mine1', self.password.slice(0, 4), 0, new Date(0)).then(function() {
+                            self.dataservice.grantVault('whigi-restore', 'keys/pwd/mine2', 'keys/pwd/mine2', self.password.slice(4), 0, new Date(0)).then(function() {
                                 self.notif.success(self.translate.instant('success'), self.translate.instant('login.sent'));
                                 self.logout();
                             }, function(e) {
@@ -274,10 +274,10 @@ export class Logging implements OnInit {
                         localStorage.setItem('key_decryption', window.sha256(self.password + user.salt));
                         localStorage.setItem('psha', window.sha256(self.password));
                         self.dataservice.listData().then(function() {
-                            self.dataservice.newData('profile/email/restore', self.email, false, true).then(function(email) {
-                                self.dataservice.newData('profile/recup_id', self.recup_id, false, true).then(function(email) {
+                            self.dataservice.newData('profile/email/restore', self.email, false, 0, true).then(function(email) {
+                                self.dataservice.newData('profile/recup_id', self.recup_id, false, 0, true).then(function(email) {
                                     if(self.recuperable) {
-                                        self.dataservice.grantVault('whigi-restore', 'profile/email/restore', 'profile/email/restore', self.email, new Date(0)).then(function() {
+                                        self.dataservice.grantVault('whigi-restore', 'profile/email/restore', 'profile/email/restore', self.email, 0, new Date(0)).then(function() {
                                             safe();
                                         }, function() {
                                             self.notif.error(self.translate.instant('error'), self.translate.instant('login.noSignup'));

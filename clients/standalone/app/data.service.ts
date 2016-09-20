@@ -134,10 +134,11 @@ export class Data {
      * @param {String} name Complete name, directory prefixed.
      * @param {String} value Value.
      * @param {Boolean} is_dated Dated field.
+     * @param {Number} version Data version.
      * @param {Boolean} ignore Ignore existing data, wiping it.
      * @return {Promise} Whether it went OK.
      */
-    newData(name: string, value: string, is_dated: boolean, ignore?: boolean): Promise {
+    newData(name: string, value: string, is_dated: boolean, version: number, ignore?: boolean): Promise {
         var self = this;
         ignore = ignore || false;
 
@@ -147,7 +148,7 @@ export class Data {
                 return;
             }
             self.backend.encryptAES(value, self.workerMgt(true, function(got) {
-                self.backend.postData(name, got, is_dated).then(function(res) {
+                self.backend.postData(name, got, version, is_dated).then(function(res) {
                     self.backend.profile.data[name] = {
                         id: res._id,
                         length: 0,
@@ -191,11 +192,12 @@ export class Data {
      * @param {String} name Complete name, directory prefixed.
      * @param {String} value Value.
      * @param {Boolean} is_dated Dated field.
+     * @param {Number} version Data version.
      * @param {Object} users_mapping A dictionary that must contain user id => expire_epoch.
      * @param {Boolean} is_folder Whether to dump vault name into folder.
      * @return {Promise} Whether it went OK.
      */
-    modifyData(name: string, value: string, is_dated: boolean, users_mapping: {[id: string]: Date}, is_folder?: boolean): Promise {
+    modifyData(name: string, value: string, is_dated: boolean, version: number, users_mapping: {[id: string]: Date}, is_folder?: boolean): Promise {
         var i = 0, names = keys(), max = names.length, went = true;
         var self = this;
         is_folder = !!is_folder? is_folder : false;
@@ -222,10 +224,10 @@ export class Data {
         
         self.backend.triggerVaults(name);
         return new Promise(function(resolve, reject) {
-            self.newData(name, value, is_dated, true).then(function() {
+            self.newData(name, value, is_dated, version, true).then(function() {
                 names.forEach(function(id) {
                     var time = !!users_mapping[id].getTime? users_mapping[id] : new Date(0);
-                    self.grantVault(id, is_folder? name.replace(/\/[^\/]*$/, '') : name, name, value, time).then(function(user, newid) {
+                    self.grantVault(id, is_folder? name.replace(/\/[^\/]*$/, '') : name, name, value, version, time).then(function(user, newid) {
                         check(resolve, reject);
                     }, function() {
                         went = false;
@@ -270,11 +272,12 @@ export class Data {
      * @param {String} name Data name.
      * @param {String} real_name Real data name.
      * @param {String} decr_data Decrypted data.
+     * @param {Number} version Vault version.
      * @param {Date} max_date Valid until.
      * @param {String} new_trigger URL to trigger.
      * @return {Promise} Whether went OK with remote profile and newly created vault.
      */
-    grantVault(id: string, name: string, real_name: string, decr_data: string, max_date: Date, new_trigger?: string): Promise {
+    grantVault(id: string, name: string, real_name: string, decr_data: string, version: number, max_date: Date, new_trigger?: string): Promise {
         var self = this;
         return new Promise(function(resolve, reject) {
             self.backend.getUser(id).then(function(user) {
@@ -282,7 +285,7 @@ export class Data {
                 var aes_crypted_shared_pub: string = self.backend.encryptRSA(aesKey, user.rsa_pub_key);
 
                 self.backend.encryptAES(decr_data, self.workerMgt(true, function(got) {
-                    self.backend.createVault(name, real_name, user._id, got, aes_crypted_shared_pub,
+                    self.backend.createVault(name, real_name, user._id, got, aes_crypted_shared_pub, version,
                         (max_date.getTime() < (new Date).getTime())? 0 : max_date.getTime(), new_trigger).then(function(res) {
                         self.backend.profile.data[real_name].shared_to[user._id] = res._id;
                         resolve(user, res._id);

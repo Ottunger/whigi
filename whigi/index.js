@@ -267,13 +267,13 @@ connect(function(e) {
     app.delete('/api/v:version/oauth/:id', checks.checkOAuth(true));
     //API POST CHECKS
     app.post('/api/v:version/close/:id', checks.checkBody(['new_keys']));
-    app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated']));
+    app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated', 'version']));
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
     app.post('/api/v:version/user/create', checks.checkBody(['username', 'password']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix', 'token']));
     //-----
-    app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch', 'trigger', 'real_name']));
+    app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch', 'trigger', 'real_name', 'version']));
     //API LONG LIVED COMMANDS
     app.post('/api/v:version/close/:id', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/new', checks.checkPuzzle);

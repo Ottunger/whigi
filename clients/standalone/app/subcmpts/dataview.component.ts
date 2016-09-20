@@ -21,8 +21,8 @@ enableProdMode();
         <button type="button" class="btn btn-primary" (click)="back(false)">{{ 'back' | translate }}</button>
         <button *ngIf="is_generic" type="button" class="btn btn-primary" (click)="back(true)">{{ 'dataview.toGen' | translate }}</button>
         <br />
-        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="data_name" [change]="true" [is_folder]="is_generic && !!backend.generics[gen_name].json_keys"
-            (notify)="mod($event, false)" [gen_name]="gen_name" [is_generic]="is_generic"></clear-view>
+        <clear-view [decr_data]="decr_data" [is_dated]="is_dated" [data_name]="data_name" [change]="true" [is_folder]="is_generic && !!backend.generics[gen_name][version].json_keys"
+            (notify)="mod($event, false)" [gen_name]="gen_name" [is_generic]="is_generic" [version]="version"></clear-view>
         <br /><br />
 
         <p *ngIf="!is_dated">{{ 'modify' | translate }}</p>
@@ -39,14 +39,14 @@ enableProdMode();
             <input type="file" (change)="fileLoad($event)" class="form-control">
         </div>
         <div *ngIf="is_generic">
-            <input type="text" *ngIf="!backend.generics[gen_name].is_file && !backend.generics[gen_name].json_keys" [(ngModel)]="new_data" name="s1" class="form-control">
-            <div *ngIf="!backend.generics[gen_name].is_file && !!backend.generics[gen_name].json_keys">
-                <div class="form-group" *ngFor="let k of backend.generics[gen_name].json_keys">
+            <input type="text" *ngIf="!backend.generics[gen_name][version].is_file && !backend.generics[gen_name][version].json_keys" [(ngModel)]="new_data" name="s1" class="form-control">
+            <div *ngIf="!backend.generics[gen_name][version].is_file && !!backend.generics[gen_name][version].json_keys">
+                <div class="form-group" *ngFor="let k of backend.generics[gen_name][version].json_keys">
                     {{ k | translate }}<br />
                     <input type="text" [(ngModel)]="new_datas[k]" name="s1" class="form-control">
                 </div>
             </div>
-            <input type="file" *ngIf="backend.generics[gen_name].is_file" (change)="fileLoad($event)" name="n50" class="form-control">
+            <input type="file" *ngIf="backend.generics[gen_name][version].is_file" (change)="fileLoad($event)" name="n50" class="form-control">
         </div>
 
 
@@ -138,6 +138,7 @@ export class Dataview implements OnInit, OnDestroy {
     public is_dated: boolean;
     public new_trigger: string;
     public is_generic: boolean;
+    public version: number;
     public gen_name: string;
     public filter: string;
     private to_filesystem: boolean;
@@ -161,6 +162,7 @@ export class Dataview implements OnInit, OnDestroy {
         this.timings = {};
         this.new_datas = {};
         this.filter = '';
+        this.version = 0;
         new window.Clipboard('.btn-copier');
     }
 
@@ -176,13 +178,7 @@ export class Dataview implements OnInit, OnDestroy {
             self.data_name = window.decodeURIComponent(params['name']);
             self.to_filesystem = params['to_filesystem'];
             self.is_dated = self.backend.profile.data[self.data_name].is_dated;
-            if(!!self.backend.generics[self.data_name]) {
-                self.is_generic = true;
-                self.gen_name = self.data_name;
-            } else if(!!self.backend.generics[self.data_name.replace(/\/[^\/]*$/, '')] && self.backend.generics[self.data_name.replace(/\/[^\/]*$/, '')].is_folder) {
-                self.is_generic = true;
-                self.gen_name = self.data_name.replace(/\/[^\/]*$/, '');
-            }
+
             var keys = Object.getOwnPropertyNames(self.backend.profile.data[self.data_name].shared_to);
             keys.forEach(function(val) {
                 self.backend.getAccessVault(self.backend.profile.data[self.data_name].shared_to[val]).then(function(got) {
@@ -197,8 +193,17 @@ export class Dataview implements OnInit, OnDestroy {
                     delete self.backend.profile.data[self.data_name].shared_to[val];
                 });
             });
+
             self.backend.getData(self.backend.profile.data[self.data_name].id).then(function(data) {
+                self.version = data.version;
                 self.data = data;
+                if(!!self.backend.generics[self.data_name]) {
+                    self.is_generic = true;
+                    self.gen_name = self.data_name;
+                } else if(!!self.backend.generics[self.data_name.replace(/\/[^\/]*$/, '')] && self.backend.generics[self.data_name.replace(/\/[^\/]*$/, '')][self.version].is_folder) {
+                    self.is_generic = true;
+                    self.gen_name = self.data_name.replace(/\/[^\/]*$/, '');
+                }
                 self.data.encr_data = self.backend.str2arr(self.data.encr_data);
                 self.backend.decryptAES(self.data.encr_data, self.dataservice.workerMgt(false, function(got) {
                     self.decr_data = got;
@@ -256,10 +261,10 @@ export class Dataview implements OnInit, OnDestroy {
      */
     modify() {
         var replacement, from = window.$('#pick4').datetimepicker('date').toDate(), done = false;
-        if(this.is_generic && !!this.backend.generics[this.gen_name].json_keys) {
+        if(this.is_generic && !!this.backend.generics[this.gen_name][this.version].json_keys) {
             var ret = {};
-            for(var i = 0; i < this.backend.generics[this.gen_name].json_keys.length; i++) {
-                ret[this.backend.generics[this.gen_name].json_keys[i]] = this.new_datas[this.backend.generics[this.gen_name].json_keys[i]];
+            for(var i = 0; i < this.backend.generics[this.gen_name][this.version].json_keys.length; i++) {
+                ret[this.backend.generics[this.gen_name][this.version].json_keys[i]] = this.new_datas[this.backend.generics[this.gen_name][this.version].json_keys[i]];
             }
             this.new_data = JSON.stringify(ret);
         }
@@ -393,7 +398,7 @@ export class Dataview implements OnInit, OnDestroy {
                 //Get other data and create its vault
                 self.backend.getData(self.backend.profile.data[self.gen_name + '/' + self.filter].id).then(function(data) {
                     self.backend.decryptAES(data.encr_data, self.dataservice.workerMgt(false, function(got) {
-                        self.dataservice.grantVault(shared_to_id, self.gen_name, self.gen_name + '/' + self.filter, got, new Date(timer.expire_epoch), timer.trigger).then(function() {
+                        self.dataservice.grantVault(shared_to_id, self.gen_name, self.gen_name + '/' + self.filter, got, self.version, new Date(timer.expire_epoch), timer.trigger).then(function() {
                             self.backend.triggerVaults(self.gen_name + '/' + self.filter);
                             self.notif.success(self.translate.instant('success'), self.translate.instant('dataview.transfered'));
                         }, function(e) {
@@ -433,7 +438,7 @@ export class Dataview implements OnInit, OnDestroy {
     register() {
         var self = this;
         var date: Date = window.$('#pick5').datetimepicker('date').toDate();
-        this.dataservice.grantVault(this.new_id, this.data_name, this.data_name, this.decr_data, date, this.new_trigger).then(function(user, id) {
+        this.dataservice.grantVault(this.new_id, this.data_name, this.data_name, this.decr_data, this.version, date, this.new_trigger).then(function(user, id) {
             self.backend.profile.data[self.data_name].shared_to[user._id] = id;
             self.timings[user._id] = {la: new Date(0), ee: date, seen: false,
                 ends: date.getTime() > (new Date).getTime(), trigger: self.new_trigger};

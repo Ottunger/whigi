@@ -37,39 +37,39 @@ enableProdMode();
                         <th>{{ 'action' | translate }}</th>
                     </tr>
                 </thead>
-                <tbody *ngIf="!backend.generics[g].is_folder">
+                <tbody *ngIf="!backend.generics[g][backend.generics[g].length - 1].is_folder">
                     <tr>
-                        <td *ngIf="!!backend.generics[g].img_url"><img src="{{ backend.generics[g].img_url }}" /></td>
-                        <td *ngIf="!backend.generics[g].img_url"><img src="favicon.png" /></td>
-                        <td>{{ backend.generics[g].descr_key | translate }}</td>
+                        <td *ngIf="!!backend.generics[g][backend.generics[g].length - 1].img_url"><img src="{{ backend.generics[g][backend.generics[g].length - 1].img_url }}" /></td>
+                        <td *ngIf="!backend.generics[g][backend.generics[g].length - 1].img_url"><img src="favicon.png" /></td>
+                        <td>{{ backend.generics[g][backend.generics[g].length - 1].descr_key | translate }}</td>
                         <td>{{ g }}</td>
 
                         <td *ngIf="!!backend.profile.data[g]">
                             <i>{{ 'filesystem.mix' | translate }}</i>
                         </td>
-                        <td *ngIf="!backend.profile.data[g] && !backend.generics[g].is_file">
+                        <td *ngIf="!backend.profile.data[g] && !backend.generics[g][backend.generics[g].length - 1].is_file">
                             <input type="text" [(ngModel)]="new_data" name="s1" class="form-control">
                         </td>
-                        <td *ngIf="!backend.profile.data[g] && backend.generics[g].is_file">
+                        <td *ngIf="!backend.profile.data[g] && backend.generics[g][backend.generics[g].length - 1].is_file">
                             <input type="file" (change)="fileLoad($event)" name="n50" class="form-control">
                         </td>
 
                         <td *ngIf="!!backend.profile.data[g]">
                             <button type="button" class="btn btn-default" (click)="select(g)">{{ 'filesystem.goTo' | translate }}</button>
                         </td>
-                        <td *ngIf="!backend.profile.data[g] && !backend.generics[g].is_file">
+                        <td *ngIf="!backend.profile.data[g] && !backend.generics[g][backend.generics[g].length - 1].is_file">
                             <button type="button" class="btn btn-default" (click)="register(g, false)">{{ 'filesystem.record' | translate }}</button>
                         </td>
-                        <td *ngIf="!backend.profile.data[g] && backend.generics[g].is_file">
+                        <td *ngIf="!backend.profile.data[g] && backend.generics[g][backend.generics[g].length - 1].is_file">
                             <button type="button" class="btn btn-default" (click)="register(g, true)" [disabled]="new_data_file==''">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
                 </tbody>
-                <tbody *ngIf="backend.generics[g].is_folder">
+                <tbody *ngIf="backend.generics[g][backend.generics[g].length - 1].is_folder">
                     <tr *ngFor="let d of dataNames(g)">
-                        <td *ngIf="!!backend.generics[g].img_url"><img src="{{ backend.generics[g].img_url }}" /></td>
-                        <td *ngIf="!backend.generics[g].img_url"><img src="favicon.png" /></td>
-                        <td>{{ backend.generics[g].descr_key | translate }}</td>
+                        <td *ngIf="!!backend.generics[g][backend.generics[g].length - 1].img_url"><img src="{{ backend.generics[g][backend.generics[g].length - 1].img_url }}" /></td>
+                        <td *ngIf="!backend.generics[g][backend.generics[g].length - 1].img_url"><img src="favicon.png" /></td>
+                        <td>{{ backend.generics[g][backend.generics[g].length - 1].descr_key | translate }}</td>
                         <td>{{ g }}/{{ d }}</td>
 
                         <td><i>{{ 'filesystem.mix' | translate }}</i></td>
@@ -77,31 +77,31 @@ enableProdMode();
                         <td><button type="button" class="btn btn-default" (click)="select(g + '/' + d)">{{ 'filesystem.goTo' | translate }}</button></td>
                     </tr>
                     <tr>
-                        <td *ngIf="!!backend.generics[g].img_url"><img src="{{ backend.generics[g].img_url }}" /></td>
-                        <td *ngIf="!backend.generics[g].img_url"><img src="favicon.png" /></td>
-                        <td>{{ backend.generics[g].descr_key | translate }}</td>
+                        <td *ngIf="!!backend.generics[g][backend.generics[g].length - 1].img_url"><img src="{{ backend.generics[g][backend.generics[g].length - 1].img_url }}" /></td>
+                        <td *ngIf="!backend.generics[g][backend.generics[g].length - 1].img_url"><img src="favicon.png" /></td>
+                        <td>{{ backend.generics[g][backend.generics[g].length - 1].descr_key | translate }}</td>
                         <td>{{ g }}/<input type="text" [(ngModel)]="new_name" name="s1" class="form-control"></td>
 
-                        <td *ngIf="!backend.generics[g].is_file && !backend.generics[g].json_keys">
+                        <td *ngIf="!backend.generics[g][backend.generics[g].length - 1].is_file && !backend.generics[g][backend.generics[g].length - 1].json_keys">
                             <input type="text" [(ngModel)]="new_data" name="s1" class="form-control">
                         </td>
-                        <td *ngIf="!backend.generics[g].is_file && !!backend.generics[g].json_keys">
-                            <div class="form-group" *ngFor="let k of backend.generics[g].json_keys">
+                        <td *ngIf="!backend.generics[g][backend.generics[g].length - 1].is_file && !!backend.generics[g][backend.generics[g].length - 1].json_keys">
+                            <div class="form-group" *ngFor="let k of backend.generics[g][backend.generics[g].length - 1].json_keys">
                                 {{ k | translate }}<br />
                                 <input type="text" [(ngModel)]="new_datas[k]" name="s1" class="form-control">
                             </div>
                         </td>
-                        <td *ngIf="backend.generics[g].is_file">
+                        <td *ngIf="backend.generics[g][backend.generics[g].length - 1].is_file">
                             <input type="file" (change)="fileLoad($event)" name="n50" class="form-control">
                         </td>
 
-                        <td *ngIf="!backend.generics[g].is_file">
+                        <td *ngIf="!backend.generics[g][backend.generics[g].length - 1].is_file">
                             <button type="button" class="btn btn-default" (click)="register(g, false, new_name)"
-                                [disabled]="!!backend.generics[g].is_folder && new_name == ''">{{ 'filesystem.record' | translate }}</button>
+                                [disabled]="!!backend.generics[g][backend.generics[g].length - 1].is_folder && new_name == ''">{{ 'filesystem.record' | translate }}</button>
                         </td>
-                        <td *ngIf="backend.generics[g].is_file">
+                        <td *ngIf="backend.generics[g][backend.generics[g].length - 1].is_file">
                             <button type="button" class="btn btn-default" (click)="register(g, true, new_name)"
-                                [disabled]="new_data_file=='' || (!!backend.generics[g].is_folder && new_name == '')">{{ 'filesystem.record' | translate }}</button>
+                                [disabled]="new_data_file=='' || (!!backend.generics[g][backend.generics[g].length - 1].is_folder && new_name == '')">{{ 'filesystem.record' | translate }}</button>
                         </td>
                     </tr>
                 </tbody>
@@ -147,21 +147,21 @@ export class Generics implements OnInit {
     register(name: string, as_file: boolean, new_name?: string) {
         var self = this, send;
         new_name = (!!new_name)? ('/' + new_name.replace('/', ':')) : '';
-        if(!!this.backend.generics[name].regexp) {
-            var re = new RegExp(this.backend.generics[name].regexp);
+        if(!!this.backend.generics[name][this.backend.generics[name].length - 1].regexp) {
+            var re = new RegExp(this.backend.generics[name][this.backend.generics[name].length - 1].regexp);
             if(!re.test(this.new_data)) {
                 self.notif.error(self.translate.instant('error'), self.translate.instant('generics.regexp'));
                 return;
             }
         }
-        if(!!this.backend.generics[name].json_keys) {
+        if(!!this.backend.generics[name][this.backend.generics[name].length - 1].json_keys) {
             var ret = {};
-            for(var i = 0; i < this.backend.generics[name].json_keys.length; i++) {
-                ret[this.backend.generics[name].json_keys[i]] = this.new_datas[this.backend.generics[name].json_keys[i]];
+            for(var i = 0; i < this.backend.generics[name][this.backend.generics[name].length - 1].json_keys.length; i++) {
+                ret[this.backend.generics[name][this.backend.generics[name].length - 1].json_keys[i]] = this.new_datas[this.backend.generics[name][this.backend.generics[name].length - 1].json_keys[i]];
             }
             this.new_data = JSON.stringify(ret);
         }
-        if(this.backend.generics[name].is_dated) {
+        if(this.backend.generics[name][this.backend.generics[name].length - 1].is_dated) {
             send = JSON.stringify([{
                 value: as_file? this.new_data_file : this.new_data,
                 from: (new Date).getTime()
@@ -169,7 +169,7 @@ export class Generics implements OnInit {
         } else {
             send = as_file? this.new_data_file : this.new_data;
         }
-        this.dataservice.newData(name + new_name, send, this.backend.generics[name].is_dated).then(function() {
+        this.dataservice.newData(name + new_name, send, this.backend.generics[name][this.backend.generics[name].length - 1].is_dated, this.backend.generics[name].length - 1).then(function() {
             self.new_name = '';
             self.new_data = '';
             self.new_data_file = '';
@@ -216,8 +216,8 @@ export class Generics implements OnInit {
     filters(): string[] {
         var ret = ['generics.any'];
         for(var data in this.backend.generics) {
-            if(ret.indexOf(this.backend.generics[data].module) < 0)
-                ret.push(this.backend.generics[data].module);
+            if(ret.indexOf(this.backend.generics[data][this.backend.generics[data].length - 1].module) < 0)
+                ret.push(this.backend.generics[data][this.backend.generics[data].length - 1].module);
         }
         return ret;
     }
@@ -233,7 +233,7 @@ export class Generics implements OnInit {
         if(this.filter == 'generics.any')
             return Object.getOwnPropertyNames(this.backend.generics);
         return Object.getOwnPropertyNames(this.backend.generics).filter(function(el): boolean {
-            return self.backend.generics[el].module == self.filter;
+            return self.backend.generics[el][self.backend.generics[el].length - 1].module == self.filter;
         });
     }
 

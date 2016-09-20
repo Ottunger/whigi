@@ -172,7 +172,8 @@ export function regVault(req, res, respond?: boolean): Promise {
                         expire_epoch: got.expire_epoch,
                         trigger: got.trigger.replace(/^http:\/\//, '').replace(/^https:\/\//, ''),
                         is_dated: req.user.data[got.real_name].is_dated,
-                        real_name: got.real_name
+                        real_name: got.real_name,
+                        version: got.version
                     }, db);
                     db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
                         if(sharee._id == req.user._id) {
