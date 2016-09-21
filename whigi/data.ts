@@ -397,7 +397,7 @@ export function getAny(req, res) {
                 break;
         }
     } else {
-        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
     }
 }
 
@@ -427,6 +427,6 @@ export function removeAny(req, res) {
         }
         res.type('application/json').status(200).json({error: ''});
     } else {
-        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
     }
 }

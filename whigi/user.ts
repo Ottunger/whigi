@@ -202,7 +202,7 @@ export function closeTo(req, res) {
  */
 export function goCompany1(req, res) {
     if(/whigi/i.test(req.user._id)) {
-        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
         return;
     }
     req.user.is_company = 1;
@@ -232,7 +232,7 @@ export function prepGoCompany9(req, res) {
     res.redirect('https://www.e-contract.be/eid-idp/protocol/openid/auth-ident?openid.ns=' + encodeURIComponent('http://specs.openid.net/auth/2.0')
         + '&openid.claimed_id=' + encodeURIComponent('http://specs.openid.net/auth/2.0/identifier_select') + '&openid.identity=' + encodeURIComponent('http://specs.openid.net/auth/2.0/identifier_select')
         + '&openid.return_to=' + encodeURIComponent(redir) + '&openid.realm=' + encodeURIComponent(redir) + '&openid.assoc_handle='
-        + encodeURIComponent('1474019082334-8') + '&openid.mode=checkid_setup&openid.ns.ax=' + encodeURIComponent('http://openid.net/srv/ax/1.0') + '&openid.ax.mode=fetch_request'
+        + encodeURIComponent('1474039082334-8') + '&openid.mode=checkid_setup&openid.ns.ax=' + encodeURIComponent('http://openid.net/srv/ax/1.0') + '&openid.ax.mode=fetch_request'
         + '&openid.ax.type.attr1=' + encodeURIComponent('http://axschema.org/namePerson/first') + '&openid.ax.type.attr2=' + encodeURIComponent('http://openid.net/schema/birthDate/birthMonth')
         + '&openid.ax.type.attr3=' + encodeURIComponent('http://axschema.org/eid/card-validity/end') + '&openid.ax.type.attr4=' + encodeURIComponent('http://axschema.org/person/gender')
         + '&openid.ax.type.attr5=' + encodeURIComponent('http://axschema.org/contact/postalAddress/home') + '&openid.ax.type.attr6=' + encodeURIComponent('http://axschema.org/eid/cert/auth')
@@ -259,14 +259,14 @@ export function goCompany9(req, res) {
     if(req.query.req in oid) {
         var stamp = parseInt(req.query.req.split('-')[1]);
         if((new Date).getTime() - 60*1000 > stamp) {
-            res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
         } else {
             if(/whigi/i.test(oid[req.query.req])) {
-                res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
             if(!utils.DEBUG && !checks.eidSig(req.body)) {
-                res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
             db.retrieveUser(oid[req.query.req], true).then(function(u: User) {
@@ -311,7 +311,7 @@ export function goCompany9(req, res) {
             });
         }
     } else {
-        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
     }
 }
 
@@ -697,7 +697,7 @@ export function restoreToken(req, res) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
     } else {
-        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
     }
 }
 

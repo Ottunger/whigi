@@ -72,7 +72,7 @@ export function full(req, res) {
             known[ip].collections[name] = coll[i].getIdsList();
         }
     } else {
-        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
     }
 }
 
@@ -111,7 +111,7 @@ export function partial(req, res) {
             }
         }
     } else {
-        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
     }
 }
 
@@ -137,7 +137,7 @@ export function question(req, res) {
         }
         res.type('application/json').status(200).json(ret);
     } else {
-        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
     }
 }
 
@@ -160,6 +160,6 @@ export function flag(req, res) {
         }
         res.type('application/json').status(200).json({error: ''});
     } else {
-        res.type('application/json').status(401).json({error: utils.i18n('client.auth', req)});
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
     }
 }

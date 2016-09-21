@@ -202,6 +202,24 @@ pass.use(new TS(function(token, done) {
     });
 }));
 
+/**
+ * Is the first middleware for passport.
+ * @function pauth
+ * @public
+ */
+function pauth(req, res, next) {
+    pass.authenticate(['token', 'basic'], function(err, user, info) {
+        if(err) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        } else if(!user) {
+            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+        } else {
+            req.user = user;
+            next();
+        }
+    })(req, res, next);
+}
+
 //Now connect to DB then start serving requests
 connect(function(e) {
     if(e) {
@@ -226,27 +244,27 @@ connect(function(e) {
         res.type('application/json').status(200).json(require('./generics.json'));
     });
     //API AUTH DECLARATIONS
-    app.get('/api/v:version/user/:id', pass.authenticate(['token', 'basic'], {session: false}));
-    app.get('/api/v:version/profile', pass.authenticate(['token', 'basic'], {session: false}));
-    app.post('/api/v:version/close/:id', pass.authenticate(['token', 'basic'], {session: false}));
-    app.post('/api/v:version/profile/info', pass.authenticate(['token', 'basic'], {session: false}));
-    app.get('/api/v:version/profile/data', pass.authenticate(['token', 'basic'], {session: false}));
-    app.post('/api/v:version/profile/data/new', pass.authenticate(['token', 'basic'], {session: false}));
-    app.post('/api/v:version/profile/update', pass.authenticate(['token', 'basic'], {session: false}));
-    app.post('/api/v:version/profile/token/new', pass.authenticate('basic', {session: false}));
-    app.delete('/api/v:version/profile/token', pass.authenticate(['token', 'basic'], {session: false}));
-    app.get('/api/v:version/eid', pass.authenticate(['token', 'basic'], {session: false}));
-    app.get('/api/v:version/eid/bce/:bce', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/user/:id', pauth);
+    app.get('/api/v:version/profile', pauth);
+    app.post('/api/v:version/close/:id', pauth);
+    app.post('/api/v:version/profile/info', pauth);
+    app.get('/api/v:version/profile/data', pauth);
+    app.post('/api/v:version/profile/data/new', pauth);
+    app.post('/api/v:version/profile/update', pauth);
+    app.post('/api/v:version/profile/token/new', pauth);
+    app.delete('/api/v:version/profile/token', pauth);
+    app.get('/api/v:version/eid', pauth);
+    app.get('/api/v:version/eid/bce/:bce', pauth);
     //-----
-    app.get('/api/v:version/data/:id', pass.authenticate(['token', 'basic'], {session: false}));
-    app.get('/api/v:version/data/trigger/:data_name', pass.authenticate(['token', 'basic'], {session: false}));
-    app.delete('/api/v:version/data/:data_name', pass.authenticate(['token', 'basic'], {session: false}));
-    app.post('/api/v:version/vault/new', pass.authenticate(['token', 'basic'], {session: false}));
-    app.delete('/api/v:version/vault/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
-    app.get('/api/v:version/vault/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
-    app.get('/api/v:version/vault/time/:vault_id', pass.authenticate(['token', 'basic'], {session: false}));
-    app.post('/api/v:version/oauth/new', pass.authenticate(['token', 'basic'], {session: false}));
-    app.delete('/api/v:version/oauth/:id', pass.authenticate(['token', 'basic'], {session: false}));
+    app.get('/api/v:version/data/:id', pauth);
+    app.get('/api/v:version/data/trigger/:data_name', pauth);
+    app.delete('/api/v:version/data/:data_name', pauth);
+    app.post('/api/v:version/vault/new', pauth);
+    app.delete('/api/v:version/vault/:vault_id', pauth);
+    app.get('/api/v:version/vault/:vault_id', pauth);
+    app.get('/api/v:version/vault/time/:vault_id', pauth);
+    app.post('/api/v:version/oauth/new', pauth);
+    app.delete('/api/v:version/oauth/:id', pauth);
     //API LIMITATIONS FOR OAUTH
     app.post('/api/v:version/close/:id', checks.checkOAuth(true));
     app.post('/api/v:version/profile/info', checks.checkOAuth(true));
