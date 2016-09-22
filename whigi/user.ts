@@ -493,29 +493,19 @@ export function regUser(req, res) {
             var work = array[index];
             index++;
 
-            db.retrieveUser(work.shared_to_id).then(function(rem: User) {
-                if(!!rem) {
-                    var pub_key: string = rem.rsa_pub_key;
-                    var naes: number[] = utils.toBytes(utils.generateRandomString(64));
-                    data.regVault({
-                        user: u,
-                        body: {
-                            shared_to_id: rem._id,
-                            real_name: work.real_name,
-                            data_name: work.shared_as,
-                            trigger: work.shared_trigger,
-                            expire_epoch: work.shared_epoch,
-                            aes_crypted_shared_pub: new Buffer(utils.encryptRSA(naes, pub_key)).toString('base64'),
-                            data_crypted_aes: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
-                                .encrypt(aes.util.convertStringToBytes(work.data)))),
-                            version: work.version
-                        }
-                    }, {}, false).then(function() {
-                        next(u);
-                    }, function(e) {
-                        next(u);
-                    });
+            data.regVault({
+                user: u,
+                body: {
+                    shared_to_id: work.shared_to_id,
+                    real_name: work.real_name,
+                    data_name: work.shared_as,
+                    trigger: work.shared_trigger,
+                    expire_epoch: work.shared_epoch,
+                    decr_data: work.data,
+                    version: work.version
                 }
+            }, {}, false).then(function() {
+                next(u);
             }, function(e) {
                 next(u);
             });

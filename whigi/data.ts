@@ -176,15 +176,21 @@ export function regVault(req, res, respond?: boolean): Promise {
                         version: got.version
                     }, db);
                     db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
-                        if(sharee._id == req.user._id) {
-                            //Make sure only object is printed to DB
-                            sharee = req.user;
-                        }
-                        if(!sharee || sharee._id == req.user.id) {
+                        if(!sharee) {
                             if(respond === true)
                                 res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
                             reject();
                             return;
+                        }
+                        if(sharee._id == req.user._id) {
+                            //Make sure only object is printed to DB
+                            sharee = req.user;
+                        }
+                        if(!!req.body.decr_data) {
+                            var naes: number[] = utils.toBytes(utils.generateRandomString(64));
+                            v.aes_crypted_shared_pub = new Buffer(utils.encryptRSA(naes, sharee.rsa_pub_key)).toString('base64');
+                            v.data_crypted_aes: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
+                                .encrypt(aes.util.convertStringToBytes(req.body.decr_data))));
                         }
                         v.persist().then(function() {
                             req.user.data[got.real_name].shared_to[got.shared_to_id] = v._id;
