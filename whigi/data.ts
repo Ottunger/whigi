@@ -189,7 +189,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                         if(!!req.body.decr_data) {
                             var naes: number[] = utils.toBytes(utils.generateRandomString(64));
                             v.aes_crypted_shared_pub = new Buffer(utils.encryptRSA(naes, sharee.rsa_pub_key)).toString('base64');
-                            v.data_crypted_aes: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
+                            v.data_crypted_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
                                 .encrypt(aes.util.convertStringToBytes(req.body.decr_data))));
                         }
                         v.persist().then(function() {
@@ -295,7 +295,7 @@ export function removeVault(req, res) {
  * @param {Request} req The request.
  * @param {Response} res The response.
  */
-export function getVault(req, res) {
+export function getVault(req, res) {console.log('here');
     db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
         if(!!v) {
             if(v.shared_to_id != req.user._id) {
