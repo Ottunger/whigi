@@ -1,8 +1,0 @@
-/node_modules
-/app/*.js
-/app/subcmpts/*.js
-/utils/*.js
-dist/*.map
-dist/*.js
-dist/*.css
-dist/index.html

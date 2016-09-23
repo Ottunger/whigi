@@ -1,6 +1,0 @@
-GPL2
-To know more about it:
-https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
-
-This work is a partial rewrite of Perry Butler's work, WP-OAuth, and adds a flow for Whigi as well as hooking data sources.
-pcks1unpad2 is rewriten from Tom Wu's work, under a lighter license.
