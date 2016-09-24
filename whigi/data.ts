@@ -48,9 +48,11 @@ export function getData(req, res) {
         } else {
             var ret = df.sanitarize();
             if((req.query.key !== undefined)) {
-                ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(utils.atob(utils.str2arr(req.query.key)),
-                    new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
-                delete ret.encr_data;
+                try {
+                    ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(utils.atob(utils.str2arr(req.query.key)),
+                        new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
+                    delete ret.encr_data;
+                } catch(e) {}
             }
             res.type('application/json').status(200).json(ret);
         }
@@ -187,10 +189,17 @@ export function regVault(req, res, respond?: boolean): Promise {
                             sharee = req.user;
                         }
                         if(!!req.body.decr_data) {
-                            var naes: number[] = utils.toBytes(utils.generateRandomString(64));
-                            v.aes_crypted_shared_pub = new Buffer(utils.encryptRSA(naes, sharee.rsa_pub_key)).toString('base64');
-                            v.data_crypted_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
-                                .encrypt(aes.util.convertStringToBytes(req.body.decr_data))));
+                            try {
+                                var naes: number[] = utils.toBytes(utils.generateRandomString(64));
+                                v.aes_crypted_shared_pub = new Buffer(utils.encryptRSA(naes, sharee.rsa_pub_key)).toString('base64');
+                                v.data_crypted_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
+                                    .encrypt(aes.util.convertStringToBytes(req.body.decr_data))));
+                            } catch(e) {
+                                if(respond === true)
+                                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                                reject();
+                                return;
+                            }
                         }
                         v.persist().then(function() {
                             req.user.data[got.real_name].shared_to[got.shared_to_id] = v._id;
@@ -295,7 +304,7 @@ export function removeVault(req, res) {
  * @param {Request} req The request.
  * @param {Response} res The response.
  */
-export function getVault(req, res) {console.log('here');
+export function getVault(req, res) {
     db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
         if(!!v) {
             if(v.shared_to_id != req.user._id) {
@@ -317,10 +326,13 @@ export function getVault(req, res) {console.log('here');
             v.persist();
             var ret = v.sanitarize();
             if((req.query.key !== undefined)) {
-                var key: number[] = utils.decryptRSA(ret.aes_crypted_shared_pub, req.query.key);
-                ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(utils.str2arr(ret.data_crypted_aes)));
-                delete ret.aes_crypted_shared_pub;
-                delete ret.data_crypted_aes;
+                try {
+                    req.query.key = utils.atob(req.query.key);
+                    var key: number[] = utils.decryptRSA(ret.aes_crypted_shared_pub, req.query.key);
+                    ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(utils.str2arr(ret.data_crypted_aes)));
+                    delete ret.aes_crypted_shared_pub;
+                    delete ret.data_crypted_aes;
+                } catch(e) {}
             }
             res.type('application/json').status(200).json(ret);
         } else {
