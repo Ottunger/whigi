@@ -49,7 +49,7 @@ export function getData(req, res) {
             var ret = df.sanitarize();
             if((req.query.key !== undefined)) {
                 try {
-                    ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(utils.atob(utils.str2arr(req.query.key)),
+                    ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
                         new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
                     delete ret.encr_data;
                 } catch(e) {}
