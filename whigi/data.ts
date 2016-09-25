@@ -276,6 +276,9 @@ export function removeVault(req, res) {
             }
             db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
                 if(!!sharee) {
+                    //Fix for self grants
+                    if(sharee._id == req.user._id)
+                        req.user = sharee;
                     sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
                     delete sharee.shared_with_me[req.user._id][v.data_name];
                     sharee.persist().then(function() {
@@ -313,6 +316,9 @@ export function getVault(req, res) {
             }
             if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
                 db.retrieveUser(v.sharer_id, true).then(function(u: User) {
+                    //Fix for self grants
+                    if(u._id == req.user._id)
+                        req.user = u;
                     delete u.data[v.real_name].shared_to[v.shared_to_id];
                     u.persist();
                 });
@@ -363,6 +369,9 @@ export function accessVault(req, res) {
             }
             if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
                 db.retrieveUser(v.shared_to_id, true).then(function(u: User) {
+                    //Fix for self grants
+                    if(u._id == req.user._id)
+                        req.user = u;
                     delete u.shared_with_me[v.sharer_id][v.data_name];
                     u.persist();
                 });

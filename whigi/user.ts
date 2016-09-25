@@ -423,11 +423,11 @@ export function recData(req, res, respond?: boolean): Promise {
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
         req.user.fill().then(function() {
-            if(!!req.body.decr_data && !!req.body.key) {
+            if(!!got.decr_data && !!got.key) {
                 try {
-                    var mk = utils.str2arr(utils.atob(req.body.key));
-                    req.body.encr_data = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(mk, new aes.Counter(0))
-                        .encrypt(aes.util.convertStringToBytes(req.body.decr_data))));
+                    var mk = utils.str2arr(utils.atob(got.key));
+                    got.encr_data = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(mk, new aes.Counter(0))
+                        .encrypt(aes.util.convertStringToBytes(got.decr_data))));
                 } catch(e) {
                     if(respond === true)
                         res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
