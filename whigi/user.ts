@@ -511,19 +511,29 @@ export function regUser(req, res) {
             var work = array[index];
             index++;
 
-            data.regVault({
-                user: u,
-                body: {
-                    shared_to_id: work.shared_to_id,
-                    real_name: work.real_name,
-                    data_name: work.shared_as,
-                    trigger: work.shared_trigger,
-                    expire_epoch: work.shared_epoch,
-                    decr_data: work.data,
-                    version: work.version
+            db.retrieveUser(work.shared_to_id).then(function(rem: User) {
+                if(!!rem) {
+                    var pub_key: string = rem.rsa_pub_key;
+                    var naes: number[] = utils.toBytes(utils.generateRandomString(64));
+                    data.regVault({
+                        user: u,
+                        body: {
+                            shared_to_id: rem._id,
+                            real_name: work.real_name,
+                            data_name: work.shared_as,
+                            trigger: work.shared_trigger,
+                            expire_epoch: work.shared_epoch,
+                            aes_crypted_shared_pub: new Buffer(utils.encryptRSA(naes, pub_key)).toString('base64'),
+                            data_crypted_aes: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
+                                .encrypt(aes.util.convertStringToBytes(work.data)))),
+                            version: work.version
+                        }
+                    }, {}, false).then(function() {
+                        next(u);
+                    }, function(e) {
+                        next(u);
+                    });
                 }
-            }, {}, false).then(function() {
-                next(u);
             }, function(e) {
                 next(u);
             });
@@ -534,16 +544,16 @@ export function regUser(req, res) {
             res.type('application/json').status(201).json({error: ''});
             if('more' in req.body) {
                 var done = 0;
-                var enc = utils.btoa(utils.arr2str(utils.toBytes(pre_master_key)));
                 for(var i = 0; i < req.body.more.length; i++) {
+                    var encr = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
+                        .encrypt(aes.util.convertStringToBytes(req.body.more[i].data))));
                     rd({
                         user: u,
                         body: {
                             name: req.body.more[i].real_name,
                             is_dated: req.body.more[i].is_dated,
-                            decr_data: req.body.more[i].data,
-                            version: req.body.more[i].version,
-                            key: enc
+                            encr_data: encr,
+                            version: req.body.more[i].version
                         },
                         pass: req.body.more[i]
                     }, {}, false).then(function(passed) {
@@ -555,7 +565,7 @@ export function regUser(req, res) {
                                 shared_trigger: passed.shared_trigger,
                                 shared_epoch: passed.shared_epoch,
                                 data: passed.data,
-                                version: req.body.more[i].version
+                                version: passed.version
                             });
                         }
                         done++;
