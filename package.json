@@ -15,7 +15,7 @@
     "js-sha256": "^0.3.0",
     "limiter": "^1.1.0",
     "mocha": "^3.0.2",
-    "node-rsa": "^0.4.0",
+    "node-rsa": "0.4.1",
     "node-schedule": "^1.1.1",
     "nodemailer": "^2.5.0",
     "passport": "^0.3.2",

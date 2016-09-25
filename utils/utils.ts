@@ -255,18 +255,19 @@ export function decryptRSA(data: string, rsa_key: string): number[] {
  * @public
  * @param {Number[]} Decrypted data.
  * @param {String} rsa_key Key.
- * @return {Number[]} Encrypted data, we use AES keys.
+ * @return {String} Encrypted data, we use AES keys.
  */
-export function encryptRSA(data: number[], rsa_key: string): number[] {
+export function encryptRSA(data: number[], rsa_key: string): string {
     var dec = new RSA(
         rsa_key, 'pkcs8-public', {
             encryptionScheme: {
-                scheme: 'pkcs1'
+                scheme: 'pkcs1',
+                padding: constants.RSA_NO_PADDING
             }
         }
     );
     var arr = pkcs1pad2(data, 1024);
-    return dec.encrypt(arr);
+    return dec.encrypt(new Buffer(arr), 'base64');
 }
 
 /**

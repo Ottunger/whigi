@@ -523,7 +523,7 @@ export function regUser(req, res) {
                             data_name: work.shared_as,
                             trigger: work.shared_trigger,
                             expire_epoch: work.shared_epoch,
-                            aes_crypted_shared_pub: new Buffer(utils.encryptRSA(naes, pub_key)).toString('base64'),
+                            aes_crypted_shared_pub: utils.encryptRSA(naes, pub_key),
                             data_crypted_aes: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
                                 .encrypt(aes.util.convertStringToBytes(work.data)))),
                             version: work.version

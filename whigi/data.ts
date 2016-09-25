@@ -49,7 +49,7 @@ export function getData(req, res) {
         ids = [req.params.id];
     }
     ids.forEach(function(id) {
-        db.retrieveData(req.params.id).then(function(df) {
+        db.retrieveData(id).then(function(df) {
             if(!df) {
                 if(!ans) {
                     ans = true;
@@ -212,7 +212,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                         if(!!req.body.decr_data) {
                             try {
                                 var naes: number[] = utils.toBytes(utils.generateRandomString(64));
-                                v.aes_crypted_shared_pub = new Buffer(utils.encryptRSA(naes, sharee.rsa_pub_key)).toString('base64');
+                                v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
                                 v.data_crypted_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
                                     .encrypt(aes.util.convertStringToBytes(req.body.decr_data))));
                             } catch(e) {
