@@ -31,7 +31,7 @@ Retrieves list of owned fragments, and list of shared with me vaults.
 
 /api/v<any>/profile/data/new: Post, needs auth, needs puzzle
 Saves a new data fragment. The API sends back the newly generated id for that data_name.
-{"name": "string", "encr_data": "string", "is_dated": "boolean", "version": "number"}
+{"name": "string", "encr_data": "string", "is_dated": "boolean", "version": "number", "decr_data"? : "string", "key"?: "string"}
 
 /api/v<any>/profile/update: Post, needs auth
 Updates password. When updated password, can send the password hashed but needs to send the new ecrypted master key as well.

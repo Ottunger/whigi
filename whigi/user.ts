@@ -423,6 +423,18 @@ export function recData(req, res, respond?: boolean): Promise {
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
         req.user.fill().then(function() {
+            if(!!req.body.decr_data && !!req.body.key) {
+                try {
+                    var mk = utils.str2arr(utils.atob(req.body.key));
+                    req.body.encr_data = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(mk, new aes.Counter(0))
+                        .encrypt(aes.util.convertStringToBytes(req.body.decr_data))));
+                } catch(e) {
+                    if(respond === true)
+                        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                    reject();
+                    return;
+                }
+            }
             var newid = utils.generateRandomString(128);
             req.user.data[got.name] = {
                 id: newid,
@@ -516,16 +528,16 @@ export function regUser(req, res) {
             res.type('application/json').status(201).json({error: ''});
             if('more' in req.body) {
                 var done = 0;
+                var enc = utils.btoa(utils.arr2str(utils.toBytes(pre_master_key)));
                 for(var i = 0; i < req.body.more.length; i++) {
-                    var encr = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
-                        .encrypt(aes.util.convertStringToBytes(req.body.more[i].data))));
                     rd({
                         user: u,
                         body: {
                             name: req.body.more[i].real_name,
                             is_dated: req.body.more[i].is_dated,
-                            encr_data: encr,
-                            version: req.body.more[i].version
+                            decr_data: req.body.more[i].data,
+                            version: req.body.more[i].version,
+                            key: enc
                         },
                         pass: req.body.more[i]
                     }, {}, false).then(function(passed) {
