@@ -42,22 +42,43 @@ export function managerInit(dbg: Datasource) {
  * @param {Response} res The response.
  */
 export function getData(req, res) {
-    db.retrieveData(req.params.id).then(function(df) {
-        if(!df) {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
-        } else {
-            var ret = df.sanitarize();
-            if((req.query.key !== undefined)) {
-                try {
-                    ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
-                        new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
-                    delete ret.encr_data;
-                } catch(e) {}
+    var ids: string[], done = 0, returns = [], ans = false;
+    try {
+        ids = JSON.parse(req.params.id);
+    } catch(e) {
+        ids = [req.params.id];
+    }
+    ids.forEach(function(id) {
+        db.retrieveData(req.params.id).then(function(df) {
+            if(!df) {
+                if(!ans) {
+                    ans = true;
+                    res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                }
+            } else {
+                var ret = df.sanitarize();
+                if((req.query.key !== undefined)) {
+                    try {
+                        ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
+                            new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
+                        delete ret.encr_data;
+                    } catch(e) {}
+                }
+                returns.push(ret);
+                done++;
+                if(done == ids.length && !ans) {
+                    if(done == 1)
+                        res.type('application/json').status(200).json(ret);
+                    else
+                        res.type('application/json').status(200).json(returns);
+                }
             }
-            res.type('application/json').status(200).json(ret);
-        }
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        }, function(e) {
+            if(!ans) {
+                ans = true;
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            }
+        });
     });
 }
 
@@ -308,44 +329,71 @@ export function removeVault(req, res) {
  * @param {Response} res The response.
  */
 export function getVault(req, res) {
-    db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
-        if(!!v) {
-            if(v.shared_to_id != req.user._id) {
-                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
-                return;
+    var ids: string[], done = 0, returns = [], ans = false;
+    try {
+        ids = JSON.parse(req.params.vault_id);
+    } catch(e) {
+        ids = [req.params.vault_id];
+    }
+    ids.forEach(function(id) {
+        db.retrieveVault(id).then(function(v: Vault) {
+            if(!!v) {
+                if(v.shared_to_id != req.user._id) {
+                    if(!ans) {
+                        ans = true;
+                        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    }
+                    return;
+                }
+                if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
+                    db.retrieveUser(v.sharer_id, true).then(function(u: User) {
+                        //Fix for self grants
+                        if(u._id == req.user._id)
+                            req.user = u;
+                        delete u.data[v.real_name].shared_to[v.shared_to_id];
+                        u.persist();
+                    });
+                    delete req.user.shared_with_me[v.sharer_id][v.data_name];
+                    req.user.persist();
+                    v.unlink();
+                    if(!ans) {
+                        ans = true;
+                        res.type('application/json').status(417).json({error: utils.i18n('client.noData', req)});
+                    }
+                    return;
+                }
+                v.last_access = (new Date).getTime();
+                v.persist();
+                var ret = v.sanitarize();
+                if((req.query.key !== undefined)) {
+                    try {
+                        req.query.key = utils.atob(req.query.key);
+                        var key: number[] = utils.decryptRSA(ret.aes_crypted_shared_pub, req.query.key);
+                        ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(utils.str2arr(ret.data_crypted_aes)));
+                        delete ret.aes_crypted_shared_pub;
+                        delete ret.data_crypted_aes;
+                    } catch(e) {}
+                }
+                returns.push(ret);
+                done++;
+                if(done == ids.length && !ans) {
+                    if(done == 1)
+                        res.type('application/json').status(200).json(ret);
+                    else
+                        res.type('application/json').status(200).json(returns);
+                }
+            } else {
+                if(!ans) {
+                    ans = true;
+                    res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                }
             }
-            if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
-                db.retrieveUser(v.sharer_id, true).then(function(u: User) {
-                    //Fix for self grants
-                    if(u._id == req.user._id)
-                        req.user = u;
-                    delete u.data[v.real_name].shared_to[v.shared_to_id];
-                    u.persist();
-                });
-                delete req.user.shared_with_me[v.sharer_id][v.data_name];
-                req.user.persist();
-                v.unlink();
-                res.type('application/json').status(417).json({error: utils.i18n('client.noData', req)});
-                return;
+        }, function(e) {
+            if(!ans) {
+                ans = true;
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
             }
-            v.last_access = (new Date).getTime();
-            v.persist();
-            var ret = v.sanitarize();
-            if((req.query.key !== undefined)) {
-                try {
-                    req.query.key = utils.atob(req.query.key);
-                    var key: number[] = utils.decryptRSA(ret.aes_crypted_shared_pub, req.query.key);
-                    ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(utils.str2arr(ret.data_crypted_aes)));
-                    delete ret.aes_crypted_shared_pub;
-                    delete ret.data_crypted_aes;
-                } catch(e) {}
-            }
-            res.type('application/json').status(200).json(ret);
-        } else {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
-        }
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
     });
 }
 

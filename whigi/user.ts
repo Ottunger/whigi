@@ -422,6 +422,12 @@ export function recData(req, res, respond?: boolean): Promise {
     var got = req.body;
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
+        if(/whigi/i.test(req.user._id)) {
+            if(respond === true)
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                reject();
+            return;
+        }
         req.user.fill().then(function() {
             if(!!got.decr_data && !!got.key) {
                 try {
