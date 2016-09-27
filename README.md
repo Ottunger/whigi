@@ -10,10 +10,7 @@ Whigi repo is actually a collection of projects working for the Whigi project in
 - Whigi-giveaway @whigi-giveaway: Manages a small website to grant people access to free WP instances, populated for Whigi.
 - Whigi-restore @whigi-restore: Manages a small 3rd party to restore user's passwords.
 - Whigi-RLI @whigi-rli: Network nodes to provide Whigi redundancy.
-- Giveaway @clients/giveaway: Small client that asks for WP instance.
-- Standalone @clients/standalone: Main whigi client that can update users and provide services nearly like OAuth.
-- Whigi-WP-s2Member @clients/whigi-wp-s2: WP plugin to allow membership management in a Whigi-enhanced WP.
-- Whigi-WP @clients/whigi-wp: WP plugin to enhance WP with Whigi services.
+- Whigi-CC @whigi-cc: Another form of redundancy based on Captain Cook.
 
 
 # Installation of Whigi and Standalone client
@@ -28,7 +25,7 @@ All Whigi instances run over HTTPS. Whigi-restore and Whigi-RLI are their own HT
 - Init database: mongo < mongoInit.sh
 - Launch Whigi: nohup npm run whigi &
 - Copy conf file and restart nginx: npm run serve
-- Launch Whigi-restore and Whigi-RLI if desired. They cannot run on the machine as they will listen on port 443!: nohup npm run whigi-restore &; nohup npm run whigi-rli &
+- Launch Whigi-restore and Whigi-RLI/Whigi-CC if desired. They cannot run on the machine as they will listen on port 443!: nohup npm run whigi-XXX &
 
 # See CHANGELOG for a description of API endpoints.
 A greater description is given in the documents found in the doc folder.
@@ -98,6 +95,7 @@ newer version of data and push those updates to the other Whigi instances they k
 All the information the RLI's have are soft-stated: they disappear if not refreshed by the updater that we assumed to have died.
 If you want to modify/rebuild the message definitions, you will need to download protoc for Google Protobufs v3.0.0 manually, from GitHub.
 The source and compiled messages definitions are stored in common/cdnize.
+- protoc\bin\protoc.exe --js_out=import_style=commonjs,binary:. common\cdnize\full-update.proto
 
 # Peer monitoring
 Client side monitoring is done via auditing the retrieved HTTPS files. Because the server might still change their responses if they knew requests are coming from Whigi's,

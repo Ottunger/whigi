@@ -136,3 +136,20 @@ Answers which Whigi's have some data. The response is a JSON object containing a
 /flag: Post, needs auth of Whigi
 Flag the host as corrupted. Two flags equals a ban from service.
 {"host": "string", "key": "string"}
+
+
+
+Whigi-CC endpoints:
+************************
+
+/update: Post, needs auth of Whigi
+Saves what a Whigi has changed.
+{"payload": "protobuf", "key": "string"}
+
+/question: Post, needs auth of Whigi
+Answers which Whigi's have some data. The response is a JSON object containing a "points" array of knowers.
+{"collection": "string", "id": "string", "key": "string"}
+
+/flag: Post, needs auth of Whigi
+Flag the host as corrupted. Two flags equals a ban from service.
+{"host": "string", "key": "string"}

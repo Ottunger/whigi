@@ -64,6 +64,8 @@ proto.FullUpdate.prototype.toObject = function(opt_includeInstance) {
  */
 proto.FullUpdate.toObject = function(includeInstance, msg) {
   var f, obj = {
+    updater: msg.getUpdater(),
+    fromer: msg.getFromer(),
     mappingsList: jspb.Message.toObjectList(msg.getMappingsList(),
     proto.Mapping.toObject, includeInstance)
   };
@@ -102,6 +104,14 @@ proto.FullUpdate.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUpdater(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFromer(value);
+      break;
     case 1:
       var value = new proto.Mapping;
       reader.readMessage(value,proto.Mapping.deserializeBinaryFromReader);
@@ -146,6 +156,20 @@ proto.FullUpdate.prototype.serializeBinary = function() {
  */
 proto.FullUpdate.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
+  f = this.getUpdater();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = this.getFromer();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
   f = this.getMappingsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
@@ -163,6 +187,36 @@ proto.FullUpdate.prototype.serializeBinaryToWriter = function (writer) {
  */
 proto.FullUpdate.prototype.cloneMessage = function() {
   return /** @type {!proto.FullUpdate} */ (jspb.Message.cloneMessage(this));
+};
+
+
+/**
+ * optional string updater = 2;
+ * @return {string}
+ */
+proto.FullUpdate.prototype.getUpdater = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+};
+
+
+/** @param {string} value  */
+proto.FullUpdate.prototype.setUpdater = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+/**
+ * optional string fromer = 3;
+ * @return {string}
+ */
+proto.FullUpdate.prototype.getFromer = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+};
+
+
+/** @param {string} value  */
+proto.FullUpdate.prototype.setFromer = function(value) {
+  jspb.Message.setField(this, 3, value);
 };
 
 
@@ -212,7 +266,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.Mapping.repeatedFields_ = [2,3];
+proto.Mapping.repeatedFields_ = [2,4,3,5];
 
 
 
@@ -244,7 +298,9 @@ proto.Mapping.toObject = function(includeInstance, msg) {
   var f, obj = {
     name: msg.getName(),
     idsList: jspb.Message.getField(msg, 2),
-    deletedList: jspb.Message.getField(msg, 3)
+    idsEpochList: jspb.Message.getField(msg, 4),
+    deletedList: jspb.Message.getField(msg, 3),
+    delEpochList: jspb.Message.getField(msg, 5)
   };
 
   if (includeInstance) {
@@ -290,10 +346,18 @@ proto.Mapping.deserializeBinaryFromReader = function(msg, reader) {
       msg.getIdsList().push(value);
       msg.setIdsList(msg.getIdsList());
       break;
+    case 4:
+      var value = /** @type {!Array.<number>} */ (reader.readPackedInt32());
+      msg.setIdsEpochList(value);
+      break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.getDeletedList().push(value);
       msg.setDeletedList(msg.getDeletedList());
+      break;
+    case 5:
+      var value = /** @type {!Array.<number>} */ (reader.readPackedInt32());
+      msg.setDelEpochList(value);
       break;
     default:
       reader.skipField();
@@ -347,10 +411,24 @@ proto.Mapping.prototype.serializeBinaryToWriter = function (writer) {
       f
     );
   }
+  f = this.getIdsEpochList();
+  if (f.length > 0) {
+    writer.writePackedInt32(
+      4,
+      f
+    );
+  }
   f = this.getDeletedList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       3,
+      f
+    );
+  }
+  f = this.getDelEpochList();
+  if (f.length > 0) {
+    writer.writePackedInt32(
+      5,
       f
     );
   }
@@ -404,6 +482,28 @@ proto.Mapping.prototype.clearIdsList = function() {
 
 
 /**
+ * repeated int32 ids_epoch = 4;
+ * If you change this array by adding, removing or replacing elements, or if you
+ * replace the array itself, then you must call the setter to update it.
+ * @return {!Array.<number>}
+ */
+proto.Mapping.prototype.getIdsEpochList = function() {
+  return /** @type {!Array.<number>} */ (jspb.Message.getField(this, 4));
+};
+
+
+/** @param {Array.<number>} value  */
+proto.Mapping.prototype.setIdsEpochList = function(value) {
+  jspb.Message.setField(this, 4, value || []);
+};
+
+
+proto.Mapping.prototype.clearIdsEpochList = function() {
+  jspb.Message.setField(this, 4, []);
+};
+
+
+/**
  * repeated string deleted = 3;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
@@ -422,6 +522,28 @@ proto.Mapping.prototype.setDeletedList = function(value) {
 
 proto.Mapping.prototype.clearDeletedList = function() {
   jspb.Message.setField(this, 3, []);
+};
+
+
+/**
+ * repeated int32 del_epoch = 5;
+ * If you change this array by adding, removing or replacing elements, or if you
+ * replace the array itself, then you must call the setter to update it.
+ * @return {!Array.<number>}
+ */
+proto.Mapping.prototype.getDelEpochList = function() {
+  return /** @type {!Array.<number>} */ (jspb.Message.getField(this, 5));
+};
+
+
+/** @param {Array.<number>} value  */
+proto.Mapping.prototype.setDelEpochList = function(value) {
+  jspb.Message.setField(this, 5, value || []);
+};
+
+
+proto.Mapping.prototype.clearDelEpochList = function() {
+  jspb.Message.setField(this, 5, []);
 };
 
 

@@ -155,7 +155,7 @@ export function flag(req, res) {
         flags[got.host] = flags[got.host] || {date: 0};
         if(flags[got.host].date < (new Date).getTime() - 2*60*60*1000)
             flags[got.host][ip] = true;
-        if(Object.getOwnPropertyNames(flags[got.host][ip]).length >= 2) {
+        if(Object.getOwnPropertyNames(flags[got.host]).length >= 2) {
             known[got.host] = {};
         }
         res.type('application/json').status(200).json({error: ''});

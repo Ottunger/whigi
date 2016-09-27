@@ -1,11 +1,15 @@
 syntax = "proto3";
 
 message FullUpdate {
+    string updater = 2;
+    string fromer = 3;
     repeated Mapping mappings = 1;
 }
 
 message Mapping {
     string name = 1;
     repeated string ids = 2;
+    repeated int32 ids_epoch = 4;
     repeated string deleted = 3;
+    repeated int32 del_epoch = 5;
 }

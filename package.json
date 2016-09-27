@@ -53,15 +53,17 @@
     "whigi-restore": "node whigi-restore/index.js 443 whigi2-restore.envict.com whigi2-demo.envict.com whigi.com@gmail.com true",
     "whigi-giveaway": "node whigi-giveaway/index.js 8080 whigi2-giveaway.envict.com whigi2-demo.envict.com whigi.com@gmail.com",
     "whigi-rli": "node whigi-rli/index.js 443 whigi2-rli.envict.com true",
+    "whigi-cc": "node whigi-cc/index.js 443 whigi2-cc.envict.com true domain198.12.12.12 whigi2-cc.general.com",
     "build_whigi_data": "node_modules/.bin/tsc --removeComments whigi/data.ts && echo ok || echo not ok",
     "build_whigi_user": "node_modules/.bin/tsc --removeComments whigi/user.ts && echo ok || echo not ok",
     "build_whigi-restore_mapping": "node_modules/.bin/tsc --removeComments whigi-restore/mapping.ts && echo ok || echo not ok",
     "build_whigi-giveaway_mapping": "node_modules/.bin/tsc --removeComments whigi-giveaway/mapping.ts && echo ok || echo not ok",
     "build_whigi-rli_mapping": "node_modules/.bin/tsc --removeComments whigi-rli/mapping.ts && echo ok || echo not ok",
+    "build_whigi-cc_mapping": "node_modules/.bin/tsc --removeComments whigi-cc/mapping.ts && echo ok || echo not ok",
     "build_utils_checks": "node_modules/.bin/tsc --removeComments utils/checks.ts && echo ok || echo not ok",
     "build_utils_utils": "node_modules/.bin/tsc --removeComments utils/utils.ts && echo ok || echo not ok",
     "build_tests_fakeres": "node_modules/.bin/tsc --removeComments tests/backend/FakeRes.ts && echo ok || echo not ok",
-    "build": "npm run build_whigi_data && npm run build_whigi_user && npm run build_whigi-restore_mapping && npm run build_whigi-giveaway_mapping && npm run build_whigi-rli_mapping && npm run build_utils_checks && npm run build_utils_utils && npm run build_tests_fakeres",
+    "build": "npm run build_whigi_data && npm run build_whigi_user && npm run build_whigi-restore_mapping && npm run build_whigi-giveaway_mapping && npm run build_whigi-rli_mapping && npm run build_whigi-cc_mapping && npm run build_utils_checks && npm run build_utils_utils && npm run build_tests_fakeres",
     "test": "mocha tests/backend/units.js",
     "locust": "locust -f tests/load/locustfile.py --no-web -c 10000 -r 500"
   }
