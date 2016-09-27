@@ -10,7 +10,7 @@ var https = require('https');
 var scd = require('node-schedule');
 var utils = require('../utils/utils');
 var fupt = require('../common/cdnize/full-update_pb');
-var known: {[id: string]: {upd: number, contacts: string[], updater: string, empty: boolean}} = {}, flags = {};
+var known: {[id: string]: {upd: number, contacts: string[], empty: boolean}} = {}, flags = {};
 
 /**
  * Asks another CC recursively.
@@ -59,12 +59,96 @@ function recQuestion(domain: string, coll: string, id: string): Promise {
 }
 
 /**
+ * Updates the root recursively.
+ * @function recUpdate
+ * @private
+ */
+function recUpdate() {
+    var msg = new fupt.FullUpdate();
+    msg.setFromer(utils.RUNNING_ADDR);
+
+    var mappings = [], seen = {}, keys = Object.getOwnPropertyNames(known);
+    for(var i = 0; i < Math.min(100, keys.length); i++) {
+        var index = Math.floor(Math.random() * Math.min(100, keys.length));
+        var coll = keys[index].split('/')[0];
+        var id = keys[index].split('/')[1];
+        if(!(coll in seen)) {
+            var m = new fupt.Mapping();
+            m.setName(coll);
+            m.setIdsList([]);
+            m.setIdsEpochList([]);
+            m.setDelList([]);
+            m.setDelEpochList([]);
+        } else {
+            for(var j = 0; j < mappings.length; j++) {
+                if(mappings[j].getName() == coll) {
+                    var m = mappings[j];
+                    break;
+                }
+            }
+        }
+        
+        //Add the info about the current object
+        if(known[keys[index]].empty) {
+            var p = m.getDelList();
+            p.push(id);
+            m.setDelList(p);
+            p = m.getDelEpochList();
+            p.push(known[keys[index]].upd);
+            m.setDelEpochList(p);
+        } else {
+            var p = m.getIdsList();
+            p.push(id);
+            m.setIdsList(p);
+            p = m.getIdsEpochList();
+            p.push(known[keys[index]].upd);
+            m.setIdsEpochList(p);
+        }
+
+        if(!(coll in seen)) {
+            seen[coll] = true;
+            mappings.push(m);
+        }
+    }
+    msg.setMappingsList(mappings);
+
+    var data = {
+        payload: msg.serializeBinary(),
+        key: require('../../common/key.json').key
+    };
+    var options = {
+        host: utils.WHIGIHOST,
+        port: 443,
+        path: '/update',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(data)
+        }
+    };
+    var ht = https.request(options, function(res) {
+        var r = '';
+        res.on('data', function(chunk) {
+            r += chunk;
+        });
+        res.on('end', function() {
+            console.log('Update to ' + utils.WHIGIHOST + ' ended with answer "' + r + '"');
+        });
+    }).on('error', function(err) {
+        console.log('Cannot do an update to ' + utils.WHIGIHOST);
+    });
+    ht.write(data);
+    ht.end();
+}
+
+/**
  * Sets up the schedule before use.
  * @function managerInit
  * @public
  */
 export function managerInit() {
-    
+    if(!!utils.WHIGIHOST)
+        scd.scheduleJob('/10 * * * * *', recUpdate);
 }
 
 /**
@@ -82,31 +166,28 @@ export function update(req, res) {
 
         var now = (new Date).getTime();
         var load = fupt.FullUpdate.deserializeBinary(got.payload);
-        var updater = load.getUpdater();
         var fromer = load.getFromer();
         var coll = load.getMappingsList();
         for(var i = 0; i < coll.length; i++) {
             var name = coll[i].getName();
             var ids: string[] = coll[i].getIdsList();
-            var ids_epoch: number[] = coll[i].getIDs_epochList();
+            var ids_epoch: number[] = coll[i].getIDsEpochList();
             var del: string[] = coll[i].getDeletedList();
-            var del_epoch: number[] = coll[i].getDel_epochList();
+            var del_epoch: number[] = coll[i].getDelEpochList();
             //Mark as new updated or deleted ones
             for(var j = 0; j < ids.length; j++) {
-                if(!((name + ids[j]) in known) || ids_epoch[j] > known[name + ids[j]].upd) {
-                    known[name + ids[j]] = {
+                if(!((name + '/' + ids[j]) in known) || ids_epoch[j] > known[name + '/' + ids[j]].upd) {
+                    known[name + '/' + ids[j]] = {
                         upd: ids_epoch[j],
-                        updater: updater,
                         contacts: [fromer],
                         empty: false
                     }
                 }
             }
             for(var j = 0; j < del.length; j++) {
-                if(!((name + del[j]) in known) || del_epoch[j] > known[name + del[j]].upd) {
-                    known[name + del[j]] = {
+                if(!((name + '/' + del[j]) in known) || del_epoch[j] > known[name + '/' + del[j]].upd) {
+                    known[name + '/' + del[j]] = {
                         upd: del_epoch[j],
-                        updater: updater,
                         contacts: [fromer],
                         empty: true
                     }
@@ -114,8 +195,8 @@ export function update(req, res) {
             }
             //Add known copies
             for(var j = 0; j < ids.length; j++) {
-                if((name + ids[j]) in known && ids_epoch[j] == known[name + ids[j]].upd && known[name + ids[j]].contacts.indexOf(fromer) == -1) {
-                    known[name + ids[j]].contacts.push(fromer);
+                if((name + '/' + ids[j]) in known && ids_epoch[j] == known[name + '/' + ids[j]].upd && known[name + '/' + ids[j]].contacts.indexOf(fromer) == -1) {
+                    known[name + '/' + ids[j]].contacts.push(fromer);
                 }
             }
         }
@@ -135,27 +216,23 @@ export function question(req, res) {
     var got = req.body;
     var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
     if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
-        if(!utils.WHIGIHOST && (!known[got.collection + got.id] || known[got.collection + got.id].empty)) {
+        if(!utils.WHIGIHOST && (!known[got.collection + '/' + got.id] || known[got.collection + '/' + got.id].empty)) {
             //We know it does not exist
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
-        } else if(!!known[got.collection + got.id] && !known[got.collection + got.id].empty) {
+        } else if(!!known[got.collection + '/' + got.id] && !known[got.collection + '/' + got.id].empty) {
             //We know it exists, find where
-            var ret = known[got.collection + got.id].contacts.filter(function(el): boolean {
+            var ret = known[got.collection + '/' + got.id].contacts.filter(function(el): boolean {
                 return el.indexOf('domain') != 0;
             });
             if(ret.length > 0) {
                 res.type('application/json').status(200).json({points: ret});
             } else {
-                if(known[got.collection + got.id].contacts.length == 1) {
-                    res.type('application/json').status(200).json({points: [known[got.collection + got.id].updater]});
-                } else {
-                    recQuestion(known[got.collection + got.id].contacts[0], got.collection, got.id).then(function(points) {
-                        res.type('application/json').status(200).json({points: points});
-                    }, function(e) {
-                        delete known[got.collection + got.id];
-                        res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
-                    });
-                }
+                recQuestion(known[got.collection + '/' + got.id].contacts[0], got.collection, got.id).then(function(points) {
+                    res.type('application/json').status(200).json({points: points});
+                }, function(e) {
+                    delete known[got.collection + '/' + got.id];
+                    res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                });
             }
         } else {
             //You know nothing, Jon Snow
@@ -188,6 +265,8 @@ export function flag(req, res) {
             var keys = Object.getOwnPropertyNames(known);
             for(var i = 0; i < keys.length; i++) {
                 delete known[keys[i]].contacts[ip];
+                if(known[keys[i]].contacts.length == 0)
+                    delete known[keys[i]];
             }
         }
         res.type('application/json').status(200).json({error: ''});

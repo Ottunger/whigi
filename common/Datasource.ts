@@ -11,8 +11,8 @@ import {Datafragment} from './models/Datafragment';
 import {Token} from './models/Token';
 import {Vault} from './models/Vault';
 import {Oauth} from './models/Oauth';
-import {Uploader} from './cdnize/Uploader';
-import {Downloader} from './cdnize/Downloader';
+import {Uploader} from './cdnize/CCUploader';
+import {Downloader} from './cdnize/CCDownloader';
 import {Integrity} from './cdnize/Integrity';
 
 export class Datasource {
@@ -32,7 +32,8 @@ export class Datasource {
     constructor(private db: any, basedir: string, private useCDN?: boolean) {
         this.useCDN = this.useCDN || false;
         if(this.useCDN) {
-            this.up = new Uploader(24, 20, this.db, ['datas', 'tokens', 'users', 'vaults', 'oauths']);
+            //this.up = new Uploader(24, 20, this.db, ['datas', 'tokens', 'users', 'vaults', 'oauths']);
+            this.up = new Uploader(60);
             this.down = new Downloader();
             this.int = new Integrity(12, basedir);
         }

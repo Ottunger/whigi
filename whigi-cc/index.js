@@ -1,5 +1,5 @@
 /**
- * Node entry point for Whigi-RLI.
+ * Node entry point for Whigi-CC.
  * @module index
  * @author Mathonet Grégoire
  */
@@ -54,6 +54,6 @@ if(utils.DEBUG == false) {
     });
 }
 
-var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-rli-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-rli-cert.pem')}, app);
+var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-cc-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-cc-cert.pem')}, app);
 servers.listen(httpsport);
 console.log('Booststrap finished.');

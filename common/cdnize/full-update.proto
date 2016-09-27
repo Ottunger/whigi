@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 message FullUpdate {
-    string updater = 2;
     string fromer = 3;
     repeated Mapping mappings = 1;
 }

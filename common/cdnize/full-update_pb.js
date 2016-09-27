@@ -64,7 +64,6 @@ proto.FullUpdate.prototype.toObject = function(opt_includeInstance) {
  */
 proto.FullUpdate.toObject = function(includeInstance, msg) {
   var f, obj = {
-    updater: msg.getUpdater(),
     fromer: msg.getFromer(),
     mappingsList: jspb.Message.toObjectList(msg.getMappingsList(),
     proto.Mapping.toObject, includeInstance)
@@ -104,10 +103,6 @@ proto.FullUpdate.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setUpdater(value);
-      break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.setFromer(value);
@@ -156,13 +151,6 @@ proto.FullUpdate.prototype.serializeBinary = function() {
  */
 proto.FullUpdate.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getUpdater();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
   f = this.getFromer();
   if (f.length > 0) {
     writer.writeString(
@@ -187,21 +175,6 @@ proto.FullUpdate.prototype.serializeBinaryToWriter = function (writer) {
  */
 proto.FullUpdate.prototype.cloneMessage = function() {
   return /** @type {!proto.FullUpdate} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional string updater = 2;
- * @return {string}
- */
-proto.FullUpdate.prototype.getUpdater = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
-};
-
-
-/** @param {string} value  */
-proto.FullUpdate.prototype.setUpdater = function(value) {
-  jspb.Message.setField(this, 2, value);
 };
 
 

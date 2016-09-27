@@ -6,7 +6,8 @@
             "pathFull": "/full",
             "pathPartial": "/partial",
             "pathQuestion": "/question",
-            "pathFlag": "/flag"
+            "pathFlag": "/flag",
+            "pathUpdate": "/update"
         }
     ]
 }

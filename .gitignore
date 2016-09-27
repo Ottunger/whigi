@@ -4,9 +4,12 @@
 
 /common/Datasource.js
 /common/models/*.js
-/common/cdnize/Uploader.js
-/common/cdnize/Downloader.js
+/common/cdnize/RLIUploader.js
+/common/cdnize/RLIDownloader.js
 /common/cdnize/Integrity.js
+/common/cdnize/CCDownloader.js
+/common/cdnize/CCUploader.js
+
 /tests/backend/FakeRes.js
 /utils/*.js
 /whigi/user.js

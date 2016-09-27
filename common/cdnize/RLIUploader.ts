@@ -56,7 +56,7 @@ function end(msg: any, upt: boolean) {
 
 /**
  * Does a full export.
- * @function full
+ * @function fullFn
  * @private
  */
 function fullFn() {
@@ -97,7 +97,7 @@ function fullFn() {
 
 /**
  * Does a partial export.
- * @function partial
+ * @function partialFn
  * @private
  */
 function partialFn() {
