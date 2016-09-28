@@ -26,6 +26,7 @@ Of course, you will need to do a little bit of setup:
 - Set php7 modules for apache: sudo a2enmod proxy_fcgi setenvif && sudo a2enconf php7.0-fpm && sudo service apache2 reload
 - Load ssl module: sudo a2enmod ssl
 - Download the zip archive of wordpress, and extract its contents to /home/gregoire/wordpress.
+- Extract the languages found in /i18n to /home/gregoire/wordpress/wp-content/languages.
 - Download wp-force-https https://downloads.wordpress.org/plugin/wp-force-https.0.1.2.zip, and unzip it to /home/gregoire/wordpress/wp-content/plugins
 - Clone this repo, delete already installed plugins and and copy the plugins from clients/whigi-wp and clients/whigi-wp-s2 to /home/gregoire/wordpress/wp-content/plugins
 
