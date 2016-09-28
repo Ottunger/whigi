@@ -481,10 +481,7 @@ export function recData(req, res, respond?: boolean): Promise {
  */
 export function updateUser(req, res) {
     var upt = req.body;
-    if(upt.new_password.length < 8) {
-        res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
-        return;
-    }
+    //No need to check for length, we have but a hash here anyways...
     req.user.applyUpdate(upt);
     req.user.persist().then(function() {
         res.type('application/json').status(200).json({error: ''});
