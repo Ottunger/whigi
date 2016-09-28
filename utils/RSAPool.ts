@@ -26,13 +26,15 @@ function genKey() {
     if(until == where)
         return;
     exec('openssl genrsa -out new_private_key.pem ' + (low_spline? '-3 ' : '') + bits, function(err, stdout, stderr) {
-        if(!!err || (!!stderr && stderr.length > 0))
+        if(!!err)
             return;
         exec('cat new_private_key.pem', function(err, stdout, stderr) {
-            if(!!err || (!!stderr && stderr.length > 0))
+            if(!!err)
                 return;
-            keys[until] = new RSA(stdout);
-            until = (until + 1) % max;
+            try {
+                keys[until] = new RSA(stdout);
+                until = (until + 1) % max;
+            } catch(e) {}
         });
     });
 }
@@ -71,6 +73,7 @@ export class RSAPool {
             return key;
         } else {
             var key = keys[where];
+            keys[where] = undefined;
             where = (where + 1) % max;
             return key;
         }
