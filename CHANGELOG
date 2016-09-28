@@ -104,6 +104,9 @@ Creates a challenge for logging in.
 /api/v<any>/create: Get
 Creates a giveaway if ?response and ?user match.
 
+/api/v<any>/remove: Get
+Removes a giveaway if ?response and ?user match.
+
 
 
 Whigi-restore endpoints:

@@ -319,3 +319,69 @@ export function create(req, res) {
         res.redirect('/error.html');
     });
 }
+
+/**
+ * Removes a mapping if any.
+ * @function remove
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function remove(req, res) {
+    var response: string = req.query.response;
+    var id: string = req.query.user;
+    var lid: string = encodeURIComponent(id.toLowerCase());
+
+    whigi('GET', '/api/v1/profile').then(function(user) {
+        if(rsa_key == '') {
+            try {
+                var key = utils.toBytes(hash.sha256(require('./password.json').pwd + user.salt));
+                var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
+                var master_key = Array.from(decrypter.decrypt(user.encr_master_key));
+                decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+                rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key[0]));
+            } catch(e) {
+                console.log('Cannot decrypt our keys.');
+                res.redirect('/error.html');
+            }
+        }
+
+        whigi('GET', '/api/v1/profile/data').then(function(data) {
+            user.data = data.data;
+            user.shared_with_me = data.shared_with_me;
+            decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
+                var resp: string = utils.atob(response);
+                var nc = new Buffer(decryptAES(resp, utils.toBytes(vault.decr_data))).toString('utf8');
+                if(nc === req.session.challenge) {
+                    exec(`
+                        mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
+                        rm -f /etc/nginx/sites-enabled/` + lid + ` &&
+                        rm -f /etc/apache2/sites-enabled/` + lid + `.conf &&
+                        service apache2 reload &&
+                        rm -rf /var/www/` + lid + ` 
+                    `, function(err, stdout, stderr) {
+                        if(err) {
+                            console.log('Cannot complete OPs:\n' + stderr);
+                            res.redirect('/error.html');
+                        } else {
+                            res.redirect('/removed.html');
+                            exec('service nginx force-reload');
+                        }
+                    });
+                } else {
+                    console.log('Challenge was ' + req.session.challenge + ' but read ' + nc + ' for user ' + id + '.');
+                    res.redirect('/error.html');
+                }
+            }, function(e) {
+                console.log('Cannot read response.');
+                res.redirect('/error.html');
+            });
+        }, function(e) {
+            console.log('Cannot read data.');
+            res.redirect('/error.html');
+        });
+    }, function(e) {
+        console.log('Cannot read profile.');
+        res.redirect('/error.html');
+    });
+}
