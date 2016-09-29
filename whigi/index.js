@@ -299,6 +299,7 @@ connect(function(e) {
     //-----
     app.post('/api/v:version/vault/new', checks.checkPuzzle);
     //API ROUTES
+    app.get('/api/v:version/selects/:key', data.selects);
     app.get('/api/v:version/peek/:id', user.peekUser);
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);

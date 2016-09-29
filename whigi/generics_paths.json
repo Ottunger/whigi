@@ -1,0 +1,23 @@
+{
+    "": {
+        "country": "",
+        "descr_key": "generics.profile",
+        "long_descr_key": "generics.profile",
+        "icon": "form-control",
+        "module": "generics.profile"
+    },
+    "profile/": {
+        "country": "",
+        "descr_key": "generics.profile",
+        "long_descr_key": "generics.profile",
+        "icon": "form-control",
+        "module": "generics.profile"
+    },
+    "profile/corporate/": {
+        "country": "",
+        "descr_key": "generics.profile",
+        "long_descr_key": "generics.profile",
+        "icon": "form-control",
+        "module": "generics.profile"
+    }
+}

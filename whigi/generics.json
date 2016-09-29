@@ -1,77 +1,59 @@
 {
     "profile/email": [{
         "is_dated": false,
-        "is_file": false,
+        "country": "",
+        "long_descr_key": "generics.email",
+        "icon": "form-control",
+        "mode": "text",
+        "validate": "true",
         "is_folder": true,
         "descr_key": "generics.email",
         "module": "generics.profile"
     }],
     "profile/last_name": [{
         "is_dated": false,
-        "is_file": false,
+        "country": "",
+        "long_descr_key": "",
+        "icon": "form-control",
+        "mode": "text",
+        "validate": "true",
         "is_folder": false,
         "descr_key": "generics.last_name",
         "module": "generics.profile"
     }],
     "profile/first_name": [{
         "is_dated": false,
-        "is_file": false,
+        "country": "",
+        "long_descr_key": "",
+        "icon": "form-control",
+        "mode": "text",
+        "validate": "true",
         "is_folder": false,
         "descr_key": "generics.first_name",
         "module": "generics.profile"
     }],
-    "profile/other_first_names": [{
-        "is_dated": false,
-        "is_file": false,
-        "is_folder": false,
-        "descr_key": "generics.other_first_names",
-        "module": "generics.profile"
-    }],
     "profile/address": [{
         "is_dated": false,
-        "is_file": false,
-        "is_folder": true,
+        "country": "",
+        "long_descr_key": "",
+        "icon": "form-control",
+        "mode": "json_keys",
         "json_keys": ["generics.last_name", "generics.first_name", "generics.street", "generics.num", "generics.letterbox", "generics.more",
             "generics.postcode", "generics.city", "generics.country"],
-        "descr_key": "generics.address",
-        "module": "generics.profile"
-    }],
-    "profile/birth_date": [{
-        "is_dated": false,
-        "is_file": false,
-        "is_folder": true,
-        "descr_key": "generics.birth_date",
-        "regexp": "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d$",
-        "module": "generics.profile"
-    }],
-    "profile/rrn": [{
-        "is_dated": false,
-        "is_file": false,
+        "validate": "true",
         "is_folder": false,
-        "descr_key": "generics.rrn",
-        "regexp": "^[0-9]{11}$",
+        "descr_key": "generics.first_name",
         "module": "generics.profile"
     }],
     "profile/corporate/name": [{
         "is_dated": true,
-        "is_file": false,
+        "country": "",
+        "long_descr_key": "",
+        "icon": "form-control",
+        "mode": "text",
+        "validate": "true",
         "is_folder": true,
         "descr_key": "generics.corporate_name",
-        "module": "generics.corporate"
-    }],
-    "profile/corporate/bcenum": [{
-        "is_dated": false,
-        "is_file": false,
-        "is_folder": true,
-        "descr_key": "generics.corporate_bcenum",
-        "module": "generics.corporate"
-    }],
-    "profile/corporate/creation_date": [{
-        "is_dated": false,
-        "is_file": false,
-        "is_folder": true,
-        "descr_key": "generics.corporate_creation_date",
-        "regexp": "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d$",
         "module": "generics.corporate"
     }]
 }

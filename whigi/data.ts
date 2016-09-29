@@ -35,6 +35,25 @@ export function managerInit(dbg: Datasource) {
 }
 
 /**
+ * Forges the response to retrieve select possibilities by key.
+ * @function selects
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function selects(req, res) {
+    db.getDatabase().collection('selects').findOne(req.params.key).then(function(data) {
+        if(!!data) {
+            res.type('application/json').status(200).json(data.values);
+        } else {
+            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+        }
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
  * Forges the response to retrieve a new info.
  * @function getData
  * @public

@@ -1,0 +1,34 @@
+{
+  "_comment": "Editor: http://jeremydorn.com/json-editor/",
+  "title": "Generics Paths",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "country": {
+        "title": "Le champ est il country-specific? Si oui, une code pays, sinon vide",
+        "type": "string"
+      },
+      "descr_key": {
+        "title": "Clé de i18n pour affichage client. Voir Whigi-Client/dist/i18n",
+        "type": "string"
+      },
+      "long_descr_key": {
+        "title": "Clé de i18n pour la longue description client.",
+        "type": "string"
+      },
+      "icon": {
+        "title": "Icone. Si une URL, doit pouvoir être préfixée par '16', '32', '64'. Sinon, doit être une classe à appliquer à un div pour avoir une glyphicon.",
+        "type": "string"
+      },
+      "module": {
+        "title": "Clé de i18n pour le module auquel ce champ est attaché",
+        "type": "string"
+      },
+      "path": {
+        "title": "Chemin d'enregistrement dans le Whigi",
+        "type": "string"
+      }
+    }
+  }
+}
