@@ -17,6 +17,10 @@
         "title": "Clé de i18n pour la longue description client.",
         "type": "string"
       },
+      "help_url": {
+        "title": "Url vers l'aide ou chaine vide.",
+        "type": "string"
+      },
       "icon": {
         "title": "Icone. Si une URL, doit pouvoir être préfixée par '16', '32', '64'. Sinon, doit être une classe à appliquer à un div pour avoir une glyphicon.",
         "type": "string"

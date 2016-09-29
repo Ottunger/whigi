@@ -9,7 +9,7 @@
         "title": "Le champ est il daté",
         "type": "boolean"
       },
-      "is_folder": {
+      "instantiable": {
         "title": "Le champ peut il avoir plusieurs occurences",
         "type": "boolean"
       },
@@ -23,6 +23,10 @@
       },
       "long_descr_key": {
         "title": "Clé de i18n pour la longue description client.",
+        "type": "string"
+      },
+      "help_url": {
+        "title": "Url vers l'aide ou chaine vide.",
         "type": "string"
       },
       "icon": {
@@ -54,7 +58,30 @@
         "title": "Clés de i18n pour un champ avec sous-champs, comme l'adresse. Dans ce cas, les sous champs sont des 'string'!",
         "type": "array",
         "items": {
-          "type": "string"
+          "type": "object",
+          "properties": {
+            "descr_key": {
+              "title": "Clé de i18n pour affichage client. Voir Whigi-Client/dist/i18n",
+              "type": "string"
+            },
+            "long_descr_key": {
+              "title": "Clé de i18n pour la longue description client.",
+              "type": "string"
+            },
+            "help_url": {
+              "title": "Url vers l'aide ou chaine vide.",
+              "type": "string"
+            },
+            "mode": {
+              "title": "Type de donnée cible",
+              "type": "string",
+              "enum": ["text", "date", "checkbox", "file", "radio", "select", "json_keys", "image", "url", "email"]
+            },
+            "enum": {
+              "title": "Pour un select, URL relative à WHIGIHOST où avoir les valeurs",
+              "type": "string"
+            }
+          }
         }
       }
     }

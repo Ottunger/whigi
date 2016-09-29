@@ -3,10 +3,13 @@
         "is_dated": false,
         "country": "",
         "long_descr_key": "generics.email",
+        "help_url": "",
         "icon": "form-control",
         "mode": "text",
+        "enum": "",
+        "json_keys": [],
         "validate": "true",
-        "is_folder": true,
+        "instantiable": true,
         "descr_key": "generics.email",
         "module": "generics.profile"
     }],
@@ -14,10 +17,13 @@
         "is_dated": false,
         "country": "",
         "long_descr_key": "",
+        "help_url": "",
         "icon": "form-control",
         "mode": "text",
+        "enum": "",
+        "json_keys": [],
         "validate": "true",
-        "is_folder": false,
+        "instantiable": false,
         "descr_key": "generics.last_name",
         "module": "generics.profile"
     }],
@@ -25,10 +31,13 @@
         "is_dated": false,
         "country": "",
         "long_descr_key": "",
+        "help_url": "",
         "icon": "form-control",
         "mode": "text",
+        "enum": "",
+        "json_keys": [],
         "validate": "true",
-        "is_folder": false,
+        "instantiable": false,
         "descr_key": "generics.first_name",
         "module": "generics.profile"
     }],
@@ -36,12 +45,69 @@
         "is_dated": false,
         "country": "",
         "long_descr_key": "",
+        "help_url": "",
         "icon": "form-control",
         "mode": "json_keys",
-        "json_keys": ["generics.last_name", "generics.first_name", "generics.street", "generics.num", "generics.letterbox", "generics.more",
-            "generics.postcode", "generics.city", "generics.country"],
+        "enum": "",
+        "json_keys": [
+            {
+                "descr_key": "generics.last_name",
+                "long_descr_key": "generics.last_name",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.first_name",
+                "long_descr_key": "generics.first_name",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.street",
+                "long_descr_key": "generics.street",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.num",
+                "long_descr_key": "generics.num",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.letterbox",
+                "long_descr_key": "generics.letterbox",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.more",
+                "long_descr_key": "generics.more",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.postcode",
+                "long_descr_key": "generics.postcode",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.city",
+                "long_descr_key": "generics.city",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.country",
+                "long_descr_key": "generics.country",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }
+        ],
         "validate": "true",
-        "is_folder": false,
+        "instantiable": false,
         "descr_key": "generics.first_name",
         "module": "generics.profile"
     }],
@@ -49,10 +115,13 @@
         "is_dated": true,
         "country": "",
         "long_descr_key": "",
+        "help_url": "",
         "icon": "form-control",
         "mode": "text",
+        "enum": "",
+        "json_keys": [],
         "validate": "true",
-        "is_folder": true,
+        "instantiable": true,
         "descr_key": "generics.corporate_name",
         "module": "generics.corporate"
     }]

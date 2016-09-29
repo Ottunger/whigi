@@ -3,6 +3,7 @@
         "country": "",
         "descr_key": "generics.profile",
         "long_descr_key": "generics.profile",
+        "help_url": "",
         "icon": "form-control",
         "module": "generics.profile"
     },
@@ -10,6 +11,7 @@
         "country": "",
         "descr_key": "generics.profile",
         "long_descr_key": "generics.profile",
+        "help_url": "",
         "icon": "form-control",
         "module": "generics.profile"
     },
@@ -17,6 +19,7 @@
         "country": "",
         "descr_key": "generics.profile",
         "long_descr_key": "generics.profile",
+        "help_url": "",
         "icon": "form-control",
         "module": "generics.profile"
     }
