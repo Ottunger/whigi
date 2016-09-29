@@ -156,152 +156,161 @@ export function create(req, res) {
                 var resp: string = utils.atob(response);
                 var nc = new Buffer(decryptAES(resp, utils.toBytes(vault.decr_data))).toString('utf8');
                 if(nc === req.session.challenge) {
-                    var httpport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
-                    var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
-                    decryptVault(user, id, 'profile/email').then(function(vault2) {
-                        var email = vault2.decr_data;
-                        fs.writeFile('/etc/nginx/sites-available/' + lid, `
-                            server {
-                                    listen 80;
-                                    server_name  ` + lid + `-whigimembers.envict.com;
-                                    error_log /home/gregoire/nginx.err;
-                                    access_log  /home/gregoire/nginx.log;
-                                    gzip on;
-                                    gzip_min_length 1000;
-                                    gzip_proxied any;
-                                    gzip_comp_level 7;
-                                    gzip_types *;
-                                    location / {
-                                            proxy_pass      http://localhost:` + httpport + `;
-                                            proxy_set_header    Host            $host;
-                                            proxy_set_header    X-Real-IP       $remote_addr;
-                                            proxy_set_header    X-Forwarded-for $remote_addr;
-                                            port_in_redirect on;
+                    //Check if exists
+                    fs.access('/var/www/' + lid, function(err) {
+                        if(!!err) {
+                            //Continue
+                            var httpport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
+                            var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
+                            decryptVault(user, id, 'profile/email').then(function(vault2) {
+                                var email = vault2.decr_data;
+                                fs.writeFile('/etc/nginx/sites-available/' + lid, `
+                                    server {
+                                            listen 80;
+                                            server_name  ` + lid + `-whigimembers.envict.com;
+                                            error_log /home/gregoire/nginx.err;
+                                            access_log  /home/gregoire/nginx.log;
+                                            gzip on;
+                                            gzip_min_length 1000;
+                                            gzip_proxied any;
+                                            gzip_comp_level 7;
+                                            gzip_types *;
+                                            location / {
+                                                    proxy_pass      http://localhost:` + httpport + `;
+                                                    proxy_set_header    Host            $host;
+                                                    proxy_set_header    X-Real-IP       $remote_addr;
+                                                    proxy_set_header    X-Forwarded-for $remote_addr;
+                                                    port_in_redirect on;
+                                            }
                                     }
-                            }
-                            server {
-                                    listen 443;
-                                    server_name  ` + lid + `-whigimembers.envict.com;
-                                    error_log /home/gregoire/nginx.err;
-                                    access_log  /home/gregoire/nginx.log;
-                                    gzip on;
-                                    gzip_min_length 1000;
-                                    gzip_proxied any;
-                                    gzip_comp_level 7;
-                                    gzip_types *;
-                                    location / {
-                                            proxy_pass      https://localhost:` + httpsport + `;
-                                            proxy_set_header    Host            $host;
-                                            proxy_set_header    X-Real-IP       $remote_addr;
-                                            proxy_set_header    X-Forwarded-for $remote_addr;
-                                            port_in_redirect on;
+                                    server {
+                                            listen 443;
+                                            server_name  ` + lid + `-whigimembers.envict.com;
+                                            error_log /home/gregoire/nginx.err;
+                                            access_log  /home/gregoire/nginx.log;
+                                            gzip on;
+                                            gzip_min_length 1000;
+                                            gzip_proxied any;
+                                            gzip_comp_level 7;
+                                            gzip_types *;
+                                            location / {
+                                                    proxy_pass      https://localhost:` + httpsport + `;
+                                                    proxy_set_header    Host            $host;
+                                                    proxy_set_header    X-Real-IP       $remote_addr;
+                                                    proxy_set_header    X-Forwarded-for $remote_addr;
+                                                    port_in_redirect on;
+                                            }
                                     }
-                            }
-                        `, function(e) {
-                            if(e) {
-                                console.log('Cannot write file.');
-                                res.redirect('/error.html');
-                            } else {
-                                fs.writeFile('/etc/apache2/sites-available/' + lid + '.conf', `
-                                    <VirtualHost *:` + httpport + `>
-                                        ServerName ` + lid + `-whigimembers.envict.com
-                                        ServerAdmin whigi.com@gmail.com
-                                        DocumentRoot /var/www/` + lid + `
-                                        ErrorLog \${APACHE_LOG_DIR}/error.log
-                                        CustomLog \${APACHE_LOG_DIR}/access.log combined
-                                    </VirtualHost>
-                                    <VirtualHost *:` + httpsport + `>
-                                        SSLEngine On
-                                        SSLCertificateFile /home/gregoire/envict.bundle.crt
-                                        SSLCertificateKeyFile /home/gregoire/envict.com.key
-                                        ServerName ` + lid + `-whigimembers.envict.com
-                                        ServerAdmin whigi.com@gmail.com
-                                        DocumentRoot /var/www/` + lid + `
-                                        ErrorLog \${APACHE_LOG_DIR}/error.log
-                                        CustomLog \${APACHE_LOG_DIR}/access.log combined
-                                    </VirtualHost>
                                 `, function(e) {
                                     if(e) {
                                         console.log('Cannot write file.');
                                         res.redirect('/error.html');
                                     } else {
-                                        fs.writeFile('/home/gregoire/wordpress/wp-config.php', `
-                                            <?php
-                                            define('DB_NAME', '` + lid + `');
-                                            define('DB_USER', 'wpshit');
-                                            define('DB_PASSWORD', 'shitty');
-                                            define('DB_HOST', 'localhost');
-                                            define('DB_CHARSET', 'utf8mb4');
-                                            define('DB_COLLATE', '');
-                                            define('AUTH_KEY',         'Jh5I7@7m2OB~HiNSc1}/~s209Z]Nf?.uTv+B}lIpbXzUcs(R*xxn|@lX9VTfA5!o');
-                                            define('SECURE_AUTH_KEY',  'iACos2^0]3+} Mc]N[u/Nf)s1{k|#Q&S%3[6m7InZCmvCFoN2)m+-K[< PpEN7>q');
-                                            define('LOGGED_IN_KEY',    'XD?uYc4%5i+^/Mf!-D0E81GhJ&FfVztoih_M!E D.u+PGX3pk?U.r*JmlLFwboF=');
-                                            define('NONCE_KEY',        '*4+=G<H_MXdr@4-^+oMRmq>k:Oq4gc({->B[l1yJIzPH eAmnLamMFN_?<VzDK6m');
-                                            define('AUTH_SALT',        'K!o$1hATCF9H3Ywq%{O4=G>|3V-%OCb OLJ2ejKlm1RpdABTAlnxf&1])e^$kwL[');
-                                            define('SECURE_AUTH_SALT', 'mp*60}n4vFwzlNA/b<F[ikBlRxM2~yqo~7rx[3d5%S42gd^Y=*Nd4~#K3J!u<BmJ');
-                                            define('LOGGED_IN_SALT',   '7jFxLyq%.uF&5~g2g+M /lWy#2kl-xRRm!}Yegg^X9=xw&ALH>u3I|Cr|cc=G$tL');
-                                            define('NONCE_SALT',       '[i|_-]%Tq1D^<[!P|}fIDZJttmax{}flkW?Ma+m9h%wh2K>B&jPlAr4c<=-S_C?L');
-                                            $table_prefix  = 'wp_';
-                                            define('WP_DEBUG', false);
-                                            define('WP_DEBUG_LOG', false);
-                                            define('FORCE_SSL_ADMIN', true);
-                                            if ( !defined('ABSPATH') )
-                                                    define('ABSPATH', dirname(__FILE__) . '/');
-                                            require_once(ABSPATH . 'wp-settings.php');
-                                            ?>
+                                        fs.writeFile('/etc/apache2/sites-available/' + lid + '.conf', `
+                                            <VirtualHost *:` + httpport + `>
+                                                ServerName ` + lid + `-whigimembers.envict.com
+                                                ServerAdmin whigi.com@gmail.com
+                                                DocumentRoot /var/www/` + lid + `
+                                                ErrorLog \${APACHE_LOG_DIR}/error.log
+                                                CustomLog \${APACHE_LOG_DIR}/access.log combined
+                                            </VirtualHost>
+                                            <VirtualHost *:` + httpsport + `>
+                                                SSLEngine On
+                                                SSLCertificateFile /home/gregoire/envict.bundle.crt
+                                                SSLCertificateKeyFile /home/gregoire/envict.com.key
+                                                ServerName ` + lid + `-whigimembers.envict.com
+                                                ServerAdmin whigi.com@gmail.com
+                                                DocumentRoot /var/www/` + lid + `
+                                                ErrorLog \${APACHE_LOG_DIR}/error.log
+                                                CustomLog \${APACHE_LOG_DIR}/access.log combined
+                                            </VirtualHost>
                                         `, function(e) {
                                             if(e) {
                                                 console.log('Cannot write file.');
                                                 res.redirect('/error.html');
                                             } else {
-                                                exec(`
-                                                    mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
-                                                    mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + lid + `;" &&
-                                                    rm -f /etc/nginx/sites-enabled/` + lid + ` &&
-                                                    ln -s /etc/nginx/sites-available/` + lid + ` /etc/nginx/sites-enabled/` + lid + ` &&
-                                                    rm -f /etc/apache2/sites-enabled/` + lid + `.conf &&
-                                                    ln -s /etc/apache2/sites-available/` + lid + `.conf /etc/apache2/sites-enabled/` + lid + `.conf &&
-                                                    echo "Listen ` + httpport + `" >> /etc/apache2/ports.conf &&
-                                                    echo "Listen ` + httpsport + ` https" >> /etc/apache2/ports.conf &&
-                                                    service apache2 reload &&
-                                                    rm -rf /var/www/` + lid + ` &&
-                                                    mkdir /var/www/` + lid + ` &&
-                                                    cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
-                                                    chmod -R 770 /var/www/` + lid + `/ &&
-                                                    chown -hR www-data:www-data /var/www/` + lid + `/ &&
-                                                    wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `-whigimembers.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + id + ` --skip-email &&
-                                                    wp --allow-root --path=/var/www/` + lid + ` plugin activate whigi-wp wp-force-https
-                                                `, function(err, stdout, stderr) {
-                                                    if(err) {
-                                                        console.log('Cannot complete OPs:\n' + stderr);
+                                                fs.writeFile('/home/gregoire/wordpress/wp-config.php', `
+                                                    <?php
+                                                    define('DB_NAME', '` + lid + `');
+                                                    define('DB_USER', 'wpshit');
+                                                    define('DB_PASSWORD', 'shitty');
+                                                    define('DB_HOST', 'localhost');
+                                                    define('DB_CHARSET', 'utf8mb4');
+                                                    define('DB_COLLATE', '');
+                                                    define('AUTH_KEY',         'Jh5I7@7m2OB~HiNSc1}/~s209Z]Nf?.uTv+B}lIpbXzUcs(R*xxn|@lX9VTfA5!o');
+                                                    define('SECURE_AUTH_KEY',  'iACos2^0]3+} Mc]N[u/Nf)s1{k|#Q&S%3[6m7InZCmvCFoN2)m+-K[< PpEN7>q');
+                                                    define('LOGGED_IN_KEY',    'XD?uYc4%5i+^/Mf!-D0E81GhJ&FfVztoih_M!E D.u+PGX3pk?U.r*JmlLFwboF=');
+                                                    define('NONCE_KEY',        '*4+=G<H_MXdr@4-^+oMRmq>k:Oq4gc({->B[l1yJIzPH eAmnLamMFN_?<VzDK6m');
+                                                    define('AUTH_SALT',        'K!o$1hATCF9H3Ywq%{O4=G>|3V-%OCb OLJ2ejKlm1RpdABTAlnxf&1])e^$kwL[');
+                                                    define('SECURE_AUTH_SALT', 'mp*60}n4vFwzlNA/b<F[ikBlRxM2~yqo~7rx[3d5%S42gd^Y=*Nd4~#K3J!u<BmJ');
+                                                    define('LOGGED_IN_SALT',   '7jFxLyq%.uF&5~g2g+M /lWy#2kl-xRRm!}Yegg^X9=xw&ALH>u3I|Cr|cc=G$tL');
+                                                    define('NONCE_SALT',       '[i|_-]%Tq1D^<[!P|}fIDZJttmax{}flkW?Ma+m9h%wh2K>B&jPlAr4c<=-S_C?L');
+                                                    $table_prefix  = 'wp_';
+                                                    define('WP_DEBUG', false);
+                                                    define('WP_DEBUG_LOG', false);
+                                                    define('FORCE_SSL_ADMIN', true);
+                                                    if ( !defined('ABSPATH') )
+                                                            define('ABSPATH', dirname(__FILE__) . '/');
+                                                    require_once(ABSPATH . 'wp-settings.php');
+                                                    ?>
+                                                `, function(e) {
+                                                    if(e) {
+                                                        console.log('Cannot write file.');
                                                         res.redirect('/error.html');
                                                     } else {
-                                                        res.redirect('/success.html');
-                                                        exec('service nginx force-reload');
-                                                        setTimeout(function() {
-                                                            exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
+                                                        exec(`
+                                                            mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
+                                                            mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + lid + `;" &&
+                                                            rm -f /etc/nginx/sites-enabled/` + lid + ` &&
+                                                            ln -s /etc/nginx/sites-available/` + lid + ` /etc/nginx/sites-enabled/` + lid + ` &&
+                                                            rm -f /etc/apache2/sites-enabled/` + lid + `.conf &&
+                                                            ln -s /etc/apache2/sites-available/` + lid + `.conf /etc/apache2/sites-enabled/` + lid + `.conf &&
+                                                            echo "Listen ` + httpport + `" >> /etc/apache2/ports.conf &&
+                                                            echo "Listen ` + httpsport + ` https" >> /etc/apache2/ports.conf &&
+                                                            service apache2 reload &&
+                                                            rm -rf /var/www/` + lid + ` &&
+                                                            mkdir /var/www/` + lid + ` &&
+                                                            cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
+                                                            chmod -R 770 /var/www/` + lid + `/ &&
+                                                            chown -hR www-data:www-data /var/www/` + lid + `/ &&
+                                                            wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `-whigimembers.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + id + ` --skip-email &&
+                                                            wp --allow-root --path=/var/www/` + lid + ` plugin activate whigi-wp wp-force-https
+                                                        `, function(err, stdout, stderr) {
+                                                            if(err) {
+                                                                console.log('Cannot complete OPs:\n' + stderr);
+                                                                res.redirect('/error.html');
+                                                            } else {
+                                                                res.redirect('/success.html');
+                                                                exec('service nginx force-reload');
                                                                 setTimeout(function() {
-                                                                    exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp', function() {
-                                                                        exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp-s2', function() {
-                                                                            setTimeout(function() {
-                                                                                exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp-s2');
-                                                                            }, 5000);
-                                                                        });
+                                                                    exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
+                                                                        setTimeout(function() {
+                                                                            exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp', function() {
+                                                                                exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp-s2', function() {
+                                                                                    setTimeout(function() {
+                                                                                        exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp-s2');
+                                                                                    }, 5000);
+                                                                                });
+                                                                            });
+                                                                        }, 5000);
                                                                     });
                                                                 }, 5000);
-                                                            });
-                                                        }, 5000);
+                                                            }
+                                                        });
                                                     }
                                                 });
                                             }
                                         });
                                     }
                                 });
-                            }
-                        });
-                    }, function(e) {
-                        console.log('Cannot read email.');
-                        res.redirect('/error.html');
+                            }, function(e) {
+                                console.log('Cannot read email.');
+                                res.redirect('/error.html');
+                            });
+                        } else {
+                            //Account already existed
+                            res.redirect('/success.html');
+                        }
                     });
                 } else {
                     console.log('Challenge was ' + req.session.challenge + ' but read ' + nc + ' for user ' + id + '.');
