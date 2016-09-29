@@ -267,7 +267,8 @@ export function create(req, res) {
                                                     rm -rf /var/www/` + lid + ` &&
                                                     mkdir /var/www/` + lid + ` &&
                                                     cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
-                                                    chmod -R 777 /var/www/` + lid + `/ &&
+                                                    chmod -R 770 /var/www/` + lid + `/ &&
+                                                    chown -hR www-data:www-data /var/www/` + lid + `/ &&
                                                     wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `-whigimembers.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + id + ` --skip-email &&
                                                     wp --allow-root --path=/var/www/` + lid + ` plugin activate whigi-wp wp-force-https
                                                 `, function(err, stdout, stderr) {
