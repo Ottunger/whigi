@@ -1,26 +1,23 @@
 {
     "": {
         "country": "",
-        "descr_key": "generics.profile",
-        "long_descr_key": "generics.profile",
+        "descr_key": "/",
+        "long_descr_key": "/",
         "help_url": "",
-        "icon": "form-control",
-        "module": "generics.profile"
+        "icon": "form-control"
     },
     "profile/": {
         "country": "",
-        "descr_key": "generics.profile",
-        "long_descr_key": "generics.profile",
+        "descr_key": "profile/",
+        "long_descr_key": "profile/",
         "help_url": "",
-        "icon": "form-control",
-        "module": "generics.profile"
+        "icon": "form-control"
     },
     "profile/corporate/": {
         "country": "",
-        "descr_key": "generics.profile",
-        "long_descr_key": "generics.profile",
+        "descr_key": "profile/corporate/",
+        "long_descr_key": "profile/corporate/",
         "help_url": "",
-        "icon": "form-control",
-        "module": "generics.profile"
+        "icon": "form-control"
     }
 }

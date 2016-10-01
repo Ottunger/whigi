@@ -41,7 +41,7 @@ var isHttps = !!process.argv[7]? process.argv[7] : 'true';
  * @param {Function} next 404 Handler.
  */
 function listOptions(path, res, next) {
-    if(path.match(/\/api\/v[1-9]\/generics.json\/?$/))
+    if(path.match(/\/api\/v[1-9]\/generics(_paths)?.json\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/peek\/.+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
@@ -242,6 +242,9 @@ connect(function(e) {
 
     app.get('/api/v:version/generics.json', function(req, res) {
         res.type('application/json').status(200).json(require('./generics.json'));
+    });
+    app.get('/api/v:version/generics_paths.json', function(req, res) {
+        res.type('application/json').status(200).json(require('./generics_paths.json'));
     });
     //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pauth);

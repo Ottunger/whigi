@@ -4,11 +4,11 @@
         "country": "",
         "long_descr_key": "generics.email",
         "help_url": "",
-        "icon": "form-control",
+        "icon": "",
         "mode": "text",
         "enum": "",
         "json_keys": [],
-        "validate": "true",
+        "validate": "return /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/.test(test);",
         "instantiable": true,
         "descr_key": "generics.email",
         "module": "generics.profile"
@@ -18,11 +18,11 @@
         "country": "",
         "long_descr_key": "",
         "help_url": "",
-        "icon": "form-control",
+        "icon": "",
         "mode": "text",
         "enum": "",
         "json_keys": [],
-        "validate": "true",
+        "validate": "return !!test && test.length > 0;",
         "instantiable": false,
         "descr_key": "generics.last_name",
         "module": "generics.profile"
@@ -32,11 +32,11 @@
         "country": "",
         "long_descr_key": "",
         "help_url": "",
-        "icon": "form-control",
+        "icon": "",
         "mode": "text",
         "enum": "",
         "json_keys": [],
-        "validate": "true",
+        "validate": "return !!test && test.length > 0;",
         "instantiable": false,
         "descr_key": "generics.first_name",
         "module": "generics.profile"
@@ -46,7 +46,7 @@
         "country": "",
         "long_descr_key": "",
         "help_url": "",
-        "icon": "form-control",
+        "icon": "",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -106,7 +106,7 @@
                 "enum": ""
             }
         ],
-        "validate": "true",
+        "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode']);",
         "instantiable": false,
         "descr_key": "generics.first_name",
         "module": "generics.profile"
@@ -116,11 +116,11 @@
         "country": "",
         "long_descr_key": "",
         "help_url": "",
-        "icon": "form-control",
+        "icon": "",
         "mode": "text",
         "enum": "",
         "json_keys": [],
-        "validate": "true",
+        "validate": "return true;",
         "instantiable": true,
         "descr_key": "generics.corporate_name",
         "module": "generics.corporate"
