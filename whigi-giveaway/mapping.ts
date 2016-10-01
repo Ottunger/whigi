@@ -119,7 +119,7 @@ function decryptVault(profile: any, user: string, name: string): Promise {
  * @param {Response} res The response.
  */
 export function challenge(req, res) {
-    req.session.challenge = utils.generateRandomString(10);
+    req.session.challenge = utils.generateRandomString(4);
     res.type('application/json').status(200).json({challenge: req.session.challenge});
 }
 
@@ -154,8 +154,8 @@ export function create(req, res) {
             user.shared_with_me = data.shared_with_me;
             decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
                 var resp: string = utils.atob(response);
-                var nc = new Buffer(decryptAES(resp, utils.toBytes(vault.decr_data))).toString('utf8');
-                if(nc === req.session.challenge) {
+                var nc = decryptAES(resp, utils.toBytes(vault.decr_data));
+                if(nc == req.session.challenge) {
                     //Check if exists
                     fs.access('/var/www/' + lid, function(err) {
                         if(!!err) {
@@ -362,8 +362,8 @@ export function remove(req, res) {
             user.shared_with_me = data.shared_with_me;
             decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
                 var resp: string = utils.atob(response);
-                var nc = new Buffer(decryptAES(resp, utils.toBytes(vault.decr_data))).toString('utf8');
-                if(nc === req.session.challenge) {
+                var nc = decryptAES(resp, utils.toBytes(vault.decr_data));
+                if(nc == req.session.challenge) {
                     exec(`
                         mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
                         rm -f /etc/nginx/sites-enabled/` + lid + ` &&

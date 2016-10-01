@@ -47,10 +47,11 @@ export function btoa(str: string): string {
  * @function generateRandomString
  * @public
  * @param {Number} length The length.
+ * @param {Boolean} l Only letters.
  * @return {String} The string.
  */
-export function generateRandomString(length: number): string {
-    var characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+export function generateRandomString(length: number, l?: boolean): string {
+    var characters = (l !== false)? 'abcdefghijklmnopqrstuvwxyz' : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     var randomString = '';
     for (var i = 0; i < length; i++) {
         randomString += characters[Math.floor(Math.random() * characters.length)];
