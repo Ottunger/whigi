@@ -86,7 +86,7 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/new\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/?$/))
+    else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+(\/[a-zA-Z0-9]+)?\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
@@ -269,6 +269,7 @@ connect(function(e) {
     app.delete('/api/v:version/data/:data_name', pauth);
     app.post('/api/v:version/vault/new', pauth);
     app.delete('/api/v:version/vault/:vault_id', pauth);
+    app.delete('/api/v:version/vault/:vault_id/:rem', pauth);
     app.get('/api/v:version/vault/:vault_id', pauth);
     app.get('/api/v:version/vault/time/:vault_id', pauth);
     app.post('/api/v:version/oauth/new', pauth);
@@ -287,6 +288,7 @@ connect(function(e) {
     app.delete('/api/v:version/data/:data_name', checks.checkOAuth(true));
     app.post('/api/v:version/vault/new', checks.checkOAuth(false, 2));
     app.delete('/api/v:version/vault/:vault_id', checks.checkOAuth(true));
+    app.delete('/api/v:version/vault/:vault_id/:rem', checks.checkOAuth(true));
     app.get('/api/v:version/vault/:vault_id', checks.checkOAuth(true));
     app.get('/api/v:version/vault/time/:vault_id', checks.checkOAuth(true));
     app.post('/api/v:version/oauth/new', checks.checkOAuth(true));
@@ -332,6 +334,7 @@ connect(function(e) {
     app.delete('/api/v:version/data/:data_name', data.removeData);
     app.post('/api/v:version/vault/new', data.regVault);
     app.delete('/api/v:version/vault/:vault_id', data.removeVault);
+    app.delete('/api/v:version/vault/:vault_id/:rem', data.removeVault);
     app.get('/api/v:version/vault/:vault_id', data.getVault);
     app.get('/api/v:version/vault/time/:vault_id', data.accessVault);
     app.get('/api/v:version/any/:key/:collection/:id', data.getAny);

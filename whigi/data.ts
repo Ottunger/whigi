@@ -9,6 +9,7 @@ declare var require: any
 var https = require('https');
 var ndm = require('nodemailer');
 var aes = require('aes-js');
+var hash = require('js-sha256');
 var utils = require('../utils/utils');
 import {User} from '../common/models/User';
 import {Vault} from '../common/models/Vault';
@@ -204,7 +205,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                     reject();
                 } else {
                     var v: Vault = new Vault({
-                        _id: utils.generateRandomString(128),
+                        _id: got.storable !== false? 'storable' + utils.generateRandomString(120) : utils.generateRandomString(128),
                         shared_to_id: got.shared_to_id,
                         data_name: got.data_name,
                         aes_crypted_shared_pub: got.aes_crypted_shared_pub,
@@ -228,18 +229,22 @@ export function regVault(req, res, respond?: boolean): Promise {
                             //Make sure only object is printed to DB
                             sharee = req.user;
                         }
-                        if(!!req.body.decr_data) {
+                        if(!!got.decr_data) {
                             try {
                                 var naes: number[] = utils.toBytes(utils.generateRandomString(64));
                                 v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
                                 v.data_crypted_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
-                                    .encrypt(aes.util.convertStringToBytes(req.body.decr_data))));
+                                    .encrypt(aes.util.convertStringToBytes(got.decr_data))));
                             } catch(e) {
                                 if(respond === true)
                                     res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                                 reject();
                                 return;
                             }
+                        }
+                        if(got.storable !== false) {
+                            var pass = utils.generateRandomString(32);
+                            v.storable = [utils.encryptRSA(pass, sharee.rsa_pub_key), hash.sha256(pass), (!!got.store_path)? got.store_path : got.data_name];
                         }
                         v.persist().then(function() {
                             req.user.data[got.real_name].shared_to[got.shared_to_id] = v._id;
@@ -310,7 +315,7 @@ export function removeVault(req, res) {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
                 return;
             }
-            if(v.sharer_id != req.user._id) {
+            if(v.sharer_id != req.user._id && !(v.shared_to_id == req.user._id && !!req.params.rem && !!v.storable && hash.sha256(req.params.rem) == v.storable[1])) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }

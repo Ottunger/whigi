@@ -21,7 +21,8 @@ export class Vault extends IModel {
     public is_dated: boolean;
     public trigger: string;
     public real_name: string;
-    public version :number;
+    public version: number;
+    public storable: string[];
 
     /**
      * Create a Vault from a bare database description.
@@ -54,6 +55,8 @@ export class Vault extends IModel {
             this.real_name = u.real_name;
         if('version' in u)
             this.version = u.version;
+        if('storable' in u)
+            this.storable = u.storable;
     }
 
     /**
@@ -75,7 +78,8 @@ export class Vault extends IModel {
             is_dated: this.is_dated,
             trigger: this.trigger,
             real_name: this.real_name,
-            version: this.version
+            version: this.version,
+            storable: this.storable
         };
         return ret;
     }
