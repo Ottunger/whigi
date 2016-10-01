@@ -156,27 +156,34 @@ export function triggerVaults(req, res) {
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.
+ * @param {Boolean} respond Should respond.
  */
-export function removeData(req, res) {
+export function removeData(req, res, respond?: boolean) {
     var name = decodeURIComponent(req.params.data_name);
+    respond = respond !== false;
     req.user.fill().then(function() {
         if(name in req.user.data) {
-            if(Object.getOwnPropertyNames(req.user.data[name].shared_to).length != 0) {
-                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+            if(respond === true && Object.getOwnPropertyNames(req.user.data[name].shared_to).length != 0) {
+                if(respond === true)
+                    res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
             db.unlink('datas', req.user.data[name].id);
             delete req.user.data[name];
             req.user.persist().then(function() {
-                res.type('application/json').status(200).json({error: ''});
+                if(respond === true)
+                    res.type('application/json').status(200).json({error: ''});
             }, function(e) {
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                if(respond === true)
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
             });
         } else {
-            res.type('application/json').status(200).json({error: ''});
+            if(respond === true)
+                res.type('application/json').status(200).json({error: ''});
         }
     }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        if(respond === true)
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
 }
 
@@ -192,7 +199,14 @@ export function removeData(req, res) {
 export function regVault(req, res, respond?: boolean): Promise {
     var got = req.body;
     respond = respond !== false;
+    var storable = (typeof got.storable !== undefined && got.storable);
     return new Promise(function(resolve, reject) {
+        if(/whigi/i.test(got.shared_to_id)) {
+            if(respond === true)
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                reject();
+            return;
+        }
         req.user.fill().then(function() {
             if(!(got.real_name in req.user.data)) {
                 if(respond === true)
@@ -205,7 +219,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                     reject();
                 } else {
                     var v: Vault = new Vault({
-                        _id: got.storable !== false? 'storable' + utils.generateRandomString(120) : utils.generateRandomString(128),
+                        _id: storable? 'storable' + utils.generateRandomString(120) : utils.generateRandomString(128),
                         shared_to_id: got.shared_to_id,
                         data_name: got.data_name,
                         aes_crypted_shared_pub: got.aes_crypted_shared_pub,
@@ -242,7 +256,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                                 return;
                             }
                         }
-                        if(got.storable !== false) {
+                        if(storable) {
                             var pass = utils.generateRandomString(32);
                             v.storable = [utils.encryptRSA(pass, sharee.rsa_pub_key), hash.sha256(pass), (!!got.store_path)? got.store_path : got.data_name];
                         }
@@ -298,11 +312,17 @@ export function regVault(req, res, respond?: boolean): Promise {
  * @param {Response} res The response.
  */
 export function removeVault(req, res) {
-    function complete(v: Vault) {
+    function complete(v: Vault, s: User) {
         v.unlink();
         if(!!req.user.data[v.real_name])
             delete req.user.data[v.real_name].shared_to[v.shared_to_id];
         req.user.persist().then(function() {
+            //For storable vaults, remove incoming data as well
+            if(v.sharer_id != req.user._id && !!s) {
+                removeData({user: s, params: {
+                    data_name: encodeURIComponent(v.real_name)
+                }}, {}, false);
+            }
             res.type('application/json').status(200).json({error: ''});
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
@@ -327,12 +347,12 @@ export function removeVault(req, res) {
                     sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
                     delete sharee.shared_with_me[req.user._id][v.data_name];
                     sharee.persist().then(function() {
-                        complete(v);
+                        complete(v, sharee);
                     }, function(e) {
                         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                     });
                 } else {
-                    complete(v);
+                    complete(v, undefined);
                 }
             }, function(e) {
                 res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
