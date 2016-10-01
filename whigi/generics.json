@@ -107,8 +107,8 @@
             }
         ],
         "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode']);",
-        "instantiable": false,
-        "descr_key": "generics.first_name",
+        "instantiable": true,
+        "descr_key": "generics.address",
         "module": "generics.profile"
     }],
     "profile/corporate/name": [{
