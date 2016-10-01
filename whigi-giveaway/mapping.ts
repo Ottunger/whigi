@@ -131,7 +131,7 @@ export function challenge(req, res) {
  * @param {Response} res The response.
  */
 export function create(req, res) {
-    var response: string = req.query.response;
+    var response: string = req.query.r64;
     var id: string = req.query.user;
     var lid: string = encodeURIComponent(id.toLowerCase());
 
@@ -339,7 +339,7 @@ export function create(req, res) {
  * @param {Response} res The response.
  */
 export function remove(req, res) {
-    var response: string = req.query.response;
+    var response: string = req.query.r64;
     var id: string = req.query.user;
     var lid: string = encodeURIComponent(id.toLowerCase());
 
