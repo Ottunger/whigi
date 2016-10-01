@@ -28,6 +28,10 @@ Of course, you will need to do a little bit of setup:
 - Download the zip archive of wordpress, and extract its contents to /home/gregoire/wordpress.
 - Extract the languages found in /i18n to /home/gregoire/wordpress/wp-content/languages.
 - Download wp-force-https https://downloads.wordpress.org/plugin/wp-force-https.0.1.2.zip, and unzip it to /home/gregoire/wordpress/wp-content/plugins
+- Idem for https://downloads.wordpress.org/plugin/ckeditor-for-wordpress.zip
+- Idem for https://downloads.wordpress.org/plugin/seo-ultimate.7.6.5.8.zip
+- Idem for https://downloads.wordpress.org/plugin/wordpress-seo.3.6.zip
+- Idem for https://downloads.wordpress.org/plugin/wptouch.4.3.2.zip
 - Clone this repo, delete already installed plugins and and copy the plugins from clients/whigi-wp and clients/whigi-wp-s2 to /home/gregoire/wordpress/wp-content/plugins
 
 - Put the private key and certificate file from \*.envict.com to /home/gregoire folder.

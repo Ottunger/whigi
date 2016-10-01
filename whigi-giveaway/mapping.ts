@@ -274,7 +274,7 @@ export function create(req, res) {
                                                             chmod -R 770 /var/www/` + lid + `/ &&
                                                             chown -hR www-data:www-data /var/www/` + lid + `/ &&
                                                             wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `-whigimembers.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + id + ` --skip-email &&
-                                                            wp --allow-root --path=/var/www/` + lid + ` plugin activate whigi-wp wp-force-https
+                                                            wp --allow-root --path=/var/www/` + lid + ` plugin activate whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch
                                                         `, function(err, stdout, stderr) {
                                                             if(err) {
                                                                 console.log('Cannot complete OPs:\n' + stderr);
