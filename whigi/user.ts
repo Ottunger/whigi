@@ -446,6 +446,7 @@ export function recData(req, res, respond?: boolean): Promise {
                 id: newid,
                 length: Buffer.byteLength(got.encr_data, 'utf8'),
                 is_dated: got.is_dated,
+                version: got.version,
                 shared_to: {}
             };
             var frg: Datafragment = new Datafragment(newid, got.encr_data, got.version, db);

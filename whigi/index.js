@@ -43,6 +43,8 @@ var isHttps = !!process.argv[7]? process.argv[7] : 'true';
 function listOptions(path, res, next) {
     if(path.match(/\/api\/v[1-9]\/generics(_paths)?.json\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/schemas\/[a-zA-Z0-9%]+\/[0-9]+\/[0-9]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/peek\/.+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/user\/create\/?$/))
@@ -245,6 +247,9 @@ connect(function(e) {
     });
     app.get('/api/v:version/generics_paths.json', function(req, res) {
         res.type('application/json').status(200).json(require('./generics_paths.json'));
+    });
+    app.get('/api/v:version/schemas/:name/:v1/:v2', function(req, res) {
+        res.type('application/json').status(200).json(require('./schemas/' + req.params.name + '_' + req.params.v1 + '_' + req.params.v2 + '.json'));
     });
     //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pauth);
