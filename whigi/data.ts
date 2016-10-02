@@ -199,9 +199,9 @@ export function removeData(req, res, respond?: boolean) {
 export function regVault(req, res, respond?: boolean): Promise {
     var got = req.body;
     respond = respond !== false;
-    var storable = (typeof got.storable !== undefined && got.storable);
+    var storable = (typeof got.storable !== undefined && got.storable === true);
     return new Promise(function(resolve, reject) {
-        if(/whigi/i.test(got.shared_to_id)) {
+        if(storable && /whigi/i.test(got.shared_to_id)) {
             if(respond === true)
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 reject();
@@ -257,8 +257,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                             }
                         }
                         if(storable) {
-                            var pass = utils.generateRandomString(32);
-                            v.storable = [utils.encryptRSA(pass, sharee.rsa_pub_key), hash.sha256(pass), (!!got.store_path)? got.store_path : got.data_name];
+                            v.storable = [(!!got.store_path)? got.store_path : got.data_name];
                         }
                         v.persist().then(function() {
                             req.user.data[got.real_name].shared_to[got.shared_to_id] = v._id;
@@ -317,12 +316,6 @@ export function removeVault(req, res) {
         if(!!req.user.data[v.real_name])
             delete req.user.data[v.real_name].shared_to[v.shared_to_id];
         req.user.persist().then(function() {
-            //For storable vaults, remove incoming data as well
-            if(v.sharer_id != req.user._id && !!s) {
-                removeData({user: s, params: {
-                    data_name: encodeURIComponent(v.real_name)
-                }}, {}, false);
-            }
             res.type('application/json').status(200).json({error: ''});
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
@@ -335,7 +328,7 @@ export function removeVault(req, res) {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
                 return;
             }
-            if(v.sharer_id != req.user._id && !(v.shared_to_id == req.user._id && !!req.params.rem && !!v.storable && hash.sha256(req.params.rem) == v.storable[1])) {
+            if(v.sharer_id != req.user._id) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
@@ -348,6 +341,65 @@ export function removeVault(req, res) {
                     delete sharee.shared_with_me[req.user._id][v.data_name];
                     sharee.persist().then(function() {
                         complete(v, sharee);
+                    }, function(e) {
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    });
+                } else {
+                    complete(v, undefined);
+                }
+            }, function(e) {
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            });
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Forges the response to removing a vault.
+ * @function removeStorable
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function removeStorable(req, res) {
+    function complete(v: Vault, s: User) {
+        v.unlink();
+        if(!!s.data[v.real_name])
+            delete s.data[v.real_name].shared_to[v.shared_to_id];
+        s.persist().then(function() {
+            //For storable vaults, remove incoming data as well
+            removeData({user: s, params: {
+                data_name: encodeURIComponent(v.real_name)
+            }}, {}, false);
+            res.type('application/json').status(200).json({error: ''});
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }
+
+    req.user.fill().then(function() {
+        db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
+            if(!v) {
+                res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                return;
+            }
+            if(v.shared_to_id != req.user._id || !v.storable || v._id.indexOf('storable') != 0) {
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                return;
+            }
+            db.retrieveUser(v.sharer_id, true).then(function(sharer: User) {
+                if(!!sharer) {
+                    //Fix for self grants
+                    if(sharer._id == req.user._id)
+                        req.user = sharer;
+                    req.user.shared_with_me[sharer._id] = req.user.shared_with_me[sharer._id] || {};
+                    delete req.user.shared_with_me[sharer._id][v.data_name];
+                    req.user.persist().then(function() {
+                        complete(v, sharer);
                     }, function(e) {
                         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                     });

@@ -82,6 +82,9 @@ Creates a new vault for sharing with another user. Set expire_epoch to 0 or nega
 /api/v<any>/vault/<vault_id>: Delete, needs auth
 Removes a vault from the storage, revoking access grant.
 
+/api/v<any>/vault/forother/<vault_id>: Delete, needs auth
+Removes a storble vault from the storage, and the coming data.
+
 /api/v<any>/vault/<vault_id>?key=<key>: Get, needs auth
 Retrieves a piece of information that was shared to me.
 

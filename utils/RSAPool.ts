@@ -72,8 +72,8 @@ export class RSAPool {
             key.generateKeyPair(bits, low_spline? 3 : 65537);
             return key;
         } else {
-            var key = keys[where];
-            keys[where] = undefined;
+            var key = keys[where + 1];
+            keys[where + 1] = undefined;
             where = (where + 1) % max;
             return key;
         }
