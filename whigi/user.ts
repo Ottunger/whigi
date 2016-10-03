@@ -222,30 +222,42 @@ export function goCompany1(req, res) {
  * @param {Response} res The response.
  */
 export function prepGoCompany9(req, res) {
-    var uid = utils.generateRandomString(12) + '-' + (new Date).getTime();
-    if(size >= 200) {
-        oid = {};
-    }
-    size++;
-    oid[uid] = req.user._id;
-    var redir = utils.RUNNING_ADDR + '/api/v1/eid/callback?req=' + uid;
-    res.redirect('https://www.e-contract.be/eid-idp/protocol/openid/auth-ident?openid.ns=' + encodeURIComponent('http://specs.openid.net/auth/2.0')
-        + '&openid.claimed_id=' + encodeURIComponent('http://specs.openid.net/auth/2.0/identifier_select') + '&openid.identity=' + encodeURIComponent('http://specs.openid.net/auth/2.0/identifier_select')
-        + '&openid.return_to=' + encodeURIComponent(redir) + '&openid.realm=' + encodeURIComponent(redir) + '&openid.assoc_handle='
-        + encodeURIComponent('1474039082334-8') + '&openid.mode=checkid_setup&openid.ns.ax=' + encodeURIComponent('http://openid.net/srv/ax/1.0') + '&openid.ax.mode=fetch_request'
-        + '&openid.ax.type.attr1=' + encodeURIComponent('http://axschema.org/namePerson/first') + '&openid.ax.type.attr2=' + encodeURIComponent('http://openid.net/schema/birthDate/birthMonth')
-        + '&openid.ax.type.attr3=' + encodeURIComponent('http://axschema.org/eid/card-validity/end') + '&openid.ax.type.attr4=' + encodeURIComponent('http://axschema.org/person/gender')
-        + '&openid.ax.type.attr5=' + encodeURIComponent('http://axschema.org/contact/postalAddress/home') + '&openid.ax.type.attr6=' + encodeURIComponent('http://axschema.org/eid/cert/auth')
-        + '&openid.ax.type.attr7=' + encodeURIComponent('http://axschema.org/eid/photo') + '&openid.ax.type.attr8=' + encodeURIComponent('http://axschema.org/eid/card-validity/begin')
-        + '&openid.ax.type.attr9=' + encodeURIComponent('http://axschema.org/contact/city/home') + '&openid.ax.type.attr10=' + encodeURIComponent('http://axschema.org/contact/postalCode/home')
-        + '&openid.ax.type.attr11=' + encodeURIComponent('http://axschema.org/eid/age') + '&openid.ax.type.attr12=' + encodeURIComponent('http://axschema.org/birthDate')
-        + '&openid.ax.type.attr13=' + encodeURIComponent('http://openid.net/schema/birthDate/birthYear') + '&openid.ax.type.attr14=' + encodeURIComponent('http://axschema.org/eid/pob')
-        + '&openid.ax.type.attr15=' + encodeURIComponent('http://axschema.org/eid/card-number') + '&openid.ax.type.attr16=' + encodeURIComponent('http://axschema.org/eid/chip-number')
-        + '&openid.ax.type.attr17=' + encodeURIComponent('http://axschema.org/eid/nationality') + '&openid.ax.type.attr18=' + encodeURIComponent('http://axschema.org/eid/rrn')
-        + '&openid.ax.type.attr19=' + encodeURIComponent('http://openid.net/schema/birthDate/birthday') + '&openid.ax.type.attr20=' + encodeURIComponent('http://axschema.org/namePerson/last')
-        + '&openid.ax.type.attr21=' + encodeURIComponent('http://axschema.org/namePerson') + '&openid.ax.type.attr22=' + encodeURIComponent('http://openid.net/schema/namePerson/middle')
-        + '&openid.ax.type.attr23=' + encodeURIComponent('http://axschema.org/eid/documentType') + '&openid.ax.type.attr24=' + encodeURIComponent('http://axschema.org/eid/nobleCondition')
-        + '&openid.ax.required=attr1,attr2,attr3,attr4,attr5,attr6,attr7,attr8,attr9,attr10,attr11,attr12,attr13,attr14,attr15,attr16,attr17,attr18,attr19,attr20,attr21,attr22,attr23,attr24');
+    db.retrieveUser(req.query.username).then(function(user) {
+        if(!!user) {
+            if(hash.sha256(req.query.hpwd + user.salt) == user.password || hash.sha256(req.query.hpwd) == user.sha_master) {
+                var uid = utils.generateRandomString(12) + '-' + (new Date).getTime();
+                if(size >= 200) {
+                    oid = {};
+                }
+                size++;
+                oid[uid] = req.query.username;
+                var redir = utils.RUNNING_ADDR + '/api/v1/eid/callback?req=' + uid;
+                res.redirect('https://www.e-contract.be/eid-idp/protocol/openid/auth-ident?openid.ns=' + encodeURIComponent('http://specs.openid.net/auth/2.0')
+                    + '&openid.claimed_id=' + encodeURIComponent('http://specs.openid.net/auth/2.0/identifier_select') + '&openid.identity=' + encodeURIComponent('http://specs.openid.net/auth/2.0/identifier_select')
+                    + '&openid.return_to=' + encodeURIComponent(redir) + '&openid.realm=' + encodeURIComponent(redir) + '&openid.assoc_handle='
+                    + encodeURIComponent('1474039082334-8') + '&openid.mode=checkid_setup&openid.ns.ax=' + encodeURIComponent('http://openid.net/srv/ax/1.0') + '&openid.ax.mode=fetch_request'
+                    + '&openid.ax.type.attr1=' + encodeURIComponent('http://axschema.org/namePerson/first') + '&openid.ax.type.attr2=' + encodeURIComponent('http://openid.net/schema/birthDate/birthMonth')
+                    + '&openid.ax.type.attr3=' + encodeURIComponent('http://axschema.org/eid/card-validity/end') + '&openid.ax.type.attr4=' + encodeURIComponent('http://axschema.org/person/gender')
+                    + '&openid.ax.type.attr5=' + encodeURIComponent('http://axschema.org/contact/postalAddress/home') + '&openid.ax.type.attr6=' + encodeURIComponent('http://axschema.org/eid/cert/auth')
+                    + '&openid.ax.type.attr7=' + encodeURIComponent('http://axschema.org/eid/photo') + '&openid.ax.type.attr8=' + encodeURIComponent('http://axschema.org/eid/card-validity/begin')
+                    + '&openid.ax.type.attr9=' + encodeURIComponent('http://axschema.org/contact/city/home') + '&openid.ax.type.attr10=' + encodeURIComponent('http://axschema.org/contact/postalCode/home')
+                    + '&openid.ax.type.attr11=' + encodeURIComponent('http://axschema.org/eid/age') + '&openid.ax.type.attr12=' + encodeURIComponent('http://axschema.org/birthDate')
+                    + '&openid.ax.type.attr13=' + encodeURIComponent('http://openid.net/schema/birthDate/birthYear') + '&openid.ax.type.attr14=' + encodeURIComponent('http://axschema.org/eid/pob')
+                    + '&openid.ax.type.attr15=' + encodeURIComponent('http://axschema.org/eid/card-number') + '&openid.ax.type.attr16=' + encodeURIComponent('http://axschema.org/eid/chip-number')
+                    + '&openid.ax.type.attr17=' + encodeURIComponent('http://axschema.org/eid/nationality') + '&openid.ax.type.attr18=' + encodeURIComponent('http://axschema.org/eid/rrn')
+                    + '&openid.ax.type.attr19=' + encodeURIComponent('http://openid.net/schema/birthDate/birthday') + '&openid.ax.type.attr20=' + encodeURIComponent('http://axschema.org/namePerson/last')
+                    + '&openid.ax.type.attr21=' + encodeURIComponent('http://axschema.org/namePerson') + '&openid.ax.type.attr22=' + encodeURIComponent('http://openid.net/schema/namePerson/middle')
+                    + '&openid.ax.type.attr23=' + encodeURIComponent('http://axschema.org/eid/documentType') + '&openid.ax.type.attr24=' + encodeURIComponent('http://axschema.org/eid/nobleCondition')
+                    + '&openid.ax.required=attr1,attr2,attr3,attr4,attr5,attr6,attr7,attr8,attr9,attr10,attr11,attr12,attr13,attr14,attr15,attr16,attr17,attr18,attr19,attr20,attr21,attr22,attr23,attr24');
+            } else {
+                res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
+            }
+        } else {
+            res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
+        }
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
 }
 
 /**

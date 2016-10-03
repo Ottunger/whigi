@@ -266,7 +266,6 @@ connect(function(e) {
     app.post('/api/v:version/profile/update', pauth);
     app.post('/api/v:version/profile/token/new', pauth);
     app.delete('/api/v:version/profile/token', pauth);
-    app.get('/api/v:version/eid', pauth);
     app.get('/api/v:version/eid/bce/:bce', pauth);
     //-----
     app.get('/api/v:version/data/:id', pauth);
@@ -286,7 +285,6 @@ connect(function(e) {
     app.post('/api/v:version/profile/update', checks.checkOAuth(true));
     app.post('/api/v:version/profile/token/new', checks.checkOAuth(true));
     app.delete('/api/v:version/profile/token', checks.checkOAuth(true));
-    app.get('/api/v:version/eid', checks.checkOAuth(true));
     app.get('/api/v:version/eid/bce/:bce', checks.checkOAuth(true));
     //-----
     app.get('/api/v:version/data/:id', checks.checkOAuth(false, 0));

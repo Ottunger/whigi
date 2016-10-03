@@ -55,7 +55,7 @@ Creates an OAuth token.
 /api/v<any>/oauth/<id>: Delete, needs auth
 Removes an OAuth token specified by id.
 
-/api/v<any>/eid: Get, needs auth
+/api/v<any>/eid?username=<username>&hpwd=<hpwd>: Get
 Reads data from eID.
 
 /api/v<any>/eid/callback: Post
