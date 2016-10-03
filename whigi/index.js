@@ -216,7 +216,7 @@ function pauth(req, res, next) {
         if(err) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         } else if(!user) {
-            res.type('application/json').status(407).json({error: utils.i18n('client.auth', req)});
+            res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
         } else {
             req.user = user;
             next();
