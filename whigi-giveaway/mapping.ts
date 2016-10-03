@@ -281,7 +281,7 @@ export function create(req, res) {
                                                                 console.log('Cannot complete OPs:\n' + stderr);
                                                                 res.redirect('/error.html');
                                                             } else {
-                                                                res.redirect('/success.html');
+                                                                res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '-whigimembers.envict.com'));
                                                                 exec('service nginx force-reload');
                                                                 setTimeout(function() {
                                                                     exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
@@ -290,12 +290,12 @@ export function create(req, res) {
                                                                                 exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp-s2', function() {
                                                                                     setTimeout(function() {
                                                                                         exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp-s2');
-                                                                                    }, 5000);
+                                                                                    }, 300);
                                                                                 });
                                                                             });
-                                                                        }, 5000);
+                                                                        }, 300);
                                                                     });
-                                                                }, 5000);
+                                                                }, 300);
                                                             }
                                                         });
                                                     }
@@ -310,7 +310,7 @@ export function create(req, res) {
                             });
                         } else {
                             //Account already existed
-                            res.redirect('/success.html');
+                            res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '-whigimembers.envict.com'));
                         }
                     });
                 } else {

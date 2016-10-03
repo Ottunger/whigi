@@ -253,6 +253,9 @@ connect(function(e) {
     app.get('/api/v:version/schemas/:name/:v1/:v2', function(req, res) {
         res.type('application/json').status(200).json(require('./schemas/' + req.params.name + '_' + req.params.v1 + '_' + req.params.v2 + '.json'));
     });
+    app.get('/api/v:version/selects/:key', function(req, res) {
+        res.type('application/json').status(200).json(require('./selects/' + decodeURIComponent(req.params.key) + '.json'));
+    });
     //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pauth);
     app.get('/api/v:version/profile', pauth);
@@ -311,7 +314,6 @@ connect(function(e) {
     //-----
     app.post('/api/v:version/vault/new', checks.checkPuzzle);
     //API ROUTES
-    app.get('/api/v:version/selects/:key', data.selects);
     app.get('/api/v:version/peek/:id', user.peekUser);
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);

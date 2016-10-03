@@ -47,8 +47,3 @@ db.users.update({_id: 'whigi-gwp'}, {
         name: 'Whigi Giveaway WP User'
     }
 }, {upsert: true})
-
-db.selects.update({_id: 'countries'}, {
-    _id: 'countries',
-    values: ['BE', 'FR']
-}, {upsert: true})

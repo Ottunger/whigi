@@ -1,7 +1,7 @@
 {
     "profile/email": [{
         "is_dated": false,
-        "country": "",
+        "country": [],
         "long_descr_key": "generics.email",
         "help_url": "",
         "icon": "",
@@ -13,9 +13,23 @@
         "descr_key": "generics.email",
         "module": "generics.profile"
     }],
+    "profile/tel": [{
+        "is_dated": false,
+        "country": [],
+        "long_descr_key": "generics.tel",
+        "help_url": "",
+        "icon": "",
+        "mode": "text",
+        "enum": "",
+        "json_keys": [],
+        "validate": "return /\\+(9[976]\\d|8[987530]\\d|6[987]\\d|5[90]\\d|42\\d|3[875]\\d|2[98654321]\\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\\d{1,14}$/.test(test);",
+        "instantiable": true,
+        "descr_key": "generics.tel",
+        "module": "generics.profile"
+    }],
     "profile/last_name": [{
         "is_dated": false,
-        "country": "",
+        "country": [],
         "long_descr_key": "",
         "help_url": "",
         "icon": "",
@@ -29,7 +43,7 @@
     }],
     "profile/first_name": [{
         "is_dated": false,
-        "country": "",
+        "country": [],
         "long_descr_key": "",
         "help_url": "",
         "icon": "",
@@ -43,7 +57,7 @@
     }],
     "profile/address": [{
         "is_dated": false,
-        "country": "",
+        "country": [],
         "long_descr_key": "",
         "help_url": "",
         "icon": "",
@@ -111,9 +125,11 @@
         "descr_key": "generics.address",
         "module": "generics.profile"
     }],
+
+
     "profile/corporate/name": [{
         "is_dated": true,
-        "country": "",
+        "country": [],
         "long_descr_key": "",
         "help_url": "",
         "icon": "",
@@ -123,6 +139,92 @@
         "validate": "return true;",
         "instantiable": true,
         "descr_key": "generics.corporate_name",
+        "module": "generics.corporate"
+    }],
+    "profile/corporate/country": [{
+        "is_dated": false,
+        "country": [],
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "",
+        "mode": "select",
+        "enum": "countries",
+        "json_keys": [],
+        "validate": "return true;",
+        "instantiable": true,
+        "descr_key": "generics.country",
+        "module": "generics.corporate"
+    }],
+    "profile/corporate/type/franco": [{
+        "is_dated": false,
+        "country": ["BE", "FR"],
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "",
+        "mode": "select",
+        "enum": "corpos",
+        "json_keys": [],
+        "validate": "return true;",
+        "instantiable": true,
+        "descr_key": "generics.country",
+        "module": "generics.corporate"
+    }],
+    "profile/corporate/address": [{
+        "is_dated": false,
+        "country": [],
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "",
+        "mode": "json_keys",
+        "enum": "",
+        "json_keys": [
+            {
+                "descr_key": "generics.street",
+                "long_descr_key": "generics.street",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.num",
+                "long_descr_key": "generics.num",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.letterbox",
+                "long_descr_key": "generics.letterbox",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.more",
+                "long_descr_key": "generics.more",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.postcode",
+                "long_descr_key": "generics.postcode",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.city",
+                "long_descr_key": "generics.city",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }, {
+                "descr_key": "generics.country",
+                "long_descr_key": "generics.country",
+                "help_url": "",
+                "mode": "string",
+                "enum": ""
+            }
+        ],
+        "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode']);",
+        "instantiable": true,
+        "descr_key": "generics.address",
         "module": "generics.corporate"
     }]
 }

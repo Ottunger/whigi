@@ -36,25 +36,6 @@ export function managerInit(dbg: Datasource) {
 }
 
 /**
- * Forges the response to retrieve select possibilities by key.
- * @function selects
- * @public
- * @param {Request} req The request.
- * @param {Response} res The response.
- */
-export function selects(req, res) {
-    db.getDatabase().collection('selects').findOne(req.params.key).then(function(data) {
-        if(!!data) {
-            res.type('application/json').status(200).json(data.values);
-        } else {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
-        }
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
-}
-
-/**
  * Forges the response to retrieve a new info.
  * @function getData
  * @public
@@ -328,7 +309,7 @@ export function removeVault(req, res) {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
                 return;
             }
-            if(v.sharer_id != req.user._id) {
+            if(v.sharer_id != req.user._id || /whigi/i.test(v.shared_to_id)) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
