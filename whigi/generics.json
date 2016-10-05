@@ -4,7 +4,7 @@
         "country": [],
         "long_descr_key": "generics.email",
         "help_url": "",
-        "icon": "",
+        "icon": "fa fa-at",
         "mode": "text",
         "enum": "",
         "json_keys": [],
@@ -166,7 +166,7 @@
         "json_keys": [],
         "validate": "return true;",
         "instantiable": true,
-        "descr_key": "generics.country",
+        "descr_key": "generics.corporate_type",
         "module": "generics.corporate"
     }],
     "profile/corporate/address": [{
