@@ -9,6 +9,7 @@ declare var require: any
 var querystring = require('querystring');
 var https = require('https');
 var RSA = require('node-rsa');
+var hash = require('js-sha256');
 var constants = require('constants');
 var strings = {
     en: require('./i18n/en.json'),
@@ -247,7 +248,12 @@ export function decryptRSA(data: string, rsa_key: string): number[] {
         }
     );
     var arr = dec.decrypt(data);
-    return pkcs1unpad2(arr, 1024);
+    var tmp = pkcs1unpad2(arr, 1024);
+    var ret = tmp.slice(64);
+    if(hash.sha256(arr2str(ret)) != arr2str(tmp.slice(0, 64))) {
+        throw 'Cannot verify hash';
+    }
+    return ret;
 }
 
 /**
@@ -267,6 +273,8 @@ export function encryptRSA(data: number[], rsa_key: string): string {
             }
         }
     );
+    var part = arr2str(data);
+    data = str2arr(hash.sha256(part) + part);
     var arr = pkcs1pad2(data, 1024);
     return dec.encrypt(new Buffer(arr), 'base64');
 }

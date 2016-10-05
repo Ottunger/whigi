@@ -11,10 +11,8 @@
   "client.captcha": "Erreur client: Pas de robot ici!",
   "client.burst": "Erreur client: Limite de flux atteinte.",
   "internal.db": "Erreur interne: Pas de connexion à la base de données",
-  "internal.noStats": "Erreur interne: Pas de statistiques",
-  "internal.noTickets": "Erreur interne: Pas de tickets",
   "internal.overload": "Erreur interne: Réessayez plus tard",
-  "internal.noPath": "Erreur interne: Impossible de trouver le chemin de ce voyage",
+  "internal.keys": "Erreur interne: Clés corrompues",
   "external.down": "Erreur globale: Service extérieur offline",
 
   "mail.subject.newData": "Nouvelle donnée partagée sur Whigi!",

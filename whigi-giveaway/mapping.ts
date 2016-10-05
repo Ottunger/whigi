@@ -99,9 +99,13 @@ function decryptVault(profile: any, user: string, name: string): Promise {
     return new Promise(function(resolve, reject) {
         if(!!profile.shared_with_me[user] && !!profile.shared_with_me[user][name]) {
             whigi('GET', '/api/v1/vault/' + profile.shared_with_me[user][name]).then(function(vault) {
-                var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, rsa_key);
-                vault.decr_data = decryptAES(vault.data_crypted_aes, aesKey);
-                resolve(vault);
+                try {
+                    var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, rsa_key);
+                    vault.decr_data = decryptAES(vault.data_crypted_aes, aesKey);
+                    resolve(vault);
+                } catch(e) {
+                    reject(e);
+                }
             }, function(e) {
                 reject(e);
             });

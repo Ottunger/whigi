@@ -91,44 +91,20 @@ function decryptAES(data: string, key: number[]): string {
  */
 export function requestMapping(req, res) {
     function complete(recup, mk, pk, data) {
-        if(recup) {
-            whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/recup_id']).then(function(vault) {
-                var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
-                var recup_id = decryptAES(vault.data_crypted_aes, aesKey);
-                whigi('GET', '/vault/' + data.shared_with_me[recup_id]['profile/email/restore']).then(function(vault) {
+        try {
+            if(recup) {
+                whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/recup_id']).then(function(vault) {
                     var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
-                    var recup_mail = decryptAES(vault.data_crypted_aes, aesKey);
-                    mailer.sendMail({
-                        from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                        to: '<' + recup_mail + '>',
-                        subject: utils.i18n('mail.subject.otherAccount', req),
-                        html: utils.i18n('mail.body.otherAccount', req) + '<br /> \
-                            <a href="' + utils.RUNNING_ADDR + '/password-help/' + encodeURIComponent(req.params.id) + '">' +
-                            utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
-                    }, function(e, i) {});
-                }, function(e) {
-                    res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
-                });
-            }, function(e) {
-                res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
-            });
-        } else {
-            whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email/restore']).then(function(vault) {
-                var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
-                var email = decryptAES(vault.data_crypted_aes, aesKey);
-                whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine1']).then(function(vault) {
-                    var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
-                    var mine1 = decryptAES(vault.data_crypted_aes, aesKey);
-                    whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine2']).then(function(vault) {
+                    var recup_id = decryptAES(vault.data_crypted_aes, aesKey);
+                    whigi('GET', '/vault/' + data.shared_with_me[recup_id]['profile/email/restore']).then(function(vault) {
                         var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
-                        var mine2 = decryptAES(vault.data_crypted_aes, aesKey);
+                        var recup_mail = decryptAES(vault.data_crypted_aes, aesKey);
                         mailer.sendMail({
                             from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                            to: '<' + email + '>',
-                            subject: utils.i18n('mail.subject.account', req),
-                            html: utils.i18n('mail.body.reset', req) + '<br /> \
-                                <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + encodeURIComponent(req.params.id) +
-                                '/' + encodeURIComponent(mine1 + mine2) + '">' +
+                            to: '<' + recup_mail + '>',
+                            subject: utils.i18n('mail.subject.otherAccount', req),
+                            html: utils.i18n('mail.body.otherAccount', req) + '<br /> \
+                                <a href="' + utils.RUNNING_ADDR + '/password-help/' + encodeURIComponent(req.params.id) + '">' +
                                 utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
                         }, function(e, i) {});
                     }, function(e) {
@@ -137,9 +113,37 @@ export function requestMapping(req, res) {
                 }, function(e) {
                     res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
                 });
-            }, function(e) {
-                res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
-            });
+            } else {
+                whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email/restore']).then(function(vault) {
+                    var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
+                    var email = decryptAES(vault.data_crypted_aes, aesKey);
+                    whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine1']).then(function(vault) {
+                        var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
+                        var mine1 = decryptAES(vault.data_crypted_aes, aesKey);
+                        whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine2']).then(function(vault) {
+                            var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
+                            var mine2 = decryptAES(vault.data_crypted_aes, aesKey);
+                            mailer.sendMail({
+                                from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                                to: '<' + email + '>',
+                                subject: utils.i18n('mail.subject.account', req),
+                                html: utils.i18n('mail.body.reset', req) + '<br /> \
+                                    <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + encodeURIComponent(req.params.id) +
+                                    '/' + encodeURIComponent(mine1 + mine2) + '">' +
+                                    utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
+                            }, function(e, i) {});
+                        }, function(e) {
+                            res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+                        });
+                    }, function(e) {
+                        res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+                    });
+                }, function(e) {
+                    res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+                });
+            }
+        } catch(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.keys', req)});
         }
     }
 
@@ -179,27 +183,31 @@ export function requestMapping(req, res) {
  */
 export function mixMapping(req, res) {
     function complete(mk, pk, data) {
-        whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email/restore']).then(function(vault) {
-            var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
-            var email = decryptAES(vault.data_crypted_aes, aesKey);
-            whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine1']).then(function(vault) {
+        try {
+            whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['profile/email/restore']).then(function(vault) {
                 var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
-                var mine1 = decryptAES(vault.data_crypted_aes, aesKey);
-                mailer.sendMail({
-                    from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                    to: '<' + email + '>',
-                    subject: utils.i18n('mail.subject.account', req),
-                    html: utils.i18n('mail.body.reset', req) + '<br /> \
-                        <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + encodeURIComponent(req.params.id) +
-                        '/' + encodeURIComponent(mine1 + decodeURIComponent(req.params.half)) + '">' +
-                        utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
-                }, function(e, i) {});
+                var email = decryptAES(vault.data_crypted_aes, aesKey);
+                whigi('GET', '/vault/' + data.shared_with_me[req.params.id]['keys/pwd/mine1']).then(function(vault) {
+                    var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
+                    var mine1 = decryptAES(vault.data_crypted_aes, aesKey);
+                    mailer.sendMail({
+                        from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                        to: '<' + email + '>',
+                        subject: utils.i18n('mail.subject.account', req),
+                        html: utils.i18n('mail.body.reset', req) + '<br /> \
+                            <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + encodeURIComponent(req.params.id) +
+                            '/' + encodeURIComponent(mine1 + decodeURIComponent(req.params.half)) + '">' +
+                            utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
+                    }, function(e, i) {});
+                }, function(e) {
+                    res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+                });
             }, function(e) {
                 res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
             });
-        }, function(e) {
-            res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
-        });
+        } catch(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.keys', req)});
+        }
     }
 
     whigi('GET', '/api/v1/profile').then(function(profile) {

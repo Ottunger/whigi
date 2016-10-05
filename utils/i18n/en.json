@@ -11,10 +11,8 @@
   "client.captcha": "Client error: No robot here!",
   "client.burst": "Client error: Rate limiting exceeded.",
   "internal.db": "Internal error: No database connection",
-  "internal.noStats": "Internal error: No retrievable stats",
-  "internal.noTickets": "Internal error: No retrievable tickets",
   "internal.overload": "Internal error: Retry later",
-  "internal.noPath": "Internal error: Cannot find path associated to journey",
+  "internal.keys": "Internal error: Keys are corrupted",
   "external.down": "Global error: External service down",
 
   "mail.subject.newData": "New data shared on Whigi!",
