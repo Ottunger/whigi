@@ -11,7 +11,8 @@
         "validate": "return /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/.test(test);",
         "instantiable": true,
         "descr_key": "generics.email",
-        "module": "generics.profile"
+        "module": "generics.profile",
+        "group": "generics.perso1"
     }],
     "profile/tel": [{
         "is_dated": false,
@@ -25,7 +26,8 @@
         "validate": "return /\\+(9[976]\\d|8[987530]\\d|6[987]\\d|5[90]\\d|42\\d|3[875]\\d|2[98654321]\\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\\d{1,14}$/.test(test);",
         "instantiable": true,
         "descr_key": "generics.tel",
-        "module": "generics.profile"
+        "module": "generics.profile",
+        "group": "generics.perso1"
     }],
     "profile/last_name": [{
         "is_dated": false,
@@ -39,7 +41,8 @@
         "validate": "return !!test && test.length > 0;",
         "instantiable": false,
         "descr_key": "generics.last_name",
-        "module": "generics.profile"
+        "module": "generics.profile",
+        "group": "generics.perso1"
     }],
     "profile/first_name": [{
         "is_dated": false,
@@ -53,7 +56,8 @@
         "validate": "return !!test && test.length > 0;",
         "instantiable": false,
         "descr_key": "generics.first_name",
-        "module": "generics.profile"
+        "module": "generics.profile",
+        "group": "generics.perso1"
     }],
     "profile/address": [{
         "is_dated": false,
@@ -123,7 +127,8 @@
         "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode']);",
         "instantiable": true,
         "descr_key": "generics.address",
-        "module": "generics.profile"
+        "module": "generics.profile",
+        "group": "generics.perso2"
     }],
 
 
@@ -139,7 +144,8 @@
         "validate": "return true;",
         "instantiable": true,
         "descr_key": "generics.corporate_name",
-        "module": "generics.corporate"
+        "module": "generics.corporate",
+        "group": "generics.corp1"
     }],
     "profile/corporate/country": [{
         "is_dated": false,
@@ -153,7 +159,8 @@
         "validate": "return true;",
         "instantiable": true,
         "descr_key": "generics.country",
-        "module": "generics.corporate"
+        "module": "generics.corporate",
+        "group": "generics.corp1"
     }],
     "profile/corporate/type/franco": [{
         "is_dated": false,
@@ -167,7 +174,8 @@
         "validate": "return true;",
         "instantiable": true,
         "descr_key": "generics.corporate_type",
-        "module": "generics.corporate"
+        "module": "generics.corporate",
+        "group": "generics.corp2"
     }],
     "profile/corporate/address": [{
         "is_dated": false,
@@ -225,6 +233,7 @@
         "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode']);",
         "instantiable": true,
         "descr_key": "generics.address",
-        "module": "generics.corporate"
+        "module": "generics.corporate",
+        "group": "generics.corp1"
     }]
 }

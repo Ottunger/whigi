@@ -1,23 +1,17 @@
 {
     "": {
-        "country": "",
         "descr_key": "/",
         "long_descr_key": "/",
-        "help_url": "",
-        "icon": "form-control"
+        "help_url": ""
     },
     "profile/": {
-        "country": "",
         "descr_key": "profile/",
         "long_descr_key": "profile/",
-        "help_url": "",
-        "icon": "form-control"
+        "help_url": ""
     },
     "profile/corporate/": {
-        "country": "",
         "descr_key": "profile/corporate/",
         "long_descr_key": "profile/corporate/",
-        "help_url": "",
-        "icon": "form-control"
+        "help_url": ""
     }
 }
