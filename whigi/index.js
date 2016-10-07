@@ -63,6 +63,8 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/update\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/uname\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/token\/new\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/token\/?$/))
@@ -264,6 +266,7 @@ connect(function(e) {
     app.get('/api/v:version/profile/data', pauth);
     app.post('/api/v:version/profile/data/new', pauth);
     app.post('/api/v:version/profile/update', pauth);
+    app.post('/api/v:version/profile/uname', pauth);
     app.post('/api/v:version/profile/token/new', pauth);
     app.delete('/api/v:version/profile/token', pauth);
     app.get('/api/v:version/eid/bce/:bce', pauth);
@@ -283,6 +286,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/info', checks.checkOAuth(true));
     app.post('/api/v:version/profile/data/new', checks.checkOAuth(false, 1));
     app.post('/api/v:version/profile/update', checks.checkOAuth(true));
+    app.post('/api/v:version/profile/uname', checks.checkOAuth(true));
     app.post('/api/v:version/profile/token/new', checks.checkOAuth(true));
     app.delete('/api/v:version/profile/token', checks.checkOAuth(true));
     app.get('/api/v:version/eid/bce/:bce', checks.checkOAuth(true));
@@ -300,6 +304,7 @@ connect(function(e) {
     app.post('/api/v:version/close/:id', checks.checkBody(['new_keys']));
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated', 'version']));
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
+    app.post('/api/v:version/profile/uname', checks.checkBody(['username']));
     app.post('/api/v:version/user/create', checks.checkBody(['username', 'password']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix', 'token']));
@@ -308,6 +313,7 @@ connect(function(e) {
     //API LONG LIVED COMMANDS
     app.post('/api/v:version/close/:id', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/new', checks.checkPuzzle);
+    app.post('/api/v:version/profile/uname', checks.checkPuzzle);
     app.post('/api/v:version/profile/token/new', checks.checkPuzzle);
     //-----
     app.post('/api/v:version/vault/new', checks.checkPuzzle);
@@ -320,6 +326,7 @@ connect(function(e) {
     app.get('/api/v:version/profile/data', user.listData);
     app.post('/api/v:version/profile/data/new', user.recData);
     app.post('/api/v:version/profile/update', user.updateUser);
+    app.post('/api/v:version/profile/uname', user.changeUsername);
     app.post('/api/v:version/user/create', user.regUser);
     app.post('/api/v:version/profile/token/new', user.newToken);
     app.delete('/api/v:version/profile/token', user.removeToken);

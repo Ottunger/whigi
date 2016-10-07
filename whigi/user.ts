@@ -504,6 +504,94 @@ export function updateUser(req, res) {
 }
 
 /**
+ * Forges the response to change username.
+ * @function changeUsername
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function changeUsername(req, res) {
+    var got = req.body, index = 0, array: {vid: string}[] = [];
+
+    function end() {
+        if(index < array.length) {
+            var work = array[index];
+            index++;
+            db.retrieveVault(work.vid).then(function(v: Vault) {
+                v.shared_to_id = got.username.toLowerCase();
+                v.persist().then(function() {
+                    db.retrieveUser(v.sharer_id, true).then(function(u: User) {
+                        u.data[v.real_name] = u.data[v.real_name] || {shared_to: {}};
+                        delete u.data[v.real_name].shared_to[req.user._id];
+                        u.data[v.real_name].shared_to[req.user._id] = v._id;
+                        u.persist().then(function() {
+                            end();
+                        }, function(e) {
+                            end();
+                        });
+                    }, function(e) {
+                        end();
+                    });
+                }, function(e) {
+                    end();
+                });
+            }, function(e) {
+                end();
+            });
+        } else {
+            var prev = req.user._id;
+            req.user._id = got.username.toLowerCase();
+            req.user.persist().then(function() {
+                req.user._id = prev;
+                req.user.unlink();
+                //Respond
+                res.type('application/json').status(200).json({error: ''});
+                //Remove auth tokens.
+                removeToken({
+                    user: req.user
+                }, {}, false);
+                //Change OAuth tokens
+                for(var i = 0; i < req.user.oauth.length; i++) {
+                    db.retrieveOauth(req.user.oauth[i].id).then(function(o: Oauth) {
+                        if(!!o) {
+                            o.bearer_id = got.username.toLowerCase();
+                            o.persist();
+                        }
+                    });
+                }
+            }, function(e) {
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            });
+        }
+    }
+    function complete() {
+        req.user.fill().then(function() {
+            var keys = Object.getOwnPropertyNames(req.user.shared_with_me);
+            for(var i = 0; i < keys.length; i++) {
+                var kk = Object.getOwnPropertyNames(req.user.shared_with_me[keys[i]]);
+                for(var j = 0; j < kk.length; j++) {
+                    array.push({
+                        vid: req.user.shared_with_me[keys[i]][kk[j]]
+                    });
+                }
+            }
+            end();
+        }, function() {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }
+
+    db.retrieveUser(got.username.toLowerCase()).then(function(u) {
+        if(u == undefined)
+            complete();
+        else
+            res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+    }, function(e) {
+        complete();
+    });
+}
+
+/**
  * Forges the response to the registration of a user.
  * @function regUser
  * @public
@@ -670,26 +758,32 @@ export function newToken(req, res) {
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.
+ * @param {Boolean} respond Whether to respond.
  */
-export function removeToken(req, res) {
+export function removeToken(req, res, respond?: boolean) {
     var token = (!!req.query && req.query.token) || undefined;
+    respond = respond !== false;
     if(!!token) {
         db.retrieveToken({_id: token}).then(function(t: Token) {
             if(!!t) {
                 if(t.bearer_id != req.user._id) {
-                    res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    if(respond === true)
+                        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                     return;
                 }
                 t.unlink().then(function() {
                     removeToken(req, res);
                 }, function(e) {
-                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    if(respond === true)
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                 });
             } else {
-                res.type('application/json').status(200).json({error: ''});
+                if(respond === true)
+                    res.type('application/json').status(200).json({error: ''});
             }
         }, function(e) {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            if(respond === true)
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
     } else {
         db.retrieveToken({bearer_id: req.user._id}).then(function(t: Token) {
@@ -697,13 +791,16 @@ export function removeToken(req, res) {
                 t.unlink().then(function() {
                     removeToken(req, res);
                 }, function(e) {
-                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    if(respond === true)
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                 });
             } else {
-                res.type('application/json').status(200).json({error: ''});
+                if(respond === true)
+                    res.type('application/json').status(200).json({error: ''});
             }
         }, function(e) {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            if(respond === true)
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
     }
 }

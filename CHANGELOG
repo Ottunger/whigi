@@ -37,6 +37,10 @@ Saves a new data fragment. The API sends back the newly generated id for that da
 Updates password. When updated password, can send the password hashed but needs to send the new ecrypted master key as well.
 {"new_password": "string", "encr_master_key": "string", "sha_master": "string"}
 
+/api/v<any>/profile/uname: Post, needs auth, needs puzzle
+Updates username.
+{"username": "string"}
+
 /api/v<any>/user/create: Post, needs captcha
 Creates a new entry if none matches. The password is this only time sent in clear.
 {"username": "string", "password": "string", "more"?: "array"}
