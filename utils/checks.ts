@@ -37,7 +37,7 @@ export function checkPuzzle(req, res, next) {
         res.type('application/json').status(412).json({error: utils.i18n('client.puzzle', req), puzzle: req.user.puzzle});
     } else {
         var complete = hash.sha256(req.user.puzzle + req.query.puzzle);
-        if(complete.charAt(0) == '0' && complete.charAt(1) == '0' && complete.charAt(2) == '0' && complete.charAt(3) == '0') {
+        if(complete.charAt(0) == '0' && complete.charAt(1) == '0' && complete.charAt(2) == '0') {
             req.user.puzzle = utils.generateRandomString(16);
             req.user.persist();
             rl.removeTokens(Buffer.byteLength(req.body, 'utf8'), function(e, r) {

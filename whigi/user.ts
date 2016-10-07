@@ -53,7 +53,7 @@ export function managerInit(dbg: Datasource) {
  * @param {Response} res The response.
  */
 export function peekUser(req, res) {
-    var dec = decodeURIComponent(req.params.id);
+    var dec = decodeURIComponent(req.params.id).toLowerCase();
     db.retrieveUser(dec).then(function(user: User) {
         if(!!user) {
             res.type('application/json').status(200).json({error: ''});
@@ -73,7 +73,7 @@ export function peekUser(req, res) {
  * @param {Response} res The response.
  */
 export function getUser(req, res) {
-    var dec = decodeURIComponent(req.params.id);
+    var dec = decodeURIComponent(req.params.id).toLowerCase();
     db.retrieveUser(dec).then(function(user: User) {
         if(!!user) {
             res.type('application/json').status(200).json(user.sanitarize());
@@ -105,7 +105,7 @@ export function getProfile(req, res) {
  */
 export function closeTo(req, res) {
     var new_keys: number[][] = req.body.new_keys;
-    var dec = decodeURIComponent(req.params.id);
+    var dec = decodeURIComponent(req.params.id).toLowerCase();
     var changes = {};
 
     function end(nu: User) {
@@ -222,7 +222,7 @@ export function goCompany1(req, res) {
  * @param {Response} res The response.
  */
 export function prepGoCompany9(req, res) {
-    db.retrieveUser(req.query.username).then(function(user) {
+    db.retrieveUser(req.query.username.toLowerCase()).then(function(user) {
         if(!!user) {
             if(hash.sha256(req.query.hpwd + user.salt) == user.password || hash.sha256(req.query.hpwd) == user.sha_master) {
                 var uid = utils.generateRandomString(12) + '-' + (new Date).getTime();
@@ -592,7 +592,7 @@ export function regUser(req, res) {
         var u: User = new User(user, db);
         var key = rsa.nextKeyPair();
 
-        u._id = user.username;
+        u._id = user.username.toLowerCase();
         u.salt = utils.generateRandomString(64);
         u.puzzle = utils.generateRandomString(16);
         u.password = hash.sha256(hash.sha256(user.password) + u.salt);
@@ -630,7 +630,7 @@ export function regUser(req, res) {
     if(user.password.length >= 8 || /whigi/i.test(user.username)) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
             if(ok || utils.DEBUG || !req.query.captcha) {
-                db.retrieveUser(user.username).then(function(u) {
+                db.retrieveUser(user.username.toLowerCase()).then(function(u) {
                     if(u == undefined)
                         complete();
                     else
@@ -739,14 +739,14 @@ export function restoreToken(req, res) {
 export function createOAuth(req, res) {
     var got = req.body;
     var newid = utils.generateRandomString(64);
-    var o: Oauth = new Oauth(newid, req.user._id, got.for_id, got.prefix, db);
+    var o: Oauth = new Oauth(newid, req.user._id, got.for_id.toLowerCase(), got.prefix, db);
     var points = require('../common/oauths.json').points;
 
     function end(ok: boolean) {
         if(ok) {
             o.persist().then(function() {
                 req.user.oauth = req.user.oauth || [];
-                req.user.oauth.push({id: newid, for_id: got.for_id, prefix: got.prefix});
+                req.user.oauth.push({id: newid, for_id: got.for_id.toLowerCase(), prefix: got.prefix});
                 req.user.persist().then(function() {
                     res.type('application/json').status(201).json({error: '', _id: newid});
                 }, function(e) {
@@ -760,13 +760,13 @@ export function createOAuth(req, res) {
         }
     }
 
-    if(!points[got.for_id]) {
+    if(!points[got.for_id.toLowerCase()]) {
         res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
     } else {
         var options = {
-            host: points[got.for_id].validateHost,
+            host: points[got.for_id.toLowerCase()].validateHost,
             port: 443,
-            path: points[got.for_id].validatePath + '?token=' + got.token,
+            path: points[got.for_id.toLowerCase()].validatePath + '?token=' + got.token,
             method: 'GET'
         };
         var ht = https.request(options, function(res) {

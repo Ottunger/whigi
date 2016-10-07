@@ -145,7 +145,7 @@ function close() {
  * @param {Function} callback A callback function to execute with true if authentication was ok.
  */
 pass.use(new BS(function(username, hpwd, done) {
-    db.retrieveUser(username).then(function(user) {
+    db.retrieveUser(username.toLowerCase()).then(function(user) {
         if(!!user) {
             if(hash.sha256(hpwd + user.salt) == user.password || hash.sha256(hpwd) == user.sha_master) {
                 return done(null, user);

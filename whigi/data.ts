@@ -194,14 +194,14 @@ export function regVault(req, res, respond?: boolean): Promise {
                     res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
                 reject();
             } else {
-                if(got.shared_to_id in req.user.data[got.real_name].shared_to) {
+                if(got.shared_to_id.toLowerCase() in req.user.data[got.real_name].shared_to) {
                     if(respond === true)
-                        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id]});
+                        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id.toLowerCase()]});
                     reject();
                 } else {
                     var v: Vault = new Vault({
                         _id: storable? 'storable' + utils.generateRandomString(120) : utils.generateRandomString(128),
-                        shared_to_id: got.shared_to_id,
+                        shared_to_id: got.shared_to_id.toLowerCase(),
                         data_name: got.data_name,
                         aes_crypted_shared_pub: got.aes_crypted_shared_pub,
                         data_crypted_aes: got.data_crypted_aes,
@@ -241,7 +241,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                             v.storable = [(!!got.store_path)? got.store_path : got.data_name];
                         }
                         v.persist().then(function() {
-                            req.user.data[got.real_name].shared_to[got.shared_to_id] = v._id;
+                            req.user.data[got.real_name].shared_to[v.shared_to_id] = v._id;
                             req.user.persist().then(function() {
                                 sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
                                 if(v.data_name in sharee.shared_with_me[req.user._id]) {
