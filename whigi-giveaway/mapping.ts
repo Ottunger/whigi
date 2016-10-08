@@ -136,8 +136,8 @@ export function challenge(req, res) {
  */
 export function create(req, res) {
     var response: string = req.query.r64;
-    var id: string = req.query.user;
-    var lid: string = encodeURIComponent(id.toLowerCase());
+    var id: string = req.query.user.toLowerCase();
+    var lid: string = encodeURIComponent(id);
 
     whigi('GET', '/api/v1/profile').then(function(user) {
         if(rsa_key == '') {
@@ -309,7 +309,7 @@ export function create(req, res) {
                                     }
                                 });
                             }, function(e) {
-                                console.log('Cannot read email.');
+                                console.log('Cannot read email.', e);
                                 res.redirect('/error.html');
                             });
                         } else {
