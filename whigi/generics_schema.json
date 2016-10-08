@@ -40,7 +40,7 @@
       "mode": {
         "title": "Type de donnée cible",
         "type": "string",
-        "enum": ["text", "date", "checkbox", "file", "radio", "select", "json_keys", "image", "url", "email"]
+        "enum": ["text", "date", "checkbox", "file", "select", "json_keys"]
       },
       "enum": {
         "title": "Pour un select, URL relative à WHIGIHOST où avoir les valeurs",
@@ -75,7 +75,7 @@
             "mode": {
               "title": "Type de donnée cible",
               "type": "string",
-              "enum": ["text", "date", "checkbox", "file", "radio", "select", "json_keys", "image", "url", "email"]
+              "enum": ["text", "date", "checkbox", "file", "select"]
             },
             "enum": {
               "title": "Pour un select, URL relative à WHIGIHOST où avoir les valeurs",

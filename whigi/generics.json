@@ -175,7 +175,22 @@
         "instantiable": true,
         "descr_key": "generics.corporate_type",
         "module": "generics.corporate",
-        "group": "generics.corp2"
+        "group": "generics.corp2none"
+    }],
+    "profile/corporate/type/open": [{
+        "is_dated": false,
+        "country": ["BE", "FR"],
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "",
+        "mode": "checkbox",
+        "enum": "",
+        "json_keys": [],
+        "validate": "return true;",
+        "instantiable": true,
+        "descr_key": "generics.corporate_open",
+        "module": "generics.corporate",
+        "group": "generics.corp2none"
     }],
     "profile/corporate/address": [{
         "is_dated": false,
