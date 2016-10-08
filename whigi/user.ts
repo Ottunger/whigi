@@ -576,6 +576,19 @@ export function changeUsername(req, res) {
                 }
             }
             end();
+            //Set ownerships of sent vaults
+            keys = Object.getOwnPropertyNames(req.user.data);
+            for(var i = 0; i < keys.length; i++) {
+                var kk = Object.getOwnPropertyNames(req.user.data[keys[i]].shared_to);
+                for(var j = 0; j < kk.length; j++) {
+                    db.retrieveVault(req.user.data[keys[i]].shared_to[kk[j]]).then(function(v: Vault) {
+                        if(!!v) {
+                            v.sharer_id = got.username.toLowerCase();
+                            v.persist();
+                        }
+                    });
+                }
+            }
         }, function() {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
