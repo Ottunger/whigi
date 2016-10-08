@@ -90,7 +90,7 @@ function decryptAES(data: string, key: number[]): string {
  * @param {Response} res The response.
  */
 export function requestMapping(req, res) {
-    var username = decodeURIComponent(req.params.id).toLowerCase();
+    var username = req.params.id.toLowerCase();
     function complete(recup, mk, pk, data) {
         try {
             if(recup) {
@@ -154,7 +154,6 @@ export function requestMapping(req, res) {
         var master_key = Array.from(decrypter.decrypt(profile.encr_master_key));
         decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(profile.rsa_pri_key[0]));
-        username = decodeURIComponent(username);
         whigi('GET', '/api/v1/profile/data').then(function(data) {
             if(!!data.shared_with_me[username]['profile/email/restore'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
                 if(!!data.shared_with_me[username]['profile/recup_id']) {
@@ -183,7 +182,7 @@ export function requestMapping(req, res) {
  * @param {Response} res The response.
  */
 export function mixMapping(req, res) {
-    var username = decodeURIComponent(req.params.id).toLowerCase();
+    var username = req.params.id.toLowerCase();
     function complete(mk, pk, data) {
         try {
             whigi('GET', '/vault/' + data.shared_with_me[username]['profile/email/restore']).then(function(vault) {
@@ -218,7 +217,6 @@ export function mixMapping(req, res) {
         var master_key = Array.from(decrypter.decrypt(profile.encr_master_key));
         decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(profile.rsa_pri_key[0]));
-        username = decodeURIComponent(username);
         whigi('GET', '/api/v1/profile/data').then(function(data) {
             if(!!data.shared_with_me[username]['profile/email/restore'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
                 complete(master_key, rsa_key, data);

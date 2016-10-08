@@ -53,7 +53,7 @@ export function managerInit(dbg: Datasource) {
  * @param {Response} res The response.
  */
 export function peekUser(req, res) {
-    var dec = decodeURIComponent(req.params.id).toLowerCase();
+    var dec = req.params.id.toLowerCase();
     db.retrieveUser(dec).then(function(user: User) {
         if(!!user) {
             res.type('application/json').status(200).json({error: ''});
@@ -73,7 +73,7 @@ export function peekUser(req, res) {
  * @param {Response} res The response.
  */
 export function getUser(req, res) {
-    var dec = decodeURIComponent(req.params.id).toLowerCase();
+    var dec = req.params.id.toLowerCase();
     db.retrieveUser(dec).then(function(user: User) {
         if(!!user) {
             res.type('application/json').status(200).json(user.sanitarize());
@@ -105,7 +105,7 @@ export function getProfile(req, res) {
  */
 export function closeTo(req, res) {
     var new_keys: number[][] = req.body.new_keys;
-    var dec = decodeURIComponent(req.params.id).toLowerCase();
+    var dec = req.params.id.toLowerCase();
     var changes = {};
 
     function end(nu: User) {
@@ -512,13 +512,14 @@ export function updateUser(req, res) {
  */
 export function changeUsername(req, res) {
     var got = req.body, index = 0, array: {vid: string}[] = [];
+    var proposal = got.username.toLowerCase().replace(/[^a-z0-9\-]/g, '');
 
     function end() {
         if(index < array.length) {
             var work = array[index];
             index++;
             db.retrieveVault(work.vid).then(function(v: Vault) {
-                v.shared_to_id = got.username.toLowerCase();
+                v.shared_to_id = proposal;
                 v.persist().then(function() {
                     db.retrieveUser(v.sharer_id, true).then(function(u: User) {
                         u.data[v.real_name] = u.data[v.real_name] || {shared_to: {}};
@@ -540,7 +541,7 @@ export function changeUsername(req, res) {
             });
         } else {
             var prev = req.user._id;
-            req.user._id = got.username.toLowerCase();
+            req.user._id = proposal;
             req.user.persist().then(function() {
                 req.user._id = prev;
                 req.user.unlink();
@@ -554,7 +555,7 @@ export function changeUsername(req, res) {
                 for(var i = 0; i < req.user.oauth.length; i++) {
                     db.retrieveOauth(req.user.oauth[i].id).then(function(o: Oauth) {
                         if(!!o) {
-                            o.bearer_id = got.username.toLowerCase();
+                            o.bearer_id = proposal;
                             o.persist();
                         }
                     });
@@ -583,7 +584,7 @@ export function changeUsername(req, res) {
                 for(var j = 0; j < kk.length; j++) {
                     db.retrieveVault(req.user.data[keys[i]].shared_to[kk[j]]).then(function(v: Vault) {
                         if(!!v) {
-                            v.sharer_id = got.username.toLowerCase();
+                            v.sharer_id = proposal;
                             v.persist();
                         }
                     });
@@ -594,7 +595,7 @@ export function changeUsername(req, res) {
         });
     }
 
-    db.retrieveUser(got.username.toLowerCase()).then(function(u) {
+    db.retrieveUser(proposal).then(function(u) {
         if(u == undefined)
             complete();
         else
@@ -612,7 +613,7 @@ export function changeUsername(req, res) {
  * @param {Response} res The response.
  */
 export function regUser(req, res) {
-    var user = req.body;
+    var user = req.body, proposal = user.username.toLowerCase().replace(/[^a-z0-9\-]/g, '');
     var pre_master_key: string = utils.generateRandomString(64);
     var rd: Function = recData;
     var array: any[] = [], index = 0;
@@ -693,7 +694,7 @@ export function regUser(req, res) {
         var u: User = new User(user, db);
         var key = rsa.nextKeyPair();
 
-        u._id = user.username.toLowerCase();
+        u._id = proposal;
         u.salt = utils.generateRandomString(64);
         u.puzzle = utils.generateRandomString(16);
         u.password = hash.sha256(hash.sha256(user.password) + u.salt);
@@ -731,7 +732,7 @@ export function regUser(req, res) {
     if(user.password.length >= 8 || /whigi/i.test(user.username)) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
             if(ok || utils.DEBUG || !req.query.captcha) {
-                db.retrieveUser(user.username.toLowerCase()).then(function(u) {
+                db.retrieveUser(proposal).then(function(u) {
                     if(u == undefined)
                         complete();
                     else
