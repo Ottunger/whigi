@@ -205,8 +205,19 @@ export function goCompany1(req, res) {
         res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
         return;
     }
-    req.user.is_company = 1;
-    req.user.company_info = req.body;
+    //Modify the picture does not change confidence
+    if(!(Object.getOwnPropertyNames(req.body).length == 1) || !req.body.picture)
+        req.user.is_company = 1;
+    if(!!req.body.name)
+        req.user.company_info.name = req.body.name;
+    if(!!req.body.bce)
+        req.user.company_info.bce = req.body.bce;
+    if(!!req.body.rrn)
+        req.user.company_info.rrn = req.body.rrn;
+    if(!!req.body.address)
+        req.user.company_info.address = req.body.address;
+    if(!!req.body.picture)
+        req.user.company_info.picture = req.body.picture;
     req.user.persist().then(function() {
         res.type('application/json').status(200).json({error: ''});
     }, function(e) {
@@ -708,7 +719,17 @@ export function regUser(req, res) {
         u.rsa_pri_key = [Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
             .encrypt(aes.util.convertStringToBytes(key.exportKey('private'))))];
         u.is_company = !!user.company_info? 1 : 0;
-        u.company_info = !!user.company_info? user.company_info : {};
+        u.company_info = {};
+        if(!!user.company_info && !!user.company_info.name)
+            u.company_info.name = user.company_info.name;
+        if(!!user.company_info && !!user.company_info.bce)
+            u.company_info.bce = user.company_info.bce;
+        if(!!user.company_info && !!user.company_info.rrn)
+            u.company_info.rrn = user.company_info.rrn;
+        if(!!user.company_info && !!user.company_info.address)
+            u.company_info.address = user.company_info.address;
+        if(!!user.company_info && !!user.company_info.picture)
+            u.company_info.picture = user.company_info.picture;
         pem.createCertificate({
             serviceKey: fs.readFileSync('./whigi/whigi-key.pem'),
             days: 36500,
