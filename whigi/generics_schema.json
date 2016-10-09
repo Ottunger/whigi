@@ -80,6 +80,10 @@
             "enum": {
               "title": "Pour un select, URL relative à WHIGIHOST où avoir les valeurs",
               "type": "string"
+            },
+            "required": {
+              "title": "Le sous champ est-il requis",
+              "type": "boolean"
             }
           }
         }
