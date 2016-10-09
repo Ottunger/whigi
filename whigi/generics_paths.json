@@ -7,7 +7,7 @@
     "profile/": {
         "descr_key": "profile/",
         "long_descr_key": "profile/",
-        "help_url": ""
+        "help_url": "address"
     },
     "profile/corporate/": {
         "descr_key": "profile/corporate/",

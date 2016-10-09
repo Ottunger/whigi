@@ -45,6 +45,8 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/schemas\/[a-zA-Z0-9%]+\/[0-9]+\/[0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/helps\/[a-zA-Z0-9%_\.]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/peek\/.+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/user\/create\/?$/))
@@ -257,6 +259,9 @@ connect(function(e) {
     });
     app.get('/api/v:version/selects/:key', function(req, res) {
         res.type('application/json').status(200).json(require('./selects/' + decodeURIComponent(req.params.key) + '.json'));
+    });
+    app.get('/api/v:version/helps/:key', function(req, res) {
+        res.type('application/json').status(200).json(require('./helps/' + req.params.key + '.json'));
     });
     //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pauth);

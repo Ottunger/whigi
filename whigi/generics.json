@@ -63,71 +63,53 @@
         "is_dated": false,
         "country": [],
         "long_descr_key": "",
-        "help_url": "",
+        "help_url": "address",
         "icon": "",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.last_name",
-                "long_descr_key": "generics.last_name",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": true
             }, {
                 "descr_key": "generics.first_name",
-                "long_descr_key": "generics.first_name",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": true
             }, {
                 "descr_key": "generics.street",
-                "long_descr_key": "generics.street",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": true
             }, {
                 "descr_key": "generics.num",
-                "long_descr_key": "generics.num",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": false
             }, {
                 "descr_key": "generics.letterbox",
-                "long_descr_key": "generics.letterbox",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": false
             }, {
                 "descr_key": "generics.more",
-                "long_descr_key": "generics.more",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": false
             }, {
                 "descr_key": "generics.postcode",
-                "long_descr_key": "generics.postcode",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": true
             }, {
                 "descr_key": "generics.city",
-                "long_descr_key": "generics.city",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": true
             }, {
                 "descr_key": "generics.country",
-                "long_descr_key": "generics.country",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": true
@@ -205,57 +187,43 @@
         "is_dated": false,
         "country": [],
         "long_descr_key": "",
-        "help_url": "",
+        "help_url": "address",
         "icon": "",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.street",
-                "long_descr_key": "generics.street",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": true
             }, {
                 "descr_key": "generics.num",
-                "long_descr_key": "generics.num",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": false
             }, {
                 "descr_key": "generics.letterbox",
-                "long_descr_key": "generics.letterbox",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": false
             }, {
                 "descr_key": "generics.more",
-                "long_descr_key": "generics.more",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": false
             }, {
                 "descr_key": "generics.postcode",
-                "long_descr_key": "generics.postcode",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": true
             }, {
                 "descr_key": "generics.city",
-                "long_descr_key": "generics.city",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": true
             }, {
                 "descr_key": "generics.country",
-                "long_descr_key": "generics.country",
-                "help_url": "",
                 "mode": "text",
                 "enum": "",
                 "required": true
