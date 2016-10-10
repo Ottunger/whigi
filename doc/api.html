@@ -1,0 +1,1342 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="vendors/bootstrap.min.css" type="text/css">
+    <meta charset="UTF-8">
+    <title>Ride Sharing API - REST</title>
+    <style type="text/css">
+        .d-type {
+            white-space: nowrap;
+        }
+    </style>
+    <script type="text/javascript">
+
+
+        var API = [
+            {
+                "name": "peek",
+                "path": "/api/v{version}/peek",
+                "actions": [
+                    {
+                        "name": "id",
+                        "path": "/api/v{version}/peek/{id}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 404, 500",
+                        "method": "GET",
+                        "desc": "Searches for a user",
+                        "description": "Searches for a user, returning whether it exists.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "The user to be found",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "user",
+                "path": "/api/v{version}/user",
+                "actions": [
+                    {
+                        "name": "userid",
+                        "path": "/api/v{version}/user/{id}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 404, 500",
+                        "method": "GET",
+                        "desc": "Searches for a user",
+                        "description": "Searches for a user, returning its public profile.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "The user to be found",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "_id": {
+                                "type": "string",
+                                "description": "Username"
+                            },
+                            "is_company": {
+                                "type": "integer",
+                                "description": "Confidence level from 0 to 9"
+                            },
+                            "company_info": {
+                                "type": "object",
+                                "description": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Public name"
+                                    },
+                                    "bce": {
+                                        "type": "string",
+                                        "description": "For an organization, its BCE code"
+                                    },
+                                    "rrn": {
+                                        "type": "string",
+                                        "description": "For a physical person, his/her national number"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "description": "Public address"
+                                    },
+                                    "picture": {
+                                        "type": "URL data",
+                                        "description": "Possible profile picture, URL encoded"
+                                    }
+                                }
+                            },
+                            "rsa_pub_key": {
+                                "type": "string",
+                                "description": "PKCS public key"
+                            }
+                        }
+                    },
+                    {
+                        "name": "usercreate",
+                        "path": "/api/v{version}/user/create",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "201, 400, 500",
+                        "method": "POST",
+                        "desc": "Create a new user",
+                        "description": "Create a new user with init information.",
+                        "query": {
+                            "captcha": {
+                                "type": "string",
+                                "description": "A captcha to validate",
+                                "required": true
+                            }
+                        },
+                        "post": {
+                            "username": {
+                                "type": "string",
+                                "description": "Desired username",
+                                "required": true
+                            },
+                            "password": {
+                                "type": "string",
+                                "description": "Desired password",
+                                "required": true
+                            },
+                            "more": {
+                                "type": "array",
+                                "description": "An array of objects like posting new data to create data and vaults on the spot",
+                                "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "profile",
+                "path": "/api/v{version}/profile",
+                "actions": [
+                    {
+                        "name": "profileid",
+                        "path": "/api/v{version}/user/profile",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200",
+                        "method": "GET",
+                        "desc": "Own information",
+                        "description": "Retrieve own information, excluded held data.",
+                        "response": {
+                            "_id": {
+                                "type": "string",
+                                "description": "Username"
+                            },
+                            "is_company": {
+                                "type": "integer",
+                                "description": "Confidence level from 0 to 9"
+                            },
+                            "company_info": {
+                                "type": "object",
+                                "description": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Public name"
+                                    },
+                                    "bce": {
+                                        "type": "string",
+                                        "description": "For an organization, its BCE code"
+                                    },
+                                    "rrn": {
+                                        "type": "string",
+                                        "description": "For a physical person, his/her national number"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "description": "Public address"
+                                    },
+                                    "picture": {
+                                        "type": "URL data",
+                                        "description": "Possible profile picture, URL encoded"
+                                    }
+                                }
+                            },
+                            "rsa_pub_key": {
+                                "type": "string",
+                                "description": "PKCS public key"
+                            },
+                            "password": {
+                                "type": "string",
+                                "description": "String agains which authentication is made"
+                            },
+                            "salt": {
+                                "type": "string",
+                                "description": "User salt"
+                            },
+                            "puzzle": {
+                                "type": "string",
+                                "description": "User puzzle"
+                            },
+                            "oauth": {
+                                "type": "array",
+                                "description": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "ID of the ticket"
+                                    },
+                                    "for_id": {
+                                        "type": "string",
+                                        "description": "User who this ticket is granted to"
+                                    },
+                                    "prefix": {
+                                        "type": "string",
+                                        "description": "Prefix this ticket grants access to"
+                                    }
+                                }
+                            },
+                            "rsa_pri_key": {
+                                "type": "array",
+                                "description": {
+                                    "{i}": {
+                                        "type": "byte array",
+                                        "description": "PKCS private key, encrypted, in bytes format"
+                                    }
+                                }
+                            },
+                            "encr_master_key": {
+                                "type": "byte array",
+                                "description": "Master key, encrypted"
+                            },
+                            "sha_master": {
+                                "type": "boolean",
+                                "description": "SHA256 of SHA256 of master key seen as string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "profileinfo",
+                        "path": "/api/v{version}/user/profile/info",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "200, 403, 500",
+                        "method": "POST",
+                        "desc": "Updates information",
+                        "description": "Updates personal information.",
+                        "post": {
+                            "name": {
+                                "type": "string",
+                                "description": "Public name",
+                                "required": false
+                            },
+                            "bce": {
+                                "type": "string",
+                                "description": "For an organization, its BCE code",
+                                "required": false
+                            },
+                            "rrn": {
+                                "type": "string",
+                                "description": "For a physical person, his/her national number",
+                                "required": false
+                            },
+                            "address": {
+                                "type": "string",
+                                "description": "Public address",
+                                "required": false
+                            },
+                            "picture": {
+                                "type": "string",
+                                "description": "Possible profile picture, URL-data-encoded",
+                                "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    },
+                    {
+                        "name": "profiledata",
+                        "path": "/api/v{version}/user/profile/data",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 500",
+                        "method": "GET",
+                        "desc": "Retrieve own data",
+                        "description": "Retrieve list of own and shared data.",
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "data": {
+                                "type": "object",
+                                "description": "Object indexed by data name, of data ID, version, length, and shares"
+                            },
+                            "shared_with_me": {
+                                "type": "object",
+                                "description": "Object indexed by sharer, of data names that point to vault ID"
+                            }
+                        }
+                    },
+                    {
+                        "name": "profiledatanew",
+                        "path": "/api/v{version}/user/profile/data/new",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "200, 400, 403, 412, 500",
+                        "method": "POST",
+                        "desc": "Create a data",
+                        "description": "Create a new personal data.",
+                        "post": {
+                            "name": {
+                                "type": "string",
+                                "description": "Data name",
+                                "required": true
+                            },
+                            "encr_data": {
+                                "type": "string",
+                                "description": "Encrypted data or left empty for server",
+                                "required": true
+                            },
+                            "is_dated": {
+                                "type": "boolean",
+                                "description": "Whether this data is dated",
+                                "required": true
+                            },
+                            "version": {
+                                "type": "integer",
+                                "description": "The data versioning schema",
+                                "required": true
+                            },
+                            "decr_data": {
+                                "type": "string",
+                                "description": "Dcrypted data for the server to perform work",
+                                "required": false
+                            },
+                            "key": {
+                                "type": "string",
+                                "description": "Master key base64 encoded for the server to perform work",
+                                "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "puzzle": {
+                                "type": "string",
+                                "description": "User puzzle"
+                            },
+                            "_id": {
+                                "type": "string",
+                                "description": "ID of the newly created resource"
+                            }
+                        }
+                    },
+                    {
+                        "name": "profileupdate",
+                        "path": "/api/v{version}/user/profile/update",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "200, 500",
+                        "method": "POST",
+                        "desc": "Update password",
+                        "description": "Update the user password.",
+                        "post": {
+                            "new_password": {
+                                "type": "string",
+                                "description": "SHA256 hash of the new password",
+                                "required": true
+                            },
+                            "encr_master_key": {
+                                "type": "byte array",
+                                "description": "Encrypted new master key",
+                                "required": true
+                            },
+                            "sha_master": {
+                                "type": "boolean",
+                                "description": "SHA256 of SHA256 of master key seen as string",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    },
+                    {
+                        "name": "profileuname",
+                        "path": "/api/v{version}/user/profile/uname",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "200, 400, 412, 500",
+                        "method": "POST",
+                        "desc": "Update username",
+                        "description": "Update the username to a new username.",
+                        "post": {
+                            "username": {
+                                "type": "string",
+                                "description": "New desired username",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "puzzle": {
+                                "type": "string",
+                                "description": "User puzzle"
+                            }
+                        }
+                    },
+                    {
+                        "name": "profiletokennew",
+                        "path": "/api/v{version}/user/profile/token/new",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "201, 412, 500",
+                        "method": "POST",
+                        "desc": "Create new authentication token",
+                        "description": "Create a new authentication token.",
+                        "post": {
+                            "is_eternal": {
+                                "type": "boolean",
+                                "description": "Whether this token expires after inactivity",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "puzzle": {
+                                "type": "string",
+                                "description": "User puzzle"
+                            },
+                            "_id": {
+                                "type": "string",
+                                "description": "Newly created token"
+                            }
+                        }
+                    },
+                    {
+                        "name": "profiletoken",
+                        "path": "/api/v{version}/user/profile/token",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 403, 500",
+                        "method": "DELETE",
+                        "desc": "Remove authentication token",
+                        "description": "Remove one or all authentication tokens.",
+                        "query": {
+                            "token": {
+                                "type": "string",
+                                "description": "A token to remove only this one",
+                                "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "close",
+                "path": "/api/v{version}/close",
+                "actions": [
+                    {
+                        "name": "closeid",
+                        "path": "/api/v{version}/close/{id}",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "200, 403, 404, 412, 500",
+                        "method": "POST",
+                        "desc": "Close account to another user",
+                        "description": "Close own account to another user, causing him to now own all previously held data and vaults.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "The user to close to",
+                                "required": true
+                            }
+                        },
+                        "post": {
+                            "new_keys": {
+                                "type": "array",
+                                "description": "array of byte arrays of decrypted held RSA private keys",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "puzzle": {
+                                "type": "string",
+                                "description": "User puzzle"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "oauth",
+                "path": "/api/v{version}/oauth",
+                "actions": [
+                    {
+                        "name": "oauthnew",
+                        "path": "/api/v{version}/oauth/new",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "201, 403, 412, 500",
+                        "method": "POST",
+                        "desc": "Create a new OAuth ticket",
+                        "description": "Create a new OAuth ticket and retrieve it. Send it to the backend as well.",
+                        "post": {
+                            "for_id": {
+                                "type": "string",
+                                "description": "Username to grant this ticket to, must be an organization",
+                                "required": true
+                            },
+                            "prefix": {
+                                "type": "string",
+                                "description": "Prefix thsis ticket will be valid for",
+                                "required": true
+                            },
+                            "token": {
+                                "type": "string",
+                                "description": "The token itself",
+                                "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "puzzle": {
+                                "type": "string",
+                                "description": "User puzzle"
+                            },
+                            "_id": {
+                                "type": "string",
+                                "description": "The echoed token"
+                            }
+                        }
+                    },
+                    {
+                        "name": "oauthremove",
+                        "path": "/api/v{version}/oauth/{token}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "201, 403, 500",
+                        "method": "DELETE",
+                        "desc": "Remove an OAuth ticket",
+                        "description": "Remove an OAuth ticket.",
+                        "pathing": {
+                            "token": {
+                                "type": "string",
+                                "description": "The token itself",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "eid",
+                "path": "/api/v{version}/eid",
+                "actions": [
+                    {
+                        "name": "eid",
+                        "path": "/api/v{version}/eid",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "status": "302",
+                        "method": "GET",
+                        "desc": "Read data from eID: sends to OPENID auth",
+                        "description": "Read data from eID: sends to OPENID auth.",
+                        "query": {
+                            "username": {
+                                "type": "string",
+                                "description": "Username",
+                                "required": true
+                            },
+                            "hpwd": {
+                                "type": "string",
+                                "description": "SHA256 of password",
+                                "required": true
+                            }
+                        },
+                        "response": null
+                    },
+                    {
+                        "name": "eidcb",
+                        "path": "/api/v{version}/eid/callback",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "input": "application/www-url-encoded",
+                        "output": "application/json",
+                        "status": "302, 403, 500",
+                        "method": "POST",
+                        "desc": "Callback for eID read",
+                        "description": "Callback for eID read.",
+                        "post": {
+                            "form": {
+                                "type": "form data",
+                                "description": "Form data with eID info",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    },
+                    {
+                        "name": "eidcbbce",
+                        "path": "/api/v{version}/eid/bce/{bce}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 403, 500, 600",
+                        "method": "GET",
+                        "desc": "Try to change company name",
+                        "description": "Parse public Belgian repo to find if a company is registered with the user.",
+                        "pathing": {
+                            "bce": {
+                                "type": "string",
+                                "description": "BCE code of enterprise",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "Detected name if any"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "data",
+                "path": "/api/v{version}/data",
+                "actions": [
+                    {
+                        "name": "dataget",
+                        "path": "/api/v{version}/data/{id}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "status": "200, 404, 500",
+                        "output": "application/json",
+                        "method": "GET",
+                        "desc": "Get a data",
+                        "description": "Get one or more data, encrypted or not.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "Datafragment ID, or JSON string representing an array of such ID's",
+                                "required": true
+                            }
+                        },
+                        "query": {
+                            "key": {
+                                "type": "string",
+                                "description": "Master key base64 encoded to have server decrypt",
+                                "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "_id": {
+                                "type": "string",
+                                "description": "Echoed ID, if several data were required, the returned object is an array of such objects"
+                            },
+                            "encr_data": {
+                                "type": "string",
+                                "description": "Encrypted data"
+                            },
+                            "version": {
+                                "type": "integer",
+                                "description": "Versioning schema"
+                            },
+                            "decr_data": {
+                                "type": "string",
+                                "description": "If asked, decrypted data"
+                            }
+                        }
+                    },
+                    {
+                        "name": "datatg",
+                        "path": "/api/v{version}/data/trigger/{data_name}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 500",
+                        "method": "GET",
+                        "desc": "Trigger vaults associated",
+                        "description": "Trigegr registered URL's for associated vaults.",
+                        "pathing": {
+                            "data_name": {
+                                "type": "string",
+                                "description": "Data name",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    },
+                    {
+                        "name": "datarm",
+                        "path": "/api/v{version}/data/{data_name}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 403, 500",
+                        "method": "DELETE",
+                        "desc": "Remove a data",
+                        "description": "Remove a data if there are no more associated vaults.",
+                        "pathing": {
+                            "data_name": {
+                                "type": "string",
+                                "description": "Data name",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "vault",
+                "path": "/api/v{version}/vault",
+                "actions": [
+                    {
+                        "name": "vaultnew",
+                        "path": "/api/v{version}/vault/new",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "201, 400, 404, 412, 500",
+                        "method": "POST",
+                        "desc": "Create a share",
+                        "description": "Create a new share.",
+                        "post": {
+                            "data_name": {
+                                "type": "string",
+                                "description": "Registered name at the granted user's side",
+                                "required": true
+                            },
+                            "shared_to_id": {
+                                "type": "string",
+                                "description": "Username to share to",
+                                "required": true
+                            },
+                            "aes_crypted_shared_pub": {
+                                "type": "string",
+                                "description": "AES key encrypted, left blank for server",
+                                "required": true
+                            },
+                            "data_crypted_aes": {
+                                "type": "string",
+                                "description": "Data encrypted, left blank for server",
+                                "required": true
+                            },
+                            "expire_epoch": {
+                                "type": "integer",
+                                "description": "Epoch at which the share will no longer be valid",
+                                "required": true
+                            },
+                            "trigger": {
+                                "type": "string",
+                                "description": "An URL to trigger (GET) when the shared data changes",
+                                "required": true
+                            },
+                            "real_name": {
+                                "type": "string",
+                                "description": "The real data name, at the granter's side",
+                                "required": true
+                            },
+                            "version": {
+                                "type": "integer",
+                                "description": "The data versioning schema",
+                                "required": true
+                            },
+                            "decr_data": {
+                                "type": "string",
+                                "description": "The real data if the server is to perform encryption",
+                                "required": false
+                            },
+                            "storable": {
+                                "type": "boolean",
+                                "description": "Set whether this vault can be remotely removed",
+                                "required": false
+                            },
+                            "store_path": {
+                                "type": "string",
+                                "description": "The path the remote user should use when getting this grant for him",
+                                "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "puzzle": {
+                                "type": "string",
+                                "description": "User puzzle"
+                            },
+                            "_id": {
+                                "type": "string",
+                                "description": "ID of the newly created resource"
+                            }
+                        }
+                    },
+                    {
+                        "name": "vaultrm",
+                        "path": "/api/v{version}/vault/{id}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "status": "200, 403, 404, 500",
+                        "output": "application/json",
+                        "method": "DELETE",
+                        "desc": "Remove a vault",
+                        "description": "Remove a vault.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "Vault ID",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    },
+                    {
+                        "name": "vaultrmo",
+                        "path": "/api/v{version}/vault/forother/{id}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "status": "200, 403, 404, 500",
+                        "output": "application/json",
+                        "method": "DELETE",
+                        "desc": "Remove a vault, when can be removed",
+                        "description": "Remove a vault, when can be removed, and the coming data.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "Vault ID",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    },
+                    {
+                        "name": "vaultget",
+                        "path": "/api/v{version}/vault/{id}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 403, 404, 417, 500",
+                        "method": "GET",
+                        "desc": "Get a share",
+                        "description": "Get a share, can decrypt it on the fly.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "Vault ID, or JSON string representing an array of such ID's",
+                                "required": true
+                            }
+                        },
+                        "query": {
+                            "key": {
+                                "type": "string",
+                                "description": "RSA key base64 encoded to have server decrypt",
+                                "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "_id": {
+                                "type": "string",
+                                "description": "Echoed ID, if several data were required, the returned object is an array of such objects"
+                            },
+                            "data_name": {
+                                "type": "string",
+                                "description": "Registered name at the granted user's side"
+                            },
+                            "shared_to_id": {
+                                "type": "string",
+                                "description": "Username to share to"
+                            },
+                            "sharer_id": {
+                                "type": "string",
+                                "description": "Username of who shared",
+                            },
+                            "aes_crypted_shared_pub": {
+                                "type": "string",
+                                "description": "AES key encrypted, left blank for server"
+                            },
+                            "data_crypted_aes": {
+                                "type": "string",
+                                "description": "Data encrypted, left blank for server"
+                            },
+                            "expire_epoch": {
+                                "type": "integer",
+                                "description": "Epoch at which the share will no longer be valid"
+                            },
+                            "trigger": {
+                                "type": "string",
+                                "description": "An URL to trigger (GET) when the shared data changes"
+                            },
+                            "real_name": {
+                                "type": "string",
+                                "description": "The real data name, at the granter's side"
+                            },
+                            "decr_data": {
+                                "type": "string",
+                                "description": "The real data if the server is to perform decryption"
+                            },
+                            "last_access": {
+                                "type": "integer",
+                                "description": "Epoch when this was last seen from granted user's side (NOW)"
+                            },
+                            "storable": {
+                                "type": "array",
+                                "description": {
+                                    "{i}": {
+                                        "type": "string",
+                                        "description": "A suggested store path"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "vaulttime",
+                        "path": "/api/v{version}/vault/time/{id}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 403, 404, 417, 500",
+                        "method": "GET",
+                        "desc": "Get info of a share from granter's side",
+                        "description": "Get info of a share from granter's side.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "Vault ID, or JSON string representing an array of such ID's",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "expire_epoch": {
+                                "type": "integer",
+                                "description": "Epoch at which the share will no longer be valid"
+                            },
+                            "trigger": {
+                                "type": "string",
+                                "description": "An URL to trigger (GET) when the shared data changes"
+                            },
+                            "last_access": {
+                                "type": "integer",
+                                "description": "Epoch when this was last seen from granted user's side"
+                            }
+                        }
+                    }
+                ]
+            }
+        ];
+
+
+    </script>
+</head>
+<body>
+
+<nav class="navbar navbar-default navbar-static-top">
+
+    <div class="container">
+        <div class="navbar-header">
+            <a href="/index.html" class="navbar-brand">Whigi API</a>
+        </div>
+
+        <div>
+            <ul class="nav navbar-nav">
+                <!--<li><a href="rest/index.html">REST API</a></li>
+                <li><a href="signalr/index.html">SignalR API</a></li>-->
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+
+
+
+
+    </div>
+
+
+</div>
+
+<script type="text/javascript" src="vendors/jquery.js"></script>
+<script type="text/javascript" src="vendors/bootstrap.js"></script>
+<script type="text/javascript">
+
+    function drawResponse($description, description) {
+        if (typeof description === "object") {
+
+
+            var $table = $('<table class="table table-bordered table-striped response-table">\
+                        <thead>\
+                        <tr>\
+                        <th>Name</th>\
+                        <th>Type</th>\
+                        <th>Description</th>\
+                        </tr>\
+                        </thead>\
+                        <tbody>\
+                        </tbody>\
+                        </table>');
+
+            var $tbdody = $table.find("tbody");
+
+            for (var k in description) {
+                var $tr = $('<tr>\
+                            <td class="d-name"></td>\
+                            <td class="d-type"></td>\
+                            <td class="d-description"></td>\
+                            </tr>');
+                $tr.find(".d-name").text(k);
+                $tr.find(".d-type").text(description[k].type);
+                drawResponse($tr.find(".d-description"), description[k].description);
+                $tbdody.append($tr);
+            }
+            $description.append($table);
+        } else {
+            $description.text(description);
+        }
+    }
+
+
+    $(document).ready(function () {
+
+        var methodMap = {
+            POST: "success",
+            GET: "primary",
+            PUT: "warning",
+            DELETE: "danger"
+        };
+
+
+        for (var i = 0; i < API.length; ++i) {
+
+
+            var ctrl = API[i];
+
+            var $outer = $('<div class="panel panel-primary">\
+                    <div class="panel-heading" role="tab" id="' + ctrl.name +'">\
+                    <h4 class="panel-title">\
+                    <a role="button" data-toggle="collapse" data-parent="accordion" href="#collapse_' + ctrl.name +'" aria-expanded="false" aria-controls="collapse_' + ctrl.name +'">\
+                    ' + ctrl.path +'\
+                    </a>\
+                    </h4>\
+                    </div>\
+                    <div id="collapse_' + ctrl.name +'" class="panel-collapse collapse" role="tabpanel" aria-labelledby="' + ctrl.name +'">\
+                    <div class="panel-body">\
+                    </div>\
+                    </div>\
+                    </div>');
+            var $outerPanel = $outer.find(".panel-body");
+            $("#accordion").append($outer);
+
+
+
+
+
+            for (var j = 0; j < ctrl.actions.length; ++j) {
+
+                var action = ctrl.actions[j];
+
+
+                var $action = $('<div class="panel-info">\
+                        <div class="panel-heading" role="tab" id="' + action.name + '">\
+                        <div class="row">\
+                        <div class="col-md-1 text-right"><span class="label label-' + methodMap[action.method] + '">' + action.method + '</span></div>\
+                        <div class="col-md-5">\
+                        <h4 class="panel-title">\
+                        <a role="button" data-toggle="collapse" data-parent="accordion" href="#collapse_' + action.name + '" aria-expanded="false" aria-controls="collapse_' + action.name + '">\
+                        ' + action.path + '\
+                        </a>\
+                        </h4>\
+                        </div>\
+                        <div class="col-md-6 text-right action-description">\
+                        </div>\
+                        </div>\
+                        </div>\
+                        <div id="collapse_' + action.name + '" class="panel-collapse collapse" role="tabpanel" aria-labelledby="' + action.name + '">\
+                        <div class="panel-body">\
+                        <p class="description"></p>\
+                        <p><strong>Authentication required:</strong> <code class="auth-req"></code></p>\
+                        <p><strong>Puzzle required:</strong> <code class="puzzle-req"></code></p>\
+                        <p><strong>Input Type:</strong> <code class="input-code">None</code></p>\
+                        <p><strong>Output Type:</strong> <code class="output-code">None</code></p>\
+                        <p><strong>Possible Status Codes:</strong> <code class="status-code">200</code></p>\
+                        <h4 class="pathing-title">Path Parameters</h4>\
+                        <table class="table table-bordered table-striped pathing-table">\
+                        <thead>\
+                        <tr>\
+                        <th>Name</th>\
+                        <th>Type</th>\
+                        <th>Description</th>\
+                        <th>Required</th>\
+                        </tr>\
+                        </thead>\
+                        <tbody>\
+                        </tbody>\
+                        </table>\
+                        <h4 class="query-title">Query Parameters</h4>\
+                        <table class="table table-bordered table-striped query-table">\
+                        <thead>\
+                        <tr>\
+                        <th>Name</th>\
+                        <th>Type</th>\
+                        <th>Description</th>\
+                        <th>Required</th>\
+                        </tr>\
+                        </thead>\
+                        <tbody>\
+                        </tbody>\
+                        </table>\
+                        <h4 class="post-title">POST Parameters</h4>\
+                        <table class="table table-bordered table-striped post-table">\
+                        <thead>\
+                        <tr>\
+                        <th>Name</th>\
+                        <th>Type</th>\
+                        <th>Description</th>\
+                        <th>Required</th>\
+                        </tr>\
+                        </thead>\
+                        <tbody>\
+                        </tbody>\
+                        </table>\
+                        <h4 class="response-title">Response</h4>\
+                        <table class="table table-bordered table-striped response-table">\
+                        <thead>\
+                        <tr>\
+                        <th>Name</th>\
+                        <th>Type</th>\
+                        <th>Description</th>\
+                        </tr>\
+                        </thead>\
+                        <tbody>\
+                        </tbody>\
+                        </table>\
+                        </div>\
+                        </div>\
+                </div>');
+
+                $action.find(".action-description").text(action.desc);
+                $action.find(".description").text(action.description);
+                $action.find(".auth-req").text(action.auth);
+                $action.find(".puzzle-req").text(action.puzzle);
+                if (action.input)
+                    $action.find(".input-code").text(action.input);
+                if (action.output)
+                    $action.find(".output-code").text(action.output);
+                if (action.status)
+                    $action.find(".status-code").text(action.status);
+                if (!action.pathing)
+                    $action.find(".pathing-table, .pathing-title").hide();
+                if (!action.query)
+                    $action.find(".query-table, .query-title").hide();
+                if (!action.post)
+                    $action.find(".post-table, .post-title").hide();
+                if (!action.response)
+                    $action.find(".response-table, .response-title").hide();
+                for (var k in action.pathing) {
+                    var parameter = action.pathing[k];
+                    var $param = $('<tr>\
+                            <td class="d-name"></td>\
+                            <td class="d-type"></td>\
+                            <td class="d-description"></td>\
+                    <td><span class="label label-' + (parameter.required ? "success" : "danger") + '">' + (parameter.required ? "YES" : "NO") + '</span></td>\
+                            </tr>');
+                    $param.find(".d-name").text(k);
+                    $param.find(".d-type").text(parameter.type);
+                    $param.find(".d-description").text(parameter.description);
+                    $action.find(".pathing-table tbody").append($param);
+                }
+                for (var k in action.query) {
+                    var parameter = action.query[k];
+                    var $param = $('<tr>\
+                            <td class="d-name"></td>\
+                            <td class="d-type"></td>\
+                            <td class="d-description"></td>\
+                    <td><span class="label label-' + (parameter.required ? "success" : "danger") + '">' + (parameter.required ? "YES" : "NO") + '</span></td>\
+                            </tr>');
+                    $param.find(".d-name").text(k);
+                    $param.find(".d-type").text(parameter.type);
+                    $param.find(".d-description").text(parameter.description);
+                    $action.find(".query-table tbody").append($param);
+                }
+                for (var k in action.post) {
+                    var parameter = action.post[k];
+                    var $param = $('<tr>\
+                            <td class="d-name"></td>\
+                            <td class="d-type"></td>\
+                            <td class="d-description"></td>\
+                    <td><span class="label label-' + (parameter.required ? "success" : "danger") + '">' + (parameter.required ? "YES" : "NO") + '</span></td>\
+                            </tr>');
+                    $param.find(".d-name").text(k);
+                    $param.find(".d-type").text(parameter.type);
+                    $param.find(".d-description").text(parameter.description);
+                    $action.find(".post-table tbody").append($param);
+                }
+                var $tbody = $action.find(".response-table tbody");
+                for (k in action.response) {
+                    var response = action.response[k];
+                    var $response = $('<tr>\
+                            <td class="d-name"></td>\
+                            <td class="d-type"></td>\
+                            <td class="d-description"></td>\
+                            </tr>');
+                    $response.find(".d-name").text(k);
+                    $response.find(".d-type").text(response.type);
+
+                    drawResponse($response.find(".d-description"), response.description);
+
+                    $tbody.append($response);
+                }
+
+
+                $outerPanel.append($action);
+
+
+            }
+
+
+        }
+    });
+</script>
+
+</body>
+</html>
