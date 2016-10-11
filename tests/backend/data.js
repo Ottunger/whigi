@@ -98,14 +98,16 @@ exports.test = function() {
             it('should find a present data', function(done) {
                 var f = new fk.FakeRes(false);
                 me.getData({
-                    params: {id: dummy_data._id}
+                    params: {id: dummy_data._id},
+                    query: {}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(200).notify(done);
             });
             it('should not find a non-present data', function(done) {
                 var f = new fk.FakeRes(false);
                 me.getData({
-                    params: {id: 'fake'}
+                    params: {id: 'fake'},
+                    query: {}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(404).notify(done);
             });
@@ -188,7 +190,8 @@ exports.test = function() {
                 var f = new fk.FakeRes(false);
                 me.getVault({
                     user: {_id: 'somebody'},
-                    params: {vault_id: dummy_vault._id}
+                    params: {vault_id: dummy_vault._id},
+                    query: {}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(200).notify(done);
             });
@@ -196,7 +199,8 @@ exports.test = function() {
                 var f = new fk.FakeRes(false);
                 me.getVault({
                     user: {_id: dummy_user._id},
-                    params: {vault_id: dummy_vault._id}
+                    params: {vault_id: dummy_vault._id},
+                    query: {}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(403).notify(done);
             });
@@ -204,7 +208,8 @@ exports.test = function() {
                 var f = new fk.FakeRes(false);
                 me.getVault({
                     user: {_id: dummy_user._id},
-                    params: {vault_id: dummy_vault2._id}
+                    params: {vault_id: dummy_vault2._id},
+                    query: {}
                 }, f);
                 chai.expect(f.promise).to.eventually.equal(403).notify(done);
             });

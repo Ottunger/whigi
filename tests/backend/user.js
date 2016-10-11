@@ -35,7 +35,8 @@ exports.test = function() {
             'gwQco1KRMDSmXSMkDwIDAQAB' +
             '-----END PUBLIC KEY-----',
         rsa_pri_key: [[162,20,73,126,186,148,221,108,127,171,194,58,61,141,66,33]],
-        is_company: 0
+        is_company: 0,
+        company_info: {}
     }
     var dummy_token0 = {
         _id: 'dummy0',
@@ -158,7 +159,7 @@ exports.test = function() {
                     query: {req: 'will fail'},
                     get: function() {return 'fr'}
                 }, f);
-                chai.expect(f.promise).to.eventually.equal(401).notify(done);
+                chai.expect(f.promise).to.eventually.equal(403).notify(done);
             });
         });
 
@@ -182,12 +183,13 @@ exports.test = function() {
                 var f = new fk.FakeRes(true);
                 me.recData({
                     user: new user.User(dummy_user, ds),
-                    body: {encr_data: 'bonjour', name: 'donnee'}
+                    body: {encr_data: 'bonjour', name: 'donnee', version: 0}
                 }, f);
                 f.promise.then(function(rec) {
                     chai.expect(db.collection('datas').findOne({_id: rec._id})).to.eventually.become({
                         _id: rec._id,
-                        encr_data: 'bonjour'
+                        encr_data: 'bonjour',
+                        version: 0
                     }).notify(done);
                 }, function(e) {
                     done(e);
