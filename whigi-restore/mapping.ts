@@ -11,14 +11,14 @@ var https = require('https');
 var hash = require('js-sha256');
 var aes = require('aes-js');
 var utils = require('../utils/utils');
-var mailer, db;
+var mailer;
 
 /**
  * Sets up the mailer before use.
  * @function managerInit
  * @public
  */
-export function managerInit(dbg) {
+export function managerInit() {
     mailer = ndm.createTransport({
         service: 'Gmail',
         auth: {
@@ -26,7 +26,6 @@ export function managerInit(dbg) {
             pass: 'nNP36gFYmMeND3dIoKwR'
         }
     });
-    db = dbg;
 }
 
 /**

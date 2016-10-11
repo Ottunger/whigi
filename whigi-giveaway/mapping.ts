@@ -14,14 +14,14 @@ var fs = require('fs');
 var sys = require('sys')
 var exec = require('child_process').exec;
 var utils = require('../utils/utils');
-var mailer, db, rsa_key;
+var mailer, rsa_key;
 
 /**
  * Sets up the mailer before use.
  * @function managerInit
  * @public
  */
-export function managerInit(dbg) {
+export function managerInit() {
     mailer = ndm.createTransport({
         service: 'Gmail',
         auth: {
@@ -29,7 +29,6 @@ export function managerInit(dbg) {
             pass: 'nNP36gFYmMeND3dIoKwR'
         }
     });
-    db = dbg;
     rsa_key = '';
 }
 

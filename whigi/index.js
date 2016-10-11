@@ -122,7 +122,7 @@ function connect(callback) {
         user.managerInit(db);
         data.managerInit(db);
         checks.prepareRL();
-        callback(false)
+        callback(false);
     } else {
         callback(true);
     }
@@ -258,7 +258,7 @@ connect(function(e) {
         res.type('application/json').status(200).json(require('./schemas/' + req.params.name + '_' + req.params.v1 + '_' + req.params.v2 + '.json'));
     });
     app.get('/api/v:version/selects/:key', function(req, res) {
-        res.type('application/json').status(200).json(require('./selects/' + decodeURIComponent(req.params.key) + '.json'));
+        res.type('application/json').status(200).json(require('./selects/' + req.params.key + '.json'));
     });
     app.get('/api/v:version/helps/:key', function(req, res) {
         res.type('application/json').status(200).json(require('./helps/' + req.params.key + '.json'));

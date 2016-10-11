@@ -14,7 +14,7 @@ Whigi repo is actually a collection of projects working for the Whigi project in
 
 
 # Installation of Whigi and Standalone client
-All Whigi instances run over HTTPS. Whigi-restore and Whigi-RLI are their own HTTPS providers, whereas Whigi and Whigi-giveaway are behind nginx.
+All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS providers, whereas Whigi, Whigi-restore and Whigi-giveaway are behind nginx.
 - Clone the gitlab repository.
 - Make sure to have installed node=4.7.X, mongo=3.2.X, nginx>=1.6.X. (A how to can be found in whigi-giveaway/README.md)
 - Modify the nginx.conf package to specify where you cloned your repo and the path to logs. Be careful where the HTTPS endpoint is! Especially if running several nginx in chain.
@@ -25,7 +25,7 @@ All Whigi instances run over HTTPS. Whigi-restore and Whigi-RLI are their own HT
 - Init database: mongo < mongoInit.sh
 - Launch Whigi: nohup npm run whigi &
 - Copy conf file and restart nginx: npm run serve
-- Launch Whigi-restore and Whigi-RLI/Whigi-CC if desired. They cannot run on the machine as they will listen on port 443!: nohup npm run whigi-XXX &
+- Launch Whigi-restore/Whigi-giveaway and Whigi-RLI/Whigi-CC if desired. They cannot run on the machine as they will listen on port 443!: nohup npm run whigi-XXX &
 
 # See CHANGELOG for a description of API endpoints.
 A greater description is given in the documents found in the doc folder.

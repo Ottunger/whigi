@@ -30,6 +30,7 @@ var rsa: RSAPool;
  * Sets up the mailer before use.
  * @function managerInit
  * @public
+ * @param {Datasource} dbg Database.
  */
 export function managerInit(dbg: Datasource) {
     mailer = ndm.createTransport({

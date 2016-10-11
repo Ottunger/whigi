@@ -7,21 +7,22 @@
 var express = require('express');
 var helmet = require('helmet');
 var body = require('body-parser');
+var http = require('http');
 var https = require('https');
 var fs = require('fs');
 var mc = require('promised-mongo');
 var utils = require('../utils/utils');
 var mapping = require('./mapping');
-var db;
 
 //Set the running configuration
-//Launch as ">$ node index.js 443 whigi-restore.envict.com whigi.envict.com whigi.com@gmail.com false" for instance
-var httpsport = parseInt(process.argv[2]) || 443;
+//Launch as ">$ node index.js 80 whigi-restore.envict.com whigi.envict.com whigi.com@gmail.com false false" for instance
+var httpport = parseInt(process.argv[2]) || 80;
 var localhost = process.argv[3] || 'localhost';
 utils.WHIGIHOST = process.argv[4] ||'localhost'; 
 utils.RUNNING_ADDR = 'https://' + utils.WHIGIHOST;
 utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
 utils.DEBUG = !!process.argv[6]? process.argv[6] : true;
+var isHttps = !!process.argv[7]? process.argv[7] : 'true';
 
 /**
  * Sets the API to connect to the database.
@@ -30,16 +31,8 @@ utils.DEBUG = !!process.argv[6]? process.argv[6] : true;
  * @param {Function} callback Callback.
  */ 
 function connect(callback) {
-    if(utils.DEBUG)
-        db = mc('localhost:27017/whigi-restore');
-    else
-        db = mc('whigiuser:sorryMeND3dIoKwR@localhost:27017/whigi-restore');
-    if(db) {
-        mapping.managerInit(db);
-        callback(false)
-    } else {
-        callback(true);
-    }
+    mapping.managerInit();
+    callback(false);
 }
 
 /**
@@ -48,13 +41,10 @@ function connect(callback) {
  * @public
  */ 
 function close() {
-    if(db !== undefined) {
-        db.close();
-    }
     process.exit(0);
 }
 
-//Now connect to DB then start serving requests
+//Now connect to services then start serving requests
 connect(function(e) {
     if(e) {
         console.log('Bootstrap could not be completed.');
@@ -91,7 +81,12 @@ connect(function(e) {
         });
     }
     
-    var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-restore-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-restore-cert.pem')}, app);
-    servers.listen(httpsport);
+    if(isHttps == 'true') {
+        var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-restore-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-restore-cert.pem')}, app);
+        servers.listen(httpport);
+    } else {
+        var server = http.createServer(app);
+        server.listen(httpport);
+    }
     console.log('Booststrap finished.'); 
 });

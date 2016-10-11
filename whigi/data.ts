@@ -23,6 +23,7 @@ var db: Datasource;
  * Set up.
  * @function managerInit
  * @public
+ * @param {Datasource} dbg Database.
  */
 export function managerInit(dbg: Datasource) {
     mailer = ndm.createTransport({

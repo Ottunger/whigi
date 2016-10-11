@@ -10,10 +10,8 @@ var helmet = require('helmet');
 var body = require('body-parser');
 var http = require('http');
 var fs = require('fs');
-var mc = require('promised-mongo');
 var utils = require('../utils/utils');
 var mapping = require('./mapping');
-var db;
 
 //Set the running configuration
 //Launch as ">$ node index.js 80 whigi-giveaway.envict.com whigi.envict.com whigi.com@gmail.com false" for instance
@@ -30,13 +28,8 @@ utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
  * @param {Function} callback Callback.
  */ 
 function connect(callback) {
-    db = mc('localhost:27017/whigi-giveaway');
-    if(db) {
-        mapping.managerInit(db);
-        callback(false)
-    } else {
-        callback(true);
-    }
+    mapping.managerInit(db);
+    callback(false);
 }
 
 /**
@@ -45,9 +38,6 @@ function connect(callback) {
  * @public
  */ 
 function close() {
-    if(db !== undefined) {
-        db.close();
-    }
     process.exit(0);
 }
 
