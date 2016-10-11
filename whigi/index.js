@@ -113,10 +113,10 @@ function listOptions(path, res, next) {
  */ 
 function connect(callback) {
     var d;
-    if(utils.DEBUG)
+    //if(utils.DEBUG)
         d = mc('localhost:27017/whigi');
-    else
-        d = mc('whigiuser:sorryMeND3dIoKwR@localhost:27017/whigi');
+    //else
+    //    d = mc('whigiuser:sorryMeND3dIoKwR@localhost:27017/whigi');
     if(d) {
         db = new datasources.Datasource(d, process.argv[8]);
         user.managerInit(db);

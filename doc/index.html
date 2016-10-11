@@ -4,7 +4,7 @@
 <head>
     <link rel="stylesheet" href="vendors/bootstrap.min.css" type="text/css">
     <meta charset="UTF-8">
-    <title>Ride Sharing API - REST</title>
+    <title>Whigi API's</title>
     <style type="text/css">
         .d-type {
             white-space: nowrap;
@@ -17,6 +17,7 @@
             {
                 "name": "peek",
                 "path": "/api/v{version}/peek",
+                "class": "primary",
                 "actions": [
                     {
                         "name": "id",
@@ -47,6 +48,7 @@
             {
                 "name": "user",
                 "path": "/api/v{version}/user",
+                "class": "primary",
                 "actions": [
                     {
                         "name": "userid",
@@ -156,6 +158,7 @@
             {
                 "name": "profile",
                 "path": "/api/v{version}/profile",
+                "class": "primary",
                 "actions": [
                     {
                         "name": "profileid",
@@ -220,17 +223,22 @@
                             "oauth": {
                                 "type": "array",
                                 "description": {
-                                    "id": {
-                                        "type": "string",
-                                        "description": "ID of the ticket"
-                                    },
-                                    "for_id": {
-                                        "type": "string",
-                                        "description": "User who this ticket is granted to"
-                                    },
-                                    "prefix": {
-                                        "type": "string",
-                                        "description": "Prefix this ticket grants access to"
+                                    "{i}": {
+                                        "type": "object",
+                                        "description": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "ID of the ticket"
+                                            },
+                                            "for_id": {
+                                                "type": "string",
+                                                "description": "User who this ticket is granted to"
+                                            },
+                                            "prefix": {
+                                                "type": "string",
+                                                "description": "Prefix this ticket grants access to"
+                                            }
+                                        }
                                     }
                                 }
                             },
@@ -507,6 +515,7 @@
             {
                 "name": "close",
                 "path": "/api/v{version}/close",
+                "class": "primary",
                 "actions": [
                     {
                         "name": "closeid",
@@ -549,6 +558,7 @@
             {
                 "name": "oauth",
                 "path": "/api/v{version}/oauth",
+                "class": "primary",
                 "actions": [
                     {
                         "name": "oauthnew",
@@ -574,7 +584,7 @@
                             },
                             "token": {
                                 "type": "string",
-                                "description": "The token itself",
+                                "description": "A shared token between requester and Whigi to validate him",
                                 "required": false
                             }
                         },
@@ -622,9 +632,10 @@
             {
                 "name": "eid",
                 "path": "/api/v{version}/eid",
+                "class": "primary",
                 "actions": [
                     {
-                        "name": "eid",
+                        "name": "eidnew",
                         "path": "/api/v{version}/eid",
                         "auth": "NO",
                         "puzzle": "NO",
@@ -704,6 +715,7 @@
             {
                 "name": "data",
                 "path": "/api/v{version}/data",
+                "class": "primary",
                 "actions": [
                     {
                         "name": "dataget",
@@ -805,6 +817,7 @@
             {
                 "name": "vault",
                 "path": "/api/v{version}/vault",
+                "class": "primary",
                 "actions": [
                     {
                         "name": "vaultnew",
@@ -1058,6 +1071,253 @@
                         }
                     }
                 ]
+            },
+            {
+                "name": "restorereq",
+                "path": "/api/v{version}/request",
+                "class": "warning",
+                "actions": [
+                    {
+                        "name": "rrid",
+                        "path": "/api/v{version}/request/{id}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 404, 500, 600",
+                        "method": "GET",
+                        "desc": "Create reset link sent by mail",
+                        "description": "Gathers password parts, then sends a reset link.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "The user that requests a reset link",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "restoremix",
+                "path": "/api/v{version}/mix",
+                "class": "warning",
+                "actions": [
+                    {
+                        "name": "rmid",
+                        "path": "/api/v{version}/mix/{id}/{half}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 404, 500, 600",
+                        "method": "GET",
+                        "desc": "Create reset link sent by mail",
+                        "description": "Gathers this half password, then sends a reset link.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "The user that requests a reset link",
+                                "required": true
+                            },
+                            "half": {
+                                "type": "string",
+                                "description": "URL encoded known part of password for cited user",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "client",
+                "path": "/",
+                "class": "danger",
+                "actions": [
+                    {
+                        "name": "caccount",
+                        "path": "/account/{id_to}/{return_url_ok}/{return_url_deny}/{with_account}/{data_list}/{expire_epoch}/{trigger}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "status": "200",
+                        "method": "GET",
+                        "desc": "Ask for account and data creation",
+                        "description": "Ask for account and data creation client side, can stay within same window for processing more flows.",
+                        "pathing": {
+                            "id_to": {
+                                "type": "string",
+                                "description": "The user that requests share creation",
+                                "required": true
+                            },
+                            "return_url_ok": {
+                                "type": "string",
+                                "description": "URL encoded URL to be browsed back upon success; can include query parameters. If on the same site, will be browsed from router navigation",
+                                "required": true
+                            },
+                            "return_url_deny": {
+                                "type": "string",
+                                "description": "URL encoded URL to be browsed back upon failure",
+                                "required": true
+                            },
+                            "with_account": {
+                                "type": "string",
+                                "description": "Can be 'true', 'false', or 'flow', to force a log in to happen after creation",
+                                "required": true
+                            },
+                            "data_list": {
+                                "type": "string",
+                                "description": "::-separated list of required generics, URL-encoded",
+                                "required": false
+                            },
+                            "expire_epoch": {
+                                "type": "integer",
+                                "description": "Epoch at which vault will no longer ba valid; 0 to keep them forever",
+                                "required": false
+                            },
+                            "trigger": {
+                                "type": "string",
+                                "description": "A URL-encoded URL to browse upon shared data change",
+                                "required": false
+                            }
+                        },
+                        "response": null
+                    },
+                    {
+                        "name": "cremote",
+                        "path": "/remote/{id_to}/{challenge}/{return_url}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "status": "200",
+                        "method": "GET",
+                        "desc": "IDP mechanism",
+                        "description": "Encrypt a challenge to prove identity.",
+                        "pathing": {
+                            "id_to": {
+                                "type": "string",
+                                "description": "The user that requests logging in into",
+                                "required": true
+                            },
+                            "challenge": {
+                                "type": "string",
+                                "description": "A characters and digits string to encrypt with the shared secret",
+                                "required": true
+                            },
+                            "return_url": {
+                                "type": "string",
+                                "description": "URL encoded URL to be browsed back with additional query parameters",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "response": {
+                                "type": "string",
+                                "description": "A dash-separated list of bytes that make up the encryption, such as 120-12-25-56"
+                            },
+                            "r64": {
+                                "type": "string",
+                                "description": "The same response, base64 encoded"
+                            },
+                            "user": {
+                                "type": "string",
+                                "description": "The ID of the user that tries to log in, or null on failure"
+                            }
+                        }
+                    },
+                    {
+                        "name": "coauth",
+                        "path": "/oauth/{for_id}/{prefix}/{token}/{return_url_ok}/{return_url_deny}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "status": "200",
+                        "method": "GET",
+                        "desc": "OAuth mechanism",
+                        "description": "Create an OAuth ticket.",
+                        "pathing": {
+                            "for_id": {
+                                "type": "string",
+                                "description": "The user that requests the ticket",
+                                "required": true
+                            },
+                            "prefix": {
+                                "type": "string",
+                                "description": "The path the created ticket should be valid for",
+                                "required": true
+                            },
+                            "token": {
+                                "type": "string",
+                                "description": "Your token for validating you at backend site",
+                                "required": true
+                            },
+                            "return_url_ok": {
+                                "type": "string",
+                                "description": "URL encoded URL to be browsed back with additional query parameters upon success",
+                                "required": true
+                            },
+                            "return_url_deny": {
+                                "type": "string",
+                                "description": "URL encoded URL to be browsed back with additional query parameters upon failure",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "reason": {
+                                "type": "string",
+                                "description": "A description of error, if any"
+                            },
+                            "token": {
+                                "type": "string",
+                                "description": "The newly created token, if any"
+                            },
+                            "key_decryption": {
+                                "type": "string",
+                                "description": "A SHA256 hash of the user password + salt, that will allow you to decrypt his data"
+                            }
+                        }
+                    },
+                    {
+                        "name": "csave",
+                        "path": "/save-key/{key}/{value}/{is_dated}/{return_url}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "status": "200",
+                        "method": "GET",
+                        "desc": "Saving user side mechanism",
+                        "description": "Create a data held by the user, only if no such data already exists and the data to create is NOT a generic one.",
+                        "pathing": {
+                            "key": {
+                                "type": "string",
+                                "description": "URL-encoded path to the new data",
+                                "required": true
+                            },
+                            "value": {
+                                "type": "string",
+                                "description": "Plain value to save, JSON stringified if required for dated fields",
+                                "required": true
+                            },
+                            "is_dated": {
+                                "type": "boolean",
+                                "description": "Whether this data is dated",
+                                "required": true
+                            },
+                            "return_url": {
+                                "type": "string",
+                                "description": "URL encoded URL to be browsed back; you cannot know the result of the operation",
+                                "required": true
+                            }
+                        },
+                        "response": null
+                    }
+                ]
             }
         ];
 
@@ -1070,7 +1330,7 @@
 
     <div class="container">
         <div class="navbar-header">
-            <a href="/index.html" class="navbar-brand">Whigi API</a>
+            <a href="/index.html" class="navbar-brand">Whigi API's</a>
         </div>
 
         <div>
@@ -1151,7 +1411,7 @@
 
             var ctrl = API[i];
 
-            var $outer = $('<div class="panel panel-primary">\
+            var $outer = $('<div class="panel panel-' + ctrl.class + '">\
                     <div class="panel-heading" role="tab" id="' + ctrl.name +'">\
                     <h4 class="panel-title">\
                     <a role="button" data-toggle="collapse" data-parent="accordion" href="#collapse_' + ctrl.name +'" aria-expanded="false" aria-controls="collapse_' + ctrl.name +'">\
@@ -1176,7 +1436,7 @@
                 var action = ctrl.actions[j];
 
 
-                var $action = $('<div class="panel-info">\
+                var $action = $('<div class="panel-info panel-' + ctrl.class + '">\
                         <div class="panel-heading" role="tab" id="' + action.name + '">\
                         <div class="row">\
                         <div class="col-md-1 text-right"><span class="label label-' + methodMap[action.method] + '">' + action.method + '</span></div>\

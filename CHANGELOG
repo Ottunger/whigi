@@ -123,7 +123,7 @@ Whigi-restore endpoints:
 /api/v<any>/request/<id>: Get
 Ask for a link to reset password sent by mail when ready.
 
-/api/v<any>/mix/<half>: Get
+/api/v<any>/mix/<id>/<half>: Get
 Visited by a peer ton inform of half a key.
 
 

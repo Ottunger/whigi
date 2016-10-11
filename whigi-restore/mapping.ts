@@ -41,7 +41,7 @@ function whigi(method: string, path: string, data?: any): Promise {
     var options = {
         host: utils.WHIGIHOST,
         port: 443,
-        path: path,
+        path: '/api/v1' + path,
         method: method,
         headers: {
           'Authorization': 'Basic ' + new Buffer('whigi-restore:' + hash.sha256(require('./password.json').pwd)).toString('base64')
@@ -95,7 +95,11 @@ export function requestMapping(req, res) {
             if(recup) {
                 whigi('GET', '/vault/' + data.shared_with_me[username]['profile/recup_id']).then(function(vault) {
                     var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
-                    var recup_id = decryptAES(vault.data_crypted_aes, aesKey);
+                    var recup_id = decryptAES(vault.data_crypted_aes, aesKey).toLowerCase();
+                    if(!(recup_id in data.shared_with_me)) {
+                        res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
+                        return;
+                    }
                     whigi('GET', '/vault/' + data.shared_with_me[recup_id]['profile/email/restore']).then(function(vault) {
                         var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
                         var recup_mail = decryptAES(vault.data_crypted_aes, aesKey);
@@ -104,9 +108,10 @@ export function requestMapping(req, res) {
                             to: '<' + recup_mail + '>',
                             subject: utils.i18n('mail.subject.otherAccount', req),
                             html: utils.i18n('mail.body.otherAccount', req) + '<br /> \
-                                <a href="' + utils.RUNNING_ADDR + '/password-help/' + encodeURIComponent(username) + '">' +
+                                <a href="' + utils.RUNNING_ADDR + '/password-help/' + username + '/keys%2Fpwd%2Fmine2">' +
                                 utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
                         }, function(e, i) {});
+                        res.type('application/json').status(200).json({error: ''});
                     }, function(e) {
                         res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
                     });
@@ -128,10 +133,11 @@ export function requestMapping(req, res) {
                                 to: '<' + email + '>',
                                 subject: utils.i18n('mail.subject.account', req),
                                 html: utils.i18n('mail.body.reset', req) + '<br /> \
-                                    <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + encodeURIComponent(username) +
+                                    <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + username +
                                     '/' + encodeURIComponent(mine1 + mine2) + '">' +
                                     utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
                             }, function(e, i) {});
+                            res.type('application/json').status(200).json({error: ''});
                         }, function(e) {
                             res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
                         });
@@ -147,20 +153,20 @@ export function requestMapping(req, res) {
         }
     }
 
-    whigi('GET', '/api/v1/profile').then(function(profile) {
+    whigi('GET', '/profile').then(function(profile) {
         var key = utils.toBytes(hash.sha256(require('./password.json').pwd + profile.salt));
         var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
         var master_key = Array.from(decrypter.decrypt(profile.encr_master_key));
         decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(profile.rsa_pri_key[0]));
-        whigi('GET', '/api/v1/profile/data').then(function(data) {
-            if(!!data.shared_with_me[username]['profile/email/restore'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
+        whigi('GET', '/profile/data').then(function(data) {
+            if(!!data && !!data.shared_with_me && !!data.shared_with_me[username] && !!data.shared_with_me[username]['profile/email/restore'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
                 if(!!data.shared_with_me[username]['profile/recup_id']) {
                     complete(true, master_key, rsa_key, data);
                 } else if(!!data.shared_with_me[username]['keys/pwd/mine2']) {
                     complete(false, master_key, rsa_key, data);
                 } else {
-                    res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});    
+                    res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
                 }
             } else {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
@@ -195,10 +201,11 @@ export function mixMapping(req, res) {
                         to: '<' + email + '>',
                         subject: utils.i18n('mail.subject.account', req),
                         html: utils.i18n('mail.body.reset', req) + '<br /> \
-                            <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + encodeURIComponent(username) +
+                            <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + username +
                             '/' + encodeURIComponent(mine1 + decodeURIComponent(req.params.half)) + '">' +
                             utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
                     }, function(e, i) {});
+                    res.type('application/json').status(200).json({error: ''});
                 }, function(e) {
                     res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
                 });
@@ -210,14 +217,14 @@ export function mixMapping(req, res) {
         }
     }
 
-    whigi('GET', '/api/v1/profile').then(function(profile) {
+    whigi('GET', '/profile').then(function(profile) {
         var key = utils.toBytes(hash.sha256(require('./password.json').pwd + profile.salt));
         var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
         var master_key = Array.from(decrypter.decrypt(profile.encr_master_key));
         decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(profile.rsa_pri_key[0]));
-        whigi('GET', '/api/v1/profile/data').then(function(data) {
-            if(!!data.shared_with_me[username]['profile/email/restore'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
+        whigi('GET', '/profile/data').then(function(data) {
+            if(!!data && !!data.shared_with_me && !!data.shared_with_me[username] && !!data.shared_with_me[username]['profile/email/restore'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
                 complete(master_key, rsa_key, data);
             } else {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
