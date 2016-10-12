@@ -12,7 +12,8 @@
         "instantiable": true,
         "descr_key": "generics.email",
         "module": "generics.profile",
-        "group": "generics.perso1"
+        "group": "generics.perso1",
+        "new_key": "new.email"
     }],
     "profile/tel": [{
         "is_dated": false,
@@ -27,7 +28,8 @@
         "instantiable": true,
         "descr_key": "generics.tel",
         "module": "generics.profile",
-        "group": "generics.perso1"
+        "group": "generics.perso1",
+        "new_key": "new.tel"
     }],
     "profile/last_name": [{
         "is_dated": false,
@@ -119,7 +121,8 @@
         "instantiable": true,
         "descr_key": "generics.address",
         "module": "generics.profile",
-        "group": "generics.perso2"
+        "group": "generics.perso2",
+        "new_key": "new.address"
     }],
 
 
@@ -136,7 +139,8 @@
         "instantiable": true,
         "descr_key": "generics.corporate_name",
         "module": "generics.corporate",
-        "group": "generics.corp1"
+        "group": "generics.corp1",
+        "new_key": "new.corporate_name"
     }],
     "profile/corporate/country": [{
         "is_dated": false,
@@ -151,7 +155,8 @@
         "instantiable": true,
         "descr_key": "generics.country",
         "module": "generics.corporate",
-        "group": "generics.corp1"
+        "group": "generics.corp1",
+        "new_key": "new.country"
     }],
     "profile/corporate/type/franco": [{
         "is_dated": false,
@@ -166,7 +171,8 @@
         "instantiable": true,
         "descr_key": "generics.corporate_type",
         "module": "generics.corporate",
-        "group": "generics.corp2none"
+        "group": "generics.corp2none",
+        "new_key": "new.corporate_type"
     }],
     "profile/corporate/type/open": [{
         "is_dated": false,
@@ -181,7 +187,8 @@
         "instantiable": true,
         "descr_key": "generics.corporate_open",
         "module": "generics.corporate",
-        "group": "generics.corp2none"
+        "group": "generics.corp2none",
+        "new_key": "new.open"
     }],
     "profile/corporate/address": [{
         "is_dated": false,
@@ -233,6 +240,7 @@
         "instantiable": true,
         "descr_key": "generics.address",
         "module": "generics.corporate",
-        "group": "generics.corp1"
+        "group": "generics.corp1",
+        "new_key": "new.address"
     }]
 }
