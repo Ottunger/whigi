@@ -13,7 +13,8 @@
         "descr_key": "generics.email",
         "module": "generics.profile",
         "group": "generics.perso1",
-        "new_key": "new.email"
+        "new_key": "new.email",
+        "placeholder": "...@..."
     }],
     "profile/tel": [{
         "is_dated": false,
@@ -29,7 +30,8 @@
         "descr_key": "generics.tel",
         "module": "generics.profile",
         "group": "generics.perso1",
-        "new_key": "new.tel"
+        "new_key": "new.tel",
+        "placeholder": "+XXXXXXXXX"
     }],
     "profile/last_name": [{
         "is_dated": false,
@@ -114,7 +116,8 @@
                 "descr_key": "generics.country",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "placeholder": "AR, BE, ..."
             }
         ],
         "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode']);",

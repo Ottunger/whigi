@@ -54,6 +54,14 @@
         "title": "Chemin d'enregistrement dans le Whigi",
         "type": "string"
       },
+      "new_key": {
+        "title": "Clé de traduction pour une nouvelle instance",
+        "type": "string"
+      },
+      "placeholder": {
+        "title": "Aide dans l'input si texte",
+        "type": "string"
+      },
       "json_keys": {
         "title": "Clés de i18n pour un champ avec sous-champs, comme l'adresse. Dans ce cas, les sous champs sont des 'string'!",
         "type": "array",
@@ -76,6 +84,10 @@
             "required": {
               "title": "Le sous champ est-il requis",
               "type": "boolean"
+            },
+            "placeholder": {
+              "title": "Aide dans l'input si texte",
+              "type": "string"
             }
           }
         }
