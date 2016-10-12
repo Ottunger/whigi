@@ -28,7 +28,7 @@ utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
  * @param {Function} callback Callback.
  */ 
 function connect(callback) {
-    mapping.managerInit(db);
+    mapping.managerInit();
     callback(false);
 }
 
