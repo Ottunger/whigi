@@ -48,7 +48,7 @@ function whigi(method: string, path: string, data?: any): Promise {
         path: path,
         method: method,
         headers: {
-            'Authorization': 'Basic ' + new Buffer('whigi-giveaway:' + hash.sha256(require('./password.json').pwd)).toString('base64')
+            'Authorization': 'Basic ' + new Buffer('whigi-gwp:' + hash.sha256(require('./password.json').pwd)).toString('base64')
         }
     };
     if(method == 'POST') {
@@ -155,7 +155,7 @@ export function create(req, res) {
         whigi('GET', '/api/v1/profile/data').then(function(data) {
             user.data = data.data;
             user.shared_with_me = data.shared_with_me;
-            decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
+            decryptVault(user, id, 'keys/auth/whigi-gwp').then(function(vault) {
                 var resp: string = utils.atob(response);
                 var nc = decryptAES(resp, utils.toBytes(vault.decr_data));
                 if(nc == req.session.challenge) {
@@ -170,7 +170,7 @@ export function create(req, res) {
                                 fs.writeFile('/etc/nginx/sites-available/' + lid, `
                                     server {
                                             listen 80;
-                                            server_name  ` + lid + `-whigimembers.envict.com;
+                                            server_name  ` + lid + `.envict.com;
                                             error_log /home/gregoire/nginx.err;
                                             access_log  /home/gregoire/nginx.log;
                                             gzip on;
@@ -188,7 +188,7 @@ export function create(req, res) {
                                     }
                                     server {
                                             listen 443;
-                                            server_name  ` + lid + `-whigimembers.envict.com;
+                                            server_name  ` + lid + `.envict.com;
                                             error_log /home/gregoire/nginx.err;
                                             access_log  /home/gregoire/nginx.log;
                                             gzip on;
@@ -211,7 +211,7 @@ export function create(req, res) {
                                     } else {
                                         fs.writeFile('/etc/apache2/sites-available/' + lid + '.conf', `
                                             <VirtualHost *:` + httpport + `>
-                                                ServerName ` + lid + `-whigimembers.envict.com
+                                                ServerName ` + lid + `.envict.com
                                                 ServerAdmin whigi.com@gmail.com
                                                 DocumentRoot /var/www/` + lid + `
                                                 ErrorLog \${APACHE_LOG_DIR}/error.log
@@ -221,7 +221,7 @@ export function create(req, res) {
                                                 SSLEngine On
                                                 SSLCertificateFile /home/gregoire/envict.bundle.crt
                                                 SSLCertificateKeyFile /home/gregoire/envict.com.key
-                                                ServerName ` + lid + `-whigimembers.envict.com
+                                                ServerName ` + lid + `.envict.com
                                                 ServerAdmin whigi.com@gmail.com
                                                 DocumentRoot /var/www/` + lid + `
                                                 ErrorLog \${APACHE_LOG_DIR}/error.log
@@ -261,6 +261,17 @@ export function create(req, res) {
                                                         console.log('Cannot write file.');
                                                         res.redirect('/error.html');
                                                     } else {
+                                                        var mode = (!!req.query.wptype)? req.query.wptype : 'classic';
+                                                        var plgs;
+                                                        switch(mode) {
+                                                            case 'selling':
+                                                                plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch simple-e-commerce-shopping-cart';
+                                                                break;
+                                                            case 'classic':
+                                                            default:
+                                                                plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch';
+                                                                break;
+                                                        }
                                                         exec(`
                                                             mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
                                                             mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + lid + `;" &&
@@ -276,15 +287,15 @@ export function create(req, res) {
                                                             cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
                                                             chmod -R 770 /var/www/` + lid + `/ &&
                                                             chown -hR www-data:www-data /var/www/` + lid + `/ &&
-                                                            wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `-whigimembers.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + id + ` --skip-email &&
-                                                            wp --allow-root --path=/var/www/` + lid + ` plugin activate whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch &&
+                                                            wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + id + ` --skip-email &&
+                                                            wp --allow-root --path=/var/www/` + lid + ` plugin activate ` + plgs + ` &&
                                                             wp --allow-root --path=/var/www/` + lid + ` theme activate clean-lite
                                                         `, function(err, stdout, stderr) {
                                                             if(err) {
                                                                 console.log('Cannot complete OPs:\n' + stderr);
                                                                 res.redirect('/error.html');
                                                             } else {
-                                                                res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '-whigimembers.envict.com'));
+                                                                res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '.envict.com'));
                                                                 exec('service nginx force-reload');
                                                                 setTimeout(function() {
                                                                     exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
@@ -313,7 +324,7 @@ export function create(req, res) {
                             });
                         } else {
                             //Account already existed
-                            res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '-whigimembers.envict.com'));
+                            res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '.envict.com'));
                         }
                     });
                 } else {
@@ -363,7 +374,7 @@ export function remove(req, res) {
         whigi('GET', '/api/v1/profile/data').then(function(data) {
             user.data = data.data;
             user.shared_with_me = data.shared_with_me;
-            decryptVault(user, id, 'keys/auth/whigi-giveaway').then(function(vault) {
+            decryptVault(user, id, 'keys/auth/whigi-gwp').then(function(vault) {
                 var resp: string = utils.atob(response);
                 var nc = decryptAES(resp, utils.toBytes(vault.decr_data));
                 if(nc == req.session.challenge) {

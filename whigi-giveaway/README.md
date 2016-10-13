@@ -32,6 +32,7 @@ Of course, you will need to do a little bit of setup:
 - Idem for https://downloads.wordpress.org/plugin/seo-ultimate.7.6.5.8.zip
 - Idem for https://downloads.wordpress.org/plugin/wordpress-seo.3.6.zip
 - Idem for https://downloads.wordpress.org/plugin/wptouch.4.3.2.zip
+- Idem for https://downloads.wordpress.org/plugin/simple-e-commerce-shopping-cart.zip
 - Idem for https://downloads.wordpress.org/theme/clean-lite.1.5.zip, but put it in wp-content/themes
 - Clone this repo, delete already installed plugins and and copy the plugins from clients/whigi-wp and clients/whigi-wp-s2 to /home/gregoire/wordpress/wp-content/plugins
 

@@ -11,6 +11,7 @@ var ndm = require('nodemailer');
 var aes = require('aes-js');
 var hash = require('js-sha256');
 var utils = require('../utils/utils');
+var checks = require('../utils/checks');
 import {User} from '../common/models/User';
 import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
@@ -183,7 +184,7 @@ export function regVault(req, res, respond?: boolean): Promise {
     respond = respond !== false;
     var storable = (typeof got.storable !== undefined && got.storable === true);
     return new Promise(function(resolve, reject) {
-        if(storable && /whigi/i.test(got.shared_to_id)) {
+        if(storable && checks.isWhigi(got.shared_to_id)) {
             if(respond === true)
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 reject();
@@ -310,7 +311,7 @@ export function removeVault(req, res) {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
                 return;
             }
-            if(v.sharer_id != req.user._id || /whigi/i.test(v.shared_to_id)) {
+            if(v.sharer_id != req.user._id || checks.isWhigi(v.shared_to_id)) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }

@@ -102,6 +102,17 @@ export function eidSig(load: any): boolean {
 }
 
 /**
+ * Returns whether a name is Whigi related.
+ * @function isWhigi
+ * @public
+ * @param {String} str String.
+ * @return {Boolean} Response.
+ */
+export function isWhigi(str: string): boolean {
+    return /(whigi)|(www)|(wissl)|(envict)|(mail)|(imap)|(pop)|(smtp)|(ssh)|(ftp)|(api)|(restore)|(giveaway)/i.test(str);
+}
+
+/**
  * Creates a function suitable for use in express app that checks that the request is ok for OAuth.
  * @function checkOAuth
  * @public

@@ -129,7 +129,7 @@ export function closeTo(req, res) {
         nu.persist();
     }
 
-    if(dec == req.user._id || /whigi/i.test(dec)) {
+    if(dec == req.user._id || checks.isWhigi(dec)) {
         res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
         return;
     }
@@ -202,7 +202,7 @@ export function closeTo(req, res) {
  * @param {Response} res The response.
  */
 export function goCompany1(req, res) {
-    if(/whigi/i.test(req.user._id)) {
+    if(checks.isWhigi(req.user._id)) {
         res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
         return;
     }
@@ -285,7 +285,7 @@ export function goCompany9(req, res) {
         if((new Date).getTime() - 60*1000 > stamp) {
             res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
         } else {
-            if(/whigi/i.test(oid[req.query.req])) {
+            if(checks.isWhigi(oid[req.query.req])) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
@@ -446,7 +446,7 @@ export function recData(req, res, respond?: boolean): Promise {
     var got = req.body;
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
-        if(/whigi/i.test(req.user._id)) {
+        if(checks.isWhigi(req.user._id)) {
             if(respond === true)
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 reject();
@@ -751,7 +751,7 @@ export function regUser(req, res) {
         });
     }
 
-    if(user.password.length >= 8 || /whigi/i.test(user.username)) {
+    if(user.password.length >= 8 || checks.isWhigi(user.username)) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
             if(ok || utils.DEBUG) {
                 db.retrieveUser(proposal).then(function(u) {
