@@ -261,7 +261,7 @@ export function create(req, res) {
                                                         console.log('Cannot write file.');
                                                         res.redirect('/error.html');
                                                     } else {
-                                                        var mode = (!!req.query.wptype)? req.query.wptype : 'classic';
+                                                        var mode = (!!req.params.wptype)? req.params.wptype : 'classic';
                                                         var plgs;
                                                         switch(mode) {
                                                             case 'selling':

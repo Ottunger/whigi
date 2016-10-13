@@ -62,7 +62,7 @@ connect(function(e) {
 
     //API ROUTES
     app.get('/api/v:version/challenge', mapping.challenge);
-    app.get('/api/v:version/create', mapping.create);
+    app.get('/api/v:version/create/:wptype', mapping.create);
     app.get('/api/v:version/remove', mapping.remove);
 
     //Error route

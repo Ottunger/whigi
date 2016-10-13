@@ -109,7 +109,7 @@ Whigi-giveaway endpoints:
 /api/v<any>/challenge: Get
 Creates a challenge for logging in.
 
-/api/v<any>/create: Get
+/api/v<any>/create/:wptype: Get
 Creates a giveaway if ?response and ?user match.
 
 /api/v<any>/remove: Get
