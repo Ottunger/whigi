@@ -751,7 +751,7 @@ export function regUser(req, res) {
         });
     }
 
-    if(user.password.length >= 8 || checks.isWhigi(user.username)) {
+    if(user.password.length >= 8 && !checks.isWhigi(user.username)) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
             if(ok || utils.DEBUG) {
                 db.retrieveUser(proposal).then(function(u) {
