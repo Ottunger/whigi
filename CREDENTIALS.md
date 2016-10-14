@@ -10,6 +10,8 @@ Gmail
 	pass: nNP36gFYmMeND3dIoKwR
 SSL Key
    	key: My tailor is rich
+whigi-wissl on Whigi:
+	pass: abcdefgh
 whigi-restore on Whigi:
 	pass: abcdefgh
 whigi-gwp on Whigi:

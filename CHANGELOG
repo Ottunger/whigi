@@ -39,7 +39,7 @@ Updates password. When updated password, can send the password hashed but needs 
 
 /api/v<any>/profile/uname: Post, needs auth, needs puzzle
 Updates username.
-{"username": "string"}
+{"new_username": "string"}
 
 /api/v<any>/user/create: Post, needs captcha
 Creates a new entry if none matches. The password is this only time sent in clear.

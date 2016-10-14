@@ -524,7 +524,7 @@ export function updateUser(req, res) {
  */
 export function changeUsername(req, res) {
     var got = req.body, index = 0, array: {vid: string}[] = [];
-    var proposal = got.username.toLowerCase().replace(/[^a-z0-9\-]/g, '');
+    var proposal = got.new_username.toLowerCase().replace(/[^a-z0-9\-]/g, '');
 
     function end() {
         if(index < array.length) {
