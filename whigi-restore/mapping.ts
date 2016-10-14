@@ -71,7 +71,7 @@ function whigi(method: string, path: string, data?: any): Promise {
 }
 
 /**
- * Decrypt a string using master_key in AES.
+ * Decrypt a string using specified AES key.
  * @function decryptAES
  * @public
  * @param {String} data Data to decrypt.
@@ -80,6 +80,18 @@ function whigi(method: string, path: string, data?: any): Promise {
  */
 function decryptAES(data: string, key: number[]): string {
     return aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(utils.str2arr(data)));
+}
+
+/**
+ * Encrypt a string using specifies AES key towards base64.
+ * @function encryptAES
+ * @public
+ * @param {String} data Data to encrypt.
+ * @param {Bytes} key Key to use.
+ * @return {String} Result.
+ */
+function encryptAES(data: string, key: number[]): string {
+    return (new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).encrypt(aes.util.convertStringToBytes(data))).toString('base64');
 }
 
 /**
@@ -148,8 +160,8 @@ export function requestMapping(req, res) {
                             //Forge key for AES retrieval, AES and encrypt.
                             aesKey = utils.toBytes(utils.generateRandomString(64));
                             var retKey = utils.generateRandomString(20);
-                            mapping[retKey] = utils.arr2str(aesKey);console.log(mapping);
-                            var encrypt = decryptAES(mine1 + mine2, aesKey);console.log(encrypt);
+                            mapping[retKey] = utils.arr2str(aesKey);
+                            var encrypt = encryptAES(mine1 + mine2, aesKey);
                             mailer.sendMail({
                                 from: 'Whigi <' + utils.MAIL_ADDR + '>',
                                 to: '<' + email + '>',
