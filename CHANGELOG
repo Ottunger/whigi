@@ -120,6 +120,9 @@ Removes a giveaway if ?response and ?user match.
 Whigi-restore endpoints:
 ************************
 
+/api/v<any>/get/<key>: Get
+Get a aes key for getting password.
+
 /api/v<any>/request/<id>: Get
 Ask for a link to reset password sent by mail when ready.
 

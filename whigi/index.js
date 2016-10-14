@@ -31,6 +31,8 @@ utils.RUNNING_ADDR = 'https://' + localhost;
 utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
 utils.DEBUG = !!process.argv[6]? (process.argv[6] == 'true'? true : false): 'true';
 var isHttps = !!process.argv[7]? process.argv[7] : 'true';
+if(utils.DEBUG)
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 /**
  * Returns the allowed HTTP vers on a ressource.

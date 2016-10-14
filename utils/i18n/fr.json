@@ -26,6 +26,6 @@
   "mail.body.otherAccount": "Suivez le lien pour enregistrer une part secrète du demandeur:",
   "mail.body.needRestore": "Vous trouverez les clés partielles dans votre dossiers 'keys'. Merci d'envoyer la sienne à ",
   "mail.body.askData": " vous demande une donnée. Si vous lui faites confiance, suivez le lien pour lui partager ",
-  "mail.body.reset": "Suivez le lien pour changer de mot de passe:",
+  "mail.body.reset": "Suivez le lien pour changer de mot de passe (ce lien n'est valide qu'UNE SEULE fois):",
   "mail.signature": "La Whigi team."
 }

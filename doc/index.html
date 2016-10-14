@@ -1073,6 +1073,41 @@
                 ]
             },
             {
+                "name": "getreq",
+                "path": "/api/v{version}/get",
+                "class": "warning",
+                "actions": [
+                    {
+                        "name": "gtrid",
+                        "path": "/api/v{version}/get/{key}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 404",
+                        "method": "GET",
+                        "desc": "Get the AES key for password",
+                        "description": "Get the AES key that was used to encrypt password.",
+                        "pathing": {
+                            "key": {
+                                "type": "string",
+                                "description": "The key to the AES",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "aes": {
+                                "type": "string",
+                                "description": "An AES key sent stringified"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
                 "name": "restorereq",
                 "path": "/api/v{version}/request",
                 "class": "warning",
@@ -1187,6 +1222,11 @@
                             "trigger": {
                                 "type": "string",
                                 "description": "A URL-encoded URL to browse upon shared data change",
+                                "required": false
+                            },
+                            "email": {
+                                "type": "string",
+                                "description": "A URL-encoded email to trigger a stranger creation. should not use.",
                                 "required": false
                             }
                         },

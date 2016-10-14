@@ -23,6 +23,8 @@ utils.RUNNING_ADDR = 'https://' + utils.WHIGIHOST;
 utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
 utils.DEBUG = !!process.argv[6]? process.argv[6] : true;
 var isHttps = !!process.argv[7]? process.argv[7] : 'true';
+if(utils.DEBUG)
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 /**
  * Sets the API to connect to the database.
@@ -65,6 +67,7 @@ connect(function(e) {
     app.use(body.json({limit: '5000mb'}));
 
     //API ROUTES
+    app.get('/api/v:version/get/:key', mapping.mapGet);
     app.get('/api/v:version/request/:id', mapping.requestMapping);
     app.get('/api/v:version/mix/:id/:half', mapping.mixMapping);
 

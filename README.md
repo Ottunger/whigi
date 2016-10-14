@@ -19,9 +19,8 @@ All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS p
 - Make sure to have installed node=4.7.X, mongo=3.2.X, nginx>=1.6.X. (A how to can be found in whigi-giveaway/README.md)
 - Modify the nginx.conf package to specify where you cloned your repo and the path to logs. Be careful where the HTTPS endpoint is! Especially if running several nginx in chain.
 - Modify package.json, the script "whigi", to specify the hostname of Whigi-restore to Whigi and vice versa, if they do not both run on the same machine.
-- Modify clients/standalone/app/app.service.ts to specify the backend hostname.
-- Install npm dependencies: npm install && cd clients/standalone && npm install && cd ../..
-- Compile all (do not worry about non finding Promise, Buffer, etc): npm run build && cd clients/standalone && npm run build_unix && cd ../..
+- Install npm dependencies: npm install
+- Compile all (do not worry about non finding Promise, Buffer, etc): npm run build
 - Init database: mongo < mongoInit.sh
 - Launch Whigi: nohup npm run whigi &
 - Copy conf file and restart nginx: npm run serve

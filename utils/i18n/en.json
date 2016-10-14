@@ -26,6 +26,6 @@
   "mail.body.otherAccount": "Click here to save a referant's secret part:",
   "mail.body.needRestore": "You will find your referants' keys in your 'keys' folder. Please send his partial key to ",
   "mail.body.askData": " asks you to share a data. If you trust him, follow the link to share acces to ",
-  "mail.body.reset": "Click here to change your password:",
+  "mail.body.reset": "Click here to change your password (this link is only valid ONCE):",
   "mail.signature": "The Whigi team."
 }

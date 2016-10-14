@@ -11,7 +11,7 @@ var https = require('https');
 var hash = require('js-sha256');
 var aes = require('aes-js');
 var utils = require('../utils/utils');
-var mailer;
+var mailer, mapping;
 
 /**
  * Sets up the mailer before use.
@@ -26,6 +26,7 @@ export function managerInit() {
             pass: 'nNP36gFYmMeND3dIoKwR'
         }
     });
+    mapping = {};
 }
 
 /**
@@ -82,6 +83,22 @@ function decryptAES(data: string, key: number[]): string {
 }
 
 /**
+ * Get the aesKey once.
+ * @function mapGet
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function mapGet(req, res) {
+    if(req.params.key in mapping) {
+        res.type('application/json').status(200).json({aes: mapping[req.params.key]});
+        delete mapping[req.params.key];
+    } else {
+        res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+    }
+}
+
+/**
  * Requests a mapping to be sent upon click in mail.
  * @function requestMapping
  * @public
@@ -128,13 +145,18 @@ export function requestMapping(req, res) {
                         whigi('GET', '/vault/' + data.shared_with_me[username]['keys/pwd/mine2']).then(function(vault) {
                             var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
                             var mine2 = decryptAES(vault.data_crypted_aes, aesKey);
+                            //Forge key for AES retrieval, AES and encrypt.
+                            aesKey = utils.toBytes(utils.generateRandomString(64));
+                            var retKey = utils.generateRandomString(20);
+                            mapping[retKey] = utils.arr2str(aesKey);console.log(mapping);
+                            var encrypt = decryptAES(mine1 + mine2, aesKey);console.log(encrypt);
                             mailer.sendMail({
                                 from: 'Whigi <' + utils.MAIL_ADDR + '>',
                                 to: '<' + email + '>',
                                 subject: utils.i18n('mail.subject.account', req),
                                 html: utils.i18n('mail.body.reset', req) + '<br /> \
                                     <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + username +
-                                    '/' + encodeURIComponent(mine1 + mine2) + '">' +
+                                    '/' + encodeURIComponent(encrypt) + '/' + retKey + '">' +
                                     utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
                             }, function(e, i) {});
                             res.type('application/json').status(200).json({error: ''});
@@ -196,13 +218,19 @@ export function mixMapping(req, res) {
                 whigi('GET', '/vault/' + data.shared_with_me[username]['keys/pwd/mine1']).then(function(vault) {
                     var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
                     var mine1 = decryptAES(vault.data_crypted_aes, aesKey);
+                    var mine2 = decodeURIComponent(req.params.half);
+                    //Forge key for AES retrieval, AES and encrypt.
+                    aesKey = utils.toBytes(utils.generateRandomString(64));
+                    var retKey = utils.generateRandomString(20);
+                    mapping[retKey] = utils.arr2str(aesKey);
+                    var encrypt = decryptAES(mine1 + mine2, aesKey);
                     mailer.sendMail({
                         from: 'Whigi <' + utils.MAIL_ADDR + '>',
                         to: '<' + email + '>',
                         subject: utils.i18n('mail.subject.account', req),
                         html: utils.i18n('mail.body.reset', req) + '<br /> \
                             <a href="' + utils.RUNNING_ADDR + '/password-recovery/' + username +
-                            '/' + encodeURIComponent(mine1 + decodeURIComponent(req.params.half)) + '">' +
+                            '/' + encodeURIComponent(encrypt) + '/' + retKey + '">' +
                             utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
                     }, function(e, i) {});
                     res.type('application/json').status(200).json({error: ''});
