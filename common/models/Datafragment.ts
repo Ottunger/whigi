@@ -19,7 +19,7 @@ export class Datafragment extends IModel {
      * @param encr_data Data.
      * @param db DB behind.
      */
-    constructor(_id: string, public encr_data: string, public version: number, db: Datasource) {
+    constructor(_id: string, public encr_data: string, public version: number, public encr_aes: string, db: Datasource) {
         super(_id, db);
     }
 
@@ -33,7 +33,8 @@ export class Datafragment extends IModel {
         var ret = {
             _id: this._id,
             encr_data: this.encr_data,
-            version: this.version
+            version: this.version,
+            encr_aes: this.encr_aes
         };
         return ret;
     }

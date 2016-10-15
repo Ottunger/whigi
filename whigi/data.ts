@@ -53,7 +53,7 @@ export function getData(req, res) {
         ids = [req.params.id];
     }
     ids.forEach(function(id) {
-        db.retrieveData(id).then(function(df) {
+        db.retrieveData(id).then(function(df: Datafragment) {
             if(!df) {
                 if(!ans) {
                     ans = true;
@@ -61,10 +61,18 @@ export function getData(req, res) {
                 }
             } else {
                 var ret = df.sanitarize();
-                if((req.query.key !== undefined)) {
+                if(req.query.key !== undefined && df._id.indexOf('datafragment') != 0) {
                     try {
                         ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
                             new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
+                        delete ret.encr_data;
+                    } catch(e) {}
+                } else if(req.query.key !== undefined && df._id.indexOf('datafragment') == 0) {
+                    try {
+                        var dckey: number[] = new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
+                            new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_aes));
+                        ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(dckey,
+                            new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data));
                         delete ret.encr_data;
                     } catch(e) {}
                 }

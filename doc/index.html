@@ -405,6 +405,16 @@
                                 "description": "The data versioning schema",
                                 "required": true
                             },
+                            "is_bound": {
+                                "type": "boolean",
+                                "description": "Whether to create a bound data",
+                                "required": true
+                            },
+                            "encr_aes": {
+                                "type": "string",
+                                "description": "Encrypted AES key for bound data",
+                                "required": true
+                            },
                             "decr_data": {
                                 "type": "string",
                                 "description": "Dcrypted data for the server to perform work",

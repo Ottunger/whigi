@@ -310,7 +310,7 @@ connect(function(e) {
     //API POST CHECKS
     app.post('/api/v:version/close/:id', checks.checkBody(['new_keys']));
     app.post('/api/v:version/profile/data', checks.checkBody(['maybe_stale', 'needed']));
-    app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated', 'version']));
+    app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated', 'version', 'is_bound', 'encr_aes']));
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
     app.post('/api/v:version/profile/uname', checks.checkBody(['new_username']));
     app.post('/api/v:version/user/create', checks.checkBody(['username', 'password']));

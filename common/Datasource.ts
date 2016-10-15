@@ -160,7 +160,7 @@ export class Datasource {
         return new Promise<Datafragment>(function(resolve, reject) {
             self.retrieveGeneric('datas', {_id: id}, {none: false}).then(function(data) {
                 if(!!data) {
-                    resolve(new Datafragment(data._id, data.encr_data, data.version, self));
+                    resolve(new Datafragment(data._id, data.encr_data, data.version, data.encr_aes, self));
                 } else {
                     resolve(undefined);
                 }

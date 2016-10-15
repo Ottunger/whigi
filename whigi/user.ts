@@ -484,7 +484,7 @@ export function recData(req, res, respond?: boolean): Promise {
             return;
         }
         req.user.fill().then(function() {
-            if(!!got.decr_data && !!got.key) {
+            if(!!got.decr_data && !!got.key && got.is_bound == false) {
                 try {
                     var mk = utils.str2arr(utils.atob(got.key));
                     got.encr_data = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(mk, new aes.Counter(0))
@@ -495,8 +495,19 @@ export function recData(req, res, respond?: boolean): Promise {
                     reject();
                     return;
                 }
+            } else if(!!got.decr_data && !!got.key && got.is_bound) {
+                try {
+                    var mk = utils.str2arr(utils.atob(got.key)), newaes = utils.toBytes(utils.generateRandomString(64));
+                    got.encr_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(mk, new aes.Counter(0)).encrypt(newaes)));
+                    got.encr_data = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(newaes, new aes.Counter(0)).encrypt(aes.util.convertStringToBytes(got.decr_data))));
+                } catch(e) {
+                    if(respond === true)
+                        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                    reject();
+                    return;
+                }
             }
-            var newid = utils.generateRandomString(128);
+            var newid = got.is_bound? 'datafragment' + utils.generateRandomSring(117) : utils.generateRandomString(128);
             req.user.data[got.name] = {
                 id: newid,
                 length: Buffer.byteLength(got.encr_data, 'utf8'),
@@ -504,7 +515,7 @@ export function recData(req, res, respond?: boolean): Promise {
                 version: got.version,
                 shared_to: {}
             };
-            var frg: Datafragment = new Datafragment(newid, got.encr_data, got.version, db);
+            var frg: Datafragment = new Datafragment(newid, got.encr_data, got.version, got.encr_aes, db);
             frg.persist().then(function() {
                 req.user.persist().then(function() {
                     if(respond === true)
@@ -753,7 +764,8 @@ export function regUser(req, res) {
                             name: req.body.more[i].real_name,
                             is_dated: req.body.more[i].is_dated,
                             encr_data: encr,
-                            version: req.body.more[i].version
+                            version: req.body.more[i].version,
+                            is_bound: true
                         },
                         pass: req.body.more[i]
                     }, {}, false).then(function(passed) {
