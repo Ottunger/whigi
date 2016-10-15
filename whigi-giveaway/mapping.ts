@@ -271,7 +271,7 @@ export function create(req, res) {
                                                                 remove(req, {}, false);
                                                                 res.redirect('/error.html');
                                                             } else {
-                                                                res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '.envict.com'));
+                                                                res.redirect('https://' + lid + '.envict.com/wp-login.php');
                                                                 exec('service nginx force-reload');
                                                                 setTimeout(function() {
                                                                     exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
