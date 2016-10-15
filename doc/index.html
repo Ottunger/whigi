@@ -332,6 +332,48 @@
                         }
                     },
                     {
+                        "name": "profiledatap",
+                        "path": "/api/v{version}/user/profile/data",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 400, 500",
+                        "method": "POST",
+                        "desc": "Retrieve some own data",
+                        "description": "Retrieve list shared data, for required fields, andtells if names or vaults are stale among said ones.",
+                        "post": {
+                            "maybe_stale": {
+                                "type": "array",
+                                "description": "An array of string that contains keys to check",
+                                "required": true
+                            },
+                            "needed": {
+                                "type": "array",
+                                "description": "An array of string that must be returned",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "shared_with_me": {
+                                "type": "object",
+                                "description": "Object indexed by sharer for those asked, of data names that point to vault ID"
+                            },
+                            "stale": {
+                                "type": "array",
+                                "description": {
+                                    "{i}": {
+                                        "type": "string",
+                                        "description": "A stale key in shared data"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
                         "name": "profiledatanew",
                         "path": "/api/v{version}/user/profile/data/new",
                         "auth": "YES",

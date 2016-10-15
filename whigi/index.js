@@ -60,7 +60,7 @@ function listOptions(path, res, next) {
     else if(path.match(/\/api\/v[1-9]\/profile\/info\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/data\/?$/))
-        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+        res.set('Access-Control-Allow-Methods', 'GET,POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/data\/new\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/user\/.+\/?$/))
@@ -271,6 +271,7 @@ connect(function(e) {
     app.post('/api/v:version/close/:id', pauth);
     app.post('/api/v:version/profile/info', pauth);
     app.get('/api/v:version/profile/data', pauth);
+    app.post('/api/v:version/profile/data', pauth);
     app.post('/api/v:version/profile/data/new', pauth);
     app.post('/api/v:version/profile/update', pauth);
     app.post('/api/v:version/profile/uname', pauth);
@@ -303,12 +304,12 @@ connect(function(e) {
     app.post('/api/v:version/vault/new', checks.checkOAuth(false, 2));
     app.delete('/api/v:version/vault/:vault_id', checks.checkOAuth(true));
     app.delete('/api/v:version/vault/forother/:vault_id', checks.checkOAuth(true));
-    app.get('/api/v:version/vault/:vault_id', checks.checkOAuth(true));
     app.get('/api/v:version/vault/time/:vault_id', checks.checkOAuth(true));
     app.post('/api/v:version/oauth/new', checks.checkOAuth(true));
     app.delete('/api/v:version/oauth/:id', checks.checkOAuth(true));
     //API POST CHECKS
     app.post('/api/v:version/close/:id', checks.checkBody(['new_keys']));
+    app.post('/api/v:version/profile/data', checks.checkBody(['maybe_stale', 'needed']));
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated', 'version']));
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
     app.post('/api/v:version/profile/uname', checks.checkBody(['new_username']));
@@ -331,6 +332,7 @@ connect(function(e) {
     app.post('/api/v:version/close/:id', user.closeTo);
     app.post('/api/v:version/profile/info', user.goCompany1);
     app.get('/api/v:version/profile/data', user.listData);
+    app.post('/api/v:version/profile/data', user.someData);
     app.post('/api/v:version/profile/data/new', user.recData);
     app.post('/api/v:version/profile/update', user.updateUser);
     app.post('/api/v:version/profile/uname', user.changeUsername);

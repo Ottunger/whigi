@@ -434,6 +434,37 @@ export function listData(req, res) {
 }
 
 /**
+ * Forges the response to list some possessed data as json, or HTTP 500 code.
+ * @function someData
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function someData(req, res) {
+    var got = req.body;
+    if(!(got.needed.constructor === Array) || !(got.maybe_stale.constructor === Array)) {
+        res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
+        return;
+    }
+    req.user.fill().then(function() {
+        var stale = got.maybe_stale.filter(function(el: string): boolean {
+            return !(el in req.user.shared_with_me);
+        });
+        var sh = {};
+        for(var i = 0; i < got.needed.length; i++) {
+            if(got.needed[i] in req.user.shared_with_me)
+                sh[got.needed[i]] = req.user.shared_with_me[got.needed[i]];
+        }
+        res.type('application/json').status(200).json({
+            stale: stale,
+            shared_with_me: sh
+        });
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
  * Forges the response to record a new info. An info with the same name will be erased.
  * @function recData
  * @public
