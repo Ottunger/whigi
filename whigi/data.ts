@@ -13,6 +13,7 @@ var hash = require('js-sha256');
 var utils = require('../utils/utils');
 var checks = require('../utils/checks');
 import {User} from '../common/models/User';
+import {Datafragment} from '../common/models/Datafragment';
 import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
 import {IModel} from '../common/models/IModel';
@@ -201,16 +202,23 @@ export function regVault(req, res, respond?: boolean): Promise {
                         res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id.toLowerCase()]});
                     reject();
                 } else {
-                    var keys = Object.getOwnPropertyNames(req.user.data[got.real_name].shared_to);
-                    if(storable && keys.length != 0) {
-                        //Cannot create a storable vault if a vaults exist
+                    //Cannot create a storable vault if we are trying to create a bound vault
+                    if(storable && got.aes_crypted_shared_pub.indexOf('datafragment') == 0) {
                         if(respond === true)
                             res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                         reject();
                         return;
                     }
+                    var keys = Object.getOwnPropertyNames(req.user.data[got.real_name].shared_to);
+                    //Cannot create a storable vault if vaults exist
+                    if(storable && keys.length != 0) {
+                        if(respond === true)
+                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                        reject();
+                        return;
+                    }
+                    //Cannot create a vault if a storable one exists
                     if(keys.length == 1 && req.user.data[got.real_name].shared_to[keys[0]].indexOf('storable') == 0) {
-                        //Cannot create a vault if a storable one exists
                         if(respond === true)
                             res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                         reject();
@@ -429,6 +437,26 @@ export function getVault(req, res) {
     } catch(e) {
         ids = [req.params.vault_id];
     }
+
+    function process(ret) {
+        if((req.query.key !== undefined)) {
+            try {
+                req.query.key = utils.atob(req.query.key);
+                var key: number[] = utils.decryptRSA(ret.aes_crypted_shared_pub, req.query.key);
+                ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(utils.str2arr(ret.data_crypted_aes)));
+                delete ret.aes_crypted_shared_pub;
+                delete ret.data_crypted_aes;
+            } catch(e) {}
+        }
+        returns.push(ret);
+        done++;
+        if(done == ids.length && !ans) {
+            if(done == 1)
+                res.type('application/json').status(200).json(ret);
+            else
+                res.type('application/json').status(200).json(returns);
+        }
+    }
     ids.forEach(function(id) {
         db.retrieveVault(id).then(function(v: Vault) {
             if(!!v) {
@@ -459,22 +487,24 @@ export function getVault(req, res) {
                 v.last_access = (new Date).getTime();
                 v.persist();
                 var ret = v.sanitarize();
-                if((req.query.key !== undefined)) {
-                    try {
-                        req.query.key = utils.atob(req.query.key);
-                        var key: number[] = utils.decryptRSA(ret.aes_crypted_shared_pub, req.query.key);
-                        ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(utils.str2arr(ret.data_crypted_aes)));
-                        delete ret.aes_crypted_shared_pub;
-                        delete ret.data_crypted_aes;
-                    } catch(e) {}
-                }
-                returns.push(ret);
-                done++;
-                if(done == ids.length && !ans) {
-                    if(done == 1)
-                        res.type('application/json').status(200).json(ret);
-                    else
-                        res.type('application/json').status(200).json(returns);
+                //For bound vaults, now is the time to get the encrypted data
+                if(ret.data_crypted_aes.indexOf('datafragment') == 0) {
+                    db.retrieveData(ret.data_crypted_aes).then(function(d: Datafragment) {
+                        if(!d && !ans) {
+                            ans = true;
+                            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                            return;
+                        }
+                        ret.data_crypted_aes = d.encr_data;
+                        process(ret);
+                    }, function(e) {
+                        if(!ans) {
+                            ans = true;
+                            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                        }
+                    });
+                } else {
+                    process(ret);
                 }
             } else {
                 if(!ans) {
