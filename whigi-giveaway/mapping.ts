@@ -163,29 +163,10 @@ export function create(req, res) {
                     fs.access('/var/www/' + lid, function(err) {
                         if(!!err) {
                             //Continue
-                            var httpport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
                             var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
                             decryptVault(user, id, 'profile/email').then(function(vault2) {
                                 var email = vault2.decr_data;
                                 fs.writeFile('/etc/nginx/sites-available/' + lid, `
-                                    server {
-                                            listen 80;
-                                            server_name  ` + lid + `.envict.com;
-                                            error_log /home/gregoire/nginx.err;
-                                            access_log  /home/gregoire/nginx.log;
-                                            gzip on;
-                                            gzip_min_length 1000;
-                                            gzip_proxied any;
-                                            gzip_comp_level 7;
-                                            gzip_types *;
-                                            location / {
-                                                    proxy_pass      http://localhost:` + httpport + `;
-                                                    proxy_set_header    Host            $host;
-                                                    proxy_set_header    X-Real-IP       $remote_addr;
-                                                    proxy_set_header    X-Forwarded-for $remote_addr;
-                                                    port_in_redirect on;
-                                            }
-                                    }
                                     server {
                                             listen 443;
                                             server_name  ` + lid + `.envict.com;
@@ -210,13 +191,6 @@ export function create(req, res) {
                                         res.redirect('/error.html');
                                     } else {
                                         fs.writeFile('/etc/apache2/sites-available/' + lid + '.conf', `
-                                            <VirtualHost *:` + httpport + `>
-                                                ServerName ` + lid + `.envict.com
-                                                ServerAdmin whigi.com@gmail.com
-                                                DocumentRoot /var/www/` + lid + `
-                                                ErrorLog \${APACHE_LOG_DIR}/error.log
-                                                CustomLog \${APACHE_LOG_DIR}/access.log combined
-                                            </VirtualHost>
                                             <VirtualHost *:` + httpsport + `>
                                                 SSLEngine On
                                                 SSLCertificateFile /home/gregoire/envict.bundle.crt
@@ -230,35 +204,37 @@ export function create(req, res) {
                                         `, function(e) {
                                             if(e) {
                                                 console.log('Cannot write file.');
+                                                remove(req, {}, false);
                                                 res.redirect('/error.html');
                                             } else {
                                                 fs.writeFile('/home/gregoire/wordpress/wp-config.php', `
                                                     <?php
-                                                    define('DB_NAME', '` + lid + `');
-                                                    define('DB_USER', 'wpshit');
-                                                    define('DB_PASSWORD', 'shitty');
-                                                    define('DB_HOST', 'localhost');
-                                                    define('DB_CHARSET', 'utf8mb4');
-                                                    define('DB_COLLATE', '');
-                                                    define('AUTH_KEY',         'Jh5I7@7m2OB~HiNSc1}/~s209Z]Nf?.uTv+B}lIpbXzUcs(R*xxn|@lX9VTfA5!o');
-                                                    define('SECURE_AUTH_KEY',  'iACos2^0]3+} Mc]N[u/Nf)s1{k|#Q&S%3[6m7InZCmvCFoN2)m+-K[< PpEN7>q');
-                                                    define('LOGGED_IN_KEY',    'XD?uYc4%5i+^/Mf!-D0E81GhJ&FfVztoih_M!E D.u+PGX3pk?U.r*JmlLFwboF=');
-                                                    define('NONCE_KEY',        '*4+=G<H_MXdr@4-^+oMRmq>k:Oq4gc({->B[l1yJIzPH eAmnLamMFN_?<VzDK6m');
-                                                    define('AUTH_SALT',        'K!o$1hATCF9H3Ywq%{O4=G>|3V-%OCb OLJ2ejKlm1RpdABTAlnxf&1])e^$kwL[');
-                                                    define('SECURE_AUTH_SALT', 'mp*60}n4vFwzlNA/b<F[ikBlRxM2~yqo~7rx[3d5%S42gd^Y=*Nd4~#K3J!u<BmJ');
-                                                    define('LOGGED_IN_SALT',   '7jFxLyq%.uF&5~g2g+M /lWy#2kl-xRRm!}Yegg^X9=xw&ALH>u3I|Cr|cc=G$tL');
-                                                    define('NONCE_SALT',       '[i|_-]%Tq1D^<[!P|}fIDZJttmax{}flkW?Ma+m9h%wh2K>B&jPlAr4c<=-S_C?L');
-                                                    $table_prefix  = 'wp_';
-                                                    define('WP_DEBUG', false);
-                                                    define('WP_DEBUG_LOG', false);
-                                                    define('FORCE_SSL_ADMIN', true);
-                                                    if ( !defined('ABSPATH') )
-                                                            define('ABSPATH', dirname(__FILE__) . '/');
-                                                    require_once(ABSPATH . 'wp-settings.php');
+                                                        define('DB_NAME', '` + lid + `');
+                                                        define('DB_USER', 'wpshit');
+                                                        define('DB_PASSWORD', 'shitty');
+                                                        define('DB_HOST', 'localhost');
+                                                        define('DB_CHARSET', 'utf8mb4');
+                                                        define('DB_COLLATE', '');
+                                                        define('AUTH_KEY',         'Jh5I7@7m2OB~HiNSc1}/~s209Z]Nf?.uTv+B}lIpbXzUcs(R*xxn|@lX9VTfA5!o');
+                                                        define('SECURE_AUTH_KEY',  'iACos2^0]3+} Mc]N[u/Nf)s1{k|#Q&S%3[6m7InZCmvCFoN2)m+-K[< PpEN7>q');
+                                                        define('LOGGED_IN_KEY',    'XD?uYc4%5i+^/Mf!-D0E81GhJ&FfVztoih_M!E D.u+PGX3pk?U.r*JmlLFwboF=');
+                                                        define('NONCE_KEY',        '*4+=G<H_MXdr@4-^+oMRmq>k:Oq4gc({->B[l1yJIzPH eAmnLamMFN_?<VzDK6m');
+                                                        define('AUTH_SALT',        'K!o$1hATCF9H3Ywq%{O4=G>|3V-%OCb OLJ2ejKlm1RpdABTAlnxf&1])e^$kwL[');
+                                                        define('SECURE_AUTH_SALT', 'mp*60}n4vFwzlNA/b<F[ikBlRxM2~yqo~7rx[3d5%S42gd^Y=*Nd4~#K3J!u<BmJ');
+                                                        define('LOGGED_IN_SALT',   '7jFxLyq%.uF&5~g2g+M /lWy#2kl-xRRm!}Yegg^X9=xw&ALH>u3I|Cr|cc=G$tL');
+                                                        define('NONCE_SALT',       '[i|_-]%Tq1D^<[!P|}fIDZJttmax{}flkW?Ma+m9h%wh2K>B&jPlAr4c<=-S_C?L');
+                                                        $table_prefix  = 'wp_';
+                                                        define('WP_DEBUG', false);
+                                                        define('WP_DEBUG_LOG', false);
+                                                        define('FORCE_SSL_ADMIN', true);
+                                                        if ( !defined('ABSPATH') )
+                                                                define('ABSPATH', dirname(__FILE__) . '/');
+                                                        require_once(ABSPATH . 'wp-settings.php');
                                                     ?>
                                                 `, function(e) {
                                                     if(e) {
                                                         console.log('Cannot write file.');
+                                                        remove(req, {}, false);
                                                         res.redirect('/error.html');
                                                     } else {
                                                         var mode = (!!req.params.wptype)? req.params.wptype : 'classic';
@@ -279,7 +255,6 @@ export function create(req, res) {
                                                             ln -s /etc/nginx/sites-available/` + lid + ` /etc/nginx/sites-enabled/` + lid + ` &&
                                                             rm -f /etc/apache2/sites-enabled/` + lid + `.conf &&
                                                             ln -s /etc/apache2/sites-available/` + lid + `.conf /etc/apache2/sites-enabled/` + lid + `.conf &&
-                                                            echo "Listen ` + httpport + `" >> /etc/apache2/ports.conf &&
                                                             echo "Listen ` + httpsport + ` https" >> /etc/apache2/ports.conf &&
                                                             service apache2 reload &&
                                                             rm -rf /var/www/` + lid + ` &&
@@ -293,6 +268,7 @@ export function create(req, res) {
                                                         `, function(err, stdout, stderr) {
                                                             if(err) {
                                                                 console.log('Cannot complete OPs:\n' + stderr);
+                                                                remove(req, {}, false);
                                                                 res.redirect('/error.html');
                                                             } else {
                                                                 res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '.envict.com'));
@@ -351,11 +327,13 @@ export function create(req, res) {
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.
+ * @param {Boolean} respond Whether to respond.
  */
-export function remove(req, res) {
+export function remove(req, res, respond?: boolean) {
     var response: string = req.query.r64;
     var id: string = req.query.user;
     var lid: string = encodeURIComponent(id.toLowerCase());
+    respond = respond !== false;
 
     whigi('GET', '/api/v1/profile').then(function(user) {
         if(rsa_key == '') {
@@ -367,7 +345,8 @@ export function remove(req, res) {
                 rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key[0]));
             } catch(e) {
                 console.log('Cannot decrypt our keys.');
-                res.redirect('/error.html');
+                if(respond === true)
+                    res.redirect('/error.html');
             }
         }
 
@@ -377,7 +356,7 @@ export function remove(req, res) {
             decryptVault(user, id, 'keys/auth/whigi-gwp').then(function(vault) {
                 var resp: string = utils.atob(response);
                 var nc = decryptAES(resp, utils.toBytes(vault.decr_data));
-                if(nc == req.session.challenge) {
+                if(nc == req.session.challenge || respond !== true) {
                     exec(`
                         mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
                         rm -f /etc/nginx/sites-enabled/` + lid + ` &&
@@ -387,26 +366,32 @@ export function remove(req, res) {
                     `, function(err, stdout, stderr) {
                         if(err) {
                             console.log('Cannot complete OPs:\n' + stderr);
-                            res.redirect('/error.html');
+                            if(respond === true)
+                                res.redirect('/error.html');
                         } else {
-                            res.redirect('/removed.html');
+                            if(respond === true)
+                                res.redirect('/removed.html');
                             exec('service nginx force-reload');
                         }
                     });
                 } else {
                     console.log('Challenge was ' + req.session.challenge + ' but read ' + nc + ' for user ' + id + '.');
-                    res.redirect('/error.html');
+                    if(respond === true)
+                        res.redirect('/error.html');
                 }
             }, function(e) {
                 console.log('Cannot read response.');
-                res.redirect('/error.html');
+                if(respond === true)
+                    res.redirect('/error.html');
             });
         }, function(e) {
             console.log('Cannot read data.');
-            res.redirect('/error.html');
+            if(respond === true)
+                res.redirect('/error.html');
         });
     }, function(e) {
         console.log('Cannot read profile.');
-        res.redirect('/error.html');
+        if(respond === true)
+            res.redirect('/error.html');
     });
 }
