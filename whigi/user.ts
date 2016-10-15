@@ -554,20 +554,66 @@ export function updateUser(req, res) {
  * @param {Response} res The response.
  */
 export function changeUsername(req, res) {
-    var got = req.body, index = 0, array: {vid: string}[] = [];
+    var got = req.body, index = 0, array: {vid: string}[] = [], array2: string[] = [], array3: string[] = [];
     var proposal = got.new_username.toLowerCase().replace(/[^a-z0-9\-]/g, '');
 
+    function final() {
+        if(index < array3.length) {
+            var work = array3[index];
+            index++;
+            db.retrieveUser(work, true).then(function(u: User) {
+                u.shared_with_me[proposal] = u.shared_with_me[req.user._id];
+                delete u.shared_with_me[req.user._id];
+                u.persist().then(function() {
+                    final();
+                }, function(e) {
+                    final();
+                });
+            }, function(e) {
+                final();
+            });
+        }
+    }
+    function after() {
+        if(index < array2.length) {
+            var work = array2[index];
+            index++;
+            db.retrieveVault(work).then(function(v: Vault) {
+                if(!v) {
+                    after();
+                    return;
+                }
+                v.sharer_id = proposal;
+                if(array3.indexOf(v.shared_to_id) == -1)
+                    array3.push(v.shared_to_id);
+                v.persist().then(function() {
+                    after();
+                }, function(e) {
+                    after();
+                });
+            }, function(e) {
+                after();
+            });
+        } else {
+            index = 0;
+            final();
+        }
+    }
     function end() {
         if(index < array.length) {
             var work = array[index];
             index++;
             db.retrieveVault(work.vid).then(function(v: Vault) {
+                if(!v) {
+                    end();
+                    return;
+                }
                 v.shared_to_id = proposal;
                 v.persist().then(function() {
                     db.retrieveUser(v.sharer_id, true).then(function(u: User) {
                         u.data[v.real_name] = u.data[v.real_name] || {shared_to: {}};
                         delete u.data[v.real_name].shared_to[req.user._id];
-                        u.data[v.real_name].shared_to[req.user._id] = v._id;
+                        u.data[v.real_name].shared_to[proposal] = v._id;
                         u.persist().then(function() {
                             end();
                         }, function(e) {
@@ -603,6 +649,9 @@ export function changeUsername(req, res) {
                         }
                     });
                 }
+                //Complete ownerships
+                index = 0;
+                after();
             }, function(e) {
                 res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
             });
@@ -610,6 +659,7 @@ export function changeUsername(req, res) {
     }
     function complete() {
         req.user.fill().then(function() {
+            //Set ownership of received vaults
             var keys = Object.getOwnPropertyNames(req.user.shared_with_me);
             for(var i = 0; i < keys.length; i++) {
                 var kk = Object.getOwnPropertyNames(req.user.shared_with_me[keys[i]]);
@@ -619,20 +669,15 @@ export function changeUsername(req, res) {
                     });
                 }
             }
-            end();
             //Set ownerships of sent vaults
             keys = Object.getOwnPropertyNames(req.user.data);
             for(var i = 0; i < keys.length; i++) {
                 var kk = Object.getOwnPropertyNames(req.user.data[keys[i]].shared_to);
                 for(var j = 0; j < kk.length; j++) {
-                    db.retrieveVault(req.user.data[keys[i]].shared_to[kk[j]]).then(function(v: Vault) {
-                        if(!!v) {
-                            v.sharer_id = proposal;
-                            v.persist();
-                        }
-                    });
+                    array2.push(req.user.data[keys[i]].shared_to[kk[j]]);
                 }
             }
+            end();
         }, function() {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
