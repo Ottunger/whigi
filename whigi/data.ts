@@ -201,6 +201,21 @@ export function regVault(req, res, respond?: boolean): Promise {
                         res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id.toLowerCase()]});
                     reject();
                 } else {
+                    var keys = Object.getOwnPropertyNames(req.user.data[got.real_name].shared_to);
+                    if(storable && keys.length != 0) {
+                        //Cannot create a storable vault if a vaults exist
+                        if(respond === true)
+                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                        reject();
+                        return;
+                    }
+                    if(keys.length == 1 && req.user.data[got.real_name].shared_to[keys[0]].indexOf('storable') == 0) {
+                        //Cannot create a vault if a storable one exists
+                        if(respond === true)
+                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                        reject();
+                        return;
+                    }
                     var v: Vault = new Vault({
                         _id: storable? 'storable' + utils.generateRandomString(120) : utils.generateRandomString(128),
                         shared_to_id: got.shared_to_id.toLowerCase(),
