@@ -129,7 +129,7 @@ export function closeTo(req, res) {
         nu.persist();
     }
 
-    if(dec == req.user._id || checks.isWhigi(dec)) {
+    if(dec == req.user._id || checks.isWhigi(dec) || checks.isWhigi(req.user._id)) {
         res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
         return;
     }
@@ -507,7 +507,7 @@ export function recData(req, res, respond?: boolean): Promise {
                     return;
                 }
             }
-            var newid = got.is_bound? 'datafragment' + utils.generateRandomSring(117) : utils.generateRandomString(128);
+            var newid = got.is_bound? 'datafragment' + utils.generateRandomString(117) : utils.generateRandomString(128);
             req.user.data[got.name] = {
                 id: newid,
                 length: Buffer.byteLength(got.encr_data, 'utf8'),

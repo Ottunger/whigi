@@ -72,7 +72,7 @@ export function getData(req, res) {
                         var dckey: number[] = new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
                             new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_aes));
                         ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(dckey,
-                            new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data));
+                            new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
                         delete ret.encr_data;
                     } catch(e) {}
                 }
@@ -211,7 +211,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                     reject();
                 } else {
                     //Cannot create a storable vault if we are trying to create a bound vault
-                    if(storable && got.aes_crypted_shared_pub.indexOf('datafragment') == 0) {
+                    if(storable && got.data_crypted_aes.indexOf('datafragment') == 0) {
                         if(respond === true)
                             res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                         reject();
@@ -508,7 +508,7 @@ export function getVault(req, res) {
                     }, function(e) {
                         if(!ans) {
                             ans = true;
-                            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                         }
                     });
                 } else {
