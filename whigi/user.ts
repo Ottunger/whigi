@@ -765,7 +765,8 @@ export function regUser(req, res) {
                             is_dated: req.body.more[i].is_dated,
                             encr_data: encr,
                             version: req.body.more[i].version,
-                            is_bound: true
+                            is_bound: false,
+                            encr_aes: ''
                         },
                         pass: req.body.more[i]
                     }, {}, false).then(function(passed) {
