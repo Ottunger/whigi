@@ -73,6 +73,7 @@ export function getData(req, res) {
                             new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_aes));
                         ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(ret.decr_aes,
                             new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
+                        ret.decr_aes = Array.from(ret.decr_aes);
                         delete ret.encr_data;
                         delete ret.encr_aes;
                     } catch(e) {}
