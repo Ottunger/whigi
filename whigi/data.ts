@@ -69,11 +69,12 @@ export function getData(req, res) {
                     } catch(e) {}
                 } else if(req.query.key !== undefined && df._id.indexOf('datafragment') == 0) {
                     try {
-                        var dckey: number[] = new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
+                        ret.decr_aes = new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
                             new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_aes));
-                        ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(dckey,
+                        ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(ret.decr_aes,
                             new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
                         delete ret.encr_data;
+                        delete ret.encr_aes;
                     } catch(e) {}
                 }
                 returns.push(ret);
@@ -257,7 +258,19 @@ export function regVault(req, res, respond?: boolean): Promise {
                             //Make sure only object is printed to DB
                             sharee = req.user;
                         }
-                        if(!!got.decr_data) {
+                        if(v.data_crypted_aes.indexOf('datafragment') == 0 && !!req.query.key) {
+                            //Bound vault from mobile
+                            try {
+                                var naes: number[] = utils.str2arr(utils.atob(req.query.key))
+                                v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
+                            } catch(e) {
+                                if(respond === true)
+                                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                                reject();
+                                return;
+                            }
+                        } else if(!!got.decr_data) {
+                            //Unbound vault from mobile
                             try {
                                 var naes: number[] = utils.toBytes(utils.generateRandomString(64));
                                 v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);

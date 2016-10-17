@@ -881,7 +881,14 @@
                         "status": "201, 400, 404, 412, 500",
                         "method": "POST",
                         "desc": "Create a share",
-                        "description": "Create a new share. When asking the server to perform encryption, cannot be used for bound vaults.",
+                        "description": "Create a new share. When asking the server to perform encryption, send the plain AES key in query parameters.",
+                        "query": {
+                            "key": {
+                                "type": "string",
+                                "description": "A base64 encoded AES key used for creating a bound vault",
+                                "required": false
+                            }
+                        },
                         "post": {
                             "data_name": {
                                 "type": "string",
