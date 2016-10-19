@@ -8,7 +8,7 @@
         "mode": "text",
         "enum": "",
         "json_keys": [],
-        "validate": "return /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/.test(test);",
+        "validate": "return /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/.test(test)? true : 'generics.regexp';",
         "instantiable": true,
         "descr_key": "generics.email",
         "module": "generics.profile",
@@ -25,7 +25,7 @@
         "mode": "text",
         "enum": "",
         "json_keys": [],
-        "validate": "return /\\+(9[976]\\d|8[987530]\\d|6[987]\\d|5[90]\\d|42\\d|3[875]\\d|2[98654321]\\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\\d{1,14}$/.test(test);",
+        "validate": "return /\\+(9[976]\\d|8[987530]\\d|6[987]\\d|5[90]\\d|42\\d|3[875]\\d|2[98654321]\\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\\d{1,14}$/.test(test)? true : 'generics.regexp';",
         "instantiable": true,
         "descr_key": "generics.tel",
         "module": "generics.profile",
@@ -42,7 +42,7 @@
         "mode": "text",
         "enum": "",
         "json_keys": [],
-        "validate": "return !!test && test.length > 0;",
+        "validate": "return (!!test && test.length > 0)? true : 'generics.regexp';",
         "instantiable": false,
         "descr_key": "generics.last_name",
         "module": "generics.profile",
@@ -57,7 +57,7 @@
         "mode": "text",
         "enum": "",
         "json_keys": [],
-        "validate": "return !!test && test.length > 0;",
+        "validate": "return (!!test && test.length > 0)? true : 'generics.regexp';",
         "instantiable": false,
         "descr_key": "generics.first_name",
         "module": "generics.profile",
@@ -120,7 +120,7 @@
                 "placeholder": "AR, BE, ..."
             }
         ],
-        "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode']);",
+        "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode'])? true : 'generics.badpostcode';",
         "instantiable": true,
         "descr_key": "generics.address",
         "module": "generics.profile",
@@ -239,7 +239,7 @@
                 "required": true
             }
         ],
-        "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode']);",
+        "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode'])? true : 'generics.badpostcode';",
         "instantiable": true,
         "descr_key": "generics.address",
         "module": "generics.corporate",
