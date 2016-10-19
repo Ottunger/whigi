@@ -507,7 +507,7 @@ export function recData(req, res, respond?: boolean): Promise {
                     return;
                 }
             }
-            var newid = got.is_bound? 'datafragment' + utils.generateRandomString(117) : utils.generateRandomString(128);
+            var newid = got.is_bound? utils.genID(['datafragment'], 'datafragment') : utils.genID(['datafragment']);
             req.user.data[got.name] = {
                 id: newid,
                 length: Buffer.byteLength(got.encr_data, 'utf8'),

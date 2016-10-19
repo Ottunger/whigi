@@ -235,7 +235,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                         return;
                     }
                     var v: Vault = new Vault({
-                        _id: storable? 'storable' + utils.generateRandomString(120) : utils.generateRandomString(128),
+                        _id: storable? utils.genID(['storable'], 'storable') : utils.genID(['storable']),
                         shared_to_id: got.shared_to_id.toLowerCase(),
                         data_name: got.data_name,
                         aes_crypted_shared_pub: got.aes_crypted_shared_pub,

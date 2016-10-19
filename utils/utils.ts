@@ -61,6 +61,32 @@ export function generateRandomString(length: number, l?: boolean): string {
 }
 
 /**
+ * Generates a random ID.
+ * @function genID
+ * @public
+ * @param {String} prefixes Forbidden prefixes.
+ * @param {String} prefix A prefix
+ * @return {String} The string.
+ */
+export function genID(prefixes: string[], prefix: string = ''): string {
+    var more = 128 - prefix.length, newid = prefixes[0], can = false;
+    if(more == 128) {
+        while(!can) {
+            can = true;
+            for(var i = 0; i < prefixes.length; i++) {
+                if(newid.indexOf(prefixes[i]) == 0) {
+                    newid = generateRandomString(128);
+                    can = false;
+                    break;
+                }
+            }
+        }
+        return newid;
+    } else
+        return prefix + generateRandomString(more);
+}
+
+/**
  * Array forEach with callback if asynchronous.
  * @function loopOn
  * @public
