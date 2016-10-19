@@ -507,13 +507,17 @@ export function recData(req, res, respond?: boolean): Promise {
                     return;
                 }
             }
-            var newid = got.is_bound? utils.genID(['datafragment'], 'datafragment') : utils.genID(['datafragment']);
+            var newid = got.is_bound? utils.genID(['datafragment'], 'datafragment') : utils.genID(['datafragment']), shared_to = {};
+            if(got.name in req.user.data) {
+                shared_to = req.user.data[got.name].shared_to;
+                newid = req.user.data[got.name].id;
+            }
             req.user.data[got.name] = {
                 id: newid,
                 length: Buffer.byteLength(got.encr_data, 'utf8'),
                 is_dated: got.is_dated,
                 version: got.version,
-                shared_to: {}
+                shared_to: shared_to
             };
             var frg: Datafragment = new Datafragment(newid, got.encr_data, got.version, got.encr_aes, db);
             frg.persist().then(function() {
