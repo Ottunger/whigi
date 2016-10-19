@@ -14,12 +14,13 @@ var utils = require('../utils/utils');
 var mapping = require('./mapping');
 
 //Set the running configuration
-//Launch as ">$ node index.js 80 whigi-giveaway.envict.com whigi.envict.com whigi.com@gmail.com false" for instance
+//Launch as ">$ node index.js 80 whigi-giveaway.envict.com whigi.envict.com whigi.com@gmail.com *.envict.com" for instance
 var httpport = parseInt(process.argv[2]) || 80;
 var localhost = process.argv[3] || 'localhost';
 utils.WHIGIHOST = process.argv[4] ||'localhost'; 
 utils.RUNNING_ADDR = 'https://' + utils.WHIGIHOST;
-utils.MAIL_ADDR = process.argv[5] || "whigi.com@gmail.com";
+utils.MAIL_ADDR = process.argv[5] || 'whigi.com@gmail.com';
+var allowed = process.argv[6] || '*';
 
 /**
  * Sets the API to connect to the database.
@@ -58,6 +59,10 @@ connect(function(e) {
         cookie: {httpOnly: true, secure: false}
     }));
     app.use(helmet());
+    app.use(function(req, res, next) {
+        res.append('Access-Control-Allow-Origin', allowed);
+        next();
+    });
     app.use(body.json({limit: '5000mb'}));
 
     //API ROUTES
