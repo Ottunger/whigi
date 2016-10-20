@@ -15,17 +15,14 @@
   "internal.keys": "Internal error: Keys are corrupted",
   "external.down": "Global error: External service down",
 
-  "mail.subject.newData": "New data shared on Whigi!",
-  "mail.subject.account": "Your account on Whigi",
+  "mail.subject.reset": "Your account on Whigi",
   "mail.subject.otherAccount": "Help save an account!",
   "mail.subject.needRestore": "A Whigi member needs you!",
-  "mail.subject.askData": "Request for data sharing on Whigi",
-  "mail.body.shared": " was shared to you by ",
-  "mail.body.click": "Click here!",
-  "mail.body.account": "Click here to activate your account:",
-  "mail.body.otherAccount": "Click here to save a referant's secret part:",
-  "mail.body.needRestore": "You will find your referants' keys in your 'keys' folder. Please send his partial key to ",
-  "mail.body.askData": " asks you to share a data. If you trust him, follow the link to share acces to ",
+
   "mail.body.reset": "Click here to change your password (this link is only valid ONCE):",
+  "mail.body.otherAccount": "Click here to save a referant's secret part to help him recover his password later:",
+  "mail.body.needRestore":"Follow the link to help give back his password to a saved referrer:",
+
+  "mail.body.click": "Click here!",
   "mail.signature": "The Whigi team."
 }

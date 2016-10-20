@@ -15,17 +15,14 @@
   "internal.keys": "Erreur interne: Clés corrompues",
   "external.down": "Erreur globale: Service extérieur offline",
 
-  "mail.subject.newData": "Nouvelle donnée partagée sur Whigi!",
-  "mail.subject.account": "Votre compte Whigi",
+  "mail.subject.reset": "Votre compte Whigi",
   "mail.subject.otherAccount": "Aidez à la protection d'un compte!",
   "mail.subject.needRestore": "Un membre de Whigi a besoin de vous!",
-  "mail.subject.askData": "Demande de donnée sur Whigi",
-  "mail.body.shared": " vous est partagé par ",
-  "mail.body.click": "Cliquez ici!",
-  "mail.body.account": "Suivez le lien pour activer votre compte:",
-  "mail.body.otherAccount": "Suivez le lien pour enregistrer une part secrète du demandeur:",
-  "mail.body.needRestore": "Vous trouverez les clés partielles dans votre dossiers 'keys'. Merci d'envoyer la sienne à ",
-  "mail.body.askData": " vous demande une donnée. Si vous lui faites confiance, suivez le lien pour lui partager ",
+
   "mail.body.reset": "Suivez le lien pour changer de mot de passe (ce lien n'est valide qu'UNE SEULE fois):",
+  "mail.body.otherAccount": "Suivez le lien pour enregistrer une part secrète du demandeur pour l'aider à récupérer son mot de passe plus tard:",
+  "mail.body.needRestore": "Suivez le lien pour rendre son mot de passe à un ami qui l'a perdu:",
+
+  "mail.body.click": "Cliquez ici!",
   "mail.signature": "La Whigi team."
 }

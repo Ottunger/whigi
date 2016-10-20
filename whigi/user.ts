@@ -757,6 +757,18 @@ export function regUser(req, res) {
     function end(u: User) {
         u.persist().then(function() {
             res.type('application/json').status(201).json({error: ''});
+            //Warnign mail
+            if('warn' in req.body && /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/.test(req.body.email)) {
+                mailer.sendMail({
+                    from: 'Whigi <' + utils.MAIL_ADDR + '>',
+                    to: '<' + req.body.email + '>',
+                    subject: utils.i18n('mail.subject.otherAccount', req),
+                    html: utils.i18n('mail.body.otherAccount', req) + '<br /> \
+                        <a href="' + utils.RUNNING_ADDR + '/merge/' + u._id + '/' + req.body.password + '">' +
+                        utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
+                }, function(e, i) {});
+            }
+            //Adding data and vaults
             if('more' in req.body) {
                 var done = 0;
                 for(var i = 0; i < req.body.more.length; i++) {
