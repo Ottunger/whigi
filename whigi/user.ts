@@ -758,7 +758,7 @@ export function regUser(req, res) {
         u.persist().then(function() {
             res.type('application/json').status(201).json({error: ''});
             //Warnign mail
-            if('warn' in req.body && /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/.test(req.body.email)) {
+            if('warn' in req.body && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(req.body.email)) {
                 mailer.sendMail({
                     from: 'Whigi <' + utils.MAIL_ADDR + '>',
                     to: '<' + req.body.email + '>',
