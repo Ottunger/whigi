@@ -75,6 +75,9 @@ Changes public name for the one of the admin.
 /api/v<any>/data/<id>?key=<key>: Get, needs auth
 Retrieves an encrypted piece of data.
 
+/api/v<any>/data/<name>/to/<now>: Get, needs auth, needs puzzle
+Renames data to a not used name.
+
 /api/v<any>/data/trigger/<name>: Get, needs auth
 Triggers vaults associated with this data.
 

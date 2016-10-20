@@ -97,6 +97,46 @@ export function getData(req, res) {
 }
 
 /**
+ * Forges the response to renaming a data.
+ * @function renameData
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function renameData(req, res) {
+    var old = decodeURIComponent(req.params.name), now = decodeURIComponent(req.params.now);
+    req.user.fill().then(function() {
+        if(!(old in req.user.data)) {
+            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+            return;
+        }
+        if(now in req.user.data) {
+            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+            return;
+        }
+        req.user.data[now] = req.user.data[old];
+        delete req.user.data[old];
+        req.user.persist().then(function() {
+            res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
+            //Now transfer to vaults
+            var keys = Object.getOwnPropertyNames(req.user.data[now].shared_to);
+            keys.forEach(function(key) {
+                db.retrieveVault(req.user.data[now].shared_to[key]).then(function(v: Vault) {
+                    if(!!v) {
+                        v.real_name = now;
+                        v.persist();
+                    }
+                });
+            });
+        }, function(e) {
+            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+        });
+    }, function(e) {
+        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
  * Forges the response to trigger vaults.
  * @function triggerVaults
  * @public

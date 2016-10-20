@@ -817,6 +817,35 @@
                         }
                     },
                     {
+                        "name": "datarn",
+                        "path": "/api/v{version}/data/{name}/to/{now}",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "status": "200, 400, 404, 500",
+                        "output": "application/json",
+                        "method": "GET",
+                        "desc": "Rename a data",
+                        "description": "Rename a data, if new name is not known.",
+                        "pathing": {
+                            "name": {
+                                "type": "string",
+                                "description": "Old data name",
+                                "required": true
+                            },
+                            "now": {
+                                "type": "string",
+                                "description": "New data name",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    },
+                    {
                         "name": "datatg",
                         "path": "/api/v{version}/data/trigger/{data_name}",
                         "auth": "YES",
