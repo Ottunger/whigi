@@ -1319,7 +1319,12 @@
                             },
                             "email": {
                                 "type": "string",
-                                "description": "A URL-encoded email to trigger a stranger creation. should not use.",
+                                "description": "A URL-encoded email to trigger a stranger creation. Should not use",
+                                "required": false
+                            },
+                            "sec_key": {
+                                "type": "string",
+                                "description": "The plaintext key to create between you and user for auth'ing. Only used if a key not already present. Should not use",
                                 "required": false
                             }
                         },
