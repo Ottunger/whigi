@@ -28,11 +28,9 @@ Of course, you will need to do a little bit of setup:
 - Download the zip archive of wordpress, and extract its contents to /home/gregoire/wordpress.
 - Extract the languages found in /i18n to /home/gregoire/wordpress/wp-content/languages.
 - Download wp-force-https https://downloads.wordpress.org/plugin/wp-force-https.0.1.2.zip, and unzip it to /home/gregoire/wordpress/wp-content/plugins
-- Idem for https://downloads.wordpress.org/plugin/ckeditor-for-wordpress.zip
-- Idem for https://downloads.wordpress.org/plugin/seo-ultimate.7.6.5.8.zip
-- Idem for https://downloads.wordpress.org/plugin/wordpress-seo.3.6.zip
-- Idem for https://downloads.wordpress.org/plugin/wptouch.4.3.2.zip
-- Idem for https://downloads.wordpress.org/plugin/simple-e-commerce-shopping-cart.zip
+- Idem for https://downloads.wordpress.org/plugin/ckeditor-for-wordpress.zip https://downloads.wordpress.org/plugin/seo-ultimate.7.6.5.8.zip https://downloads.wordpress.org/plugin/wordpress-seo.3.6.zip https://downloads.wordpress.org/plugin/wptouch.4.3.2.zip
+- Idem for https://downloads.wordpress.org/plugin/kirki.2.3.6.zip https://downloads.wordpress.org/plugin/woocommerce.2.6.6.zip https://downloads.wordpress.org/plugin/cmb2.zip https://downloads.wordpress.org/plugin/woocommerce-shortcodes.1.0.0.zip
+   https://downloads.wordpress.org/plugin/yith-woocommerce-wishlist.2.0.16.zip https://downloads.wordpress.org/plugin/woocommerce-gateway-paypal-express-checkout.1.1.2.zip
 - Idem for https://downloads.wordpress.org/theme/clean-lite.1.5.zip, but put it in wp-content/themes
 - Clone this repo, delete already installed plugins and and copy the plugins from clients/whigi-wp and clients/whigi-wp-s2 to /home/gregoire/wordpress/wp-content/plugins
 

@@ -241,7 +241,7 @@ export function create(req, res) {
                                                         var plgs;
                                                         switch(mode) {
                                                             case 'selling':
-                                                                plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch simple-e-commerce-shopping-cart';
+                                                                plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch cmb2 kirki woorcommerce woocommerce-gateway-paypal-express-checkout woocommerce-shortcodes yith-woocommerce-wishlist';
                                                                 break;
                                                             case 'classic':
                                                             default:
