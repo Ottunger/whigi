@@ -1,0 +1,1 @@
+/10 * * * * * cd /var/www && find wp-cron.php -type f -exec php {} \;

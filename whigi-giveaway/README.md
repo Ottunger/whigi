@@ -40,6 +40,8 @@ Of course, you will need to do a little bit of setup:
   - chmod +x wp-cli.phar
   - sudo mv wp-cli.phar /usr/local/bin/wp
 
+- For performance reasons, Whigi Giveaway disables WP cron, thus needs the real cron to help serving it. You should in stall the entry in crontab into www-data's crontab.
+
 - Change your /etc/apache2/ports.conf file so that it has but: Listen 81
 - Reload apache
 

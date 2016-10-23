@@ -226,6 +226,7 @@ export function create(req, res) {
                                                         $table_prefix  = 'wp_';
                                                         define('WP_DEBUG', false);
                                                         define('WP_DEBUG_LOG', false);
+                                                        define('DISABLE_WP_CRON', 'true');
                                                         define('FORCE_SSL_ADMIN', true);
                                                         if ( !defined('ABSPATH') )
                                                                 define('ABSPATH', dirname(__FILE__) . '/');
