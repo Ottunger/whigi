@@ -7,8 +7,11 @@
 'use strict';
 declare var require: any
 var https = require('https');
+var amqp = require('amqplib/callback_api');
+var zip = require('compressjs').Lzp3;
 var utils = require('../utils/utils');
 var fupt = require('../common/cdnize/full-update_pb');
+var RMQD: any[];
 var known = {}, flags = {};
 
 /**
@@ -18,7 +21,7 @@ var known = {}, flags = {};
  * @param {String} host Host.
  * @param {String} buf Serialized message.
  */
-function sendDelete(host: string, buf: string) {
+function sendDelete(host: string, buf: number[]) {
     var data = {
         payload: buf,
         key: require('../../common/key.json').key
@@ -52,66 +55,97 @@ function sendDelete(host: string, buf: string) {
  * Takes whole state from a whigi.
  * @function full
  * @public
- * @param {Request} req The request.
- * @param {Response} res The response.
+ * @param {Byte[]} msg The message.
  */
-export function full(req, res) {
-    var got = req.body;
-    var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-    if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
-        known[ip] = {
-            at: (new Date).getTime(),
-            collections: {}
-        };
-        res.type('application/json').status(200).json({error: ''});
-
-        var load = fupt.FullUpdate.deserializeBinary(got.payload);
-        var coll = load.getMappingsList();
-        for(var i = 0; i < coll.length; i++) {
-            var name = coll[i].getName();
-            known[ip].collections[name] = coll[i].getIdsList();
-        }
-    } else {
-        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+function full(msg: number[]) {
+    var load = fupt.FullUpdate.deserializeBinary(zip.decompressFile(msg));
+    var ip = load.getFromer();
+    known[ip] = {
+        at: (new Date).getTime(),
+        collections: {}
+    };
+    
+    var coll = load.getMappingsList();
+    for(var i = 0; i < coll.length; i++) {
+        var name = coll[i].getName();
+        known[ip].collections[name] = coll[i].getIdsList();
     }
 }
 
 /**
  * Takes some state from a Whigi.
- * @function requestMapping
+ * @function partial
  * @public
- * @param {Request} req The request.
- * @param {Response} res The response.
+ * @param {Byte[]} msg The message.
  */
-export function partial(req, res) {
-    var got = req.body;
-    var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-    if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
-        known[ip] = known[ip] || {};
-        known[ip].at = (new Date).getTime();
-        res.type('application/json').status(200).json({error: ''});
+function partial(msg: number[]) {
+    var load = fupt.FullUpdate.deserializeBinary(zip.decompressFile(msg));
+    var ip = load.getFromer();
+    known[ip] = known[ip] || {};
+    known[ip].at = (new Date).getTime();
 
-        var load = fupt.FullUpdate.deserializeBinary(got.payload);
-        var coll = load.getMappingsList();
-        for(var i = 0; i < coll.length; i++) {
-            var name = coll[i].getName();
-            var del = coll[i].getDeletedList();
-            known[ip].collections[name] = known[ip].collections[name] || [];
-            known[ip].collections[name] = known[ip].collections[name].filter(function(el) {
-                return del.indexOf(el) == -1;
+    var coll = load.getMappingsList();
+    for(var i = 0; i < coll.length; i++) {
+        var name = coll[i].getName();
+        var del = coll[i].getDeletedList();
+        known[ip].collections[name] = known[ip].collections[name] || [];
+        known[ip].collections[name] = known[ip].collections[name].filter(function(el) {
+            return del.indexOf(el) == -1;
+        });
+    }
+
+    var ips = Object.getOwnPropertyNames(known);
+    for(var i = 0; i < ips.length; i++) {
+        if(known[ips[i]].at < (new Date).getTime() - 4*60*60*1000) {
+            delete known[ips[i]];
+        } else if(known[ips[i]].at < known[ip].at) {
+            sendDelete(ips[i], msg);
+        }
+    }
+}
+
+/**
+ * Sets up the schedule before use.
+ * @function managerInit
+ * @public
+ */
+export function managerInit() {
+    var ep = require('../common/cdnize/endpoints.json');
+    amqp.connect('amqp://' + ep.rabbithost, function(err, conn) {
+        if(err) {
+            console.log('Cannot use RabbitMQ message broker. Standalone instance.');
+            return;
+        }
+        conn.createChannel(function(err, ch) {
+            ch.assertExchange(ep.rabbitexc, 'fanout', {durable: true});
+            ch.assertQueue('', {exclusive: true}, function(err, q) {
+                if(err) {
+                    console.log('Cannot use RabbitMQ message broker. Standalone instance.');
+                    return;
+                }
+                ch.bindQueue(q.queue, ep.rabbitexc, 'update');
+                ch.consume(q.queue, partial);
             });
-        }
+            ch.assertQueue('', {exclusive: true}, function(err, q) {
+                if(err) {
+                    console.log('Cannot use RabbitMQ message broker. Standalone instance.');
+                    return;
+                }
+                ch.bindQueue(q.queue, ep.rabbitexc, 'full');
+                ch.consume(q.queue, full);
+            });
+        });
+    });
+}
 
-        var ips = Object.getOwnPropertyNames(known);
-        for(var i = 0; i < ips.length; i++) {
-            if(known[ips[i]].at < (new Date).getTime() - 4*60*60*1000) {
-                delete known[ips[i]];
-            } else if(known[ips[i]].at < known[ip].at) {
-                sendDelete(ips[i], req.payload);
-            }
-        }
-    } else {
-        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+/**
+ * Close RMQ.
+ * @function close
+ * @public
+ */
+export function close() {
+    if(!!RMQD) {
+        RMQD[0].close();
     }
 }
 

@@ -24,6 +24,11 @@ All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS p
 - Init database: mongo < mongoInit.sh
 - Launch Whigi: nohup npm run whigi &
 - Copy conf file and restart nginx: npm run serve
+- Install RabbitMQ if you want to use CDN
+  - echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+  - wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
+  - sudo apt-get update && sudo apt-get install rabbitmq-server
+  - The RabbitMQ broker should be clustered, and publicly available at an IP/name stated in endpoints.json
 - Launch Whigi-restore/Whigi-giveaway and Whigi-RLI/Whigi-CC if desired. They cannot run on the machine as they will listen on port 443!: nohup npm run whigi-XXX &
 
 # See CHANGELOG for a description of API endpoints.
@@ -83,7 +88,7 @@ Then browse to your gitlab server usring HTTP to set everything up :)
    - Refer to the UML diagram for more information.
 - Whigi-giveaway does not need to know about what is behind either, as the files are anyhow removed on override.
 - Whigi-restore is the simpliest provider, and as such, does not even have a database!
-- Whigi-RLI holds knowledge in RAM, as it is soft-stated.
+- Whigi-CC/Whigi-RLI hold knowledge in RAM, as are soft-stated.
 
 # To have a possibly growing website
 Whigi is based on a CDN for data architecture, or Data-Grid.

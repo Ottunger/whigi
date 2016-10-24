@@ -122,7 +122,7 @@ function connect(callback) {
     //else
     //    d = mc('whigiuser:sorryMeND3dIoKwR@localhost:27017/whigi');
     if(d) {
-        db = new datasources.Datasource(d, process.argv[8]);
+        db = new datasources.Datasource(d, process.argv[8], true, false);
         user.managerInit(db);
         data.managerInit(db);
         checks.prepareRL();

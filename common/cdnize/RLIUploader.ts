@@ -8,9 +8,12 @@
 declare var require: any
 var scd = require('node-schedule');
 var https = require('https');
+var amqp = require('amqplib/callback_api');
+var zip = require('compressjs').Lzp3;
 var fupt = require('./full-update_pb');
+var utils = require('../../utils/utils');
 import {BloomFilter} from '../../utils/BloomFilter';
-var collections: string[];
+var collections: string[], RMQ: any[];
 var db: any, updates: any, deleted: any;
 var filter: BloomFilter;
 
@@ -22,36 +25,9 @@ var filter: BloomFilter;
  * @param {Boolean} upt True if only update.
  */
 function end(msg: any, upt: boolean) {
-    var endpoints = require('./endpoints.json').endpoints;
-    var data = {
-        payload: msg.serializeBinary(),
-        key: require('../../common/key.json').key
-    };
-    for(var i = 0; i < endpoints.length; i++) {
-        var options = {
-            host: endpoints[i].host,
-            port: endpoints[i].port,
-            path: (upt? endpoints[i].pathPartial : endpoints[i].pathFull),
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(data)
-            }
-        };
-        var ht = https.request(options, function(res) {
-            var r = '';
-            res.on('data', function(chunk) {
-                r += chunk;
-            });
-            res.on('end', function() {
-                console.log('Update to ' + endpoints[i].host + ' ended with answer "' + r + '"');
-            });
-        }).on('error', function(err) {
-            console.log('Cannot do an update to ' + endpoints[i].host);
-        });
-        ht.write(data);
-        ht.end();
-    }
+    var payload = zip.compressFile(msg.serializeBinary());
+    RMQ[1].publish(RMQ[2], upt? 'update' : 'full', payload);
+    console.log('Dispatched update to RMQ queue ' + RMQ[2] + ', mode ' + (upt? 'update' : 'full') + '.');
 }
 
 /**
@@ -66,6 +42,7 @@ function fullFn() {
         done++;
         if(done == collections.length) {
             var msg = new fupt.FullUpdate();
+            msg.setFromer(utils.RUNNING_ADDR);
             var mappings = [];
             for(var key in ids) {
                 if(ids.hasOwnProperty(key)) {
@@ -102,6 +79,7 @@ function fullFn() {
  */
 function partialFn() {
     var msg = new fupt.FullUpdate();
+    msg.setFromer(utils.RUNNING_ADDR);
     var mappings = [];
     for(var key in updates) {
         if(updates.hasOwnProperty(key)) {
@@ -135,37 +113,53 @@ export class Uploader {
      * @param {String[]} coll Collections.
      */
     constructor(private full: number, private partial: number, conn: any, coll: string[]) {
-        var rule = new scd.RecurrenceRule();
-        switch(full) {
-            case 1:
-                break;
-            case 2:
-                rule.hour = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(function(el) { return el + Math.floor(Math.random() * 2) });
-                break;
-            case 4:
-                rule.hour = [0, 4, 8, 12, 16, 20].map(function(el) { return el + Math.floor(Math.random() * 4) });
-                break;
-            case 6:
-                rule.hour = [0, 6, 12, 18].map(function(el) { return el + Math.floor(Math.random() * 6) });
-                break;
-            case 12:
-                rule.hour = [0, 12].map(function(el) { return el + Math.floor(Math.random() * 12) });
-                break;
-            case 24:
-            default:
-                rule.hour = [Math.floor(Math.random() * 24)];
-                break;
-        }
-        rule.minute = Math.floor(Math.random() * 60);
-        scd.scheduleJob(rule, fullFn);
+        var ep = require('./endpoints.json');
+        amqp.connect('amqp://' + ep.rabbithost, function(err, conn) {
+            if(err) {
+                console.log('Cannot use RabbitMQ message broker. Standalone instance.');
+                return;
+            }
+            conn.createChannel(function(err, ch) {
+                if(err) {
+                    console.log('Cannot use RabbitMQ message broker. Standalone instance.');
+                    return;
+                }
+                var rq = ep.rabbitexc;
+                ch.assertExchange(rq, 'fanout', {durable: true});
 
-        scd.scheduleJob('* /' + partial + ' * * * *', partialFn);
+                RMQ = [conn, ch, rq];
+                var rule = new scd.RecurrenceRule();
+                switch(full) {
+                    case 1:
+                        break;
+                    case 2:
+                        rule.hour = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(function(el) { return el + Math.floor(Math.random() * 2) });
+                        break;
+                    case 4:
+                        rule.hour = [0, 4, 8, 12, 16, 20].map(function(el) { return el + Math.floor(Math.random() * 4) });
+                        break;
+                    case 6:
+                        rule.hour = [0, 6, 12, 18].map(function(el) { return el + Math.floor(Math.random() * 6) });
+                        break;
+                    case 12:
+                        rule.hour = [0, 12].map(function(el) { return el + Math.floor(Math.random() * 12) });
+                        break;
+                    case 24:
+                    default:
+                        rule.hour = [Math.floor(Math.random() * 24)];
+                        break;
+                }
+                rule.minute = Math.floor(Math.random() * 60);
+                scd.scheduleJob(rule, fullFn);
+                scd.scheduleJob('*/' + partial + ' * * * *', partialFn);
 
-        db = conn;
-        collections = coll;
-        updates = {};
-        deleted = {}
-        filter = new BloomFilter(Math.pow(2, 20), 1000000);
+                db = conn;
+                collections = coll;
+                updates = {};
+                deleted = {}
+                filter = new BloomFilter(Math.pow(2, 20), 1000000);
+            });
+        });
     }
 
     /**
@@ -189,6 +183,17 @@ export class Uploader {
             }
         }
         filter.add(id);
+    }
+
+    /**
+     * Close RMQ.
+     * @function close
+     * @public
+     */
+    close() {
+        if(!!RMQ) {
+            RMQ[0].close();
+        }
     }
 
 }

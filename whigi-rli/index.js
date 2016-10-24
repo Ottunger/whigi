@@ -20,6 +20,19 @@ utils.DEBUG = !!process.argv[4]? process.argv[4] : true;
 if(utils.DEBUG)
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
+/**
+ * Closes connection to the database.
+ * @function close
+ * @public
+ */ 
+function close() {
+    mapping.close();
+    process.exit(0);
+}
+
+//Prepare scheduled tasks
+mapping.managerInit();
+
 //Create the express application
 var app = express();
 if(utils.DEBUG == false) {
@@ -34,8 +47,6 @@ if(utils.DEBUG == false) {
 app.use(body.json({limit: '5000mb'}));
 
 //API ROUTES
-app.post('/full', mapping.full);
-app.post('/partial', mapping.partial);
 app.post('/question', mapping.question);
 app.post('/flag', mapping.flag);
 

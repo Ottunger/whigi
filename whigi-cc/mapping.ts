@@ -8,8 +8,11 @@
 declare var require: any
 var https = require('https');
 var scd = require('node-schedule');
+var amqp = require('amqplib/callback_api');
+var zip = require('compressjs').Lzp3;
 var utils = require('../utils/utils');
 var fupt = require('../common/cdnize/full-update_pb');
+var RMQUp: any[];
 var known: {[id: string]: {upd: number, contacts: string[], empty: boolean}} = {}, flags = {};
 
 /**
@@ -112,33 +115,55 @@ function recUpdate() {
     }
     msg.setMappingsList(mappings);
 
-    var data = {
-        payload: msg.serializeBinary(),
-        key: require('../../common/key.json').key
-    };
-    var options = {
-        host: utils.WHIGIHOST,
-        port: 443,
-        path: '/update',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(data)
+    var payload = zip.compressFile(msg.serializeBinary());
+    RMQUp[1].publish(RMQUp[2], '', payload);
+    console.log('Dispatched update to RMQ queue ' + RMQUp[2] + '.');
+}
+
+/**
+ * Read an update.
+ * @function update
+ * @public
+ * @param {Byte[]} msg The message.
+ * @param {Response} res The response.
+ */
+function update(msg: number[]) {
+    var now = (new Date).getTime();
+    var load = fupt.FullUpdate.deserializeBinary(zip.decompressFile(msg));
+    var fromer = load.getFromer();
+    var coll = load.getMappingsList();
+    for(var i = 0; i < coll.length; i++) {
+        var name = coll[i].getName();
+        var ids: string[] = coll[i].getIdsList();
+        var ids_epoch: number[] = coll[i].getIDsEpochList();
+        var del: string[] = coll[i].getDeletedList();
+        var del_epoch: number[] = coll[i].getDelEpochList();
+        //Mark as new updated or deleted ones
+        for(var j = 0; j < ids.length; j++) {
+            if(!((name + '/' + ids[j]) in known) || ids_epoch[j] > known[name + '/' + ids[j]].upd) {
+                known[name + '/' + ids[j]] = {
+                    upd: ids_epoch[j],
+                    contacts: [fromer],
+                    empty: false
+                }
+            }
         }
-    };
-    var ht = https.request(options, function(res) {
-        var r = '';
-        res.on('data', function(chunk) {
-            r += chunk;
-        });
-        res.on('end', function() {
-            console.log('Update to ' + utils.WHIGIHOST + ' ended with answer "' + r + '"');
-        });
-    }).on('error', function(err) {
-        console.log('Cannot do an update to ' + utils.WHIGIHOST);
-    });
-    ht.write(data);
-    ht.end();
+        for(var j = 0; j < del.length; j++) {
+            if(!((name + '/' + del[j]) in known) || del_epoch[j] > known[name + '/' + del[j]].upd) {
+                known[name + '/' + del[j]] = {
+                    upd: del_epoch[j],
+                    contacts: [fromer],
+                    empty: true
+                }
+            }
+        }
+        //Add known copies
+        for(var j = 0; j < ids.length; j++) {
+            if((name + '/' + ids[j]) in known && ids_epoch[j] == known[name + '/' + ids[j]].upd && known[name + '/' + ids[j]].contacts.indexOf(fromer) == -1) {
+                known[name + '/' + ids[j]].contacts.push(fromer);
+            }
+        }
+    }
 }
 
 /**
@@ -147,61 +172,43 @@ function recUpdate() {
  * @public
  */
 export function managerInit() {
-    if(!!utils.WHIGIHOST)
-        scd.scheduleJob('/10 * * * * *', recUpdate);
+    var ep = require('../common/cdnize/endpoints.json');
+    amqp.connect('amqp://' + ep.rabbithost, function(err, conn) {
+        if(err) {
+            console.log('Cannot use RabbitMQ message broker. Standalone instance.');
+            return;
+        }
+        conn.createChannel(function(err, ch) {
+            if(err) {
+                console.log('Cannot use RabbitMQ message broker. Standalone instance.');
+                return;
+            }
+            if(!!utils.WHIGIHOST) {
+                ch.assertExchange(utils.WHIGIHOST, 'fanout', {durable: true});
+                RMQUp = [conn, ch, utils.WHIGIHOST];
+                scd.scheduleJob('*/10 * * * *', recUpdate);
+            }
+            ch.assertExchange(ep.rabbitexc, 'fanout', {durable: true});
+            ch.assertQueue('', {exclusive: true}, function(err, q) {
+                if(err) {
+                    console.log('Cannot use RabbitMQ message broker. Standalone instance.');
+                    return;
+                }
+                ch.bindQueue(q.queue, ep.rabbitexc, '');
+                ch.consume(q.queue, update);
+            });
+        });
+    });
 }
 
 /**
- * Read an update.
- * @function update
+ * Close RMQ.
+ * @function close
  * @public
- * @param {Request} req The request.
- * @param {Response} res The response.
  */
-export function update(req, res) {
-    var got = req.body;
-    var ip = req.headers['x-forwarded-for'].split(', ')[0] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-    if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
-        res.type('application/json').status(200).json({error: ''});
-
-        var now = (new Date).getTime();
-        var load = fupt.FullUpdate.deserializeBinary(got.payload);
-        var fromer = load.getFromer();
-        var coll = load.getMappingsList();
-        for(var i = 0; i < coll.length; i++) {
-            var name = coll[i].getName();
-            var ids: string[] = coll[i].getIdsList();
-            var ids_epoch: number[] = coll[i].getIDsEpochList();
-            var del: string[] = coll[i].getDeletedList();
-            var del_epoch: number[] = coll[i].getDelEpochList();
-            //Mark as new updated or deleted ones
-            for(var j = 0; j < ids.length; j++) {
-                if(!((name + '/' + ids[j]) in known) || ids_epoch[j] > known[name + '/' + ids[j]].upd) {
-                    known[name + '/' + ids[j]] = {
-                        upd: ids_epoch[j],
-                        contacts: [fromer],
-                        empty: false
-                    }
-                }
-            }
-            for(var j = 0; j < del.length; j++) {
-                if(!((name + '/' + del[j]) in known) || del_epoch[j] > known[name + '/' + del[j]].upd) {
-                    known[name + '/' + del[j]] = {
-                        upd: del_epoch[j],
-                        contacts: [fromer],
-                        empty: true
-                    }
-                }
-            }
-            //Add known copies
-            for(var j = 0; j < ids.length; j++) {
-                if((name + '/' + ids[j]) in known && ids_epoch[j] == known[name + '/' + ids[j]].upd && known[name + '/' + ids[j]].contacts.indexOf(fromer) == -1) {
-                    known[name + '/' + ids[j]].contacts.push(fromer);
-                }
-            }
-        }
-    } else {
-        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+export function close() {
+    if(!!RMQUp) {
+        RMQUp[0].close();
     }
 }
 

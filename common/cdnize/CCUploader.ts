@@ -8,9 +8,11 @@
 declare var require: any
 var scd = require('node-schedule');
 var https = require('https');
+var amqp = require('amqplib/callback_api');
+var zip = require('compressjs').Lzp3;
 var fupt = require('./full-update_pb');
 var utils = require('../../utils/utils');
-var uptsize: number;
+var uptsize: number, RMQ: any[];
 var updates: {[name: string]: number}, deleted: {[name: string]: number};
 
 /**
@@ -20,36 +22,9 @@ var updates: {[name: string]: number}, deleted: {[name: string]: number};
  * @param {Object} msg The protobuf msg.
  */
 function end(msg: any) {
-    var endpoints = require('./endpoints.json').endpoints;
-    var data = {
-        payload: msg.serializeBinary(),
-        key: require('../../common/key.json').key
-    };
-    for(var i = 0; i < endpoints.length; i++) {
-        var options = {
-            host: endpoints[i].host,
-            port: endpoints[i].port,
-            path: endpoints[i].pathUpdate,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(data)
-            }
-        };
-        var ht = https.request(options, function(res) {
-            var r = '';
-            res.on('data', function(chunk) {
-                r += chunk;
-            });
-            res.on('end', function() {
-                console.log('Update to ' + endpoints[i].host + ' ended with answer "' + r + '"');
-            });
-        }).on('error', function(err) {
-            console.log('Cannot do an update to ' + endpoints[i].host);
-        });
-        ht.write(data);
-        ht.end();
-    }
+    var payload = zip.compressFile(msg.serializeBinary());
+    RMQ[1].publish(RMQ[2], '', payload);
+    console.log('Dispatched update to RMQ queue ' + RMQ[2] + '.');
 }
 
 /**
@@ -146,11 +121,27 @@ export class Uploader {
      * @param {Number} upt How many updates to send per 10sec.
      */
     constructor(upt: number) {
-        scd.scheduleJob('/10 * * * * *', updateFn);
+        var ep = require('./endpoints.json');
+        amqp.connect('amqp://' + ep.rabbithost, function(err, conn) {
+            if(err) {
+                console.log('Cannot use RabbitMQ message broker. Standalone instance.');
+                return;
+            }
+            conn.createChannel(function(err, ch) {
+                if(err) {
+                    console.log('Cannot use RabbitMQ message broker. Standalone instance.');
+                    return;
+                }
+                var rq = ep.rabbitexc;
+                ch.assertExchange(rq, 'fanout', {durable: true});
 
-        uptsize = upt;
-        updates = {};
-        deleted = {}
+                RMQ = [conn, ch, rq];
+                scd.scheduleJob('*/10 * * * *', updateFn);
+                uptsize = upt;
+                updates = {};
+                deleted = {};
+            });
+        });
     }
 
     /**
@@ -166,6 +157,17 @@ export class Uploader {
             deleted[name + '/' + id] = (new Date).getTime();
         } else {
             updates[name + '/' + id] = (new Date).getTime();
+        }
+    }
+
+    /**
+     * Close RMQ.
+     * @function close
+     * @public
+     */
+    close() {
+        if(!!RMQ) {
+            RMQ[0].close();
         }
     }
 

@@ -1,13 +1,12 @@
 {
+    "rabbitexc": "localExchange",
+    "rabbithost": "127.0.0.1",
     "endpoints": [
         {
             "host": "127.0.0.1",
             "port": 443,
-            "pathFull": "/full",
-            "pathPartial": "/partial",
             "pathQuestion": "/question",
-            "pathFlag": "/flag",
-            "pathUpdate": "/update"
+            "pathFlag": "/flag"
         }
     ]
 }

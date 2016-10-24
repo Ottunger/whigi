@@ -22,6 +22,16 @@ utils.WHIGIHOST = process.argv[6] || undefined;
 if(utils.DEBUG)
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
+/**
+ * Closes connection to the database.
+ * @function close
+ * @public
+ */ 
+function close() {
+    mapping.close();
+    process.exit(0);
+}
+
 //Prepare scheduled tasks
 mapping.managerInit();
 
@@ -39,7 +49,6 @@ if(utils.DEBUG == false) {
 app.use(body.json({limit: '5000mb'}));
 
 //API ROUTES
-app.post('/update', mapping.update);
 app.post('/question', mapping.question);
 app.post('/flag', mapping.flag);
 

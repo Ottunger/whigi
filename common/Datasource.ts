@@ -28,14 +28,17 @@ export class Datasource {
      * @param {Request} db The database.
      * @param {String} basedir Install directory.
      * @param {Boolean} useCDN Use the CDN facilities. Defaults to false.
+     * @param {Boolean} userIntegrity Check integraity. Defaults to true.
      */
-    constructor(private db: any, basedir: string, private useCDN?: boolean) {
+    constructor(private db: any, basedir: string, private useCDN?: boolean, userIntegrity?: boolean) {
+        userIntegrity = userIntegrity || true;
         this.useCDN = this.useCDN || false;
         if(this.useCDN) {
             //this.up = new Uploader(24, 20, this.db, ['datas', 'tokens', 'users', 'vaults', 'oauths']);
             this.up = new Uploader(60);
             this.down = new Downloader();
-            this.int = new Integrity(12, basedir);
+            if(userIntegrity)
+                this.int = new Integrity(12, basedir);
         }
     }
 
@@ -45,6 +48,8 @@ export class Datasource {
      * @public
      */
     closeUnderlying() {
+        if(this.useCDN)
+            this.up.close();
         this.db.close();
     }
 

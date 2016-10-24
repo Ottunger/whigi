@@ -11,7 +11,7 @@ var https = require('https');
 export class Downloader {
 
     /**
-     * Creates an downloader.
+     * Creates a downloader.
      * @function constructor
      * @public
      */
