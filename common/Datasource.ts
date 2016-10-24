@@ -31,7 +31,7 @@ export class Datasource {
      * @param {Boolean} userIntegrity Check integraity. Defaults to true.
      */
     constructor(private db: any, basedir: string, private useCDN?: boolean, userIntegrity?: boolean) {
-        userIntegrity = userIntegrity || true;
+        userIntegrity = userIntegrity !== false;
         this.useCDN = this.useCDN || false;
         if(this.useCDN) {
             //this.up = new Uploader(24, 20, this.db, ['datas', 'tokens', 'users', 'vaults', 'oauths']);
@@ -102,7 +102,7 @@ export class Datasource {
      */
     private retrieveGeneric(db: string, query: any, selector: any): Promise<any> {
         var self = this;
-        if(this.useCDN) {
+        if(this.useCDN && this.up.isReady()) {
             return new Promise(function(resolve, reject) {
                 self.db.collection(db).findOne(query, selector).then(function(data) {
                     if(!!data) {

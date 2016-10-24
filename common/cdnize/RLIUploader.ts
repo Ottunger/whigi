@@ -171,6 +171,8 @@ export class Uploader {
      * @param {Boolean} deleted Deleted or not.
      */
     markUpdated(id: string, name: string, deleted: boolean) {
+        if(!RMQ)
+            return;
         if(deleted) {
             deleted[name] = deleted[name] || [];
             if(deleted[name].indexOf(id) == -1)
@@ -194,6 +196,16 @@ export class Uploader {
         if(!!RMQ) {
             RMQ[0].close();
         }
+    }
+
+    /**
+     * Is connection made.
+     * @function isReady
+     * @public
+     * @return {Boolean} Connection made.
+     */
+    isReady(): boolean {
+        return !!RMQ;
     }
 
 }

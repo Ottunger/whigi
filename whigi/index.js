@@ -180,13 +180,17 @@ pass.use(new TS(function(token, done) {
 
     function complete(ticket, is_token) {
         db.retrieveUser(ticket.bearer_id).then(function(user) {
-            if(is_token) {
-                ticket.last_refresh = (new Date).getTime();
-                ticket.persist();
+            if(!!user) {
+                if(is_token) {
+                    ticket.last_refresh = (new Date).getTime();
+                    ticket.persist();
+                } else {
+                    user.impersonated_prefix = ticket.prefix;
+                }
+                return done(null, user);
             } else {
-                user.impersonated_prefix = ticket.prefix;
+                return done(true);
             }
-            return done(null, user);
         }, function(e) {
             return done(e);
         });
