@@ -25,9 +25,14 @@ All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS p
 - Launch Whigi: nohup npm run whigi &
 - Copy conf file and restart nginx: npm run serve
 - Install RabbitMQ if you want to use CDN
+  - gpg --keyserver pgpkeys.mit.edu --recv-key 7638D0442B90D010
+  - gpg -a --export 7638D0442B90D010 | sudo apt-key add -
+  - echo 'deb http://ftp.debian.org/debian wheezy-backports main' | sudo tee /etc/apt/sources.list.d/wheezy_backports.list
+  - wget -O- https://packages.erlang-solutions.com/debian/erlang_solutions.asc | sudo apt-key add -
+  - echo 'deb https://packages.erlang-solutions.com/debian wheezy contrib' | sudo tee /etc/apt/sources.list.d/esl.list
   - echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
   - wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
-  - sudo apt-get update && sudo apt-get install rabbitmq-server
+  - sudo apt-get update && sudo apt-get install init-system-helpers socat esl-erlang rabbitmq-server
   - The RabbitMQ broker should be clustered, and publicly available at an IP/name stated in endpoints.json
 - Launch Whigi-restore/Whigi-giveaway and Whigi-RLI/Whigi-CC if desired. They cannot run on the machine as they will listen on port 443!: nohup npm run whigi-XXX &
 
