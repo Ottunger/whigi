@@ -32,7 +32,7 @@ All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS p
   - echo 'deb https://packages.erlang-solutions.com/debian wheezy contrib' | sudo tee /etc/apt/sources.list.d/esl.list
   - echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
   - wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
-  - sudo apt-get update && sudo apt-get install init-system-helpers socat esl-erlang rabbitmq-server
+  - sudo apt-get update && sudo apt-get install init-system-helpers socat esl-erlang && sudo apt-get install rabbitmq-server
   - The RabbitMQ broker should be clustered, and publicly available at an IP/name stated in endpoints.json
 - Launch Whigi-restore/Whigi-giveaway and Whigi-RLI/Whigi-CC if desired. They cannot run on the machine as they will listen on port 443!: nohup npm run whigi-XXX &
 

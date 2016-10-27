@@ -273,12 +273,9 @@ connect(function(e) {
     });
     //Need to copy Authorization header
     app.use(function(req, res, next) {
-        var getter = req.get;
-        req.get = function(key) {
-            if(key.toLowerCase() == 'x-whigi-authorization')
-                return getter('authorization');
-            return getter(key);
-        }
+        if(!!req.headers['x-whigi-authorization'])
+            req.headers['authorization'] = req.headers['x-whigi-authorization'];
+        next();
     });
     //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pauth);

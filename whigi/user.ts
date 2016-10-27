@@ -826,6 +826,7 @@ export function regUser(req, res) {
             .encrypt(aes.util.convertStringToBytes(key.exportKey('private'))))];
         u.is_company = !!user.company_info? 1 : 0;
         u.company_info = {};
+        u.hidden_id = utils.generateRandomString(100);
         if(!!user.company_info && !!user.company_info.name)
             u.company_info.name = user.company_info.name;
         if(!!user.company_info && !!user.company_info.bce)

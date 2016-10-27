@@ -42,6 +42,7 @@ export class User extends IModel {
     public oauth: any[];
     public sha_master: string;
     public cert: string;
+    public hidden_id: string;
 
     public impersonated_prefix: string;
     
@@ -80,6 +81,8 @@ export class User extends IModel {
             this.sha_master = u.sha_master;
         if('cert' in u)
             this.cert = u.cert;
+        if('hidden_id' in u)
+            this.hidden_id = u.hidden_id;
         this.impersonated_prefix = undefined;
     }
 
@@ -118,7 +121,8 @@ export class User extends IModel {
             shared_with_me: this.shared_with_me,
             oauth: this.oauth,
             sha_master: this.sha_master,
-            cert: true
+            cert: this.cert,
+            hidden_id: this.hidden_id
         };
         return ret;
     }
@@ -188,7 +192,8 @@ export class User extends IModel {
             company_info: this.company_info,
             rsa_pub_key: this.rsa_pub_key,
             _id: this._id,
-            cert: this.cert
+            cert: this.cert,
+            hidden_id: this.hidden_id
         };
         return ret;
     }
@@ -212,7 +217,8 @@ export class User extends IModel {
             rsa_pri_key: this.rsa_pri_key,
             oauth: this.oauth,
             sha_master: this.sha_master,
-            cert: this.cert
+            cert: this.cert,
+            hidden_id: this.hidden_id
         };
         return ret;
     }
