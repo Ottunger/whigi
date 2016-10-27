@@ -271,6 +271,15 @@ connect(function(e) {
     app.get('/api/v:version/helps/:key', function(req, res) {
         res.type('application/json').status(200).json(require('./helps/' + req.params.key + '.json'));
     });
+    //Need to copy Authorization header
+    app.use(function(req, res, next) {
+        var getter = req.get;
+        req.get = function(key) {
+            if(key.toLowerCase() == 'x-whigi-authorization')
+                return getter('authorization');
+            return getter(key);
+        }
+    });
     //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pauth);
     app.get('/api/v:version/profile', pauth);
