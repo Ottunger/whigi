@@ -163,6 +163,14 @@
                             "error": {
                                 "type": "string",
                                 "description": "An error message, translated, if any"
+                            },
+                            "_id": {
+                                "type": "string",
+                                "description": "The newly created username, which may be changed according to our rules"
+                            },
+                            "hidden_id": {
+                                "type": "string",
+                                "description": "The true unique ID of the new user"
                             }
                         }
                     }
@@ -1384,6 +1392,10 @@
                             "user": {
                                 "type": "string",
                                 "description": "The ID of the user that tries to log in, or null on failure"
+                            },
+                            "hidden_id": {
+                                "type": "string",
+                                "description": "The true user identity"
                             }
                         }
                     },

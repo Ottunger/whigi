@@ -756,7 +756,7 @@ export function regUser(req, res) {
     }
     function end(u: User) {
         u.persist().then(function() {
-            res.type('application/json').status(201).json({error: ''});
+            res.type('application/json').status(201).json({error: '', _id: u._id, hidden_id: u.hidden_id});
             //Warnign mail
             if('warn' in req.body && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(req.body.email)) {
                 mailer.sendMail({
