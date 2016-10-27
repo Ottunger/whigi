@@ -250,7 +250,7 @@ connect(function(e) {
     } else {
         app.use(function(req, res, next) {
             res.set('Access-Control-Allow-Origin', '*');
-            res.set('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers, Authorization, x-whigi-authorization, X-Requested-With');
             next();
         });
     }
