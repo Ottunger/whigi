@@ -8,5 +8,8 @@
             "pathQuestion": "/question",
             "pathFlag": "/flag"
         }
-    ]
+    ],
+    "hosts": {
+        "127.0.0.1": 443
+    }
 }

@@ -7,6 +7,7 @@
 'use strict';
 declare var require: any
 var https = require('https');
+var utils = require('../../utils/utils');
 
 export class Downloader {
 
@@ -28,7 +29,8 @@ export class Downloader {
      * @return {Promise} Result.
      */
     fetch(id: string, name: string): Promise {
-        var endpoints = require('./endpoints.json').endpoints;
+        var e = require(utils.ENDPOINTS);
+        var endpoints = e.endpoints, hosts = e.hosts;
         var data = {
             collection: name,
             id: id,
@@ -49,7 +51,7 @@ export class Downloader {
                     for(var i = 0; i < keys.length; i++) {
                         var options = {
                             host: keys[i],
-                            port: 443,
+                            port: hosts[keys[i]],
                             path: '/api/v1/' + require('../../common/key.json').key + '/' + name + '/' + id,
                             method: 'GET'
                         };

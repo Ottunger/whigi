@@ -19,6 +19,7 @@ export var WHIGIHOST = '';
 export var RESTOREHOST = '';
 export var RUNNING_ADDR = '';
 export var MAIL_ADDR = '';
+export var ENDPOINTS = '';
 export var DEBUG = true;
 
 /**

@@ -10,6 +10,7 @@ var scd = require('node-schedule');
 var sys = require('sys')
 var exec = require('child_process').exec;
 var https = require('https');
+var utils = require('../../utils/utils');
 var basedir: string;
 
 /**
@@ -19,7 +20,7 @@ var basedir: string;
  * @param {String} host Corrupted host.
  */
 function end(host: string) {
-    var endpoints = require('./endpoints.json').endpoints;
+    var endpoints = require(utils.ENDPOINTS).endpoints;
     var data = {
         host: host,
         key: require('../../common/key.json').key

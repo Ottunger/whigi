@@ -17,6 +17,7 @@ var mapping = require('./mapping');
 var httpsport = parseInt(process.argv[2]) || 443;
 var localhost = process.argv[3] || 'localhost';
 utils.DEBUG = !!process.argv[4]? process.argv[4] : true;
+utils.ENDPOINTS = !!process.argv[5]? process.argv[5] : '../common/cdnize/endpoints.json';
 if(utils.DEBUG)
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 

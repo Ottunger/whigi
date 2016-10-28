@@ -121,7 +121,7 @@ export class Uploader {
      * @param {Number} upt How many updates to send per 10sec.
      */
     constructor(upt: number) {
-        var ep = require('./endpoints.json');
+        var ep = require(utils.ENDPOINTS);
         amqp.connect('amqp://' + ep.rabbithost, function(err, conn) {
             if(err) {
                 console.log('Cannot use RabbitMQ message broker. Standalone instance.');

@@ -110,7 +110,7 @@ function partial(msg: number[]) {
  * @public
  */
 export function managerInit() {
-    var ep = require('../common/cdnize/endpoints.json');
+    var ep = require(utils.ENDPOINTS);
     amqp.connect('amqp://' + ep.rabbithost, function(err, conn) {
         if(err) {
             console.log('Cannot use RabbitMQ message broker. Standalone instance.');
