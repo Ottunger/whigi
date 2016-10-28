@@ -367,6 +367,7 @@ export function remove(req, res, respond?: boolean) {
                         mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
                         umount /var/www/` + lid + ` ;
                         rm -rf /usr/www/` + lid + ` ;
+                        rm -rf /var/www/` + lid + ` ;
                         rm -f /etc/nginx/sites-enabled/` + lid + ` &&
                         rm -f /etc/apache2/sites-enabled/` + lid + `.conf &&
                         service apache2 reload
