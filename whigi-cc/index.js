@@ -18,7 +18,7 @@ var httpsport = parseInt(process.argv[2]) || 443;
 var localhost = process.argv[3] || 'localhost';
 utils.DEBUG = !!process.argv[4]? process.argv[4] : true;
 utils.RUNNING_ADDR = process.argv[5] || 'domain192.68.12.12';
-utils.WHIGIHOST = process.argv[6] || undefined;
+utils.WHIGIHOST = (!!process.argv[6] && process.argv[6] != 'null')? process.argv[6] : undefined;
 utils.ENDPOINTS = !!process.argv[7]? process.argv[7] : '../common/cdnize/endpoints.json';
 if(utils.DEBUG)
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
