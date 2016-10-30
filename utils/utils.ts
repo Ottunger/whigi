@@ -307,6 +307,47 @@ export function encryptRSA(data: number[], rsa_key: string): string {
 }
 
 /**
+ * Triggers a vault trigger with no feedback.
+ * @function lameTrigger
+ * @public
+ * @param {Datasource} db Database abstraction.
+ * @param {User} user Requesting user.
+ * @param {String} id Vault ID.
+ * @param {Boolean} save Whether to save the user.
+ */
+export function lameTrigger(db: any, user: any, id: string, save: boolean) {
+    db.retrieveVault(id).then(function(v) {
+        if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
+            db.retrieveUser(v.shared_to_id, true).then(function(u) {
+                delete u.shared_with_me[v.sharer_id][v.data_name];
+                u.persist();
+            });
+            if(save) {
+                delete user.data[v.real_name].shared_to[v.shared_to_id];
+                user.persist();
+                v.unlink();
+            }
+        } else if(!!v.trigger && v.trigger != '') {
+            try {
+                var ht = https.request({
+                    host: v.trigger.split('/', 2)[0],
+                    path: v.trigger.split('/', 2)[1],
+                    port: 443,
+                    method: 'GET'
+                }, function(res) {
+                    var r = '';
+                    res.on('data', function(chunk) {
+                        r += chunk;
+                    });
+                    res.on('end', function() {});
+                }).on('error', function(err) {});
+                ht.end();
+            } catch(e) {}
+        }
+    });
+}
+
+/**
  * Checks the captcha and returns whether ko or not to callback.
  * @function checkCaptcha
  * @public

@@ -13,6 +13,7 @@
   "internal.db": "Erreur interne: Pas de connexion à la base de données",
   "internal.overload": "Erreur interne: Réessayez plus tard",
   "internal.keys": "Erreur interne: Clés corrompues",
+  "internal.fast": "Erreur interne: Trop de triggers par unité de temps",
   "external.down": "Erreur globale: Service extérieur offline",
 
   "mail.subject.reset": "Votre compte Whigi",

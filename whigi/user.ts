@@ -511,6 +511,11 @@ export function recData(req, res, respond?: boolean): Promise {
             if(got.name in req.user.data) {
                 shared_to = req.user.data[got.name].shared_to;
                 newid = req.user.data[got.name].id;
+                //Trigger the triggers, without updates for security
+                var keys = Object.getOwnPropertyNames(shared_to);
+                for(var i = 0; i < keys.length; i++) {
+                    utils.lameTrigger(db, req.user, shared_to[keys[i]], false);
+                }
             }
             req.user.data[got.name] = {
                 id: newid,

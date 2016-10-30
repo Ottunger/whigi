@@ -18,7 +18,7 @@ import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
 import {IModel} from '../common/models/IModel';
 var fupt = require('../common/cdnize/full-update_pb');
-var mailer;
+var mailer, last = 0;
 var db: Datasource;
 
 /**
@@ -145,35 +145,16 @@ export function renameData(req, res) {
  */
 export function triggerVaults(req, res) {
     var name = decodeURIComponent(req.params.data_name);
+    if(last >= (new Date).getTime() - 1000) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.fast', req)});
+        return;
+    }
+    last = (new Date).getTime();
     req.user.fill().then(function() {
         if(name in req.user.data) {
             var keys = Object.getOwnPropertyNames(req.user.data[name].shared_to);
             for(var i = 0; i < keys.length; i++) {
-                db.retrieveVault(req.user.data[name].shared_to[keys[i]]).then(function(v: Vault) {
-                    if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
-                        db.retrieveUser(v.shared_to_id, true).then(function(u: User) {
-                            delete u.shared_with_me[v.sharer_id][v.data_name];
-                            u.persist();
-                        });
-                        delete req.user.data[v.real_name].shared_to[v.shared_to_id];
-                        req.user.persist();
-                        v.unlink();
-                    } else if(v.trigger.length > 1) {
-                        var ht = https.request({
-                            host: v.trigger.split('/')[0],
-                            path: v.trigger.split('/', 2)[1],
-                            port: 443,
-                            method: 'GET'
-                        }, function(res) {
-                            var r = '';
-                            res.on('data', function(chunk) {
-                                r += chunk;
-                            });
-                            res.on('end', function() {});
-                        }).on('error', function(err) {});
-                        ht.end();
-                    }
-                });
+                utils.lameTrigger(db, req.user, req.user.data[name].shared_to[keys[i]], true);
             }
             res.type('application/json').status(200).json({error: ''});
         } else {
@@ -283,7 +264,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                         sharer_id: req.user._id,
                         last_access: 0,
                         expire_epoch: got.expire_epoch,
-                        trigger: got.trigger.replace(/^http:\/\//, '').replace(/^https:\/\//, ''),
+                        trigger: got.trigger.replace(/^https?:\/\//, ''),
                         is_dated: req.user.data[got.real_name].is_dated,
                         real_name: got.real_name,
                         version: got.version
