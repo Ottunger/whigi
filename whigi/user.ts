@@ -698,6 +698,10 @@ export function changeUsername(req, res) {
         });
     }
 
+    if(req.user._id.indexOf('wiuser') != 0) {
+        res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
+        return;
+    }
     db.retrieveUser(proposal).then(function(u) {
         if(u == undefined)
             complete();
