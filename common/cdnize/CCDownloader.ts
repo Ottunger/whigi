@@ -107,7 +107,7 @@ export class Downloader {
                     });
                 }).on('error', function(err) {
                     process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
-                    console.log('Cannot question ' + endpoints[i].host);
+                    console.log('Cannot question ' + endpoints[i].host + ' with error: ', err);
                     complete();
                 });
                 ht.write(data);
