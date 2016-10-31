@@ -89,12 +89,14 @@ export class Downloader {
                         'Content-Length': Buffer.byteLength(data)
                     }
                 };
+                var lu = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
                 var ht = https.request(options, function(res) {
                     var r = '';
                     res.on('data', function(chunk) {
                         r += chunk;
                     });
                     res.on('end', function() {
+                        process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
                         var res = JSON.parse(r);
                         if(res.match) {
                             points = Object.assign(points, res.points);
@@ -102,10 +104,12 @@ export class Downloader {
                         complete();
                     });
                 }).on('error', function(err) {
+                    process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
                     console.log('Cannot question ' + endpoints[i].host);
                     complete();
                 });
                 ht.write(data);
+                process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
                 ht.end();
             }
         });
