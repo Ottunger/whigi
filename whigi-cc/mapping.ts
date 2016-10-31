@@ -129,6 +129,12 @@ function recUpdate() {
  */
 function update(msg: Buffer) {
     var now = (new Date).getTime();
+    if(utils.RUNNING_ADDR.indexOf('h4') != -1) {
+        console.log(msg.toString('utf-8'), new Buffer(zip.decompressFile(msg.toString('utf-8'))));
+        try {
+        console.log(fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg.toString('utf-8')))));
+        } catch(e) {console.log(e);}
+    }
     var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg.toString('utf-8'))));
     var fromer = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + fromer + '.');

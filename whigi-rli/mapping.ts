@@ -80,12 +80,6 @@ function full(msg: Buffer) {
  * @param {Buffer} msg The message.
  */
 function partial(msg: Buffer) {
-    if(utils.RUNNING_ADDR.indexOf('h4') != -1) {
-        console.log(msg.toString('utf-8'), new Buffer(zip.decompressFile(msg.toString('utf-8'))));
-        try {
-        console.log(fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg.toString('utf-8')))));
-        } catch(e) {console.log(e);}
-    }
     var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg.toString('utf-8'))));
     var ip = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + ip + '.');
