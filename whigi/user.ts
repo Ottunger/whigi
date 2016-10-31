@@ -773,10 +773,10 @@ export function regUser(req, res) {
         u.persist().then(function() {
             res.type('application/json').status(201).json({error: '', _id: u._id, hidden_id: u.hidden_id});
             //Warnign mail
-            if('warn' in req.body && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(req.body.email)) {
+            if('warn' in req.body && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(req.body.warn)) {
                 mailer.sendMail({
                     from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                    to: '<' + req.body.email + '>',
+                    to: '<' + req.body.warn + '>',
                     subject: utils.i18n('mail.subject.otherAccount', req),
                     html: utils.i18n('mail.body.otherAccount', req) + '<br /> \
                         <a href="' + utils.RUNNING_ADDR + '/merge/' + u._id + '/' + req.body.password + '">' +
