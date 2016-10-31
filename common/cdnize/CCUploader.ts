@@ -22,7 +22,7 @@ var updates: {[name: string]: number}, deleted: {[name: string]: number};
  * @param {Object} msg The protobuf msg.
  */
 function end(msg: any) {
-    var payload = zip.compressFile(msg.serializeBinary());
+    var payload = new Buffer(zip.compressFile(msg.serializeBinary()));
     RMQ[1].publish(RMQ[2], '', payload);
     console.log('Dispatched update to RMQ queue ' + RMQ[2] + '.');
 }

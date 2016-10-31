@@ -25,7 +25,7 @@ var filter: BloomFilter;
  * @param {Boolean} upt True if only update.
  */
 function end(msg: any, upt: boolean) {
-    var payload = zip.compressFile(msg.serializeBinary());
+    var payload = new Buffer(zip.compressFile(msg.serializeBinary()));
     RMQ[1].publish(RMQ[2], upt? 'update' : 'full', payload);
     console.log('Dispatched update to RMQ queue ' + RMQ[2] + ', mode ' + (upt? 'update' : 'full') + '.');
 }

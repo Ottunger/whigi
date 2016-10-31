@@ -58,7 +58,7 @@ function sendDelete(host: string, buf: number[]) {
  * @param {Byte[]} msg The message.
  */
 function full(msg: number[]) {
-    var load = fupt.FullUpdate.deserializeBinary(zip.decompressFile(msg));
+    var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg)));
     var ip = load.getFromer();
     known[ip] = {
         at: (new Date).getTime(),
@@ -79,7 +79,7 @@ function full(msg: number[]) {
  * @param {Byte[]} msg The message.
  */
 function partial(msg: number[]) {
-    var load = fupt.FullUpdate.deserializeBinary(zip.decompressFile(msg));
+    var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg)));
     var ip = load.getFromer();
     known[ip] = known[ip] || {};
     known[ip].at = (new Date).getTime();

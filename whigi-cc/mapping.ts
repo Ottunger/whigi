@@ -115,7 +115,7 @@ function recUpdate() {
     }
     msg.setMappingsList(mappings);
 
-    var payload = zip.compressFile(msg.serializeBinary());
+    var payload = new Buffer(zip.compressFile(msg.serializeBinary()));
     RMQUp[1].publish(RMQUp[2], '', payload);
     console.log('Dispatched update to RMQ queue ' + RMQUp[2] + '.');
 }
@@ -129,7 +129,7 @@ function recUpdate() {
  */
 function update(msg: number[]) {
     var now = (new Date).getTime();
-    var load = fupt.FullUpdate.deserializeBinary(zip.decompressFile(msg));
+    var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg)));
     var fromer = load.getFromer();
     var coll = load.getMappingsList();
     for(var i = 0; i < coll.length; i++) {
