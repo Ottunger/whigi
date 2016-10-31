@@ -55,10 +55,10 @@ function sendDelete(host: string, buf: number[]) {
  * Takes whole state from a whigi.
  * @function full
  * @public
- * @param {Buffer} msg The message.
+ * @param {Object} msg The message.
  */
-function full(msg: Buffer) {
-    var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg.toString('utf-8'))));
+function full(msg: any) {
+    var load = fupt.FullUpdate.deserializeBinary(new Uint8Array(zip.decompressFile(msg.content.toString('utf-8'))));
     var ip = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + ip + '.');
     known[ip] = {
@@ -77,10 +77,10 @@ function full(msg: Buffer) {
  * Takes some state from a Whigi.
  * @function partial
  * @public
- * @param {Buffer} msg The message.
+ * @param {Object} msg The message.
  */
-function partial(msg: Buffer) {
-    var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg.toString('utf-8'))));
+function partial(msg: any) {
+    var load = fupt.FullUpdate.deserializeBinary(new Uint8Array(zip.decompressFile(msg.content.toString('utf-8'))));
     var ip = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + ip + '.');
     known[ip] = known[ip] || {};

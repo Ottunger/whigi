@@ -124,18 +124,16 @@ function recUpdate() {
  * Read an update.
  * @function update
  * @public
- * @param {Buffer} msg The message.
- * @param {Response} res The response.
+ * @param {Object} msg The message.
  */
-function update(msg: Buffer) {
+function update(msg: any) {
     var now = (new Date).getTime();
-    if(utils.RUNNING_ADDR.indexOf('h4') != -1) {
-        console.log(msg.toString('utf-8'), new Buffer(zip.decompressFile(msg.toString('utf-8'))));
-        try {
-        console.log(fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg.toString('utf-8')))));
-        } catch(e) {console.log(e);}
-    }
-    var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg.toString('utf-8'))));
+console.log(msg);
+console.log(msg.content.toString('utf-8'), new Uint8Array(zip.decompressFile(msg.content.toString('utf-8'))));
+try {
+console.log(fupt.FullUpdate.deserializeBinary(new Uint8Array(zip.decompressFile(msg.content.toString('utf-8')))));
+} catch(e) {console.log(e);}
+    var load = fupt.FullUpdate.deserializeBinary(new Uint8Array(zip.decompressFile(msg.content.toString('utf-8'))));
     var fromer = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + fromer + '.');
     var coll = load.getMappingsList();
