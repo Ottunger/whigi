@@ -41,7 +41,7 @@ export class Downloader {
         return new Promise(function(resolve, reject) {
             function end() {
                 tried++;
-                if(!found && tried == keys.length)
+                if(!found && tried >= keys.length)
                     reject();
             }
             function complete() {
@@ -75,6 +75,8 @@ export class Downloader {
                         });
                         ht.end();
                     }
+                    if(keys.length == 0)
+                        end();
                 }
             }
 
