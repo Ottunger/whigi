@@ -128,15 +128,6 @@ function recUpdate() {
  */
 function update(msg: any) {
     var now = (new Date).getTime();
-try {
-console.log(new Uint8Array(msg.content));
-} catch(e) {console.log(e);}
-try {
-console.log(zip.decompressFile(new Uint8Array(msg.content)));
-} catch(e) {console.log(e);}
-try {
-console.log(fupt.FullUpdate.deserializeBinary(zip.decompressFile(new Uint8Array(msg.content))));
-} catch(e) {console.log(e);}
     var load = fupt.FullUpdate.deserializeBinary(zip.decompressFile(new Uint8Array(msg.content)));
     var fromer = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + fromer + '.');
