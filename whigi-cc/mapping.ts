@@ -128,8 +128,12 @@ function recUpdate() {
  */
 function update(msg: any) {
     var now = (new Date).getTime();
-console.log(msg);
-console.log(msg.content.toString('utf-8'), new Uint8Array(zip.decompressFile(msg.content.toString('utf-8'))));
+try {
+console.log(zip.decompressFile(msg.content.toString('utf-8')));
+} catch(e) {console.log(e);}
+try {
+console.log(new Uint8Array(zip.decompressFile(msg.content.toString('utf-8'))));
+} catch(e) {console.log(e);}
 try {
 console.log(fupt.FullUpdate.deserializeBinary(new Uint8Array(zip.decompressFile(msg.content.toString('utf-8')))));
 } catch(e) {console.log(e);}
