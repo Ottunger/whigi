@@ -22,8 +22,6 @@ var updates: {[name: string]: number}, deleted: {[name: string]: number};
  * @param {Object} msg The protobuf msg.
  */
 function end(msg: any) {
-    if(utils.RUNNING_ADDR.indexOf('h0') != -1)
-        console.log(msg, msg.serializeBinary(), new Buffer(zip.compressFile(msg.serializeBinary())).toString('utf-8'));
     var payload = new Buffer(zip.compressFile(msg.serializeBinary()));
     RMQ[1].publish(RMQ[2], '', payload);
     console.log('[' + utils.RUNNING_ADDR + '] Dispatched update to RMQ queue ' + RMQ[2] + '.');
