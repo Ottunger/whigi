@@ -124,12 +124,12 @@ function recUpdate() {
  * Read an update.
  * @function update
  * @public
- * @param {Byte[]} msg The message.
+ * @param {Buffer} msg The message.
  * @param {Response} res The response.
  */
-function update(msg: number[]) {
+function update(msg: Buffer) {
     var now = (new Date).getTime();
-    var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg)));
+    var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg.toString('utf-8'))));
     var fromer = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + fromer + '.');
     var coll = load.getMappingsList();
