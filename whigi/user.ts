@@ -715,7 +715,7 @@ export function changeUsername(req, res) {
                 else
                     res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
             }, function(e) {
-                complete();
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
             });
         } else {
             res.type('application/json').status(400).json({error: utils.i18n('client.captcha', req)});
@@ -881,7 +881,7 @@ export function regUser(req, res) {
                     else
                         res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
                 }, function(e) {
-                    complete();
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                 });
             } else {
                 res.type('application/json').status(400).json({error: utils.i18n('client.captcha', req)});

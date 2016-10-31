@@ -24,7 +24,8 @@ export var fields = {
     shared_with_me: true,
     oauth: true,
     sha_master: true,
-    cert: true
+    cert: true,
+    hidden_id: true
 }
 
 export class User extends IModel {
