@@ -14,7 +14,7 @@ Whigi repo is actually a collection of projects working for the Whigi project in
 
 
 # Installation of Whigi and Standalone client
-All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS providers, whereas Whigi, Whigi-restore and Whigi-giveaway are behind nginx.
+All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS providers, often over 4443, whereas Whigi, Whigi-restore and Whigi-giveaway are behind nginx.
 - Clone the gitlab repository.
 - Make sure to have installed node=4.7.X, mongo=3.2.X, nginx>=1.6.X. (A how to can be found in whigi-giveaway/README.md)
 - Modify the nginx.conf package to specify where you cloned your repo and the path to logs. Be careful where the HTTPS endpoint is! Especially if running several nginx in chain.
@@ -41,6 +41,7 @@ A greater description is given in the documents found in the doc folder.
 Please make sure to update password when you recover it (create a client that does so).
 
 # Third-parties
+- CAREFUL THIRS PART OF THE DOC MIGHT NOT BE UP TO DATE, CHECK THE LATEST API REPO. ALTHOUGH THOSE STILL WORK, BETTER URL EXIST!
 - SIMULATE AN ACCOUNT CREATION WITHOUT OAUTH: This is the best method for account creation. Make your user browse to
 /account/encodeURIComponent([your-ID])/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny])/true. This will create a new dummy data in the user's file named
 keys/auth/[your-ID], and share it with you. To log in a user, make him browse to /remote/encodeURIComponent([your-ID])/[challenge]/encodeURIComponent([return\_url]). The URL
@@ -63,6 +64,7 @@ success set to either true or false. It should accept a GET request where the to
 
 We therefore restrict what can be done using OAuth:
   - Only read-only access to a folder can be given
+  - Critical write acces can be given for single data
   - Writes/grants are limited to a per file basis (still allows apps such as calendars to work)
   - Only one data or folder at a time
   - To use it, send your user to /oauth/[your-for\_id]/encodeURIComponent([the-data-you-need])/[check-token]/encodeURIComponent([return\_url\_ok])/encodeURIComponent([return\_url\_deny])
