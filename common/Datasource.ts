@@ -104,13 +104,13 @@ export class Datasource {
         var self = this;
         if(this.useCDN && this.up.isReady()) {
             return new Promise(function(resolve, reject) {
-                self.db.collection(db).findOne(query, selector).then(function(data) {
+                self.db.collection(db).findOne(query, selector).then(function(data) {console.log('DB', query, selector, data);
                     if(!!data) {
                         resolve(data);
                     } else {
-                        self.down.fetch(query._id, db).then(function(data) {
+                        self.down.fetch(query._id, db).then(function(data) {console.log('REMOTE', query, selector, data);
                             resolve(data);
-                        }, function(e) {
+                        }, function(e) {console.log('REMOTE ERROR', query, selector, e);
                             reject(e);
                         });
                     }
