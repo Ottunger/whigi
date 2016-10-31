@@ -509,13 +509,20 @@
                         "name": "profileuname",
                         "path": "/api/v{version}/user/profile/uname",
                         "auth": "YES",
-                        "puzzle": "YES",
+                        "puzzle": "NO",
                         "input": "application/json",
                         "output": "application/json",
                         "status": "200, 400, 412, 500",
                         "method": "POST",
                         "desc": "Update username",
                         "description": "Update the username to a new username.",
+                        "query": {
+                            "captcha": {
+                                "type": "string",
+                                "description": "A captcha to validate",
+                                "required": true
+                            }
+                        },
                         "post": {
                             "new_username": {
                                 "type": "string",
@@ -527,10 +534,6 @@
                             "error": {
                                 "type": "string",
                                 "description": "An error message, translated, if any"
-                            },
-                            "puzzle": {
-                                "type": "string",
-                                "description": "User puzzle"
                             }
                         }
                     },

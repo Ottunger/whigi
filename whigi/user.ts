@@ -707,13 +707,19 @@ export function changeUsername(req, res) {
         res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
         return;
     }
-    db.retrieveUser(proposal).then(function(u) {
-        if(u == undefined)
-            complete();
-        else
-            res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
-    }, function(e) {
-        complete();
+    utils.checkCaptcha(req.query.captcha, function(ok) {
+        if(ok || utils.DEBUG) {
+            db.retrieveUser(proposal).then(function(u) {
+                if(u == undefined)
+                    complete();
+                else
+                    res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+            }, function(e) {
+                complete();
+            });
+        } else {
+            res.type('application/json').status(400).json({error: utils.i18n('client.captcha', req)});
+        }
     });
 }
 
@@ -868,7 +874,7 @@ export function regUser(req, res) {
 
     if(user.password.length >= 8 && !checks.isWhigi(user.username)) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
-            if(ok || utils.DEBUG) {
+            if(ok || utils.DEBUG || proposal.indexOf('wiuser-') == 0) {
                 db.retrieveUser(proposal).then(function(u) {
                     if(u == undefined)
                         complete();

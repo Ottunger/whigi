@@ -336,7 +336,6 @@ connect(function(e) {
     //API LONG LIVED COMMANDS
     app.post('/api/v:version/close/:id', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/new', checks.checkPuzzle);
-    app.post('/api/v:version/profile/uname', checks.checkPuzzle);
     app.post('/api/v:version/profile/token/new', checks.checkPuzzle);
     //-----
     app.get('/api/v:version/data/:name/to/:now', checks.checkPuzzle);
