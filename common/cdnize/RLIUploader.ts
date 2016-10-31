@@ -27,7 +27,7 @@ var filter: BloomFilter;
 function end(msg: any, upt: boolean) {
     var payload = new Buffer(zip.compressFile(msg.serializeBinary()));
     RMQ[1].publish(RMQ[2], upt? 'update' : 'full', payload);
-    console.log('Dispatched update to RMQ queue ' + RMQ[2] + ', mode ' + (upt? 'update' : 'full') + '.');
+    console.log('[' + utils.RUNNING_ADDR + '] Dispatched update to RMQ queue ' + RMQ[2] + ', mode ' + (upt? 'update' : 'full') + '.');
 }
 
 /**

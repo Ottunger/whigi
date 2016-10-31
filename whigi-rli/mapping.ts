@@ -42,10 +42,10 @@ function sendDelete(host: string, buf: number[]) {
             r += chunk;
         });
         res.on('end', function() {
-            console.log('Ask for removal to ' + host + ' ended with answer "' + r + '"');
+            console.log('[' + utils.RUNNING_ADDR + '] Ask for removal to ' + host + ' ended with answer "' + r + '"');
         });
     }).on('error', function(err) {
-        console.log('Cannot ask for removal to ' + host);
+        console.log('[' + utils.RUNNING_ADDR + '] Cannot ask for removal to ' + host);
     });
     ht.write(data);
     ht.end();
@@ -60,6 +60,7 @@ function sendDelete(host: string, buf: number[]) {
 function full(msg: number[]) {
     var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg)));
     var ip = load.getFromer();
+    console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + ip + '.');
     known[ip] = {
         at: (new Date).getTime(),
         collections: {}
@@ -81,6 +82,7 @@ function full(msg: number[]) {
 function partial(msg: number[]) {
     var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg)));
     var ip = load.getFromer();
+    console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + ip + '.');
     known[ip] = known[ip] || {};
     known[ip].at = (new Date).getTime();
 

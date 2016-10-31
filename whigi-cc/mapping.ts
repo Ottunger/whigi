@@ -117,7 +117,7 @@ function recUpdate() {
 
     var payload = new Buffer(zip.compressFile(msg.serializeBinary()));
     RMQUp[1].publish(RMQUp[2], '', payload);
-    console.log('Dispatched update to RMQ queue ' + RMQUp[2] + '.');
+    console.log('[' + utils.RUNNING_ADDR + '] Dispatched update to RMQ queue ' + RMQUp[2] + '.');
 }
 
 /**
@@ -131,6 +131,7 @@ function update(msg: number[]) {
     var now = (new Date).getTime();
     var load = fupt.FullUpdate.deserializeBinary(new Buffer(zip.decompressFile(msg)));
     var fromer = load.getFromer();
+    console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + fromer + '.');
     var coll = load.getMappingsList();
     for(var i = 0; i < coll.length; i++) {
         var name = coll[i].getName();

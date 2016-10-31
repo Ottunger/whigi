@@ -24,7 +24,7 @@ var updates: {[name: string]: number}, deleted: {[name: string]: number};
 function end(msg: any) {
     var payload = new Buffer(zip.compressFile(msg.serializeBinary()));
     RMQ[1].publish(RMQ[2], '', payload);
-    console.log('Dispatched update to RMQ queue ' + RMQ[2] + '.');
+    console.log('[' + utils.RUNNING_ADDR + '] Dispatched update to RMQ queue ' + RMQ[2] + '.');
 }
 
 /**
