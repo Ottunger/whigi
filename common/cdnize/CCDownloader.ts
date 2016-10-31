@@ -90,6 +90,7 @@ export class Downloader {
                     }
                 };
                 var lu = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+                process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
                 var ht = https.request(options, function(res) {
                     var r = '';
                     res.on('data', function(chunk) {
@@ -111,7 +112,6 @@ export class Downloader {
                     complete();
                 });
                 ht.write(data);
-                process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
                 ht.end();
             }
         });
