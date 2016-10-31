@@ -46,7 +46,7 @@ function updateFn() {
             m.setName(coll);
             m.setIdsList([]);
             m.setIdsEpochList([]);
-            m.setDelList([]);
+            m.setDeletedList([]);
             m.setDelEpochList([]);
         } else {
             for(var j = 0; j < mappings.length; j++) {
@@ -58,9 +58,9 @@ function updateFn() {
         }
         
         //Add the info about the current object
-        var p = m.getDelList();
+        var p = m.getDeletedList();
         p.push(id);
-        m.setDelList(p);
+        m.setDeletedList(p);
         p = m.getDelEpochList();
         p.push(deleted[keys[i]]);
         m.setDelEpochList(p);
@@ -82,7 +82,7 @@ function updateFn() {
             m.setName(coll);
             m.setIdsList([]);
             m.setIdsEpochList([]);
-            m.setDelList([]);
+            m.setDeletedList([]);
             m.setDelEpochList([]);
         } else {
             for(var j = 0; j < mappings.length; j++) {
