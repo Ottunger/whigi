@@ -151,6 +151,11 @@ export function checkOAuth(auto: boolean, mode?: number): Function {
                             next();
                         else
                             res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    } else if(mode == 3) {
+                        if(decodeURIComponent(req.params.name).match('^' + req.user.impersonated_prefix + '$'))
+                            next();
+                        else
+                            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                     } else {
                         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});    
                     }

@@ -1,2 +1,0 @@
-Implementation details:
-   Vault hash check for merged accounts

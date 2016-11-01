@@ -97,6 +97,34 @@ export function getData(req, res) {
 }
 
 /**
+ * Forges the response to retrieve a new info.
+ * @function getDataByName
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function getDataByName(req, res) {
+    var name = decodeURIComponent(req.params.name);
+    req.user.fill().then(function() {
+        if(name in req.user.data) {
+            db.retrieveData(req.user.data[name].id).then(function(df: Datafragment) {
+                if(!df) {
+                    res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                } else {
+                    res.type('application/json').status(200).json(df.sanitarize());
+                }
+            }, function(e) {
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            });
+        } else {
+            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+        }
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
  * Forges the response to renaming a data.
  * @function renameData
  * @public

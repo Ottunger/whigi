@@ -89,6 +89,8 @@ function listOptions(path, res, next) {
     //-----
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/data\/byname\/[^\/]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%_\-]+\/to\/[a-zA-Z0-9%_\-]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/data\/trigger\/[a-zA-Z0-9%_\-]+\/?$/))
@@ -293,6 +295,7 @@ connect(function(e) {
     app.get('/api/v:version/eid/bce/:bce', pauth);
     //-----
     app.get('/api/v:version/data/:id', pauth);
+    app.get('/api/v:version/data/byname/:name', pauth);
     app.get('/api/v:version/data/:name/to/:now', pauth);
     app.get('/api/v:version/data/trigger/:data_name', pauth);
     app.delete('/api/v:version/data/:data_name', pauth);
@@ -314,6 +317,7 @@ connect(function(e) {
     app.get('/api/v:version/eid/bce/:bce', checks.checkOAuth(true));
     //-----
     app.get('/api/v:version/data/:id', checks.checkOAuth(false, 0));
+    app.get('/api/v:version/data/byname/:name', checks.checkOAuth(false, 3));
     app.get('/api/v:version/data/:name/to/:now', checks.checkOAuth(true));
     app.delete('/api/v:version/data/:data_name', checks.checkOAuth(true));
     app.post('/api/v:version/vault/new', checks.checkOAuth(false, 2));
@@ -363,6 +367,7 @@ connect(function(e) {
     app.get('/api/v:version/eid/bce/:bce', user.goBCE);
     //------
     app.get('/api/v:version/data/:id', data.getData);
+    app.get('/api/v:version/data/byname/:name', data.getDataByName);
     app.get('/api/v:version/data/:name/to/:now', data.renameData);
     app.get('/api/v:version/data/trigger/:data_name', data.triggerVaults);
     app.delete('/api/v:version/data/:data_name', data.removeData);

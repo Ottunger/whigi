@@ -838,6 +838,10 @@
                                 "type": "string",
                                 "description": "Encrypted data"
                             },
+                            "encr_aes": {
+                                "type": "string",
+                                "description": "Encrypted AES key for bound data"
+                            },
                             "version": {
                                 "type": "integer",
                                 "description": "Versioning schema"
@@ -845,6 +849,50 @@
                             "decr_data": {
                                 "type": "string",
                                 "description": "If asked, decrypted data"
+                            },
+                            "decr_aes": {
+                                "type": "string",
+                                "description": "If asked, decrypted AES key if any"
+                            }
+                        }
+                    },
+                    {
+                        "name": "datagetnm",
+                        "path": "/api/v{version}/data/byname/{name}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "status": "200, 404, 500",
+                        "output": "application/json",
+                        "method": "GET",
+                        "desc": "Get a data",
+                        "description": "Get one data, still encrypted, by name.",
+                        "pathing": {
+                            "name": {
+                                "type": "string",
+                                "description": "URL encoded name of the data to look for",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "_id": {
+                                "type": "string",
+                                "description": "Echoed ID"
+                            },
+                            "encr_data": {
+                                "type": "string",
+                                "description": "Encrypted data"
+                            },
+                            "encr_aes": {
+                                "type": "string",
+                                "description": "Encrypted AES key for bound data"
+                            },
+                            "version": {
+                                "type": "integer",
+                                "description": "Versioning schema"
                             }
                         }
                     },
