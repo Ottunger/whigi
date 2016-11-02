@@ -36,7 +36,7 @@ function end(msg: any, upt: boolean) {
  * @private
  */
 function fullFn() {
-    var ids = {}, done = 0;
+    var ids = {}, done = 0, m;
 
     function complete() {
         done++;
@@ -46,7 +46,7 @@ function fullFn() {
             var mappings = [];
             for(var key in ids) {
                 if(ids.hasOwnProperty(key)) {
-                    var m = new fupt.Mapping();
+                    m = new fupt.Mapping();
                     m.setName(key);
                     m.setIdsList(ids[key]);
                     mappings.push(m);
@@ -78,12 +78,12 @@ function fullFn() {
  * @private
  */
 function partialFn() {
-    var msg = new fupt.FullUpdate();
+    var msg = new fupt.FullUpdate(), m;
     msg.setFromer(utils.RUNNING_ADDR);
     var mappings = [];
     for(var key in updates) {
         if(updates.hasOwnProperty(key)) {
-            var m = new fupt.Mapping();
+            m = new fupt.Mapping();
             m.setName(key);
             m.setIdsList(updates[key]);
             m.setDeletedList(deleted[key]);
@@ -168,12 +168,12 @@ export class Uploader {
      * @public
      * @param {String} id Id.
      * @param {String} name collection name.
-     * @param {Boolean} deleted Deleted or not.
+     * @param {Boolean} wdel Deleted or not.
      */
-    markUpdated(id: string, name: string, deleted: boolean) {
+    markUpdated(id: string, name: string, wdel: boolean) {
         if(!RMQ)
             return;
-        if(deleted) {
+        if(wdel) {
             deleted[name] = deleted[name] || [];
             if(deleted[name].indexOf(id) == -1)
                 deleted[name].push(id);

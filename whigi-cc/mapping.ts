@@ -132,6 +132,7 @@ function update(msg: any) {
     var fromer = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + fromer + '.');
     var coll = load.getMappingsList();
+console.log(coll[0]);
     for(var i = 0; i < coll.length; i++) {
         var name = coll[i].getName();
         var ids: string[] = coll[i].getIdsList();

@@ -929,7 +929,8 @@ export function removeToken(req, res, respond?: boolean) {
                     return;
                 }
                 t.unlink().then(function() {
-                    removeToken(req, res);
+                    if(respond === true)
+                        res.type('application/json').status(200).json({error: ''});
                 }, function(e) {
                     if(respond === true)
                         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});

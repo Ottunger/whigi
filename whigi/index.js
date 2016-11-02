@@ -393,7 +393,7 @@ connect(function(e) {
     process.on('SIGINT', close);
     if(utils.DEBUG == false) {
         process.on('uncaughtException', function(err) {
-            console.log(err);
+            console.log(err, err.stack);
         });
     }
 

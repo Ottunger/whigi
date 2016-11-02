@@ -320,7 +320,7 @@ proto.Mapping.deserializeBinaryFromReader = function(msg, reader) {
       msg.setIdsList(msg.getIdsList());
       break;
     case 4:
-      var value = /** @type {!Array.<number>} */ (reader.readPackedInt32());
+      var value = /** @type {!Array.<number>} */ (reader.readPackedUint64());
       msg.setIdsEpochList(value);
       break;
     case 3:
@@ -329,7 +329,7 @@ proto.Mapping.deserializeBinaryFromReader = function(msg, reader) {
       msg.setDeletedList(msg.getDeletedList());
       break;
     case 5:
-      var value = /** @type {!Array.<number>} */ (reader.readPackedInt32());
+      var value = /** @type {!Array.<number>} */ (reader.readPackedUint64());
       msg.setDelEpochList(value);
       break;
     default:
@@ -386,7 +386,7 @@ proto.Mapping.prototype.serializeBinaryToWriter = function (writer) {
   }
   f = this.getIdsEpochList();
   if (f.length > 0) {
-    writer.writePackedInt32(
+    writer.writePackedUint64(
       4,
       f
     );
@@ -400,7 +400,7 @@ proto.Mapping.prototype.serializeBinaryToWriter = function (writer) {
   }
   f = this.getDelEpochList();
   if (f.length > 0) {
-    writer.writePackedInt32(
+    writer.writePackedUint64(
       5,
       f
     );
@@ -455,7 +455,7 @@ proto.Mapping.prototype.clearIdsList = function() {
 
 
 /**
- * repeated int32 ids_epoch = 4;
+ * repeated uint64 ids_epoch = 4;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
  * @return {!Array.<number>}
@@ -499,7 +499,7 @@ proto.Mapping.prototype.clearDeletedList = function() {
 
 
 /**
- * repeated int32 del_epoch = 5;
+ * repeated uint64 del_epoch = 5;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
  * @return {!Array.<number>}

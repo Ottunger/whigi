@@ -86,7 +86,7 @@ export class Datasource {
      * @param {String} id _id.
      * @return {Promise} Whether went OK locally.
      */
-    unlink(name: string, id: string) {
+    unlink(name: string, id: string): Promise {
         this.updated(id, name, true);
         return this.db.collection(name).remove({_id: id});
     }

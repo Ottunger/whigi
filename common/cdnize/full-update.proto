@@ -8,7 +8,7 @@ message FullUpdate {
 message Mapping {
     string name = 1;
     repeated string ids = 2;
-    repeated int32 ids_epoch = 4;
+    repeated uint64 ids_epoch = 4;
     repeated string deleted = 3;
-    repeated int32 del_epoch = 5;
+    repeated uint64 del_epoch = 5;
 }

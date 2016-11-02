@@ -33,16 +33,18 @@ function end(msg: any) {
  * @private
  */
 function updateFn() {
-    var msg = new fupt.FullUpdate();
+    var msg = new fupt.FullUpdate(), m;
     msg.setFromer(utils.RUNNING_ADDR);
     var mappings = [], seen = {}, keys = Object.getOwnPropertyNames(deleted);
+    var coll: string[] | string = '', id: string;
 
     //Deleted ones
     for(var i = 0; i < keys.length; i++) {
-        var coll = keys[i].split('/')[0];
-        var id = keys[i].split('/')[1];
+        coll = keys[i].split('/');
+        id = coll[1];
+        coll = coll[0];
         if(!(coll in seen)) {
-            var m = new fupt.Mapping();
+            m = new fupt.Mapping();
             m.setName(coll);
             m.setIdsList([]);
             m.setIdsEpochList([]);
@@ -51,7 +53,7 @@ function updateFn() {
         } else {
             for(var j = 0; j < mappings.length; j++) {
                 if(mappings[j].getName() == coll) {
-                    var m = mappings[j];
+                    m = mappings[j];
                     break;
                 }
             }
@@ -75,10 +77,13 @@ function updateFn() {
     keys = Object.getOwnPropertyNames(updates);
     for(var i = 0; i < Math.min(uptsize, keys.length); i++) {
         var index = Math.floor(Math.random() * Math.min(uptsize, keys.length));
-        var coll = keys[index].split('/')[0];
-        var id = keys[index].split('/')[1];
+        if(!(keys[index] in updates))
+            continue;
+        coll = keys[index].split('/');
+        id = coll[1];
+        coll = coll[0];
         if(!(coll in seen)) {
-            var m = new fupt.Mapping();
+            m = new fupt.Mapping();
             m.setName(coll);
             m.setIdsList([]);
             m.setIdsEpochList([]);
@@ -87,7 +92,7 @@ function updateFn() {
         } else {
             for(var j = 0; j < mappings.length; j++) {
                 if(mappings[j].getName() == coll) {
-                    var m = mappings[j];
+                    m = mappings[j];
                     break;
                 }
             }
@@ -107,7 +112,7 @@ function updateFn() {
             mappings.push(m);
         }
     }
-console.log(mappings);
+
     msg.setMappingsList(mappings);
     end(msg);
 }
@@ -137,7 +142,8 @@ export class Uploader {
 
                 RMQ = [conn, ch, rq];
                 scd.scheduleJob('*/1 * * * *', updateFn);
-                uptsize = upt;
+                //Birthday paradox, as we will discard updates alerady sent randomly
+                uptsize = upt * upt;
                 updates = {};
                 deleted = {};
             });
@@ -150,12 +156,12 @@ export class Uploader {
      * @public
      * @param {String} id Id.
      * @param {String} name collection name.
-     * @param {Boolean} deleted Deleted or not.
+     * @param {Boolean} wdel Deleted or not.
      */
-    markUpdated(id: string, name: string, deleted: boolean) {
+    markUpdated(id: string, name: string, wdel: boolean) {
         if(!RMQ)
             return;
-        if(deleted) {
+        if(wdel) {
             deleted[name + '/' + id] = (new Date).getTime();
         } else {
             updates[name + '/' + id] = (new Date).getTime();
