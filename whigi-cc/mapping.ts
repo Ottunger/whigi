@@ -67,25 +67,27 @@ function recQuestion(domain: string, coll: string, id: string): Promise {
  * @private
  */
 function recUpdate() {
-    var msg = new fupt.FullUpdate();
+    var msg = new fupt.FullUpdate(), m;
     msg.setFromer(utils.RUNNING_ADDR);
+    var coll: string[] | string, id: string;
 
     var mappings = [], seen = {}, keys = Object.getOwnPropertyNames(known);
-    for(var i = 0; i < Math.min(100, keys.length); i++) {
-        var index = Math.floor(Math.random() * Math.min(100, keys.length));
-        var coll = keys[index].split('/')[0];
-        var id = keys[index].split('/')[1];
+    for(var i = 0; i < Math.min(10000, keys.length); i++) {
+        var index = Math.floor(Math.random() * Math.min(10000, keys.length));
+        coll = keys[index].split('/');
+        id = coll[1];
+        coll = coll[0];
         if(!(coll in seen)) {
-            var m = new fupt.Mapping();
+            m = new fupt.Mapping();
             m.setName(coll);
             m.setIdsList([]);
             m.setIdsEpochList([]);
-            m.setDelList([]);
+            m.setDeletedList([]);
             m.setDelEpochList([]);
         } else {
             for(var j = 0; j < mappings.length; j++) {
                 if(mappings[j].getName() == coll) {
-                    var m = mappings[j];
+                    m = mappings[j];
                     break;
                 }
             }
@@ -93,9 +95,9 @@ function recUpdate() {
         
         //Add the info about the current object
         if(known[keys[index]].empty) {
-            var p = m.getDelList();
+            var p = m.getDeletedList();
             p.push(id);
-            m.setDelList(p);
+            m.setDeletedList(p);
             p = m.getDelEpochList();
             p.push(known[keys[index]].upd);
             m.setDelEpochList(p);
@@ -131,12 +133,12 @@ function update(msg: any) {
     var load = fupt.FullUpdate.deserializeBinary(zip.decompressFile(new Uint8Array(msg.content)));
     var fromer = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + fromer + '.');
-    var coll = load.getMappingsList();
-console.log(coll[0]);
+    var coll = load.getMappingsList() || [];
+
     for(var i = 0; i < coll.length; i++) {
         var name = coll[i].getName();
         var ids: string[] = coll[i].getIdsList();
-        var ids_epoch: number[] = coll[i].getIDsEpochList();
+        var ids_epoch: number[] = coll[i].getIdsEpochList();
         var del: string[] = coll[i].getDeletedList();
         var del_epoch: number[] = coll[i].getDelEpochList();
         //Mark as new updated or deleted ones
