@@ -243,9 +243,9 @@ console.log('here1');
             } else {
 console.log('here2', known[got.collection + '/' + got.id].contacts[0]);
                 recQuestion(known[got.collection + '/' + got.id].contacts[0], got.collection, got.id).then(function(points) {
+console.log(points);
                     res.type('application/json').status(200).json({points: points});
                 }, function(e) {
-console.log(e);
                     delete known[got.collection + '/' + got.id];
                     res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
                 });

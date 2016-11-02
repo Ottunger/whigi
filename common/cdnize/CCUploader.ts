@@ -34,7 +34,7 @@ function end(msg: any) {
  */
 function updateFn() {
     var msg = new fupt.FullUpdate(), m;
-    msg.setFromer(utils.RUNNING_ADDR);
+    msg.setFromer(utils.RUNNING_ADDR.replace(/^https?:\/\//, ''));
     var mappings = [], seen = {}, keys = Object.getOwnPropertyNames(deleted);
     var coll: string[] | string = '', id: string;
 

@@ -42,7 +42,7 @@ function fullFn() {
         done++;
         if(done == collections.length) {
             var msg = new fupt.FullUpdate();
-            msg.setFromer(utils.RUNNING_ADDR);
+            msg.setFromer(utils.RUNNING_ADDR.replace(/^https?:\/\//, ''));
             var mappings = [];
             for(var key in ids) {
                 if(ids.hasOwnProperty(key)) {
@@ -79,7 +79,7 @@ function fullFn() {
  */
 function partialFn() {
     var msg = new fupt.FullUpdate(), m;
-    msg.setFromer(utils.RUNNING_ADDR);
+    msg.setFromer(utils.RUNNING_ADDR.replace(/^https?:\/\//, ''));
     var mappings = [];
     for(var key in updates) {
         if(updates.hasOwnProperty(key)) {
