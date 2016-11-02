@@ -22,10 +22,10 @@ var known = {}, flags = {};
  * @param {String} buf Serialized message.
  */
 function sendDelete(host: string, buf: number[]) {
-    var data = {
+    var data = JSON.stringify({
         payload: buf,
         key: require('../common/key.json').key
-    };
+    });
     var options = {
         host: host,
         port: 443,

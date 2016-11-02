@@ -26,11 +26,11 @@ var known: {[id: string]: {upd: number, contacts: string[], empty: boolean}} = {
  */
 function recQuestion(domain: string, coll: string, id: string): Promise {
     var ep = require(utils.ENDPOINTS);
-    var data = {
+    var data = JSON.stringify({
         collection: coll,
         id: id,
         key: require('../common/key.json').key
-    };
+    });
     var options = {
         host: domain.indexOf('domain') == 0? ep.domains[domain].host : domain,
         port: domain.indexOf('domain') == 0? ep.domains[domain].port : 443,
@@ -227,7 +227,7 @@ export function question(req, res) {
     var got = req.body;
     var ip = (!!req.headers && !!req.headers['x-forwarded-for'])? req.headers['x-forwarded-for'].split(', ')[0] :
         req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-console.log(got);
+console.log(got, known);
     if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
         if(!utils.WHIGIHOST && (!known[got.collection + '/' + got.id] || known[got.collection + '/' + got.id].empty)) {
 console.log('here1');
@@ -245,6 +245,7 @@ console.log('here2', known[got.collection + '/' + got.id].contacts[0]);
                 recQuestion(known[got.collection + '/' + got.id].contacts[0], got.collection, got.id).then(function(points) {
                     res.type('application/json').status(200).json({points: points});
                 }, function(e) {
+console.log(e);
                     delete known[got.collection + '/' + got.id];
                     res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
                 });
@@ -257,7 +258,6 @@ console.log('here2', known[got.collection + '/' + got.id].contacts[0]);
                 res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
             });
         } else {
-console.log('here3');
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         }
     } else {
