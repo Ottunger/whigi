@@ -227,10 +227,8 @@ export function question(req, res) {
     var got = req.body;
     var ip = (!!req.headers && !!req.headers['x-forwarded-for'])? req.headers['x-forwarded-for'].split(', ')[0] :
         req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-console.log(ip, got);
     if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
         if(!utils.WHIGIHOST && (!known[got.collection + '/' + got.id] || known[got.collection + '/' + got.id].empty)) {
-console.log('here1');
             //We know it does not exist
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         } else if(!!known[got.collection + '/' + got.id] && !known[got.collection + '/' + got.id].empty) {
@@ -241,9 +239,7 @@ console.log('here1');
             if(ret.length > 0) {
                 res.type('application/json').status(200).json({points: ret});
             } else {
-console.log('here2', known[got.collection + '/' + got.id].contacts[0]);
                 recQuestion(known[got.collection + '/' + got.id].contacts[0], got.collection, got.id).then(function(points) {
-console.log(points);
                     res.type('application/json').status(200).json({points: points});
                 }, function(e) {
                     delete known[got.collection + '/' + got.id];
