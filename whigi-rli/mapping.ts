@@ -24,7 +24,7 @@ var known = {}, flags = {};
 function sendDelete(host: string, buf: number[]) {
     var data = {
         payload: buf,
-        key: require('../../common/key.json').key
+        key: require('../common/key.json').key
     };
     var options = {
         host: host,

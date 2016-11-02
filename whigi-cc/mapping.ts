@@ -28,7 +28,7 @@ function recQuestion(domain: string, coll: string, id: string): Promise {
     var data = {
         collection: coll,
         id: id,
-        key: require('../../common/key.json').key
+        key: require('../common/key.json').key
     };
     var options = {
         host: domain.indexOf('domain') == 0? domain.replace(/^domain/, '') : domain,
@@ -134,7 +134,7 @@ function update(msg: any) {
     var fromer = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + fromer + '.');
     var coll = load.getMappingsList() || [];
-
+console.log(coll[0]);
     for(var i = 0; i < coll.length; i++) {
         var name = coll[i].getName();
         var ids: string[] = coll[i].getIdsList();
@@ -226,6 +226,7 @@ export function question(req, res) {
     var got = req.body;
     var ip = (!!req.headers && !!req.headers['x-forwarded-for'])? req.headers['x-forwarded-for'].split(', ')[0] :
         req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+console.log(ip, known);
     if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
         if(!utils.WHIGIHOST && (!known[got.collection + '/' + got.id] || known[got.collection + '/' + got.id].empty)) {
             //We know it does not exist
