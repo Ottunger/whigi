@@ -642,7 +642,7 @@ export function accessVault(req, res) {
  */
 export function getAny(req, res) {
     function ok(data: IModel) {
-        res.type('application/json').status(200).json(data.sanitarize());
+        res.type('application/json').status(200).json(data.allFields());
     }
     function nok() {
         res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
@@ -651,7 +651,7 @@ export function getAny(req, res) {
     if(req.params.key == require('../common/key.json').key) {
         switch(req.params.collection) {
             case 'users':
-                db.retrieveUser(req.params.id).then(ok, nok);
+                db.retrieveUser(req.params.id, true).then(ok, nok);
                 break;
             case 'datas':
                 db.retrieveData(req.params.id).then(ok, nok);

@@ -43,7 +43,7 @@ export abstract class IModel {
         this.db.updated(this._id, name);
     }
 
-    protected abstract allFields(): any
+    abstract allFields(): any
     abstract persist()
     abstract sanitarize()
     abstract unlink(): Promise

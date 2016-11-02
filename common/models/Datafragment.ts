@@ -26,10 +26,10 @@ export class Datafragment extends IModel {
     /**
      * Returns a shallow copy safe for persisting.
      * @function allFields
-     * @protected
+     * @public
      * @return Duplicated object.
      */
-    protected allFields() {
+    allFields() {
         var ret = {
             _id: this._id,
             encr_data: this.encr_data,

@@ -227,7 +227,7 @@ export function question(req, res) {
     var got = req.body;
     var ip = (!!req.headers && !!req.headers['x-forwarded-for'])? req.headers['x-forwarded-for'].split(', ')[0] :
         req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-console.log(got, known);
+console.log(ip, got);
     if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
         if(!utils.WHIGIHOST && (!known[got.collection + '/' + got.id] || known[got.collection + '/' + got.id].empty)) {
 console.log('here1');

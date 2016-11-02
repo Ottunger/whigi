@@ -28,10 +28,10 @@ export class Oauth extends IModel {
     /**
      * Returns a shallow copy safe for persisting.
      * @function allFields
-     * @protected
+     * @public
      * @return Duplicated object.
      */
-    protected allFields() {
+    allFields() {
         var ret = {
             _id: this._id,
             bearer_id: this.bearer_id,

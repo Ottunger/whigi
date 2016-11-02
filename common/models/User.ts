@@ -104,10 +104,10 @@ export class User extends IModel {
     /**
      * Returns a shallow copy safe for persisting.
      * @function allFields
-     * @protected
+     * @public
      * @return Duplicated object.
      */
-    protected allFields() {
+    allFields() {
         var ret = {
             is_company: this.is_company,
             company_info: this.company_info,

@@ -41,11 +41,11 @@ export class Downloader {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
         return new Promise(function(resolve, reject) {
-            function end() {
+            function end(err) {
                 tried++;
                 if(!found && tried >= keys.length) {
                     if(erred)
-                        reject('Error while contacting a said host');
+                        reject(err);
                     else
                         resolve(null);
                 }
@@ -59,7 +59,7 @@ export class Downloader {
                         var options = {
                             host: keys[i],
                             port: hosts[keys[i]],
-                            path: '/api/v1/' + require('../../common/key.json').key + '/' + name + '/' + id,
+                            path: '/api/v1/any/' + require('../../common/key.json').key + '/' + name + '/' + id,
                             method: 'GET'
                         };
                         var ht = https.request(options, function(res) {
@@ -70,7 +70,7 @@ export class Downloader {
                             res.on('end', function() {
                                 var res = JSON.parse(r);
                                 if('error' in res) {
-                                    end();
+                                    end(res.error);
                                 } else {
                                     tried++;
                                     found = true;
@@ -79,13 +79,13 @@ export class Downloader {
                             });
                         }).on('error', function(err) {
                             erred = true;
-                            end();
+                            end(err);
                         });
                         ht.end();
                     }
                     if(keys.length == 0) {
                         process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
-                        end();
+                        end('No suitable match');
                     }
                 }
             }
@@ -114,7 +114,7 @@ export class Downloader {
                         complete();
                     });
                 }).on('error', function(err) {
-                    console.log('Cannot question ' + endpoints[i].host + ' with error: ', err);
+                    console.log('Cannot question a domain with error: ', err);
                     complete();
                 });
                 ht.write(data);

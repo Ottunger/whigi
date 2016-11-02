@@ -62,10 +62,10 @@ export class Vault extends IModel {
     /**
      * Returns a shallow copy safe for persisting.
      * @function allFields
-     * @protected
+     * @public
      * @return Duplicated object.
      */
-    protected allFields() {
+    allFields() {
         var ret = {
             shared_to_id: this.shared_to_id,
             data_name: this.data_name,
