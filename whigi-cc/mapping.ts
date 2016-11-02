@@ -25,14 +25,15 @@ var known: {[id: string]: {upd: number, contacts: string[], empty: boolean}} = {
  * @return {Promise} On resolve, whether found or not.
  */
 function recQuestion(domain: string, coll: string, id: string): Promise {
+    var ep = require(utils.ENDPOINTS);
     var data = {
         collection: coll,
         id: id,
         key: require('../common/key.json').key
     };
     var options = {
-        host: domain.indexOf('domain') == 0? domain.replace(/^domain/, '') : domain,
-        port: 443,
+        host: domain.indexOf('domain') == 0? ep.domains[domain].host : domain,
+        port: domain.indexOf('domain') == 0? ep.domains[domain].port : 443,
         path: '/question',
         method: 'POST',
         headers: {
@@ -134,7 +135,7 @@ function update(msg: any) {
     var fromer = load.getFromer();
     console.log('[' + utils.RUNNING_ADDR + '] Received update from ' + fromer + '.');
     var coll = load.getMappingsList() || [];
-console.log(coll[0]);
+
     for(var i = 0; i < coll.length; i++) {
         var name = coll[i].getName();
         var ids: string[] = coll[i].getIdsList();
@@ -226,9 +227,10 @@ export function question(req, res) {
     var got = req.body;
     var ip = (!!req.headers && !!req.headers['x-forwarded-for'])? req.headers['x-forwarded-for'].split(', ')[0] :
         req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-console.log(ip, known);
+console.log(got);
     if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
         if(!utils.WHIGIHOST && (!known[got.collection + '/' + got.id] || known[got.collection + '/' + got.id].empty)) {
+console.log('here1');
             //We know it does not exist
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         } else if(!!known[got.collection + '/' + got.id] && !known[got.collection + '/' + got.id].empty) {
@@ -239,6 +241,7 @@ console.log(ip, known);
             if(ret.length > 0) {
                 res.type('application/json').status(200).json({points: ret});
             } else {
+console.log('here2', known[got.collection + '/' + got.id].contacts[0]);
                 recQuestion(known[got.collection + '/' + got.id].contacts[0], got.collection, got.id).then(function(points) {
                     res.type('application/json').status(200).json({points: points});
                 }, function(e) {
@@ -246,13 +249,16 @@ console.log(ip, known);
                     res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
                 });
             }
-        } else {
+        } else if(!!utils.WHIGIHOST) {
             //You know nothing, Jon Snow
             recQuestion(utils.WHIGIHOST, got.collection, got.id).then(function(points) {
                 res.type('application/json').status(200).json({points: points});
             }, function(e) {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
             });
+        } else {
+console.log('here3');
+            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
         }
     } else {
         res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
