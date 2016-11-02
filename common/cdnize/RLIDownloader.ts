@@ -101,8 +101,8 @@ export class Downloader {
                     res.on('end', function() {
                         process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
                         var res = JSON.parse(r);
-                        if(res.match) {
-                            points = Object.assign(points, res.points);
+                        if(!!res.points) {
+                            Object.assign(points, res.points);
                         }
                         complete();
                     });

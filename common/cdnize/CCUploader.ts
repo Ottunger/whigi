@@ -136,7 +136,7 @@ export class Uploader {
                 ch.assertExchange(rq, 'fanout', {durable: true});
 
                 RMQ = [conn, ch, rq];
-                scd.scheduleJob('*/10 * * * *', updateFn);
+                scd.scheduleJob('*/1 * * * *', updateFn);
                 uptsize = upt;
                 updates = {};
                 deleted = {};
