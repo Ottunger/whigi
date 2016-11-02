@@ -23,3 +23,5 @@ E-Contract
 	SHA256 HMAC shared secret: ???
 MySQL for giveaway
 	root pass: abcdefgh
+Whici CC/RLI Common key
+	key: c087Mr2tHL4RXjxU49Fs8XOvQ5EWVZqAeuErxqdO

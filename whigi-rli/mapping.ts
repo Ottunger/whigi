@@ -186,7 +186,8 @@ export function question(req, res) {
  */
 export function flag(req, res) {
     var got = req.body;
-    var ip = !!req.headers['x-forwarded-for']? req.headers['x-forwarded-for'].split(', ')[0] : req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+    var ip = (!!req.headers && !!req.headers['x-forwarded-for'])? req.headers['x-forwarded-for'].split(', ')[0] :
+        req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
     if(got.key == require('../common/key.json').key && ip in known) {
         flags[got.host] = flags[got.host] || {date: 0};
         if(flags[got.host].date < (new Date).getTime() - 2*60*60*1000)

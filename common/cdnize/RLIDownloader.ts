@@ -36,17 +36,24 @@ export class Downloader {
             id: id,
             key: require('../../common/key.json').key
         };
-        var asked = 0, points = {}, tried = 0, found = false, keys;
+        var asked = 0, points = {}, tried = 0, found = false, keys, erred = false;
+        var lu = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
         return new Promise(function(resolve, reject) {
             function end() {
                 tried++;
-                if(!found && tried >= keys.length)
-                    reject();
+                if(!found && tried >= keys.length) {
+                    if(erred)
+                        reject('Error while contacting a said host');
+                    else
+                        resolve(null);
+                }
             }
             function complete() {
                 asked++;
-                if(asked == endpoints.length) {
+                if(asked >= endpoints.length) {
+                    process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
                     keys = Object.getOwnPropertyNames(points);
                     for(var i = 0; i < keys.length; i++) {
                         var options = {
@@ -71,12 +78,15 @@ export class Downloader {
                                 }
                             });
                         }).on('error', function(err) {
+                            erred = true;
                             end();
                         });
                         ht.end();
                     }
-                    if(keys.length == 0)
+                    if(keys.length == 0) {
+                        process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
                         end();
+                    }
                 }
             }
 
@@ -91,15 +101,12 @@ export class Downloader {
                         'Content-Length': Buffer.byteLength(data)
                     }
                 };
-                var lu = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-                process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
                 var ht = https.request(options, function(res) {
                     var r = '';
                     res.on('data', function(chunk) {
                         r += chunk;
                     });
                     res.on('end', function() {
-                        process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
                         var res = JSON.parse(r);
                         if(!!res.points) {
                             Object.assign(points, res.points);
@@ -107,7 +114,6 @@ export class Downloader {
                         complete();
                     });
                 }).on('error', function(err) {
-                    process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
                     console.log('Cannot question ' + endpoints[i].host + ' with error: ', err);
                     complete();
                 });
