@@ -107,7 +107,8 @@ function updateFn() {
             mappings.push(m);
         }
     }
-
+console.log(msg.getIdsList());
+console.log(msg.getDeletedList());
     msg.setMappingsList(mappings);
     end(msg);
 }

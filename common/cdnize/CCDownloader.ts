@@ -31,11 +31,11 @@ export class Downloader {
     fetch(id: string, name: string): Promise {
         var e = require(utils.ENDPOINTS);
         var endpoints = e.endpoints, hosts = e.hosts;
-        var data = {
+        var data = JSON.stringify({
             collection: name,
             id: id,
             key: require('../../common/key.json').key
-        };
+        });
         var asked = 0, points = {}, tried = 0, found = false, keys, erred = false;
         var lu = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -89,7 +89,7 @@ export class Downloader {
                     }
                 }
             }
-
+            
             for(var i = 0; i < endpoints.length; i++) {
                 var options = {
                     host: endpoints[i].host,
