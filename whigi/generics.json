@@ -1,7 +1,18 @@
 {
+    "profile/country": [{
+        "is_dated": false,
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "",
+        "mode": "select",
+        "enum": "countries",
+        "json_keys": [],
+        "validate": "return true;",
+        "instantiable": false,
+        "descr_key": "generics.country"
+    }],
     "profile/email": [{
         "is_dated": false,
-        "country": [],
         "long_descr_key": "generics.email",
         "help_url": "",
         "icon": "fa fa-at",
@@ -16,8 +27,15 @@
         "placeholder": "...@..."
     }],
     "profile/tel": [{
+        "requires": "profile/country",
+        "modes": [
+            ["Belgium", "profile/tel_be"],
+            [".*", "profile/tel_other"]
+        ]
+    }],
+    "profile/tel_be": [{
+        "has_requirements": true,
         "is_dated": false,
-        "country": [],
         "long_descr_key": "generics.tel",
         "help_url": "",
         "icon": "",
@@ -29,11 +47,26 @@
         "descr_key": "generics.tel",
         "new_key": ["new.tel"],
         "new_keys_only": false,
+        "placeholder": "+32XXXXXXXXX"
+    }],
+    "profile/tel_other": [{
+        "has_requirements": true,
+        "is_dated": false,
+        "long_descr_key": "generics.telother",
+        "help_url": "",
+        "icon": "",
+        "mode": "text",
+        "enum": "",
+        "json_keys": [],
+        "validate": "return /\\+(9[976]\\d|8[987530]\\d|6[987]\\d|5[90]\\d|42\\d|3[875]\\d|2[98654321]\\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\\d{1,14}$/.test(test)? true : 'generics.regexp';",
+        "instantiable": true,
+        "descr_key": "generics.telother",
+        "new_key": ["new.tel"],
+        "new_keys_only": false,
         "placeholder": "+XXXXXXXXX"
     }],
     "profile/last_name": [{
         "is_dated": false,
-        "country": [],
         "long_descr_key": "",
         "help_url": "",
         "icon": "",
@@ -46,7 +79,6 @@
     }],
     "profile/first_name": [{
         "is_dated": false,
-        "country": [],
         "long_descr_key": "",
         "help_url": "",
         "icon": "",
@@ -59,7 +91,6 @@
     }],
     "profile/address": [{
         "is_dated": false,
-        "country": [],
         "long_descr_key": "",
         "help_url": "address",
         "icon": "",
@@ -124,7 +155,6 @@
 
     "profile/corporate/name": [{
         "is_dated": true,
-        "country": [],
         "long_descr_key": "",
         "help_url": "",
         "icon": "",
@@ -139,7 +169,6 @@
     }],
     "profile/corporate/country": [{
         "is_dated": false,
-        "country": [],
         "long_descr_key": "",
         "help_url": "",
         "icon": "",
@@ -147,14 +176,11 @@
         "enum": "countries",
         "json_keys": [],
         "validate": "return true;",
-        "instantiable": true,
-        "descr_key": "generics.country",
-        "new_key": ["new.country"],
-        "new_keys_only": false
+        "instantiable": false,
+        "descr_key": "generics.country"
     }],
     "profile/corporate/type/franco": [{
         "is_dated": false,
-        "country": ["BE", "FR"],
         "long_descr_key": "",
         "help_url": "",
         "icon": "",
@@ -168,7 +194,6 @@
     }],
     "profile/corporate/type/open": [{
         "is_dated": false,
-        "country": ["BE", "FR"],
         "long_descr_key": "",
         "help_url": "",
         "icon": "",
@@ -183,7 +208,6 @@
     }],
     "profile/corporate/address": [{
         "is_dated": false,
-        "country": [],
         "long_descr_key": "",
         "help_url": "address",
         "icon": "",
