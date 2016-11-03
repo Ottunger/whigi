@@ -250,6 +250,12 @@ export function regVault(req, res, respond?: boolean): Promise {
                 reject();
             return;
         }
+        if(got.data_name.length > 63) {
+            if(respond === true)
+                res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
+                reject();
+            return;
+        }
         req.user.fill().then(function() {
             if(!(got.real_name in req.user.data)) {
                 if(respond === true)
