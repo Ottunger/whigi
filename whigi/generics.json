@@ -12,6 +12,7 @@
         "instantiable": true,
         "descr_key": "generics.email",
         "new_key": ["new.email"],
+        "new_keys_only": false,
         "placeholder": "...@..."
     }],
     "profile/tel": [{
@@ -27,6 +28,7 @@
         "instantiable": true,
         "descr_key": "generics.tel",
         "new_key": ["new.tel"],
+        "new_keys_only": false,
         "placeholder": "+XXXXXXXXX"
     }],
     "profile/last_name": [{
@@ -115,7 +117,8 @@
         "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode'])? true : 'generics.badpostcode';",
         "instantiable": true,
         "descr_key": "generics.address",
-        "new_key": ["new.address"]
+        "new_key": ["new.address"],
+        "new_keys_only": false
     }],
 
 
@@ -131,7 +134,8 @@
         "validate": "return true;",
         "instantiable": true,
         "descr_key": "generics.corporate_name",
-        "new_key": ["new.corporate_name"]
+        "new_key": ["new.corporate_name"],
+        "new_keys_only": true
     }],
     "profile/corporate/country": [{
         "is_dated": false,
@@ -145,7 +149,8 @@
         "validate": "return true;",
         "instantiable": true,
         "descr_key": "generics.country",
-        "new_key": ["new.country"]
+        "new_key": ["new.country"],
+        "new_keys_only": false
     }],
     "profile/corporate/type/franco": [{
         "is_dated": false,
@@ -173,7 +178,8 @@
         "validate": "return true;",
         "instantiable": true,
         "descr_key": "generics.corporate_open",
-        "new_key": ["new.open"]
+        "new_key": ["new.open"],
+        "new_keys_only": false
     }],
     "profile/corporate/address": [{
         "is_dated": false,
@@ -224,6 +230,7 @@
         "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode'])? true : 'generics.badpostcode';",
         "instantiable": true,
         "descr_key": "generics.address",
-        "new_key": ["new.address"]
+        "new_key": ["new.address"],
+        "new_keys_only": false
     }]
 }
