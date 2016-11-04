@@ -68,7 +68,7 @@ function whigi(method: string, path: string, data?: any): Promise {
             reject(err);
         });
         if(method == 'POST')
-            ht.write(data);
+            ht.write(JSON.stringify(data));
         ht.end();
     });
 }
@@ -76,7 +76,7 @@ function whigi(method: string, path: string, data?: any): Promise {
 /**
  * Decrypt a string using master_key in AES.
  * @function decryptAES
- * @public
+ * @private
  * @param {String} data Data to decrypt.
  * @param {Bytes} key Key to use.
  * @return {String} Result.

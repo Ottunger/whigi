@@ -65,7 +65,7 @@ function whigi(method: string, path: string, data?: any): Promise {
             reject(err);
         });
         if(method == 'POST')
-            ht.write(data);
+            ht.write(JSON.stringify(data));
         ht.end();
     });
 }
