@@ -49,6 +49,7 @@ function whigi(method: string, path: string, data?: any): Promise {
         }
     };
     if(method == 'POST') {
+        data = JSON.stringify(data);
         options.headers['Content-Type'] = 'application/json';
         options.headers['Content-Length'] = Buffer.byteLength(data);
     }
@@ -69,7 +70,7 @@ function whigi(method: string, path: string, data?: any): Promise {
             reject(err);
         });
         if(method == 'POST')
-            ht.write(JSON.stringify(data));
+            ht.write(data);
         ht.end();
     });
 }
