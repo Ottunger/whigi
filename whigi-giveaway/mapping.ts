@@ -62,7 +62,11 @@ function whigi(method: string, path: string, data?: any): Promise {
                 r += chunk;
             });
             res.on('end', function() {
-                resolve(JSON.parse(r));
+                var ret = JSON.parse(r);
+                if('error' in ret)
+                    reject(ret.error);
+                else
+                    resolve(ret);
             });
         }).on('error', function(err) {
             reject(err);

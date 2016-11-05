@@ -1,4 +1,16 @@
 {
+    "profile/lang": [{
+        "is_dated": false,
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "",
+        "mode": "select",
+        "enum": "countries",
+        "json_keys": [],
+        "validate": "return true;",
+        "instantiable": false,
+        "descr_key": "generics.langs"
+    }],
     "profile/country": [{
         "is_dated": false,
         "long_descr_key": "",
