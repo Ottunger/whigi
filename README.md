@@ -72,6 +72,16 @@ We therefore restrict what can be done using OAuth:
     Apply toBytes (see out code) first on it, before using it as AES256 key.
   - On deny, the url will be browsed to with query parameter: reason, can be one of 'deny', 'https' (We only allow HTTPS return URL's), or 'api' (our server failed)
 
+# To install an Ajenti over Ubuntu 14.04:
+- wget -O- https://raw.github.com/ajenti/ajenti/1.x/scripts/install-ubuntu.sh | sudo sh
+However, Ajenti is its own HTTPS endpoint, so when behind nginx, make sure that the last connection is done using HTTPS.
+Ajenti will also look at the remote host providing requests, so make sure to set the host header to $host in nginx.
+The initial port is SSL8000 with username/password root/admin.
+
+While configuring new modules for Ajenti, make sure to have python-dev and a plethora of libs installed.
+Careful! The debug server runs over HTTP, but on the same port, you might want to vim into config.json to already turn on HTTPS!
+Please beforehand install less and cf (npm install -g less coffee-script) and do "make run"
+
 # To install a Gitlab over Ubuntu 14.04:
 - sudo apt-get install vim postfix mailutils libsasl2-2 ca-certificates libsasl2-modules
 - open /etc/postfix/main.cf to add relayhost = [smtp.gmail.com]:587; smtp\_sasl\_auth\_enable = yes; smtp\_sasl\_password\_maps = hash:/etc/postfix/sasl\_passwd; smtp\_sasl\_security\_options = noanonymous; smtp\_tls\_cert\_file=/etc/ssl/certs/ssl-cert-snakeoil.pem; smtp\_tls\_key\_file=/etc/ssl/private/ssl-cert-snakeoil.key; smtp\_use\_tls=yes

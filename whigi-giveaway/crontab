@@ -1,1 +1,1 @@
-*/10 * * * * /usr/bin/find /var/www -name "wp-cron.php" -type f -exec php {} \;
+*/3 * * * *  for i in `/usr/bin/find /var/www -maxdepth 1 -type d`; do /usr/bin/wget -q -O - https://$(basename $i).envict.com/wp-cron.php?doing_wp_cron >/dev/null 2>&1; done
