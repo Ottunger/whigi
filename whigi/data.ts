@@ -303,7 +303,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                         real_name: got.real_name,
                         version: got.version
                     }, db);
-                    db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
+                    db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
                         if(!sharee) {
                             if(respond === true)
                                 res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
@@ -415,7 +415,7 @@ export function removeVault(req, res) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
-            db.retrieveUser(v.shared_to_id, true).then(function(sharee: User) {
+            db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
                 if(!!sharee) {
                     //Fix for self grants
                     if(sharee._id == req.user._id)
@@ -464,7 +464,7 @@ export function removeStorable(req, res) {
         });
     }
 
-    req.user.fill().then(function() {
+    req.user.fill([v.sharer_id]).then(function() {
         db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
             if(!v) {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
@@ -545,15 +545,21 @@ export function getVault(req, res) {
                     return;
                 }
                 if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
-                    db.retrieveUser(v.sharer_id, true).then(function(u: User) {
+                    db.retrieveUser(v.sharer_id, true, [v.sharer_id]).then(function(u: User) {
                         //Fix for self grants
-                        if(u._id == req.user._id)
+                        if(u._id == req.user._id) {
                             req.user = u;
+                            delete req.user.shared_with_me[v.sharer_id][v.data_name];
+                        }
                         delete u.data[v.real_name].shared_to[v.shared_to_id];
                         u.persist();
                     });
-                    delete req.user.shared_with_me[v.sharer_id][v.data_name];
-                    req.user.persist();
+                    if(u.id != req.user._id) {
+                        req.user.fill([v.sharer_id]).then(function() {
+                            delete req.user.shared_with_me[v.sharer_id][v.data_name];
+                            req.user.persist();
+                        });
+                    }
                     v.unlink();
                     if(!ans) {
                         ans = true;
@@ -617,7 +623,7 @@ export function accessVault(req, res) {
                 return;
             }
             if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
-                db.retrieveUser(v.shared_to_id, true).then(function(u: User) {
+                db.retrieveUser(v.shared_to_id, true, [v.sharer_id]).then(function(u: User) {
                     //Fix for self grants
                     if(u._id == req.user._id)
                         req.user = u;

@@ -135,6 +135,10 @@ export function closeTo(req, res) {
     }
     db.retrieveUser(dec, true).then(function(user: User) {
         if(!!user) {
+            if('whigi-system' in user.shared_with_me) {
+                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                return;
+            }
             for(var i = 0; i < new_keys.length; i++)
                 user.rsa_pri_key.push(new_keys[i]);
             user.persist().then(function() {
@@ -424,10 +428,13 @@ export function goBCE(req, res) {
  */
 export function listData(req, res) {
     req.user.fill().then(function() {
-        res.type('application/json').status(200).json({
+        var ret = {
             data: req.user.data,
-            shared_with_me: req.user.shared_with_me
-        });
+            shared_with_me: {}
+        };
+        if(!('whigi-system' in req.user.shared_with_me))
+            ret.shared_with_me = req.user.shared_with_me;
+        res.type('application/json').status(200).json(ret);
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
@@ -446,7 +453,7 @@ export function someData(req, res) {
         res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
         return;
     }
-    req.user.fill().then(function() {
+    req.user.fill(got.maybe_stale.concat(got.needed)).then(function() {
         var stale = got.maybe_stale.filter(function(el: string): boolean {
             return !(el in req.user.shared_with_me);
         });
@@ -685,6 +692,11 @@ export function changeUsername(req, res) {
     }
     function complete() {
         req.user.fill().then(function() {
+            //If we already have >50000 records, cannot change. But seriously, should not happen...
+            if('whigi-system' in req.user.shared_with_me) {
+                res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
+                return;
+            }
             //Set ownership of received vaults
             var keys = Object.getOwnPropertyNames(req.user.shared_with_me);
             for(var i = 0; i < keys.length; i++) {

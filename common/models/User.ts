@@ -7,6 +7,7 @@
 'use strict';
 declare var require: any
 var hash = require('js-sha256');
+var utils = require('../../utils/utils');
 import {Datasource} from '../Datasource';
 import {IModel} from './IModel';
 
@@ -28,6 +29,12 @@ export var fields = {
     hidden_id: true
 }
 
+interface More {
+    _id: string;
+    trigram: string;
+    values: {[id: string]: {[id: string]: string}};
+}
+
 export class User extends IModel {
 
     public is_company: number;
@@ -39,13 +46,13 @@ export class User extends IModel {
     public rsa_pub_key: string;
     public rsa_pri_key: number[][];
     public data: any;
-    public shared_with_me: any;
+    public shared_with_me: {[id: string]: {[id: string]: string}};
     public oauth: any[];
     public sha_master: string;
     public cert: string;
     public hidden_id: string;
-
     public impersonated_prefix: string;
+    private trigrams: {[id: string]: More};
     
     /**
      * Create a User from a bare database description.
@@ -85,6 +92,7 @@ export class User extends IModel {
         if('hidden_id' in u)
             this.hidden_id = u.hidden_id;
         this.impersonated_prefix = undefined;
+        this.trigrams = {};
     }
 
     /**
@@ -132,12 +140,42 @@ export class User extends IModel {
      * Fills the data in a user if not already done.
      * @function fill
      * @public
+     * @param {Array} names Names to add for split shares.
      * @return A promise when ready.
      */
-    fill() {
+    fill(names?: string[]) {
         var self = this;
+        names = names || [];
 
         return new Promise(function(resolve, reject) {
+            function populate(names: string[]) {
+                var needed = {}, keys: string[], done = 0;
+                for(var i = 0; i < names.length; i++)
+                    needed[names[i].substr(0, 3)] = true;
+                keys = Object.getOwnPropertyNames(needed);
+                for(var i = 0; i < keys.length; i++) {
+                    if(keys[i] in self.shared_with_me['whigi-system']) {
+                        self.db.retrieveGeneric('users', {_id: self.shared_with_me['whigi-system'][keys[i]]}, {none: false}).then(function(add: More) {
+                            Object.assign(self.shared_with_me, add.values);
+                            self.trigrams[add.trigram] = add;
+                            done++;
+                            if(done >= keys.length)
+                                resolve();
+                        }, function(e) {
+                            done++;
+                            if(done >= keys.length)
+                                resolve();
+                        });
+                    } else {
+                        done++;
+                        if(done >= keys.length)
+                            resolve();
+                    }
+                }
+                if(keys.length == 0)
+                    resolve();
+            }
+
             if(self.data !== undefined && self.shared_with_me !== undefined) {
                 resolve();
             } else {
@@ -150,7 +188,10 @@ export class User extends IModel {
                         self.shared_with_me = user.shared_with_me;
                     else
                         self.shared_with_me = {};
-                    resolve();
+                    if(!('whigi-system' in self.shared_with_me) || names.length == 0)
+                        resolve();
+                    else
+                        populate(names);
                 }, function(e) {
                     reject(e);
                 });
@@ -168,13 +209,66 @@ export class User extends IModel {
         var self = this;
         
         return new Promise(function(resolve, reject) {
-            self.fill().then(function() {
+            function complete(resolve, reject) {
                 self.updated('users');
                 self.db.getDatabase().collection('users').update({_id: self._id}, self.allFields(), {upsert: true}).then(function() {
                     resolve();
                 }, function(e) {
                     reject(e);
                 });
+            }
+            function end() {
+                var inputs = Object.assign({}, self.shared_with_me);
+                self.shared_with_me = {
+                    'whigi-system': self.shared_with_me['whigi-system']
+                }
+                complete(function() {
+                    self.shared_with_me = inputs;
+                    resolve();
+                }, function(e) {
+                    reject(e);
+                });
+            }
+
+            self.fill().then(function() {
+                if(self.needsTrigrams()) {
+                    var inputs = Object.assign({}, self.shared_with_me), keys: string[] = Object.getOwnPropertyNames(inputs);
+                    self.fill(keys).then(function() {
+                        Object.assign(self.shared_with_me, inputs);
+                        //Build local trigrams.
+                        for(var i = 0; i < keys.length; i++) {
+                            var tri = keys[i].substr(0, 3);
+                            if(!(tri in self.trigrams)) {
+                                self.trigrams[tri] = {
+                                    _id: utils.generateRandomString(128),
+                                    trigram: tri,
+                                    values: {}
+                                }
+                                self.shared_with_me['whigi-system'][tri] = self.trigrams[tri]._id;
+                            }
+                            Object.assign(self.trigrams[tri].values, inputs[keys[i]]);
+                        }
+                        //Save them
+                        var done = 0;
+                        keys = Object.getOwnPropertyNames(self.trigrams);
+                        for(var i = 0; i < keys.length; i++) {
+                            self.db.updated(self.trigrams[keys[i]]._id, 'users');
+                            self.db.getDatabase().collection('users').update({_id: self.trigrams[keys[i]]._id}, self.trigrams[keys[i]], {upsert: true}).then(function() {
+                                done++;
+                                if(done)
+                                    end();
+                            }, function(e) {
+                                done++;
+                                if(done)
+                                    end();
+                            });
+                        }
+                    }, function(e) {
+                        reject(e);
+                    });
+                } else {
+                    complete(resolve, reject);
+                }
             }, function(e) {
                 reject(e);
             });
@@ -197,6 +291,24 @@ export class User extends IModel {
             hidden_id: this.hidden_id
         };
         return ret;
+    }
+
+    /**
+     * Check whether a user needs trigrams. Should be called after fill.
+     * @function needsTrigrams
+     * @private
+     * @return {Boolean} Whether to save trigrams. Approx.
+     */
+    private needsTrigrams(): boolean {
+        if('whigi-system' in this.shared_with_me)
+            return true;
+        var keys = Object.getOwnPropertyNames(this.shared_with_me);
+        if(keys.length < 15000)
+            return false;
+        var mid = 0;
+        for(var i = 0; i < 100; i++)
+            mid += Object.getOwnPropertyNames(this.shared_with_me[keys[i]]).length;
+        return keys.length * mid / 100 > 50000;
     }
 
     /**
@@ -231,6 +343,10 @@ export class User extends IModel {
      * @return {Promise} Whether it went OK.
      */
     unlink(): Promise {
+        var keys = Object.getOwnPropertyNames(this.trigrams);
+        for(var i = 0; i < keys.length; i++) {
+            this.db.unlink('users', this.trigrams[keys[i]]._id);
+        }
         return this.unlinkFrom('users');
     }
 

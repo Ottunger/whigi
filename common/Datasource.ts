@@ -94,13 +94,13 @@ export class Datasource {
     /**
      * Retrieves an object from storage, based on its _id.
      * @function retrieveGeneric
-     * @private
+     * @public
      * @param {String} db Database name.
      * @param {Object} query Query projection.
      * @param {Object} selector Projection field.
      * @return {Promise} The required item.
      */
-    private retrieveGeneric(db: string, query: any, selector: any): Promise<any> {
+    retrieveGeneric(db: string, query: any, selector: any): Promise<any> {
         var self = this;
         if(this.useCDN && this.up.isReady()) {
             return new Promise(function(resolve, reject) {
@@ -133,16 +133,27 @@ export class Datasource {
      * @public
      * @param {String} id User id.
      * @param {Boolean} data Whether to retrieve data array.
+     * @param {String[]} names If data required, names to ensure to have.
      * @return {Promise} The required item.
      */
-    retrieveUser(id: string, data?: boolean): Promise<User> {
+    retrieveUser(id: string, data?: boolean, names?: string[]): Promise<User> {
         var self = this;
-        var decl = (data === true)? fields : {data: false};
+        names = names || [];
+        var decl = (data === true && names.length == 0)? fields : {data: false, shared_with_me: false};
 
         return new Promise<User>(function(resolve, reject) {
-            self.retrieveGeneric('users', {_id: id}, decl).then(function(data) {
-                if(!!data) {
-                    resolve(new User(data, self));
+            self.retrieveGeneric('users', {_id: id}, decl).then(function(doc) {
+                if(!!doc) {
+                    var u: User = new User(doc, self);
+                    if(data === true && names.length > 0) {
+                        u.fill(names).then(function() {
+                            resolve(u);
+                        }, function(e) {
+                            reject();
+                        });
+                    } else {
+                        resolve(u);
+                    }
                 } else {
                     resolve(undefined);
                 }
