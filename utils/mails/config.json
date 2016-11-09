@@ -1,0 +1,9 @@
+{
+    "otherAccountSubject": "mail.subject.otherAccount",
+    "resetSubject": "mail.subject.reset",
+    "needRestoreSubject": "mail.subject.needRestore",
+
+    "otherAccountHTML": "other_account.html",
+    "resetHTML": "reset.html",
+    "needRestoreHTML": "need_restore.html"
+}

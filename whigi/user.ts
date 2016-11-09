@@ -792,14 +792,10 @@ export function regUser(req, res) {
             res.type('application/json').status(201).json({error: '', _id: u._id, hidden_id: u.hidden_id});
             //Warnign mail
             if('warn' in req.body && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(req.body.warn)) {
-                mailer.sendMail({
-                    from: 'Whigi <' + utils.MAIL_ADDR + '>',
-                    to: '<' + req.body.warn + '>',
-                    subject: utils.i18n('mail.subject.otherAccount', req),
-                    html: utils.i18n('mail.body.otherAccount', req) + '<br /> \
-                        <a href="' + utils.RUNNING_ADDR + '/merge/' + u._id + '/' + req.body.password + '">' +
-                        utils.i18n('mail.body.click', req) + '</a><br />' + utils.i18n('mail.signature', req)
-                }, function(e, i) {});
+                mailer.sendMail(utils.mailConfig(req.body.warn, 'otherAccount', req, {
+                    uid: u._id,
+                    pwd: req.body.password
+                }), function(e, i) {});
             }
             //Adding data and vaults
             if('more' in req.body) {

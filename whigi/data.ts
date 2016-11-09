@@ -554,7 +554,7 @@ export function getVault(req, res) {
                         delete u.data[v.real_name].shared_to[v.shared_to_id];
                         u.persist();
                     });
-                    if(u.id != req.user._id) {
+                    if(v.sharer_id != req.user._id) {
                         req.user.fill([v.sharer_id]).then(function() {
                             delete req.user.shared_with_me[v.sharer_id][v.data_name];
                             req.user.persist();
