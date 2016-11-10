@@ -9,14 +9,14 @@
         "long_descr_key": "profile/",
         "help_url": "address"
     },
-    "profile/corporate/": {
-        "descr_key": "profile/corporate/",
-        "long_descr_key": "profile/corporate/",
+    "corporate/": {
+        "descr_key": "corporate/",
+        "long_descr_key": "corporate/",
         "help_url": ""
     },
-    "profile/corporate/type/": {
-        "descr_key": "profile/corporate/type/",
-        "long_descr_key": "profile/corporate/type/",
+    "family/": {
+        "descr_key": "family/",
+        "long_descr_key": "family/",
         "help_url": ""
     }
 }
