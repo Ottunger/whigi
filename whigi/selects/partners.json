@@ -1,8 +1,8 @@
 {
     "values": [
         "Partner",
+        "Family member",
         "Friend",
-        "Boss",
-        "Employee"
+        "Other"
     ]
 }

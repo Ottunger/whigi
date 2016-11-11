@@ -322,7 +322,75 @@
     }],
 
 
-    "family/member": [{
+    "family/mother": [{
+        "is_dated": true,
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "fa fa-user-circle",
+        "mode": "json_keys",
+        "enum": "",
+        "json_keys": [
+            {
+                "descr_key": "generics.last_name",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.first_name",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.birthdate",
+                "mode": "date",
+                "enum": "",
+                "required": false
+            }, {
+                "descr_key": "generics.dependent",
+                "mode": "checkbox",
+                "enum": "",
+                "required": true
+            }
+        ],
+        "validate": "return true;",
+        "instantiable": false,
+        "descr_key": "generics.mother"
+    }],
+    "family/father": [{
+        "is_dated": true,
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "fa fa-user-circle",
+        "mode": "json_keys",
+        "enum": "",
+        "json_keys": [
+            {
+                "descr_key": "generics.last_name",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.first_name",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.birthdate",
+                "mode": "date",
+                "enum": "",
+                "required": false
+            }, {
+                "descr_key": "generics.dependent",
+                "mode": "checkbox",
+                "enum": "",
+                "required": true
+            }
+        ],
+        "validate": "return true;",
+        "instantiable": false,
+        "descr_key": "generics.mother"
+    }],
+    "family/children": [{
         "is_dated": true,
         "long_descr_key": "",
         "help_url": "family",
@@ -350,12 +418,17 @@
                 "mode": "date",
                 "enum": "",
                 "required": false
+            }, {
+                "descr_key": "generics.dependent",
+                "mode": "checkbox",
+                "enum": "",
+                "required": true
             }
         ],
         "validate": "return true;",
         "instantiable": true,
-        "descr_key": "generics.familyMember",
-        "new_key": ["new.family"],
+        "descr_key": "generics.children",
+        "new_key": [],
         "new_keys_only": false,
         "share_as_folder": true
     }],
@@ -371,7 +444,7 @@
         "instantiable": false,
         "descr_key": "generics.familyStatus"
     }],
-    "family/other": [{
+    "family/partners": [{
         "is_dated": true,
         "long_descr_key": "",
         "help_url": "family",
@@ -400,6 +473,11 @@
                 "enum": "",
                 "required": false
             }, {
+                "descr_key": "generics.dependent",
+                "mode": "checkbox",
+                "enum": "",
+                "required": true
+            }, {
                 "descr_key": "generics.lifeIn",
                 "mode": "date",
                 "enum": "",
@@ -413,8 +491,82 @@
         ],
         "validate": "return true;",
         "instantiable": true,
-        "descr_key": "generics.familyRemote",
-        "new_key": ["new.family"],
+        "descr_key": "generics.partners",
+        "new_key": [],
+        "new_keys_only": false,
+        "share_as_folder": true
+    }],
+    "family/employers": [{
+        "is_dated": true,
+        "long_descr_key": "",
+        "help_url": "work",
+        "icon": "fa fa-address-book",
+        "mode": "json_keys",
+        "enum": "",
+        "json_keys": [
+            {
+                "descr_key": "generics.legalName",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.lifeIn",
+                "mode": "date",
+                "enum": "",
+                "required": false
+            }, {
+                "descr_key": "generics.lifeOut",
+                "mode": "date",
+                "enum": "",
+                "required": false
+            }
+        ],
+        "validate": "return true;",
+        "instantiable": true,
+        "descr_key": "generics.employers",
+        "new_key": [],
+        "new_keys_only": false,
+        "share_as_folder": true
+    }],
+    "family/employees": [{
+        "is_dated": true,
+        "long_descr_key": "",
+        "help_url": "work",
+        "icon": "fa fa-address-book",
+        "mode": "json_keys",
+        "enum": "",
+        "json_keys": [
+            {
+                "descr_key": "generics.last_name",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.first_name",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.legalName",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.lifeIn",
+                "mode": "date",
+                "enum": "",
+                "required": false
+            }, {
+                "descr_key": "generics.lifeOut",
+                "mode": "date",
+                "enum": "",
+                "required": false
+            }
+        ],
+        "validate": "return true;",
+        "instantiable": true,
+        "descr_key": "generics.employees",
+        "new_key": [],
         "new_keys_only": false,
         "share_as_folder": true
     }],

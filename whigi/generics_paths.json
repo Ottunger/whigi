@@ -1,22 +1,22 @@
 {
     "": {
         "descr_key": "/",
-        "long_descr_key": "/",
+        "long_descr_key": "_long/",
         "help_url": ""
     },
     "profile/": {
         "descr_key": "profile/",
-        "long_descr_key": "profile/",
-        "help_url": "address"
+        "long_descr_key": "profile_long/",
+        "help_url": "profile"
     },
     "corporate/": {
         "descr_key": "corporate/",
-        "long_descr_key": "corporate/",
+        "long_descr_key": "corporate_long/",
         "help_url": ""
     },
     "family/": {
         "descr_key": "family/",
-        "long_descr_key": "family/",
+        "long_descr_key": "family_long/",
         "help_url": ""
     }
 }
