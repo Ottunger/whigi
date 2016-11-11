@@ -1,11 +1,11 @@
 {
     "profile/lang": [{
         "is_dated": false,
-        "long_descr_key": "",
+        "long_descr_key": "generics.langslong",
         "help_url": "",
-        "icon": "",
+        "icon": "fa fa-flag",
         "mode": "select",
-        "enum": "countries",
+        "enum": "languages",
         "json_keys": [],
         "validate": "return true;",
         "instantiable": false,
@@ -13,9 +13,9 @@
     }],
     "profile/country": [{
         "is_dated": false,
-        "long_descr_key": "",
+        "long_descr_key": "generics.countrylong",
         "help_url": "",
-        "icon": "",
+        "icon": "fa fa-flag-checkered",
         "mode": "select",
         "enum": "countries",
         "json_keys": [],
@@ -35,30 +35,35 @@
                 "descr_key": "generics.site_url",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "placeholder": "https://..."
             }, {
                 "descr_key": "generics.facebook",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "placeholder": "john.doe"
             }, {
                 "descr_key": "generics.skype",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "placeholder": "john.doe"
             }, {
                 "descr_key": "generics.linkedin",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "placeholder": "john.doe"
             }, {
                 "descr_key": "generics.twitter",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "placeholder": "@johnDoe"
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.areCommunications(test);",
         "instantiable": false,
         "descr_key": "generics.communications",
         "new_key": [],
@@ -66,13 +71,13 @@
     }],
     "profile/email": [{
         "is_dated": false,
-        "long_descr_key": "generics.email",
+        "long_descr_key": "",
         "help_url": "",
         "icon": "fa fa-at",
         "mode": "text",
         "enum": "",
         "json_keys": [],
-        "validate": "return /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/.test(test)? true : 'generics.regexp';",
+        "validate": "return ngData.checking.isEmail(test);",
         "instantiable": true,
         "descr_key": "generics.email",
         "new_key": ["new.email"],
@@ -80,49 +85,25 @@
         "placeholder": "...@..."
     }],
     "profile/tel": [{
-        "requires": "profile/country",
-        "modes": [
-            ["Belgium", "profile/tel_be"],
-            [".*", "profile/tel_other"]
-        ]
-    }],
-    "profile/tel_be": [{
-        "has_requirements": true,
         "is_dated": false,
-        "long_descr_key": "generics.tel",
+        "long_descr_key": "generics.tellong",
         "help_url": "",
-        "icon": "",
+        "icon": "fa fa-phone",
         "mode": "text",
         "enum": "",
         "json_keys": [],
-        "validate": "return /\\+(9[976]\\d|8[987530]\\d|6[987]\\d|5[90]\\d|42\\d|3[875]\\d|2[98654321]\\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\\d{1,14}$/.test(test)? true : 'generics.regexp';",
+        "validate": "return ngData.checking.isPhone(test);",
         "instantiable": true,
         "descr_key": "generics.tel",
         "new_key": ["new.tel"],
         "new_keys_only": false,
-        "placeholder": "+32XXXXXXXXX"
-    }],
-    "profile/tel_other": [{
-        "has_requirements": true,
-        "is_dated": false,
-        "long_descr_key": "generics.telother",
-        "help_url": "",
-        "icon": "",
-        "mode": "text",
-        "enum": "",
-        "json_keys": [],
-        "validate": "return /\\+(9[976]\\d|8[987530]\\d|6[987]\\d|5[90]\\d|42\\d|3[875]\\d|2[98654321]\\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\\d{1,14}$/.test(test)? true : 'generics.regexp';",
-        "instantiable": true,
-        "descr_key": "generics.telother",
-        "new_key": ["new.tel"],
-        "new_keys_only": false,
-        "placeholder": "+XXXXXXXXX"
+        "placeholder": "+XXXXXXXXXXX"
     }],
     "profile/name": [{
         "is_dated": false,
         "long_descr_key": "",
         "help_url": "",
-        "icon": "",
+        "icon": "fa fa-user",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -146,7 +127,7 @@
         "is_dated": false,
         "long_descr_key": "",
         "help_url": "address",
-        "icon": "",
+        "icon": "fa fa-map-pin",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -191,24 +172,66 @@
                 "enum": "",
                 "required": true
             }, {
-                "descr_key": "generics.country",
+                "descr_key": "generics.district",
                 "mode": "text",
                 "enum": "",
-                "required": true,
-                "placeholder": "AR, BE, ..."
+                "required": false
+            }, {
+                "descr_key": "generics.country",
+                "mode": "select",
+                "enum": "countries-short",
+                "required": true
             }
         ],
-        "validate": "var obj = JSON.parse(test); return /[0-9]+/.test(obj['generics.postcode'])? true : 'generics.badpostcode';",
+        "validate": "return ngData.checking.areAddress(test);",
         "instantiable": true,
         "descr_key": "generics.address",
         "new_key": ["new.address"],
         "new_keys_only": false
     }],
     "profile/birthdata": [{
+        "requires": "profile/country",
+        "modes": [
+            ["Belgium", "profile/bd_be"],
+            [".*", "profile/bd"]
+        ]
+    }],
+    "profile/bd_be": [{
+        "has_requirements": true,
         "is_dated": false,
         "long_descr_key": "",
         "help_url": "",
-        "icon": "",
+        "icon": "fa fa-signing",
+        "mode": "json_keys",
+        "enum": "",
+        "json_keys": [
+            {
+                "descr_key": "generics.birthdate",
+                "mode": "date",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.city",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.gender",
+                "mode": "select",
+                "enum": "genders",
+                "required": true
+            }
+        ],
+        "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
+        "instantiable": false,
+        "descr_key": "generics.birthdata"
+    }],
+    "profile/bd": [{
+        "has_requirements": true,
+        "is_dated": false,
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "fa fa-signing",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -224,25 +247,30 @@
                 "required": true
             }, {
                 "descr_key": "generics.country",
-                "mode": "text",
-                "enum": "",
+                "mode": "select",
+                "enum": "countries",
                 "required": true
             }, {
                 "descr_key": "generics.gender",
                 "mode": "select",
                 "enum": "genders",
                 "required": true
+            }, {
+                "descr_key": "generics.religion",
+                "mode": "select",
+                "enum": "religions",
+                "required": true
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": false,
         "descr_key": "generics.birthdata"
     }],
     "profile/identity": [{
         "is_dated": true,
         "long_descr_key": "",
-        "help_url": "",
-        "icon": "",
+        "help_url": "identities",
+        "icon": "fa fa-terminal",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -255,12 +283,14 @@
                 "descr_key": "generics.eidNo",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "placeholder": "BE: xxx-xxxxxxx-yy"
             }, {
                 "descr_key": "generics.rrn",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": false,
+                "placeholder": "BE: xx.xx.xx-xxx.xx"
             }, {
                 "descr_key": "generics.permitNo",
                 "mode": "text",
@@ -273,7 +303,7 @@
                 "required": false
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.areIdentity(test);",
         "instantiable": true,
         "descr_key": "generics.identity",
         "new_key": [],
@@ -282,8 +312,8 @@
     "profile/bank": [{
         "is_dated": true,
         "long_descr_key": "",
-        "help_url": "",
-        "icon": "",
+        "help_url": "banks",
+        "icon": "fa fa-money",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -303,6 +333,11 @@
                 "enum": "",
                 "required": true
             }, {
+                "descr_key": "generics.country",
+                "mode": "select",
+                "enum": "countries",
+                "required": true
+            }, {
                 "descr_key": "generics.BIC",
                 "mode": "text",
                 "enum": "",
@@ -314,7 +349,7 @@
                 "required": true
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.areAccount(test);",
         "instantiable": true,
         "descr_key": "generics.bank",
         "new_key": [],
@@ -326,7 +361,7 @@
         "is_dated": true,
         "long_descr_key": "",
         "help_url": "",
-        "icon": "fa fa-user-circle",
+        "icon": "fa fa-users",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -352,7 +387,7 @@
                 "required": true
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": false,
         "descr_key": "generics.mother"
     }],
@@ -360,7 +395,7 @@
         "is_dated": true,
         "long_descr_key": "",
         "help_url": "",
-        "icon": "fa fa-user-circle",
+        "icon": "fa fa-users",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -386,15 +421,15 @@
                 "required": true
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": false,
-        "descr_key": "generics.mother"
+        "descr_key": "generics.father"
     }],
     "family/children": [{
         "is_dated": true,
         "long_descr_key": "",
         "help_url": "family",
-        "icon": "fa fa-user-circle",
+        "icon": "fa fa-users",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -425,7 +460,7 @@
                 "required": true
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": true,
         "descr_key": "generics.children",
         "new_key": [],
@@ -436,7 +471,7 @@
         "is_dated": true,
         "long_descr_key": "",
         "help_url": "",
-        "icon": "",
+        "icon": "fa fa-link",
         "mode": "select",
         "enum": "status",
         "json_keys": [],
@@ -448,7 +483,7 @@
         "is_dated": true,
         "long_descr_key": "",
         "help_url": "family",
-        "icon": "fa fa-user-circle",
+        "icon": "fa fa-users",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -489,7 +524,7 @@
                 "required": false
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.keysAre(['date', 'date', 'date'], ['generics.birthdate', 'generics.lifeIn', 'generics.lifeOut'], test);",
         "instantiable": true,
         "descr_key": "generics.partners",
         "new_key": [],
@@ -500,7 +535,7 @@
         "is_dated": true,
         "long_descr_key": "",
         "help_url": "work",
-        "icon": "fa fa-address-book",
+        "icon": "fa fa-podcast",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -521,7 +556,7 @@
                 "required": false
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.lifeIn', 'generics.lifeOut'], test);",
         "instantiable": true,
         "descr_key": "generics.employers",
         "new_key": [],
@@ -532,7 +567,7 @@
         "is_dated": true,
         "long_descr_key": "",
         "help_url": "work",
-        "icon": "fa fa-address-book",
+        "icon": "fa fa-podcast",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -563,7 +598,7 @@
                 "required": false
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.lifeIn', 'generics.lifeOut'], test);",
         "instantiable": true,
         "descr_key": "generics.employees",
         "new_key": [],
@@ -575,8 +610,8 @@
     "corporate": [{
         "is_dated": true,
         "long_descr_key": "",
-        "help_url": "",
-        "icon": "",
+        "help_url": "corpos.json",
+        "icon": "fa fa-briefcase",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -604,12 +639,14 @@
                 "descr_key": "generics.site_url",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "placeholder": "https://..."
             }, {
                 "descr_key": "generics.facebook",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "placeholder": "mysupercompany"
             }, {
                 "descr_key": "generics.street",
                 "mode": "text",
@@ -641,13 +678,18 @@
                 "enum": "",
                 "required": true
             }, {
+                "descr_key": "generics.district",
+                "mode": "text",
+                "enum": "",
+                "required": false
+            }, {
                 "descr_key": "generics.country",
                 "mode": "select",
-                "enum": "countries",
+                "enum": "countries-short",
                 "required": true
             }
         ],
-        "validate": "return true;",
+        "validate": "return ngData.checking.areCorporate(test);",
         "instantiable": true,
         "descr_key": "generics.corporateInfo",
         "new_key": ["new.corporate"],

@@ -1,4 +1,4 @@
 {
-    "en": "This field is your address.",
-    "fr": "Ce champ est votre adresse."
+    "en": "This field is your address. You should not fill in the district if your country does not have this legislature.",
+    "fr": "Ce champ est votre adresse. Vous devriez laisser le département blanc si une adresse s'écrit sans dans votre pays."
 }
