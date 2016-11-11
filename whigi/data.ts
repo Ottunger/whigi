@@ -346,8 +346,12 @@ export function regVault(req, res, respond?: boolean): Promise {
                             req.user.data[got.real_name].shared_to[v.shared_to_id] = v._id;
                             req.user.persist().then(function() {
                                 sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
+                                //We were already granted something to that name
                                 if(v.data_name in sharee.shared_with_me[req.user._id]) {
                                     db.retrieveVault(sharee.shared_with_me[req.user._id][v.data_name]).then(function(ret: Vault) {
+                                        if(!!req.user.data[ret.real_name] && !!req.user.data[ret.real_name].shared_to)
+                                            delete req.user.data[ret.real_name].shared_to[sharee._id];
+                                        req.user.persist();
                                         ret.unlink();
                                     });
                                 }
@@ -464,8 +468,8 @@ export function removeStorable(req, res) {
         });
     }
 
-    req.user.fill([v.sharer_id]).then(function() {
-        db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
+    db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
+        req.user.fill([v.sharer_id]).then(function() {
             if(!v) {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
                 return;
