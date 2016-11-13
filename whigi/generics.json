@@ -292,6 +292,12 @@
                 "required": false,
                 "placeholder": "BE: xx.xx.xx-xxx.xx"
             }, {
+                "descr_key": "generics.driving",
+                "mode": "text",
+                "enum": "",
+                "required": false,
+                "placeholder": "BE: xxxxxxxxxx"
+            }, {
                 "descr_key": "generics.permitNo",
                 "mode": "text",
                 "enum": "",
