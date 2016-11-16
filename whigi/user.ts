@@ -221,6 +221,8 @@ export function goCompany1(req, res) {
         req.user.company_info.rrn = req.body.rrn;
     if(!!req.body.address)
         req.user.company_info.address = req.body.address;
+    if(!!req.body.request)
+        req.user.company_info.request = req.body.request;
     if(!!req.body.picture)
         req.user.company_info.picture = req.body.picture;
     req.user.persist().then(function() {

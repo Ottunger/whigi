@@ -279,19 +279,19 @@
                 "mode": "text",
                 "enum": "",
                 "required": true,
-                "placeholder": "BE: xxx-xxxxxxx-yy"
+                "placeholder": "xxx-xxxxxxx-yy"
             }, {
                 "descr_key": "generics.rrn",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "BE: xx.xx.xx-xxx.xx"
+                "placeholder": "xx.xx.xx-xxx.xx"
             }, {
                 "descr_key": "generics.driving",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "BE: xxxxxxxxxx"
+                "placeholder": "xxxxxxxxxx"
             }, {
                 "descr_key": "generics.permitNo",
                 "mode": "text",
@@ -307,8 +307,8 @@
         "validate": "return ngData.checking.areIdentity(test);",
         "instantiable": true,
         "descr_key": "generics.identity",
-        "new_key": [],
-        "new_keys_only": false
+        "new_keys": [],
+        "new_key_is": "generics.country"
     }],
     "profile/bank": [{
         "is_dated": true,
@@ -464,8 +464,8 @@
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": true,
         "descr_key": "generics.children",
-        "new_key": [],
-        "new_keys_only": false,
+        "new_keys": [],
+        "new_key_is": "generics.first_name",
         "share_as_folder": true
     }],
     "family/status": [{
@@ -523,8 +523,8 @@
         "validate": "return ngData.checking.keysAre(['date', 'date', 'date'], ['generics.birthdate', 'generics.lifeIn', 'generics.lifeOut'], test);",
         "instantiable": true,
         "descr_key": "generics.partners",
-        "new_key": [],
-        "new_keys_only": false,
+        "new_keys": [],
+        "new_key_is": "generics.first_name",
         "share_as_folder": true
     }],
     "family/employers": [{
