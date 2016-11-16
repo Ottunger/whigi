@@ -32,6 +32,7 @@ Of course, you will need to do a little bit of setup:
 - Idem for https://downloads.wordpress.org/plugin/kirki.2.3.6.zip https://downloads.wordpress.org/plugin/woocommerce.2.6.6.zip https://downloads.wordpress.org/plugin/cmb2.zip https://downloads.wordpress.org/plugin/woocommerce-shortcodes.1.0.0.zip
    https://downloads.wordpress.org/plugin/yith-woocommerce-wishlist.2.0.16.zip https://downloads.wordpress.org/plugin/woocommerce-gateway-paypal-express-checkout.1.1.2.zip
 - Idem for https://downloads.wordpress.org/theme/clean-lite.1.5.zip, but put it in wp-content/themes
+- In Whigi-WP, change default provider URL to the one you want (wissl.org ?)
 - Clone this repo, delete already installed plugins and and copy the plugins from clients/whigi-wp and clients/whigi-wp-s2 to /home/gregoire/wordpress/wp-content/plugins
 
 - Put the private key and certificate file from \*.envict.com to /home/gregoire folder.

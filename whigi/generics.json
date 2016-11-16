@@ -132,15 +132,10 @@
         "enum": "",
         "json_keys": [
             {
-                "descr_key": "generics.last_name",
+                "descr_key": "generics.careof",
                 "mode": "text",
                 "enum": "",
-                "required": true
-            }, {
-                "descr_key": "generics.first_name",
-                "mode": "text",
-                "enum": "",
-                "required": true
+                "required": false
             }, {
                 "descr_key": "generics.street",
                 "mode": "text",
@@ -150,7 +145,7 @@
                 "descr_key": "generics.num",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": true
             }, {
                 "descr_key": "generics.letterbox",
                 "mode": "text",
@@ -179,7 +174,7 @@
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
-                "enum": "countries-short",
+                "enum": "countries",
                 "required": true
             }
         ],
@@ -523,11 +518,6 @@
                 "mode": "date",
                 "enum": "",
                 "required": false
-            }, {
-                "descr_key": "generics.lifeOut",
-                "mode": "date",
-                "enum": "",
-                "required": false
             }
         ],
         "validate": "return ngData.checking.keysAre(['date', 'date', 'date'], ['generics.birthdate', 'generics.lifeIn', 'generics.lifeOut'], test);",
@@ -565,48 +555,6 @@
         "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.lifeIn', 'generics.lifeOut'], test);",
         "instantiable": true,
         "descr_key": "generics.employers",
-        "new_key": [],
-        "new_keys_only": false,
-        "share_as_folder": true
-    }],
-    "family/employees": [{
-        "is_dated": true,
-        "long_descr_key": "",
-        "help_url": "work",
-        "icon": "fa fa-podcast",
-        "mode": "json_keys",
-        "enum": "",
-        "json_keys": [
-            {
-                "descr_key": "generics.last_name",
-                "mode": "text",
-                "enum": "",
-                "required": true
-            }, {
-                "descr_key": "generics.first_name",
-                "mode": "text",
-                "enum": "",
-                "required": true
-            }, {
-                "descr_key": "generics.legalName",
-                "mode": "text",
-                "enum": "",
-                "required": true
-            }, {
-                "descr_key": "generics.lifeIn",
-                "mode": "date",
-                "enum": "",
-                "required": false
-            }, {
-                "descr_key": "generics.lifeOut",
-                "mode": "date",
-                "enum": "",
-                "required": false
-            }
-        ],
-        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.lifeIn', 'generics.lifeOut'], test);",
-        "instantiable": true,
-        "descr_key": "generics.employees",
         "new_key": [],
         "new_keys_only": false,
         "share_as_folder": true
@@ -662,7 +610,7 @@
                 "descr_key": "generics.num",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": true
             }, {
                 "descr_key": "generics.letterbox",
                 "mode": "text",
@@ -691,7 +639,7 @@
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
-                "enum": "countries-short",
+                "enum": "countries",
                 "required": true
             }
         ],
