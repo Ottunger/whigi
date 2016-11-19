@@ -7,6 +7,7 @@
 'use strict';
 declare var require: any
 var fs = require('fs');
+var path = require('path');
 var querystring = require('querystring');
 var https = require('https');
 var RSA = require('node-rsa');
@@ -154,7 +155,7 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
         to: '<' + to + '>',
         subject: i18n(mc[subject + 'Subject'], req)
     };
-    var template: string = fs.readFileSync(process.cwd() + '../utils/mails/' + mc[subject + 'HTML'], 'utf8'), parsed = template;
+    var template: string = fs.readFileSync(path.join(__dirname, 'mails/' + mc[subject + 'HTML']), 'utf8'), parsed = template;
 
     var rgx = /{{ ?([^}]*) ?}}/g;
     var match = rgx.exec(template);
