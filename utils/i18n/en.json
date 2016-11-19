@@ -19,7 +19,7 @@
   "mail.subject.reset": "Your account on Whigi",
   "mail.subject.otherAccount": "Help save an account!",
   "mail.subject.needRestore": "A Whigi member needs you!",
-  "mail.subject.createdFor": "Account created for you at ",
+  "mail.subject.createdFor": "Account created for you by Whigi 3rd party",
 
   "mail.body.reset": "Click here to change your password (this link is only valid ONCE):",
   "mail.body.otherAccount": "Click here to save a referant's secret part to help him recover his password later:",

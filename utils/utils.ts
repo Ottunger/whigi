@@ -147,31 +147,35 @@ export function i18n(str: string, req: any) {
 export function mailConfig(to: string, subject: string, req: any, context?: {[id: string]: string}): any {
     if(['reset', 'needRestore', 'otherAccount', 'createdFor'].indexOf(subject) == -1)
         return {};
-    context = Object.assign({
-        myURL: RUNNING_ADDR
-    }, context);
-    var ret = {
-        from: 'Whigi <' + MAIL_ADDR + '>',
-        to: '<' + to + '>',
-        subject: i18n(mc[subject + 'Subject'], req)
-    };
-    var template: string = fs.readFileSync(path.join(__dirname, 'mails/' + mc[subject + 'HTML']), 'utf8'), parsed = template;
+    try{
+        context = Object.assign({
+            myURL: RUNNING_ADDR
+        }, context);
+        var ret = {
+            from: 'Whigi <' + MAIL_ADDR + '>',
+            to: '<' + to + '>',
+            subject: i18n(mc[subject + 'Subject'], req)
+        };
+        var template: string = fs.readFileSync(path.join(__dirname, 'mails/' + mc[subject + 'HTML']), 'utf8'), parsed = template;
 
-    var rgx = /{{ ?([^}]*) ?}}/g;
-    var match = rgx.exec(template);
-    var shift = 0, by;
-    while(match != null) {
-        match[1] = match[1].trim();
-        if(/^['"].*['"]$/.test(match[1]))
-            by = i18n(match[1].substr(1, match[1].length - 2), req);
-        else
-            by = context[match[1]] || '???';
-        parsed = parsed.substr(0, match.index + shift) + by + parsed.substr(match.index + match[0].length + shift);
-        shift += by.length - match[0].length;
-        match = rgx.exec(template);
+        var rgx = /{{ ?([^}]*) ?}}/g;
+        var match = rgx.exec(template);
+        var shift = 0, by;
+        while(match != null) {
+            match[1] = match[1].trim();
+            if(/^['"].*['"]$/.test(match[1]))
+                by = i18n(match[1].substr(1, match[1].length - 2), req);
+            else
+                by = context[match[1]] || '???';
+            parsed = parsed.substr(0, match.index + shift) + by + parsed.substr(match.index + match[0].length + shift);
+            shift += by.length - match[0].length;
+            match = rgx.exec(template);
+        }
+        ret['html'] = parsed;
+        return ret;
+    } catch(e) {
+        return {};
     }
-    ret['html'] = parsed;
-    return ret;
 }
 
 /**
