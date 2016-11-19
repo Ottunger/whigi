@@ -165,7 +165,7 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
         if(/^['"].*['"]$/.test(match[1]))
             by = i18n(match[1].substr(1, match[1].length - 2), req);
         else
-            by = context[match[1]];
+            by = context[match[1]] || '???';
         parsed = parsed.substr(0, match.index + shift) + by + parsed.substr(match.index + match[0].length + shift);
         shift += by.length - match[0].length;
         match = rgx.exec(template);
