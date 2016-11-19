@@ -144,7 +144,7 @@ export function i18n(str: string, req: any) {
  * @return {Object} Mail config.
  */
 export function mailConfig(to: string, subject: string, req: any, context?: {[id: string]: string}): any {
-    if(['reset', 'needRestore', 'otherAccount'].indexOf(subject) == -1)
+    if(['reset', 'needRestore', 'otherAccount', 'createdFor'].indexOf(subject) == -1)
         return {};
     context = Object.assign({
         myURL: RUNNING_ADDR

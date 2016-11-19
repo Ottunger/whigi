@@ -2,8 +2,10 @@
     "otherAccountSubject": "mail.subject.otherAccount",
     "resetSubject": "mail.subject.reset",
     "needRestoreSubject": "mail.subject.needRestore",
+    "createdForSubject": "mail.subject.createdFor",
 
     "otherAccountHTML": "other_account.html",
     "resetHTML": "reset.html",
-    "needRestoreHTML": "need_restore.html"
+    "needRestoreHTML": "need_restore.html",
+    "createdForHTML": "created_for.html"
 }

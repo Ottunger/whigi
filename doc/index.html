@@ -157,6 +157,16 @@
                                 "type": "string",
                                 "description": "An email to warn for account creation for restoring",
                                 "required": false
+                            },
+                            "warnMode": {
+                                "type": "string",
+                                "description": "The mail template to use if warning with an email. Defaults to 'otherAccount'. See the templates for details",
+                                "required": false
+                            },
+                            "warnContext": {
+                                "type": "object",
+                                "description": "Any context required during template rendering",
+                                "required": false
                             }
                         },
                         "response": {

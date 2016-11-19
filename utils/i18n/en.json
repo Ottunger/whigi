@@ -19,10 +19,15 @@
   "mail.subject.reset": "Your account on Whigi",
   "mail.subject.otherAccount": "Help save an account!",
   "mail.subject.needRestore": "A Whigi member needs you!",
+  "mail.subject.createdFor": "Account created for you at ",
 
   "mail.body.reset": "Click here to change your password (this link is only valid ONCE):",
   "mail.body.otherAccount": "Click here to save a referant's secret part to help him recover his password later:",
   "mail.body.needRestore":"Follow the link to help give back his password to a saved referrer:",
+  "mail.body.createdFor1": "The administrator at ",
+  "mail.body.createdFor2": " has created a Whigi account for you with details you previously shared with him.<br />Using this Whigi account will allow both of you to manage data more consistently, learn more about it at ",
+  "mail.body.createdFor3": "If you already have a Whigi account, feel free to merge this one into it by logging in with your main account.<br />",
+  "mail.body.createdFor4": "Careful! The admin may have these credentials for now, so you SHOULD change them / merge this account!",
 
   "mail.body.click": "Click here!",
   "mail.signature": "The Whigi team."

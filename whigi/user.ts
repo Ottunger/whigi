@@ -794,10 +794,10 @@ export function regUser(req, res) {
             res.type('application/json').status(201).json({error: '', _id: u._id, hidden_id: u.hidden_id});
             //Warnign mail
             if('warn' in req.body && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(req.body.warn)) {
-                mailer.sendMail(utils.mailConfig(req.body.warn, 'otherAccount', req, {
+                mailer.sendMail(utils.mailConfig(req.body.warn, !!req.body['warnMode']? req.body['warnMode'] : 'otherAccount', req, Object.assign({
                     uid: u._id,
                     pwd: req.body.password
-                }), function(e, i) {});
+                }, req.body.warnContext || {})), function(e, i) {});
             }
             //Adding data and vaults
             if('more' in req.body) {
