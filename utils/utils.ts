@@ -154,7 +154,7 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
         to: '<' + to + '>',
         subject: i18n(mc[subject + 'Subject'], req)
     };
-    var template: string = fs.readFileSync('./mails/' + mc[subject + 'HTML'], 'utf8'), parsed = template;
+    var template: string = fs.readFileSync(process.cwd() + '../utils/mails/' + mc[subject + 'HTML'], 'utf8'), parsed = template;
 
     var rgx = /{{ ?([^}]*) ?}}/g;
     var match = rgx.exec(template);
