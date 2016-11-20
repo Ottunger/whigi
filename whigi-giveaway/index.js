@@ -60,7 +60,8 @@ connect(function(e) {
     }));
     app.use(helmet());
     app.use(function(req, res, next) {
-        res.append('Access-Control-Allow-Origin', allowed);
+        if(allowed != '*')
+            res.append('Access-Control-Allow-Origin', allowed);
         next();
     });
     app.use(body.json({limit: '5000mb'}));

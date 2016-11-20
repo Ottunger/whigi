@@ -41,7 +41,6 @@ if(utils.DEBUG == false) {
     app.use(helmet());
 } else {
     app.use(function(req, res, next) {
-        res.set('Access-Control-Allow-Origin', '*');
         res.set('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
         next();
     });
