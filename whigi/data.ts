@@ -641,7 +641,7 @@ export function accessVault(req, res) {
                 res.type('application/json').status(417).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
                 return;
             }
-            res.type('application/json').status(200).json({last_access: v.last_access, expire_epoch: v.expire_epoch, trigger: v.trigger});
+            res.type('application/json').status(200).json({last_access: v.last_access, expire_epoch: v.expire_epoch, trigger: v.trigger, shared_as: v.data_name});
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
