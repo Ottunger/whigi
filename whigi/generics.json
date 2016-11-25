@@ -254,7 +254,7 @@
                 "descr_key": "generics.religion",
                 "mode": "select",
                 "enum": "religions",
-                "required": true
+                "required": false
             }
         ],
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
