@@ -221,8 +221,6 @@ export function goCompany1(req, res) {
         req.user.company_info.rrn = req.body.rrn;
     if(!!req.body.address)
         req.user.company_info.address = req.body.address;
-    if(!!req.body.request)
-        req.user.company_info.request = req.body.request;
     if(!!req.body.picture)
         req.user.company_info.picture = req.body.picture;
     req.user.persist().then(function() {
@@ -233,7 +231,33 @@ export function goCompany1(req, res) {
 }
 
 /**
- * Preapres "Go Company".
+ * Set "MotD".
+ * @function setRequests
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function setRequests(req, res) {
+    if(checks.isWhigi(req.user._id)) {
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+        return;
+    }
+    if(req.body.request.constructor === Array) {
+        for(var i = 0; i < req.body.request.length; i++) {
+            if(req.body.request[i].constructor === Array) {
+                req.user.company_info.request[req.body.request[i][0].toString()] = req.body.request[i][1].toString();
+            }
+        }
+    }
+    req.user.persist().then(function() {
+        res.type('application/json').status(200).json({error: ''});
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Prepares "Go Company".
  * @function prepGoCompany9
  * @public
  * @param {Request} req The request.

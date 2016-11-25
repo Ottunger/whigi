@@ -102,6 +102,15 @@
                                     "picture": {
                                         "type": "URL data",
                                         "description": "Possible profile picture, URL encoded"
+                                    },
+                                    "request": {
+                                        "type": "object",
+                                        "description": {
+                                            "{ua}": {
+                                                "type": "string",
+                                                "description": "Associated user-agent request string"
+                                            }
+                                        }
                                     }
                                 }
                             },
@@ -232,6 +241,15 @@
                                     "picture": {
                                         "type": "URL data",
                                         "description": "Possible profile picture, URL encoded"
+                                    },
+                                    "request": {
+                                        "type": "object",
+                                        "description": {
+                                            "{ua}": {
+                                                "type": "string",
+                                                "description": "Associated user-agent request string"
+                                            }
+                                        }
                                     }
                                 }
                             },
@@ -336,6 +354,31 @@
                                 "type": "string",
                                 "description": "Possible profile picture, URL-data-encoded",
                                 "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    },
+                    {
+                        "name": "profileinfo",
+                        "path": "/api/v{version}/user/profile/info2",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "200, 403, 500",
+                        "method": "POST",
+                        "desc": "Updates request strings",
+                        "description": "Updates request strings.",
+                        "post": {
+                            "request": {
+                                "type": "array",
+                                "description": "An array of 2-dim string arrays, that contain pairs ua => request",
+                                "required": true
                             }
                         },
                         "response": {
@@ -1363,7 +1406,7 @@
                 "actions": [
                     {
                         "name": "caccount",
-                        "path": "/account/{id_to}/{return_url_ok}/{return_url_deny}/{with_account}/{data_list}/{expire_epoch}/{trigger}",
+                        "path": "/account/{id_to}{ua}/{return_url_ok}/{return_url_deny}/{with_account}/{data_list}/{expire_epoch}/{trigger}",
                         "auth": "NO",
                         "puzzle": "NO",
                         "status": "200",
@@ -1375,6 +1418,11 @@
                                 "type": "string",
                                 "description": "The user that requests share creation",
                                 "required": true
+                            },
+                            "ua": {
+                                "type": "string"
+                                "description": "A user-agent to pick from when displaying why. Prepend ':' to it"
+                                "required": false
                             },
                             "return_url_ok": {
                                 "type": "string",
@@ -1466,7 +1514,7 @@
                     },
                     {
                         "name": "coauth",
-                        "path": "/oauth/{for_id}/{prefix}/{token}/{return_url_ok}/{return_url_deny}",
+                        "path": "/oauth/{for_id}{ua}/{prefix}/{token}/{return_url_ok}/{return_url_deny}",
                         "auth": "NO",
                         "puzzle": "NO",
                         "status": "200",
@@ -1478,6 +1526,11 @@
                                 "type": "string",
                                 "description": "The user that requests the ticket",
                                 "required": true
+                            },
+                            "ua": {
+                                "type": "string"
+                                "description": "A user-agent to pick from when displaying why. Prepend ':' to it"
+                                "required": false
                             },
                             "prefix": {
                                 "type": "string",

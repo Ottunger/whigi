@@ -15,7 +15,7 @@ db.users.update({_id: 'whigi-restore'}, {
     is_company: 9,
     company_info: {
         name: 'Whigi Restore System',
-        request: 'requests.restore'
+        request: {'Whigi': 'requests.restoreLine'}
     },
     hidden_id: 'shortersook2'
 }, {upsert: true})
@@ -32,7 +32,7 @@ db.users.update({_id: 'whigi-gwp'}, {
     is_company: 9,
     company_info: {
         name: 'Whigi Giveaway System',
-        request: 'requests.gwp'
+        request: {'Whigi': 'requests.gwpLine'}
     },
     hidden_id: 'shortersook1'
 }, {upsert: true})
@@ -49,7 +49,7 @@ db.users.update({_id: 'whigi-wissl'}, {
     is_company: 9,
     company_info: {
         name: 'Whigi and Wissl Systems',
-        request: 'requests.whigi'
+        request: {'Whigi': 'requests.whigiLine'}
     },
     hidden_id: 'shortersook0'
 }, {upsert: true})
