@@ -520,12 +520,13 @@
                 "required": false
             }
         ],
-        "validate": "return ngData.checking.keysAre(['date', 'date', 'date'], ['generics.birthdate', 'generics.lifeIn', 'generics.lifeOut'], test);",
+        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.birthdate', 'generics.lifeIn'], test);",
         "instantiable": true,
         "descr_key": "generics.partners",
         "new_keys": [],
         "new_key_is": "generics.first_name",
-        "share_as_folder": true
+        "share_as_folder": true,
+        "from_now": true
     }],
     "family/employers": [{
         "is_dated": true,
