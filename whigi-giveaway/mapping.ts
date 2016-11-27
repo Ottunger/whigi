@@ -212,95 +212,21 @@ export function create(req, res) {
                                                 remove(req, {}, false);
                                                 res.redirect('/error.html');
                                             } else {
-                                                fs.writeFile('/home/gregoire/wordpress/wp-config.php', `
-                                                    <?php
-                                                        define('DB_NAME', '` + lid + `');
-                                                        define('DB_USER', 'wpshit');
-                                                        define('DB_PASSWORD', 'shitty');
-                                                        define('DB_HOST', 'localhost');
-                                                        define('DB_CHARSET', 'utf8mb4');
-                                                        define('DB_COLLATE', '');
-                                                        define('AUTH_KEY',         'Jh5I7@7m2OB~HiNSc1}/~s209Z]Nf?.uTv+B}lIpbXzUcs(R*xxn|@lX9VTfA5!o');
-                                                        define('SECURE_AUTH_KEY',  'iACos2^0]3+} Mc]N[u/Nf)s1{k|#Q&S%3[6m7InZCmvCFoN2)m+-K[< PpEN7>q');
-                                                        define('LOGGED_IN_KEY',    'XD?uYc4%5i+^/Mf!-D0E81GhJ&FfVztoih_M!E D.u+PGX3pk?U.r*JmlLFwboF=');
-                                                        define('NONCE_KEY',        '*4+=G<H_MXdr@4-^+oMRmq>k:Oq4gc({->B[l1yJIzPH eAmnLamMFN_?<VzDK6m');
-                                                        define('AUTH_SALT',        'K!o$1hATCF9H3Ywq%{O4=G>|3V-%OCb OLJ2ejKlm1RpdABTAlnxf&1])e^$kwL[');
-                                                        define('SECURE_AUTH_SALT', 'mp*60}n4vFwzlNA/b<F[ikBlRxM2~yqo~7rx[3d5%S42gd^Y=*Nd4~#K3J!u<BmJ');
-                                                        define('LOGGED_IN_SALT',   '7jFxLyq%.uF&5~g2g+M /lWy#2kl-xRRm!}Yegg^X9=xw&ALH>u3I|Cr|cc=G$tL');
-                                                        define('NONCE_SALT',       '[i|_-]%Tq1D^<[!P|}fIDZJttmax{}flkW?Ma+m9h%wh2K>B&jPlAr4c<=-S_C?L');
-                                                        $table_prefix  = 'wp_';
-                                                        define('WP_DEBUG', false);
-                                                        define('WP_DEBUG_LOG', false);
-                                                        define('DISABLE_WP_CRON', 'true');
-                                                        define('FORCE_SSL_ADMIN', true);
-                                                        if ( !defined('ABSPATH') )
-                                                                define('ABSPATH', dirname(__FILE__) . '/');
-                                                        require_once(ABSPATH . 'wp-settings.php');
-                                                    ?>
-                                                `, function(e) {
-                                                    if(e) {
-                                                        console.log('Cannot write file.');
-                                                        remove(req, {}, false);
-                                                        res.redirect('/error.html');
-                                                    } else {
-                                                        var mode = (!!req.params.wptype)? req.params.wptype : 'classic';
-                                                        var plgs;
-                                                        switch(mode) {
-                                                            case 'selling':
-                                                                plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch cmb2 kirki woorcommerce woocommerce-gateway-paypal-express-checkout woocommerce-shortcodes yith-woocommerce-wishlist';
-                                                                break;
-                                                            case 'classic':
-                                                            default:
-                                                                plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch';
-                                                                break;
-                                                        }
-                                                        exec(`
-                                                            mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
-                                                            mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + lid + `;" &&
-                                                            umount /var/www/` + lid + ` ;
-                                                            rm -rf /usr/www/` + lid + ` ;
-                                                            mkdir -p /usr/www/` + lid + ` ;
-                                                            mkdir -p /var/www/` + lid + ` ;
-                                                            rm -f /etc/nginx/sites-enabled/` + lid + ` &&
-                                                            ln -s /etc/nginx/sites-available/` + lid + ` /etc/nginx/sites-enabled/` + lid + ` &&
-                                                            rm -f /etc/apache2/sites-enabled/` + lid + `.conf &&
-                                                            ln -s /etc/apache2/sites-available/` + lid + `.conf /etc/apache2/sites-enabled/` + lid + `.conf &&
-                                                            echo "Listen ` + httpsport + ` https" >> /etc/apache2/ports.conf &&
-                                                            service apache2 reload &&
-                                                            dd if=/dev/zero of=/usr/www/` + lid + `/disk count=409600
-                                                            mkfs -t ext3 -q /usr/www/` + lid + `/disk -F &&
-                                                            mount -o loop,rw,usrquota,grpquota /usr/www/` + lid + `/disk /var/www/` + lid + ` &&
-                                                            cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
-                                                            chown -hR www-data:www-data /var/www/` + lid + `/ &&
-                                                            chmod -R 770 /var/www/` + lid + `/ &&
-                                                            wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + id + ` --skip-email &&
-                                                            wp --allow-root --path=/var/www/` + lid + ` plugin activate ` + plgs + ` &&
-                                                            wp --allow-root --path=/var/www/` + lid + ` theme activate clean-lite
-                                                        `, function(err, stdout, stderr) {
-                                                            if(err) {
-                                                                console.log('Cannot complete OPs:\n' + stderr);
-                                                                remove(req, {}, false);
-                                                                res.redirect('/error.html');
-                                                            } else {
-                                                                res.redirect('https://' + lid + '.envict.com/wp-login.php');
-                                                                exec('service nginx force-reload');
-                                                                setTimeout(function() {
-                                                                    exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
-                                                                        setTimeout(function() {
-                                                                            exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp', function() {
-                                                                                exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp-s2', function() {
-                                                                                    setTimeout(function() {
-                                                                                        exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp-s2');
-                                                                                    }, 300);
-                                                                                });
-                                                                            });
-                                                                        }, 300);
-                                                                    });
-                                                                }, 300);
-                                                            }
-                                                        });
-                                                    }
-                                                });
+                                                var mode = (!!req.params.wptype)? req.params.wptype : 'classic', plgs;
+                                                switch(mode) {
+                                                    case 'zenbership':
+                                                        zenbership(req, res, lid, httpsport, req.query.lgcode);
+                                                        break;
+                                                    case 'selling':
+                                                        plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch cmb2 kirki woorcommerce woocommerce-gateway-paypal-express-checkout woocommerce-shortcodes yith-woocommerce-wishlist';
+                                                        wordpress(req, res, lid, httpsport, plgs);
+                                                        break;
+                                                    case 'classic':
+                                                    default:
+                                                        plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch';
+                                                        wordpress(req, res, lid, httpsport, plgs);
+                                                        break;
+                                                }
                                             }
                                         });
                                     }
@@ -329,6 +255,137 @@ export function create(req, res) {
     }, function(e) {
         console.log('Cannot read profile.');
         res.redirect('/error.html');
+    });
+}
+
+/**
+ * Complete a WordPress install.
+ * @function wordpress
+ * @private
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ * @param {String} lid New subdomain.
+ * @param {Number} httpsport New selected port.
+ * @param {String} plgs Selected plugins.
+ */
+function wordpress(req, res, lid: string, httpsport: number, plgs: string) {
+    fs.writeFile('/home/gregoire/wordpress/wp-config.php', `
+        <?php
+            define('DB_NAME', '` + lid + `');
+            define('DB_USER', 'wpshit');
+            define('DB_PASSWORD', 'shitty');
+            define('DB_HOST', 'localhost');
+            define('DB_CHARSET', 'utf8mb4');
+            define('DB_COLLATE', '');
+            define('AUTH_KEY',         'Jh5I7@7m2OB~HiNSc1}/~s209Z]Nf?.uTv+B}lIpbXzUcs(R*xxn|@lX9VTfA5!o');
+            define('SECURE_AUTH_KEY',  'iACos2^0]3+} Mc]N[u/Nf)s1{k|#Q&S%3[6m7InZCmvCFoN2)m+-K[< PpEN7>q');
+            define('LOGGED_IN_KEY',    'XD?uYc4%5i+^/Mf!-D0E81GhJ&FfVztoih_M!E D.u+PGX3pk?U.r*JmlLFwboF=');
+            define('NONCE_KEY',        '*4+=G<H_MXdr@4-^+oMRmq>k:Oq4gc({->B[l1yJIzPH eAmnLamMFN_?<VzDK6m');
+            define('AUTH_SALT',        'K!o$1hATCF9H3Ywq%{O4=G>|3V-%OCb OLJ2ejKlm1RpdABTAlnxf&1])e^$kwL[');
+            define('SECURE_AUTH_SALT', 'mp*60}n4vFwzlNA/b<F[ikBlRxM2~yqo~7rx[3d5%S42gd^Y=*Nd4~#K3J!u<BmJ');
+            define('LOGGED_IN_SALT',   '7jFxLyq%.uF&5~g2g+M /lWy#2kl-xRRm!}Yegg^X9=xw&ALH>u3I|Cr|cc=G$tL');
+            define('NONCE_SALT',       '[i|_-]%Tq1D^<[!P|}fIDZJttmax{}flkW?Ma+m9h%wh2K>B&jPlAr4c<=-S_C?L');
+            $table_prefix  = 'wp_';
+            define('WP_DEBUG', false);
+            define('WP_DEBUG_LOG', false);
+            define('DISABLE_WP_CRON', 'true');
+            define('FORCE_SSL_ADMIN', true);
+            if ( !defined('ABSPATH') )
+                    define('ABSPATH', dirname(__FILE__) . '/');
+            require_once(ABSPATH . 'wp-settings.php');
+        ?>
+    `, function(e) {
+        if(e) {
+            console.log('Cannot write file.');
+            remove(req, {}, false);
+            res.redirect('/error.html');
+        } else {
+            exec(`
+                mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
+                mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + lid + `;" &&
+                umount /var/www/` + lid + ` ;
+                rm -rf /usr/www/` + lid + ` ;
+                mkdir -p /usr/www/` + lid + ` ;
+                mkdir -p /var/www/` + lid + ` ;
+                rm -f /etc/nginx/sites-enabled/` + lid + ` &&
+                ln -s /etc/nginx/sites-available/` + lid + ` /etc/nginx/sites-enabled/` + lid + ` &&
+                rm -f /etc/apache2/sites-enabled/` + lid + `.conf &&
+                ln -s /etc/apache2/sites-available/` + lid + `.conf /etc/apache2/sites-enabled/` + lid + `.conf &&
+                echo "Listen ` + httpsport + ` https" >> /etc/apache2/ports.conf &&
+                service apache2 reload &&
+                dd if=/dev/zero of=/usr/www/` + lid + `/disk count=409600
+                mkfs -t ext3 -q /usr/www/` + lid + `/disk -F &&
+                mount -o loop,rw,usrquota,grpquota /usr/www/` + lid + `/disk /var/www/` + lid + ` &&
+                cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
+                chown -hR www-data:www-data /var/www/` + lid + `/ &&
+                chmod -R 770 /var/www/` + lid + `/ &&
+                wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + lid + ` --skip-email &&
+                wp --allow-root --path=/var/www/` + lid + ` plugin activate ` + plgs + ` &&
+                wp --allow-root --path=/var/www/` + lid + ` theme activate clean-lite
+            `, function(err, stdout, stderr) {
+                if(err) {
+                    console.log('Cannot complete OPs:\n' + stderr);
+                    remove(req, {}, false);
+                    res.redirect('/error.html');
+                } else {
+                    res.redirect('https://' + lid + '.envict.com/wp-login.php');
+                    exec('service nginx force-reload');
+                    setTimeout(function() {
+                        exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
+                            setTimeout(function() {
+                                exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp', function() {
+                                    exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp-s2', function() {
+                                        setTimeout(function() {
+                                            exec('wp --allow-root --path=/var/www/' + lid + ' plugin activate whigi-wp-s2');
+                                        }, 300);
+                                    });
+                                });
+                            }, 300);
+                        });
+                    }, 300);
+                }
+            });
+        }
+    });
+}
+
+/**
+ * Complete a Zenbership install.
+ * @function zenbership
+ * @private
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ * @param {String} lid New subdomain.
+ * @param {Number} httpsport New selected port.
+ * @param {String} lgcode Language code.
+ */
+function zenbership(req, res, lid: string, httpsport: number, lgcode?: string) {
+    if(['fr_FR'].indexOf(lgcode) == -1)
+        lgcode == 'en_US';
+    exec(`
+        umount /var/www/` + lid + ` ;
+        rm -rf /usr/www/` + lid + ` ;
+        mkdir -p /usr/www/` + lid + ` ;
+        mkdir -p /var/www/` + lid + ` ;
+        rm -f /etc/nginx/sites-enabled/` + lid + ` &&
+        ln -s /etc/nginx/sites-available/` + lid + ` /etc/nginx/sites-enabled/` + lid + ` &&
+        rm -f /etc/apache2/sites-enabled/` + lid + `.conf &&
+        ln -s /etc/apache2/sites-available/` + lid + `.conf /etc/apache2/sites-enabled/` + lid + `.conf &&
+        echo "Listen ` + httpsport + ` https" >> /etc/apache2/ports.conf &&
+        service apache2 reload &&
+        dd if=/dev/zero of=/usr/www/` + lid + `/disk count=409600
+        mkfs -t ext3 -q /usr/www/` + lid + `/disk -F &&
+        mount -o loop,rw,usrquota,grpquota /usr/www/` + lid + `/disk /var/www/` + lid + ` &&
+        bash /home/gregoire/whigi-zb/clean.sh root ` + require('./password.json').pwd + ` ` + lid + ` /var/www ` + lid + ` /home/gregoire whigi-zb localhost:` + httpsport + ` ` + utils.WHIGIHOST + ` whigi-gwp ` + require('./password.json').pwd + ` ` + lgcode + ` false
+    `, function(err, stdout, stderr) {
+        if(err) {
+            console.log('Cannot complete OPs:\n' + stderr);
+            remove(req, {}, false);
+            res.redirect('/error.html');
+        } else {
+            res.redirect('https://' + lid + '.envict.com/admin');
+            exec('service nginx force-reload');
+        }
     });
 }
 

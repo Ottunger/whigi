@@ -34,6 +34,8 @@ Of course, you will need to do a little bit of setup:
 - Idem for https://downloads.wordpress.org/theme/clean-lite.1.5.zip, but put it in wp-content/themes
 - In Whigi-WP, change default provider URL to the one you want (wissl.org ?)
 - Clone this repo, delete already installed plugins and and copy the plugins from clients/whigi-wp and clients/whigi-wp-s2 to /home/gregoire/wordpress/wp-content/plugins
+- Have Whigi Zenbership available ar /home/gregoire/whigi-zb.
+- Create the locales for using gettext: sudo localedef -f GBK -i fr\_FR fr\_FR
 
 - Put the private key and certificate file from \*.envict.com to /home/gregoire folder.
 - You should install wp-cli and make sure that it is available as 'wp' from command line.
