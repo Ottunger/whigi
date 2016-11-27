@@ -376,7 +376,7 @@ function zenbership(req, res, lid: string, httpsport: number, lgcode?: string) {
         dd if=/dev/zero of=/usr/www/` + lid + `/disk count=409600
         mkfs -t ext3 -q /usr/www/` + lid + `/disk -F &&
         mount -o loop,rw,usrquota,grpquota /usr/www/` + lid + `/disk /var/www/` + lid + ` &&
-        bash /home/gregoire/whigi-zb/clean.sh root ` + require('./password.json').pwd + ` ` + lid + ` /var/www ` + lid + ` /home/gregoire whigi-zb localhost:` + httpsport + ` ` + utils.WHIGIHOST + ` whigi-gwp ` + require('./password.json').pwd + ` ` + lgcode + ` false
+        bash /home/gregoire/whigi-zb/clean.sh root ` + require('./password.json').pwd + ` ` + lid + ` /var/www ` + lid + ` /home/gregoire whigi-zb localhost:` + httpsport + ` ` + utils.WHIGIHOST + ` whigi-gwp ` + require('./password.json').pwd + ` ` + lgcode + ` false https://` + utils.RESTOREHOST + `
     `, function(err, stdout, stderr) {
         if(err) {
             console.log('Cannot complete OPs:\n' + stderr);
