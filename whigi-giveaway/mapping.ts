@@ -303,7 +303,7 @@ function wordpress(req, res, lid: string, httpsport: number, plgs: string) {
             exec(`
                 mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
                 mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + lid + `;" &&
-                umount /var/www/` + lid + ` ;
+                umount -l /var/www/` + lid + ` ;
                 rm -rf /usr/www/` + lid + ` ;
                 mkdir -p /usr/www/` + lid + ` ;
                 mkdir -p /var/www/` + lid + ` ;
@@ -363,7 +363,7 @@ function zenbership(req, res, lid: string, httpsport: number, lgcode?: string) {
     if(['fr_FR'].indexOf(lgcode) == -1)
         lgcode == 'en_US';
     exec(`
-        umount /var/www/` + lid + ` ;
+        umount -l /var/www/` + lid + ` ;
         rm -rf /usr/www/` + lid + ` ;
         mkdir -p /usr/www/` + lid + ` ;
         mkdir -p /var/www/` + lid + ` ;
@@ -428,7 +428,7 @@ export function remove(req, res, respond?: boolean) {
                     exec(`
                         mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
                         fuser -k /var/www/` + lid + ` ;
-                        umount /var/www/` + lid + ` ;
+                        umount -l /var/www/` + lid + ` ;
                         rm -rf /usr/www/` + lid + ` ;
                         rm -rf /var/www/` + lid + ` ;
                         rm -f /etc/nginx/sites-enabled/` + lid + ` &&
