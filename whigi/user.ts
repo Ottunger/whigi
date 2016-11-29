@@ -139,8 +139,12 @@ export function closeTo(req, res) {
                 res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                 return;
             }
+            //Append RSA private keys
             for(var i = 0; i < new_keys.length; i++)
                 user.rsa_pri_key.push(new_keys[i]);
+            //Append Hidden ID
+            user.hidden_id += req.user.hidden_id;
+            //Save granted user
             user.persist().then(function() {
                 var keys = Object.getOwnPropertyNames(req.user.shared_with_me), done = 0;
                 for(var i = 0; i < keys.length; i++) {
@@ -881,7 +885,7 @@ export function regUser(req, res) {
             .encrypt(aes.util.convertStringToBytes(key.exportKey('private'))))];
         u.is_company = !!user.company_info? 1 : 0;
         u.company_info = {};
-        u.hidden_id = utils.generateRandomString(100);
+        u.hidden_id = utils.generateRandomString(24);
         if(!!user.company_info && !!user.company_info.name)
             u.company_info.name = user.company_info.name;
         if(!!user.company_info && !!user.company_info.bce)
