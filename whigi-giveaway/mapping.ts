@@ -427,6 +427,7 @@ export function remove(req, res, respond?: boolean) {
                 if(nc == req.session.challenge || respond !== true) {
                     exec(`
                         mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
+                        fuser -k /var/www/` + lid + ` ;
                         umount /var/www/` + lid + ` ;
                         rm -rf /usr/www/` + lid + ` ;
                         rm -rf /var/www/` + lid + ` ;
