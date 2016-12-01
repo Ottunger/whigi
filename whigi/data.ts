@@ -304,13 +304,13 @@ export function regVault(req, res, respond?: boolean): Promise {
                         version: got.version
                     }, db);
                     db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
-                        v.trigger = v.trigger.replace(/:whigi_id:/g, sharee._id).replace(/:whigi_hidden_id:/g, sharee.hidden_id);
                         if(!sharee) {
                             if(respond === true)
                                 res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
                             reject();
                             return;
                         }
+                        v.trigger = v.trigger.replace(/:whigi_id:/g, sharee._id).replace(/:whigi_hidden_id:/g, sharee.hidden_id);
                         if(sharee._id == req.user._id) {
                             //Make sure only object is printed to DB
                             sharee = req.user;
