@@ -31,6 +31,7 @@
   "mail.body.createdFor4": "Careful! The admin may have these credentials for now, so you SHOULD change them / merge this account!",
   "mail.body.newVault1": "A new grant has been made to you, and the granter would like you to follow the next link to make use of it: ",
   "mail.body.newVault2": "The granter is",
+  "mail.body.newVault3": "You can obviously also see the data's value on Whigi: ",
 
   "mail.body.click": "Click here!",
   "mail.signature": "The Whigi team."

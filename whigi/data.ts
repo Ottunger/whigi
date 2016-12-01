@@ -320,7 +320,8 @@ export function regVault(req, res, respond?: boolean): Promise {
                             utils.mailUser(sharee._id, db, function(mail: string) {
                                 mailer.sendMail(utils.mailConfig(mail, 'newVault', req, {
                                     requester: req.user._id,
-                                    given_url: req.body.mail
+                                    given_url: req.body.mail,
+                                    share: v._id
                                 }), function(e, i) {});
                             });
                         }
