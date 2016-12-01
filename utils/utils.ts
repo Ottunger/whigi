@@ -199,10 +199,10 @@ export function mailUser(sharee: string, db: any, callback: Function) {
             //Have to check for bound vaults...
             if(va.data_crypted_aes.indexOf('datafragment') == 0) {
                 db.retrieveData(va.data_crypted_aes).then(function(d) {
-                    callback(aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(str2arr(d.encr_data))));
+                    callback(aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(aesKey, new aes.Counter(0)).decrypt(str2arr(d.encr_data))));
                 });
             } else {
-                callback(aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(str2arr(va.data_cryped_aes))));
+                callback(aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(aesKey, new aes.Counter(0)).decrypt(str2arr(va.data_cryped_aes))));
             }
         });
     });
