@@ -65,11 +65,11 @@ export function checkPuzzle(req, res, next) {
 export function checkBody(arr: string[]): Function {
     return function(req, res, next) {
         if(!req.body) {
-            res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
+            res.type('application/json').status(400).json({puzzle: !!req.user? req.user.puzzle : null, error: utils.i18n('client.missing', req)});
         } else {
             for(var i = 0; i < arr.length; i++) {
                 if(!(arr[i] in req.body)) {
-                    res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
+                    res.type('application/json').status(400).json({puzzle: !!req.user? req.user.puzzle : null, error: utils.i18n('client.missing', req)});
                     return;
                 }
             }
