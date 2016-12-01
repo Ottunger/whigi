@@ -10,6 +10,7 @@ var fs = require('fs');
 var path = require('path');
 var querystring = require('querystring');
 var https = require('https');
+var aes = require('aes-js');
 var RSA = require('node-rsa');
 var hash = require('js-sha256');
 var constants = require('constants');
@@ -145,7 +146,7 @@ export function i18n(str: string, req: any) {
  * @return {Object} Mail config.
  */
 export function mailConfig(to: string, subject: string, req: any, context?: {[id: string]: string}): any {
-    if(['reset', 'needRestore', 'otherAccount', 'createdFor'].indexOf(subject) == -1)
+    if(['reset', 'needRestore', 'otherAccount', 'createdFor', 'newVault'].indexOf(subject) == -1)
         return {};
     try{
         context = Object.assign({
@@ -176,6 +177,35 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
     } catch(e) {
         return {};
     }
+}
+
+/**
+ * Binds a function to be called if we can retrieve a user's mail.
+ * @function mailUser
+ * @public
+ * @param {String} sharee User's id.
+ * @param {Datasource} db Database.
+ * @param {Function} callback Called only if we are OK.
+ */
+export function mailUser(sharee: string, db: any, callback: Function) {
+    db.retrieveUser('whigi-wissl', true, [sharee]).then(function(owned) {
+        db.retrieveVault(owned.shared_with_me[sharee]['profile/email']).then(function(va) {
+            var key = toBytes(hash.sha256(require('../whigi/password.json').pwd + owned.salt));
+            var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
+            var master_key = Array.from(decrypter.decrypt(owned.encr_master_key));
+            decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+            var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(owned.rsa_pri_key[0]));
+            var aesKey: number[] = decryptRSA(va.aes_crypted_shared_pub, rsa_key);
+            //Have to check for bound vaults...
+            if(va.data_crypted_aes.indexOf('datafragment') == 0) {
+                db.retrieveData(va.data_crypted_aes).then(function(d) {
+                    callback(aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(str2arr(d.encr_data))));
+                });
+            } else {
+                callback(aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(key, new aes.Counter(0)).decrypt(str2arr(va.data_cryped_aes))));
+            }
+        });
+    });
 }
 
 /**

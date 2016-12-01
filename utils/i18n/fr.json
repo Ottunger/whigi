@@ -20,6 +20,7 @@
   "mail.subject.otherAccount": "Aidez à la protection d'un compte!",
   "mail.subject.needRestore": "Un membre de Whigi a besoin de vous!",
   "mail.subject.createdFor": "Compte Whigi créé pour vous par une tierce partie",
+  "mail.subject.newVault": "Un partage Whigi vient de vous être fait!",
 
   "mail.body.reset": "Suivez le lien pour changer de mot de passe (ce lien n'est valide qu'UNE SEULE fois):",
   "mail.body.otherAccount": "Suivez le lien pour enregistrer une part secrète du demandeur pour l'aider à récupérer son mot de passe plus tard:",
@@ -28,6 +29,8 @@
   "mail.body.createdFor2": " a créé un compte pour vous avec vos détails.<br />Utiliser ce compte vous permettra également un accès plus simple, apprenez-en d'avantage sur ",
   "mail.body.createdFor3": "Si vous avez déjà un compte Whigi, vous pouvez y inclure celui-ci en vous loggant avec votre compte principal.<br />",
   "mail.body.createdFor4": "Attention! L'admin pourrait actuellement connaitre ces données, donc vous devriez les CHANGER / absorber ce compte!",
+  "mail.body.newVault1": "Un partage vient d'être réalisé en votre faveur, et son créateur aimerait que vous utilisez le lien suivant pour vous en servir: ",
+  "mail.body.newVault2": "Le partage provient de",
 
   "mail.body.click": "Cliquez ici!",
   "mail.signature": "La Whigi team."

@@ -3,9 +3,11 @@
     "resetSubject": "mail.subject.reset",
     "needRestoreSubject": "mail.subject.needRestore",
     "createdForSubject": "mail.subject.createdFor",
+    "newVaultSubject": "mail.subject.newVault",
 
     "otherAccountHTML": "other_account.html",
     "resetHTML": "reset.html",
     "needRestoreHTML": "need_restore.html",
-    "createdForHTML": "created_for.html"
+    "createdForHTML": "created_for.html",
+    "newVaultHTML": "new_vault.html"
 }

@@ -315,6 +315,15 @@ export function regVault(req, res, respond?: boolean): Promise {
                             //Make sure only object is printed to DB
                             sharee = req.user;
                         }
+                        if(!!req.body.mail) {
+                            //Send mail, maybe?
+                            utils.mailUser(sharee._id, db, function(mail: string) {
+                                mailer.sendMail(utils.mailConfig(mail, 'newVault', req, {
+                                    requester: req.user._id,
+                                    given_url: req.body.mail
+                                }), function(e, i) {});
+                            });
+                        }
                         if(v.data_crypted_aes.indexOf('datafragment') == 0 && !!req.query.key) {
                             //Bound vault from mobile
                             try {
