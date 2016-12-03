@@ -146,10 +146,8 @@ export function create(req, res) {
     whigi('GET', '/api/v1/profile').then(function(user) {
         if(rsa_key == '') {
             try {
-                var key = utils.toBytes(hash.sha256(require('./password.json').pwd + user.salt));
-                var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
-                var master_key = Array.from(decrypter.decrypt(user.encr_master_key));
-                decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+                var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + user.salt), user);
+                var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
                 rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key[0]));
             } catch(e) {
                 console.log('Cannot decrypt our keys.');
@@ -406,10 +404,8 @@ export function remove(req, res, respond?: boolean) {
     whigi('GET', '/api/v1/profile').then(function(user) {
         if(rsa_key == '') {
             try {
-                var key = utils.toBytes(hash.sha256(require('./password.json').pwd + user.salt));
-                var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
-                var master_key = Array.from(decrypter.decrypt(user.encr_master_key));
-                decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+                var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + user.salt), user);
+                var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
                 rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key[0]));
             } catch(e) {
                 console.log('Cannot decrypt our keys.');

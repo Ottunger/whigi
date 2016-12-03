@@ -180,6 +180,29 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
 }
 
 /**
+ * Finds the master key from a profile.
+ * @function getMK
+ * @param {String} ks Initial key decryption to test.
+ * @param {User} profile User profile.
+ * @return {Number[]} Master key.
+ */
+export function getMK(kd: string, profile: any): number[] {
+    var master_key: number[];
+    for(var i = 0; hash.sha256(hash.sha256(arr2str(master_key || []) || '')) != profile.sha_master; i++) {
+        var key = toBytes(kd);
+        var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
+        master_key = Array.from(decrypter.decrypt(profile.encr_master_key));
+        kd = hash.sha256(kd);
+        if(i == 1) {
+            //We set to 1 or far more...
+            for(var j = 0; j < 600; j++)
+                kd = hash.sha256(kd);
+        }
+    }
+    return master_key;
+}
+
+/**
  * Binds a function to be called if we can retrieve a user's mail.
  * @function mailUser
  * @public
@@ -190,10 +213,8 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
 export function mailUser(sharee: string, db: any, callback: Function) {
     db.retrieveUser('whigi-wissl', true, [sharee]).then(function(owned) {
         db.retrieveVault(owned.shared_with_me[sharee]['profile/email']).then(function(va) {
-            var key = toBytes(hash.sha256(require('../whigi/password.json').pwd + owned.salt));
-            var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
-            var master_key = Array.from(decrypter.decrypt(owned.encr_master_key));
-            decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+            var master_key = getMK(hash.sha256(require('../whigi/password.json').pwd + owned.salt), owned);
+            var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
             var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(owned.rsa_pri_key[0]));
             var aesKey: number[] = decryptRSA(va.aes_crypted_shared_pub, rsa_key);
             //Have to check for bound vaults...

@@ -184,10 +184,8 @@ export function requestMapping(req, res) {
     }
 
     whigi('GET', '/profile').then(function(profile) {
-        var key = utils.toBytes(hash.sha256(require('./password.json').pwd + profile.salt));
-        var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
-        var master_key = Array.from(decrypter.decrypt(profile.encr_master_key));
-        decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+        var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + profile.salt), profile);
+        var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(profile.rsa_pri_key[0]));
         whigi('GET', '/profile/data').then(function(data) {
             if(!!data && !!data.shared_with_me && !!data.shared_with_me[username] && !!data.shared_with_me[username]['profile/email'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
@@ -250,10 +248,8 @@ export function mixMapping(req, res) {
     }
 
     whigi('GET', '/profile').then(function(profile) {
-        var key = utils.toBytes(hash.sha256(require('./password.json').pwd + profile.salt));
-        var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
-        var master_key = Array.from(decrypter.decrypt(profile.encr_master_key));
-        decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+        var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + profile.salt), profile);
+        var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
         var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(profile.rsa_pri_key[0]));
         whigi('GET', '/profile/data').then(function(data) {
             if(!!data && !!data.shared_with_me && !!data.shared_with_me[username] && !!data.shared_with_me[username]['profile/email'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
