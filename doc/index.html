@@ -305,7 +305,7 @@
                                 "description": "Master key, encrypted"
                             },
                             "sha_master": {
-                                "type": "boolean",
+                                "type": "string",
                                 "description": "SHA256 of SHA256 of master key seen as string"
                             },
                             "cert": {
@@ -546,7 +546,7 @@
                                 "required": true
                             },
                             "sha_master": {
-                                "type": "boolean",
+                                "type": "string",
                                 "description": "SHA256 of SHA256 of master key seen as string",
                                 "required": true
                             }
@@ -784,11 +784,11 @@
                             "username": {
                                 "type": "string",
                                 "description": "Username",
-                                "required": true
+                                "required": false
                             },
                             "hpwd": {
                                 "type": "string",
-                                "description": "SHA256 of password",
+                                "description": "SHA256 of password. Can also auth by giving SHA256 of master key seen as a string",
                                 "required": true
                             }
                         },

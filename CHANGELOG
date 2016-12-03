@@ -1,140 +1,19 @@
-Updated on 21-08-16, 13:30
-**************************
+Endpoints not documented via HTML, for internal use mainly
+**********************************************************
+For long description of external endpoints, please have a look at doc/index.html file.
 
 
-
-Whigi endpoints:
-****************
-
-/api/v<any>/generics.json
-Retrieves generics as JSON object.
-
-/api/v<any>/peek/<id>: Get
-Retrieves whether a user id exists.
-
-/api/v<any>/user/<id>: Get, needs auth
-Retrieves public data of user.
-
-/api/v<any>/profile: Get, needs auth
-Retrieves own data.
-
-/api/v<any>/close/<id>: Post, needs auth, needs puzzle
-Closes account to another account.
-{"new_keys": "array of array of numbers"}
-
-/api/v<any>/profile/info: Post, needs auth
-Go company mode, set public info
-{"...": "..."}
-
-/api/v<any>/profile/data: Get, needs auth
-Retrieves list of owned fragments, and list of shared with me vaults.
-
-/api/v<any>/profile/data: Post, needs auth
-Retrieves list of of shared with me vaults while performing check.
-{"maybe_stale": "array", "needed": "array"}
-
-/api/v<any>/profile/data/new: Post, needs auth, needs puzzle
-Saves a new data fragment. The API sends back the newly generated id for that data_name.
-{"name": "string", "encr_data": "string", "is_dated": "boolean", "version": "number", "is_bound": "boolean", "encr_aes": "string", "decr_data"? : "string", "key"?: "string"}
-
-/api/v<any>/profile/update: Post, needs auth
-Updates password. When updated password, can send the password hashed but needs to send the new ecrypted master key as well.
-{"new_password": "string", "encr_master_key": "string", "sha_master": "string"}
-
-/api/v<any>/profile/uname: Post, needs auth, needs puzzle
-Updates username.
-{"new_username": "string"}
-
-/api/v<any>/user/create: Post, needs captcha
-Creates a new entry if none matches. The password is this only time sent in clear.
-{"username": "string", "password": "string", "more"?: "array", "warn"?: "string"}
-
-/api/v<any>/profile/token/new: Post, needs auth (basic only), needs puzzle
-Creates a new token for the logged in user to connect without credentials.
-{"is_eternal": "boolean"}
-
-/api/v<any>/profile/token: Delete, needs auth
-Removes tokens granted to bearer. One can use the query parameter "?token=" to remove a specific token only.
-
-/api/v<any>/oauth/new: Post, needs auth
-Creates an OAuth token.
-{"for_id": "string", "prefix": "string", "token": "string"}
-
-/api/v<any>/oauth/<id>: Delete, needs auth
-Removes an OAuth token specified by id.
-
-/api/v<any>/eid?username=<username>&hpwd=<hpwd>: Get
-Reads data from eID.
-
-/api/v<any>/eid/callback: Post
-Reads data from eID.
-
-/api/v<any>/eid/bce/<bce>: Get, needs auth
-Changes public name for the one of the admin.
-
-/api/v<any>/data/<id>?key=<key>: Get, needs auth
-Retrieves an encrypted piece of data.
-
-/api/v<any>/data/<name>/to/<now>: Get, needs auth, needs puzzle
-Renames data to a not used name.
-
-/api/v<any>/data/trigger/<name>: Get, needs auth
-Triggers vaults associated with this data.
-
-/api/v<any>/data/<data_name>: Delete, needs auth
-Removes such a named data and all associated vaults.
-
-/api/v<any>/vault/new: Post, needs auth, needs puzzle
-Creates a new vault for sharing with another user. Set expire_epoch to 0 or negative to never expire.
-{"data_name": "string", "shared_to_id": "string", "aes_crypted_shared_pub": "string", "version": "number",
-    "data_crypted_aes": "string", "expire_epoch": "number", "trigger": "string", "real_name": "string", "decr_data"?: "string"
-    "storable"?: "boolean", "store_path"?: "string"}
-
-/api/v<any>/vault/<vault_id>: Delete, needs auth
-Removes a vault from the storage, revoking access grant.
-
-/api/v<any>/vault/forother/<vault_id>: Delete, needs auth
-Removes a storble vault from the storage, and the coming data.
-
-/api/v<any>/vault/<vault_id>?key=<key>: Get, needs auth
-Retrieves a piece of information that was shared to me.
-
-/api/v<any>/vault/time/<vault_id>: Get, needs auth
-Retrieves the last time the other party accessed the vault for reading.
-
-/api/v<any>/any/<shared_key>/<collection>/<id>: Get, needs auth of whigi
-Retrieves from local database the specified resource.
-
-/api/v<any>/any/remove: Post, needs auth of whigi
-Delete from local database the specified resource.
-{"payload": "protobuf", "key": "string"}
-
-
-Whigi-giveaway endpoints:
+Whigi-Giveaway endpoints:
 ************************
 
 /api/v<any>/challenge: Get
 Creates a challenge for logging in.
 
-/api/v<any>/create/:wptype: Get
-Creates a giveaway if ?response and ?user match.
+/api/v<any>/create/<type>: Get
+Creates a giveaway if ?response and ?user match. Type can be WordPress or Zenbership, currently.
 
 /api/v<any>/remove: Get
 Removes a giveaway if ?response and ?user match.
-
-
-
-Whigi-restore endpoints:
-************************
-
-/api/v<any>/get/<key>: Get
-Get a aes key for getting password.
-
-/api/v<any>/request/<id>: Get
-Ask for a link to reset password sent by mail when ready.
-
-/api/v<any>/mix/<id>/<half>: Get
-Visited by a peer ton inform of half a key.
 
 
 
