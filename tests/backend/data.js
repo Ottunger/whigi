@@ -222,7 +222,7 @@ exports.test = function() {
                     user: new user.User(dummy_user, ds),
                     params: {vault_id: dummy_vault._id}
                 }, f);
-                chai.expect(f.promise).to.eventually.become({last_access: 1000, expire_epoch: 0, trigger: ''}).notify(done);
+                chai.expect(f.promise).to.eventually.become({last_access: 1000, expire_epoch: 0, trigger: '', shared_as: 'IIS'}).notify(done);
             });
             it('should not find a non-existent vault', function(done) {
                 var f = new fk.FakeRes(false);

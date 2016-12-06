@@ -189,7 +189,8 @@ exports.test = function() {
                     chai.expect(db.collection('datas').findOne({_id: rec._id})).to.eventually.become({
                         _id: rec._id,
                         encr_data: 'bonjour',
-                        version: 0
+                        version: 0,
+                        encr_aes: null
                     }).notify(done);
                 }, function(e) {
                     done(e);
