@@ -793,7 +793,7 @@ export function changeUsername(req, res) {
         return;
     }
     utils.checkCaptcha(req.query.captcha, function(ok) {
-        if(ok || utils.DEBUG) {
+        if(ok || utils.DEBUG || req.query.android === 'true') {
             db.retrieveUser(proposal).then(function(u) {
                 if(u == undefined)
                     complete();
