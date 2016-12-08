@@ -751,7 +751,7 @@ export function askGrants(req, res) {
     var gurl: string = utils.RUNNING_ADDR + '/account/' + req.user._id;
     if(!!req.body.why)
         gurl += encodeURIComponent(':' + req.body.why);
-    gurl += '/profile/profile/false/';
+    gurl += '/https:%2F%2F' + utils.RUNNING_ADDR + '%2Fprofile/https:%2F%2F' + utils.RUNNING_ADDR + '%2Fprofile/false/';
     if(req.body.list.constructor !== Array) {
         res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
         return;
