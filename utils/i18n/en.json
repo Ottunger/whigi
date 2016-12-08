@@ -21,6 +21,7 @@
   "mail.subject.needRestore": "A Whigi member needs you!",
   "mail.subject.createdFor": "Account created for you by Whigi 3rd party",
   "mail.subject.newVault": "A Whigi vault has been granted to you!",
+  "mail.subject.askGrant": "Grant requested on Whigi",
 
   "mail.body.reset": "Click here to change your password (this link is only valid ONCE):",
   "mail.body.otherAccount": "Click here to save a referant's secret part to help him recover his password later:",
@@ -30,8 +31,10 @@
   "mail.body.createdFor3": "If you already have a Whigi account, feel free to merge this one into it by logging in with your main account.<br />",
   "mail.body.createdFor4": "Careful! The admin may have these credentials for now, so you SHOULD change them / merge this account!",
   "mail.body.newVault1": "A new grant has been made to you, and the granter would like you to follow the next link to make use of it: ",
-  "mail.body.newVault2": "The granter is",
+  "mail.body.newVault2": "The granter username is",
   "mail.body.newVault3": "You can obviously also see the data's value on Whigi: ",
+  "mail.body.askGrant1": "Someone would like to ask for some of you data, to review the request and accept or decline: ",
+  "mail.body.askGrant2": "The requester username is",
 
   "mail.body.click": "Click here!",
   "mail.signature": "The Whigi team."

@@ -4,10 +4,12 @@
     "needRestoreSubject": "mail.subject.needRestore",
     "createdForSubject": "mail.subject.createdFor",
     "newVaultSubject": "mail.subject.newVault",
+    "askGrantSubject": "mail.subject.askGrant",
 
     "otherAccountHTML": "other_account.html",
     "resetHTML": "reset.html",
     "needRestoreHTML": "need_restore.html",
     "createdForHTML": "created_for.html",
-    "newVaultHTML": "new_vault.html"
+    "newVaultHTML": "new_vault.html",
+    "askGrantHTML": "ask_grant.html"
 }

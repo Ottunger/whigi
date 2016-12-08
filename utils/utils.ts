@@ -151,7 +151,7 @@ export function i18n(str: string, req: any, userin?: any) {
  * @return {Object} Mail config.
  */
 export function mailConfig(to: string, subject: string, req: any, context?: {[id: string]: string}, userin?: any): any {
-    if(['reset', 'needRestore', 'otherAccount', 'createdFor', 'newVault'].indexOf(subject) == -1)
+    if(['reset', 'needRestore', 'otherAccount', 'createdFor', 'newVault', 'askGrant'].indexOf(subject) == -1)
         return {};
     try{
         context = Object.assign({
@@ -214,8 +214,9 @@ export function getMK(kd: string, profile: any): number[] {
  * @param {String} sharee User's id.
  * @param {Datasource} db Database.
  * @param {Function} callback Called only if we are OK.
+ * @param {Function} err Called if not OK.
  */
-export function mailUser(sharee: string, db: any, callback: Function) {
+export function mailUser(sharee: string, db: any, callback: Function, err?: Function) {
     db.retrieveUser('whigi-wissl', true, [sharee]).then(function(owned) {
         db.retrieveVault(owned.shared_with_me[sharee]['profile/email']).then(function(va) {
             var master_key = getMK(hash.sha256(require('../whigi/password.json').pwd + owned.salt), owned);
@@ -225,12 +226,18 @@ export function mailUser(sharee: string, db: any, callback: Function) {
             //Have to check for bound vaults...
             if(va.data_crypted_aes.indexOf('datafragment') == 0) {
                 db.retrieveData(va.data_crypted_aes).then(function(d) {
-                    callback(aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(aesKey, new aes.Counter(0)).decrypt(str2arr(d.encr_data))));
+                    callback(aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(aesKey, new aes.Counter(0)).decrypt(str2arr(d.encr_data))), owned);
+                }, function(e) {
+                    if(!!err) err();
                 });
             } else {
-                callback(aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(aesKey, new aes.Counter(0)).decrypt(str2arr(va.data_cryped_aes))));
+                callback(aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(aesKey, new aes.Counter(0)).decrypt(str2arr(va.data_cryped_aes))), owned);
             }
+        }, function(e) {
+            if(!!err) err();
         });
+    }, function(e) {
+        if(!!err) err();
     });
 }
 
@@ -378,6 +385,8 @@ export function decryptRSA(data: string, rsa_key: string): number[] {
         }
     );
     var arr = dec.decrypt(data);
+    if(arr.constructor !== Array)
+        arr = Array.from(arr);
     var tmp = pkcs1unpad2(arr, 1024);
     var ret = tmp.slice(64);
     if(hash.sha256(arr2str(ret)) != arr2str(tmp.slice(0, 64))) {

@@ -713,7 +713,6 @@ export function getAny(req, res) {
  */
 export function removeAny(req, res) {
     var got = req.body;
-
     function rem(name, ids) {
         db.getDatabase().collection(name).remove({_id: {$in: ids}});
     }
@@ -731,5 +730,43 @@ export function removeAny(req, res) {
         res.type('application/json').status(200).json({error: ''});
     } else {
         res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+    }
+}
+
+/**
+ * Asks for a grant by mail.
+ * @function askGrants
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function askGrants(req, res) {
+    function complete(u: User, mail: string, given_url: string) {
+        mailer.sendMail(utils.mailConfig(mail, 'askGrant', req, {
+            requester: req.user._id,
+            given_url: given_url
+        }, u), function(e, i) {});
+    }
+
+    var gurl: string = utils.RUNNING_ADDR + '/account/' + req.user._id;
+    if(!!req.body.why)
+        gurl += encodeURIComponent(':' + req.body.why);
+    gurl += '/profile/profile/false/';
+    if(req.body.list.constructor !== Array) {
+        res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
+        return;
+    }
+    gurl += req.body.list.map(String).map(encodeURIComponent).join('::');
+    gurl += '/' + req.body.expire + '/' + encodeURIComponent(req.body.trigger);
+    if(/^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(req.body.towards)) {
+        res.type('application/json').status(200).json({error: ''});
+        complete(undefined, req.body.towards, gurl);
+    } else {
+        utils.mailUser(req.body.towards, db, function(email, person) {
+            res.type('application/json').status(200).json({error: ''});
+            complete(person, email, gurl);
+        }, function() {
+            res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
+        });
     }
 }

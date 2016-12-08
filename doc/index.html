@@ -1328,6 +1328,55 @@
                                 "description": "Registered name at granted user's side"
                             }
                         }
+                    },
+                    {
+                        "name": "vaultask",
+                        "path": "/api/v{version}/ask",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "200, 400, 404",
+                        "method": "POST",
+                        "desc": "Ask for share",
+                        "description": "Ask for some sharing using an email or a Whigi username.",
+                        "post": {
+                            "list": {
+                                "type": "Array",
+                                "description": "An array of the data to be requsted in the grant. For use with a special name, seperate with //",
+                                "required": true
+                            },
+                            "towards": {
+                                "type": "string",
+                                "description": "Username to share to, or email directly",
+                                "required": true
+                            },
+                            "expire": {
+                                "type": "integer",
+                                "description": "Epoch at which the share will no longer be valid",
+                                "required": true
+                            },
+                            "trigger": {
+                                "type": "string",
+                                "description": "An URL to trigger (GET) when the shared data changes",
+                                "required": true
+                            },
+                            "why": {
+                                "type": "string",
+                                "description": "A description to use of why the grant is requested",
+                                "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "puzzle": {
+                                "type": "string",
+                                "description": "User puzzle"
+                            }
+                        }
                     }
                 ]
             },

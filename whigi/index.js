@@ -107,6 +107,8 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/any\/remove\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/ask\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     //-----
     else
         next();
@@ -308,6 +310,7 @@ connect(function(e) {
     app.get('/api/v:version/vault/time/:vault_id', pauth);
     app.post('/api/v:version/oauth/new', pauth);
     app.delete('/api/v:version/oauth/:id', pauth);
+    app.post('/api/v:version/ask', pauth);
     //API LIMITATIONS FOR OAUTH
     app.post('/api/v:version/close/:id', checks.checkOAuth(true));
     app.post('/api/v:version/profile/info', checks.checkOAuth(true));
@@ -330,6 +333,7 @@ connect(function(e) {
     app.get('/api/v:version/vault/time/:vault_id', checks.checkOAuth(true));
     app.post('/api/v:version/oauth/new', checks.checkOAuth(true));
     app.delete('/api/v:version/oauth/:id', checks.checkOAuth(true));
+    app.post('/api/v:version/ask', checks.checkOAuth(true));
     //API POST CHECKS
     app.post('/api/v:version/close/:id', checks.checkBody(['new_keys']));
     app.post('/api/v:version/profile/info2', checks.checkBody(['request']));
@@ -343,6 +347,7 @@ connect(function(e) {
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix', 'token']));
     //-----
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch', 'trigger', 'real_name', 'version']));
+    app.post('/api/v:version/ask', checks.checkBody(['list', 'expire', 'trigger', 'towards']));
     //API LONG LIVED COMMANDS
     app.post('/api/v:version/close/:id', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/new', checks.checkPuzzle);
@@ -350,6 +355,7 @@ connect(function(e) {
     //-----
     app.get('/api/v:version/data/:name/to/:now', checks.checkPuzzle);
     app.post('/api/v:version/vault/new', checks.checkPuzzle);
+    //app.post('/api/v:version/ask', checks.checkPuzzle);
     //API ROUTES
     app.get('/api/v:version/peek/:id', user.peekUser);
     app.get('/api/v:version/user/:id', user.getUser);
@@ -386,6 +392,7 @@ connect(function(e) {
     app.get('/api/v:version/vault/time/:vault_id', data.accessVault);
     app.get('/api/v:version/any/:key/:collection/:id', data.getAny);
     app.post('/api/v:version/any/remove', data.removeAny);
+    app.post('/api/v:version/ask', data.askGrants);
 
     //Error route
     app.use(function(req, res, next) {
