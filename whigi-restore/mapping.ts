@@ -137,10 +137,14 @@ export function requestMapping(req, res) {
                     whigi('GET', '/vault/' + data.shared_with_me[recup_id]['profile/email']).then(function(vault) {
                         var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
                         var recup_mail = decryptAES(vault.data_crypted_aes, aesKey);
-                        mailer.sendMail(utils.mailConfig(recup_mail, 'needRestore', req, {
-                            username: username
-                        }), function(e, i) {});
-                        res.type('application/json').status(200).json({error: ''});
+                        whigi('GET', '/user/' + recup_id).then(function(remote) {
+                            mailer.sendMail(utils.mailConfig(recup_mail, 'needRestore', req, {
+                                username: username
+                            }, remote), function(e, i) {});
+                            res.type('application/json').status(200).json({error: ''});
+                        }, function(e) {
+                            res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+                        });
                     }, function(e) {
                         res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
                     });
@@ -162,12 +166,16 @@ export function requestMapping(req, res) {
                             var retKey = utils.generateRandomString(20);
                             mapping[retKey] = utils.arr2str(aesKey);
                             var encrypt = encryptAES(mine1 + mine2, aesKey);
-                            mailer.sendMail(utils.mailConfig(email, 'reset', req, {
-                                username: username,
-                                secret: encodeURIComponent(encrypt),
-                                key: retKey
-                            }), function(e, i) {});
-                            res.type('application/json').status(200).json({error: ''});
+                            whigi('GET', '/user/' + username).then(function(remote) {
+                                mailer.sendMail(utils.mailConfig(email, 'reset', req, {
+                                    username: username,
+                                    secret: encodeURIComponent(encrypt),
+                                    key: retKey
+                                }, remote), function(e, i) {});
+                                res.type('application/json').status(200).json({error: ''});
+                            }, function(e) {
+                                res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+                            });
                         }, function(e) {
                             res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
                         });
@@ -230,12 +238,16 @@ export function mixMapping(req, res) {
                     var retKey = utils.generateRandomString(20);
                     mapping[retKey] = utils.arr2str(aesKey);
                     var encrypt = decryptAES(mine1 + mine2, aesKey);
-                    mailer.sendMail(utils.mailConfig(email, 'reset', req, {
-                        username: username,
-                        secret: encodeURIComponent(encrypt),
-                        key: retKey
-                    }), function(e, i) {});
-                    res.type('application/json').status(200).json({error: ''});
+                    whigi('GET', '/user/' + username).then(function(remote) {
+                        mailer.sendMail(utils.mailConfig(email, 'reset', req, {
+                            username: username,
+                            secret: encodeURIComponent(encrypt),
+                            key: retKey
+                        }, remote), function(e, i) {});
+                        res.type('application/json').status(200).json({error: ''});
+                    }, function(e) {
+                        res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+                    });
                 }, function(e) {
                     res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
                 });

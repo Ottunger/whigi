@@ -278,6 +278,26 @@ export function setRequests(req, res) {
 }
 
 /**
+ * Set preferred language so far.
+ * @function setLang
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function setLang(req, res) {
+    if(checks.isWhigi(req.user._id)) {
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+        return;
+    }
+    req.user.company_info.lang = req.body.lang.toString().replace(/_.*$/g, '').toLowerCase();
+    req.user.persist().then(function() {
+        res.type('application/json').status(200).json({error: ''});
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
  * Prepares "Go Company".
  * @function prepGoCompany9
  * @public

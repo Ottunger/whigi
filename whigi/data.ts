@@ -328,7 +328,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                                     requester: req.user._id,
                                     given_url: req.body.mail,
                                     share: v._id
-                                }), function(e, i) {});
+                                }, sharee), function(e, i) {});
                             });
                         }
                         if(v.data_crypted_aes.indexOf('datafragment') == 0 && !!req.query.key) {

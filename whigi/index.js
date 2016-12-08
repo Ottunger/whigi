@@ -58,7 +58,7 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/close\/.+\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/profile\/info2?\/?$/))
+    else if(path.match(/\/api\/v[1-9]\/profile\/info[2-3]?\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/data\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,POST').type('application/json').status(200).json({error: ''});
@@ -286,6 +286,7 @@ connect(function(e) {
     app.post('/api/v:version/close/:id', pauth);
     app.post('/api/v:version/profile/info', pauth);
     app.post('/api/v:version/profile/info2', pauth);
+    app.post('/api/v:version/profile/info3', pauth);
     app.get('/api/v:version/profile/data', pauth);
     app.post('/api/v:version/profile/data', pauth);
     app.post('/api/v:version/profile/data/new', pauth);
@@ -311,6 +312,7 @@ connect(function(e) {
     app.post('/api/v:version/close/:id', checks.checkOAuth(true));
     app.post('/api/v:version/profile/info', checks.checkOAuth(true));
     app.post('/api/v:version/profile/info2', checks.checkOAuth(true));
+    app.post('/api/v:version/profile/info3', checks.checkOAuth(true));
     app.post('/api/v:version/profile/data/new', checks.checkOAuth(false, 1));
     app.post('/api/v:version/profile/update', checks.checkOAuth(true));
     app.post('/api/v:version/profile/uname', checks.checkOAuth(true));
@@ -331,6 +333,7 @@ connect(function(e) {
     //API POST CHECKS
     app.post('/api/v:version/close/:id', checks.checkBody(['new_keys']));
     app.post('/api/v:version/profile/info2', checks.checkBody(['request']));
+    app.post('/api/v:version/profile/info3', checks.checkBody(['lang']));
     app.post('/api/v:version/profile/data', checks.checkBody(['maybe_stale', 'needed']));
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated', 'version', 'is_bound', 'encr_aes']));
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
@@ -354,6 +357,7 @@ connect(function(e) {
     app.post('/api/v:version/close/:id', user.closeTo);
     app.post('/api/v:version/profile/info', user.goCompany1);
     app.post('/api/v:version/profile/info2', user.setRequests);
+    app.post('/api/v:version/profile/info3', user.setLang);
     app.get('/api/v:version/profile/data', user.listData);
     app.post('/api/v:version/profile/data', user.someData);
     app.post('/api/v:version/profile/data/new', user.recData);

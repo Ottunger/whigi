@@ -325,7 +325,7 @@
                         "puzzle": "NO",
                         "input": "application/json",
                         "output": "application/json",
-                        "status": "200, 403, 500",
+                        "status": "200, 400, 403, 500",
                         "method": "POST",
                         "desc": "Updates information",
                         "description": "Updates personal information.",
@@ -364,13 +364,13 @@
                         }
                     },
                     {
-                        "name": "profileinfo",
+                        "name": "profileinfo2",
                         "path": "/api/v{version}/user/profile/info2",
                         "auth": "YES",
                         "puzzle": "NO",
                         "input": "application/json",
                         "output": "application/json",
-                        "status": "200, 403, 500",
+                        "status": "200, 400, 403, 500",
                         "method": "POST",
                         "desc": "Updates request strings",
                         "description": "Updates request strings.",
@@ -378,6 +378,31 @@
                             "request": {
                                 "type": "array",
                                 "description": "An array of 2-dim string arrays, that contain pairs ua => request",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    },
+                    {
+                        "name": "profileinfo3",
+                        "path": "/api/v{version}/user/profile/info3",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "200, 400, 403, 500",
+                        "method": "POST",
+                        "desc": "Updates the preferred language",
+                        "description": "Updates the preferred language.",
+                        "post": {
+                            "lang": {
+                                "type": "string",
+                                "description": "A string corresponding to the preferred language code",
                                 "required": true
                             }
                         },
