@@ -125,7 +125,7 @@ export function i18n(str: string, req: any, userin?: any) {
     userin = userin || req.user;
     var lang = (!!userin && !!userin.company_info)? userin.company_info.lang : undefined;
     if(lang == undefined)
-        lang = req.get('Accept-Language').replace(/_.*$/g, '').toLowerCase();
+        lang = req.get('Accept-Language');
     if(lang == undefined)
         lang = 'en';
     else {
