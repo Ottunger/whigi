@@ -55,15 +55,19 @@ export function managerInit(dbg: Datasource) {
  */
 export function peekUser(req, res) {
     var dec = req.params.id.toLowerCase();
-    db.retrieveUser(dec).then(function(user: User) {
-        if(!!user) {
-            res.type('application/json').status(200).json({error: ''});
-        } else {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
-        }
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
+    if(dec == 'whigi-dev-null') {
+        res.type('application/json').status(200).json({error: ''});
+    } else {
+        db.retrieveUser(dec).then(function(user: User) {
+            if(!!user) {
+                res.type('application/json').status(200).json({error: ''});
+            } else {
+                res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
+            }
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }
 }
 
 /**
@@ -75,15 +79,28 @@ export function peekUser(req, res) {
  */
 export function getUser(req, res) {
     var dec = req.params.id.toLowerCase();
-    db.retrieveUser(dec).then(function(user: User) {
-        if(!!user) {
-            res.type('application/json').status(200).json(user.sanitarize());
-        } else {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
-        }
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
+    if(dec == 'whigi-dev-null') {
+        res.type('application/json').status(200).json({
+            _id: 'whigi-dev-null',
+            rsa_pub_key: '-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCmL1BWiJEUXOrOPAnMM6VM7Iy3\nmAV5hOsP1lIj/6lDzpQ3Q+7fPkG8jBHHoSJM3wLWNtKQMBpu0VsxFnoMIuwkVc/+\nvZj7nlYMBLrSqOZfY8FBSrOt7Xv+IvgiYgShBAG4L9bVp5ABJGcsoZnEDa1TfW2H\nlwoPk7sd5wmY7J6f9wIDAQAB\n-----END PUBLIC KEY-----',
+            is_company: 9,
+            company_info: {
+                name: 'Whigi and Wissl Void Account',
+                request: {'Whigi': 'requests.whigiLine'}
+            },
+            hidden_id: 'shortersook4',
+        });
+    } else {
+        db.retrieveUser(dec).then(function(user: User) {
+            if(!!user) {
+                res.type('application/json').status(200).json(user.sanitarize());
+            } else {
+                res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
+            }
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }
 }
 
 /**

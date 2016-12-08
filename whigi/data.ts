@@ -244,15 +244,21 @@ export function regVault(req, res, respond?: boolean): Promise {
     respond = respond !== false;
     var storable = (typeof got.storable !== undefined && got.storable === true);
     return new Promise(function(resolve, reject) {
+        if(got.shared_to_id.toLowerCase() == 'whigi-dev-null') {
+            if(respond === true)
+                res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: null});
+                resolve();
+            return;
+        }
         if(storable && checks.isWhigi(got.shared_to_id)) {
             if(respond === true)
-                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
                 reject();
             return;
         }
         if(got.data_name.length > 63) {
             if(respond === true)
-                res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
+                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                 reject();
             return;
         }
