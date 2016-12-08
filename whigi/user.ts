@@ -608,7 +608,7 @@ export function recData(req, res, respond?: boolean): Promise {
             frg.persist().then(function() {
                 req.user.persist().then(function() {
                     if(respond === true)
-                        res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid});
+                        res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid, decr_aes: newaes});
                     resolve(req.pass);
                 }, function(e) {
                     if(respond === true)
