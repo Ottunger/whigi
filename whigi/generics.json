@@ -565,7 +565,7 @@
     "corporate": [{
         "is_dated": true,
         "long_descr_key": "",
-        "help_url": "corpos.json",
+        "help_url": "corpos",
         "icon": "fa fa-briefcase",
         "mode": "json_keys",
         "enum": "",
