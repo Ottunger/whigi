@@ -152,6 +152,7 @@ export function create(req, res) {
             } catch(e) {
                 console.log('Cannot decrypt our keys.');
                 res.redirect('/error.html');
+                return;
             }
         }
 
@@ -301,10 +302,9 @@ function wordpress(req, res, lid: string, httpsport: number, plgs: string) {
             exec(`
                 mysql -u root -p` + require('./password.json').pwd + ` -e "DROP DATABASE IF EXISTS ` + lid + `;" &&
                 mysql -u root -p` + require('./password.json').pwd + ` -e "CREATE DATABASE ` + lid + `;" &&
-                umount -l /var/www/` + lid + ` ;
-                rm -rf /usr/www/` + lid + ` ;
-                mkdir -p /usr/www/` + lid + ` ;
-                mkdir -p /var/www/` + lid + ` ;
+                rm -rf /usr/www/` + lid + ` &&
+                mkdir -p /usr/www/` + lid + ` &&
+                mkdir -p /var/www/` + lid + ` &&
                 rm -f /etc/nginx/sites-enabled/` + lid + ` &&
                 ln -s /etc/nginx/sites-available/` + lid + ` /etc/nginx/sites-enabled/` + lid + ` &&
                 rm -f /etc/apache2/sites-enabled/` + lid + `.conf &&
@@ -317,8 +317,8 @@ function wordpress(req, res, lid: string, httpsport: number, plgs: string) {
                 cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
                 chown -hR www-data:www-data /var/www/` + lid + `/ &&
                 chmod -R 770 /var/www/` + lid + `/ &&
-                wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + lid + ` --skip-email &&
-                wp --allow-root --path=/var/www/` + lid + ` plugin activate ` + plgs + ` &&
+                wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + lid + ` --skip-email ;
+                wp --allow-root --path=/var/www/` + lid + ` plugin activate ` + plgs + ` ;
                 wp --allow-root --path=/var/www/` + lid + ` theme activate clean-lite
             `, function(err, stdout, stderr) {
                 if(err) {
