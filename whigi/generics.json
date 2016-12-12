@@ -278,7 +278,7 @@
                 "descr_key": "generics.eidNo",
                 "mode": "text",
                 "enum": "",
-                "required": true,
+                "required": false,
                 "placeholder": "xxx-xxxxxxx-yy"
             }, {
                 "descr_key": "generics.rrn",
@@ -332,12 +332,12 @@
                 "descr_key": "generics.bankAddress",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": false
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
                 "enum": "countries",
-                "required": true
+                "required": false
             }, {
                 "descr_key": "generics.BIC",
                 "mode": "text",
@@ -367,6 +367,11 @@
         "enum": "",
         "json_keys": [
             {
+                "descr_key": "generics.picture",
+                "mode": "file",
+                "enum": "",
+                "required": false
+            }, {
                 "descr_key": "generics.last_name",
                 "mode": "text",
                 "enum": "",
@@ -401,6 +406,11 @@
         "enum": "",
         "json_keys": [
             {
+                "descr_key": "generics.picture",
+                "mode": "file",
+                "enum": "",
+                "required": false
+            }, {
                 "descr_key": "generics.last_name",
                 "mode": "text",
                 "enum": "",
@@ -435,6 +445,11 @@
         "enum": "",
         "json_keys": [
             {
+                "descr_key": "generics.picture",
+                "mode": "file",
+                "enum": "",
+                "required": false
+            }, {
                 "descr_key": "generics.relation",
                 "mode": "select",
                 "enum": "relations",
@@ -489,6 +504,11 @@
         "enum": "",
         "json_keys": [
             {
+                "descr_key": "generics.picture",
+                "mode": "file",
+                "enum": "",
+                "required": false
+            }, {
                 "descr_key": "generics.relation",
                 "mode": "select",
                 "enum": "partners",
@@ -504,6 +524,18 @@
                 "enum": "",
                 "required": true
             }, {
+                "descr_key": "generics.eidNo",
+                "mode": "text",
+                "enum": "",
+                "required": false,
+                "placeholder": "xxx-xxxxxxx-yy"
+            }, {
+                "descr_key": "generics.rrn",
+                "mode": "text",
+                "enum": "",
+                "required": false,
+                "placeholder": "xx.xx.xx-xxx.xx"
+            }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
                 "enum": "",
@@ -518,6 +550,46 @@
                 "mode": "date",
                 "enum": "",
                 "required": false
+            }, {
+                "descr_key": "generics.street",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.num",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.letterbox",
+                "mode": "text",
+                "enum": "",
+                "required": false
+            }, {
+                "descr_key": "generics.more",
+                "mode": "text",
+                "enum": "",
+                "required": false
+            }, {
+                "descr_key": "generics.postcode",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.city",
+                "mode": "text",
+                "enum": "",
+                "required": true
+            }, {
+                "descr_key": "generics.district",
+                "mode": "text",
+                "enum": "",
+                "required": false
+            }, {
+                "descr_key": "generics.country",
+                "mode": "select",
+                "enum": "countries",
+                "required": true
             }
         ],
         "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.birthdate', 'generics.lifeIn'], test);",
@@ -579,7 +651,7 @@
                 "descr_key": "generics.tradeName",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": false
             }, {
                 "descr_key": "generics.socialName",
                 "mode": "select",
@@ -590,6 +662,11 @@
                 "mode": "text",
                 "enum": "",
                 "required": false
+            }, {
+                "descr_key": "generics.country",
+                "mode": "select",
+                "enum": "countries",
+                "required": true
             }, {
                 "descr_key": "generics.site_url",
                 "mode": "text",
@@ -602,6 +679,28 @@
                 "enum": "",
                 "required": false,
                 "placeholder": "mysupercompany"
+            }
+        ],
+        "validate": "return ngData.checking.areCorporate(test);",
+        "instantiable": true,
+        "descr_key": "generics.corporateInfo",
+        "new_key": ["new.corporate"],
+        "new_keys_only": false
+    }],
+    "corporate/address": [{
+        "is_dated": true,
+        "long_descr_key": "",
+        "help_url": "address",
+        "icon": "fa fa-map-pin",
+        "mode": "json_keys",
+        "enum": "",
+        "json_keys": [
+            {
+                "descr_key": "generics.careof",
+                "mode": "text",
+                "enum": "",
+                "required": false,
+                "placeholder": "Company SA"
             }, {
                 "descr_key": "generics.street",
                 "mode": "text",
@@ -644,10 +743,10 @@
                 "required": true
             }
         ],
-        "validate": "return ngData.checking.areCorporate(test);",
+        "validate": "return ngData.checking.areAddress(test);",
         "instantiable": true,
-        "descr_key": "generics.corporateInfo",
-        "new_key": ["new.corporate"],
+        "descr_key": "generics.address",
+        "new_key": ["new.address"],
         "new_keys_only": false
     }]
 }
