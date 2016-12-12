@@ -9,7 +9,8 @@
         "json_keys": [],
         "validate": "return true;",
         "instantiable": false,
-        "descr_key": "generics.langs"
+        "descr_key": "generics.langs",
+        "validateJava": ""
     }],
     "profile/country": [{
         "is_dated": false,
@@ -21,7 +22,8 @@
         "json_keys": [],
         "validate": "return true;",
         "instantiable": false,
-        "descr_key": "generics.country"
+        "descr_key": "generics.country",
+        "validateJava": ""
     }],
     "profile/communications": [{
         "is_dated": false,
@@ -36,38 +38,44 @@
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "https://..."
+                "placeholder": "https://...",
+                "validateJava": "URL"
             }, {
                 "descr_key": "generics.facebook",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "john.doe"
+                "placeholder": "john.doe",
+                "validateJava": ""
             }, {
                 "descr_key": "generics.skype",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "john.doe"
+                "placeholder": "john.doe",
+                "validateJava": ""
             }, {
                 "descr_key": "generics.linkedin",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "john.doe"
+                "placeholder": "john.doe",
+                "validateJava": ""
             }, {
                 "descr_key": "generics.twitter",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "@johnDoe"
+                "placeholder": "@johnDoe",
+                "validateJava": "TWITTER"
             }
         ],
         "validate": "return ngData.checking.areCommunications(test);",
         "instantiable": false,
         "descr_key": "generics.communications",
         "new_key": [],
-        "new_keys_only": false
+        "new_keys_only": false,
+        "validateJava": ""
     }],
     "profile/email": [{
         "is_dated": false,
@@ -82,7 +90,8 @@
         "descr_key": "generics.email",
         "new_key": ["new.email"],
         "new_keys_only": false,
-        "placeholder": "...@..."
+        "placeholder": "...@...",
+        "validateJava": "EMAIL"
     }],
     "profile/tel": [{
         "is_dated": false,
@@ -97,7 +106,8 @@
         "descr_key": "generics.tel",
         "new_key": ["new.tel"],
         "new_keys_only": false,
-        "placeholder": "+XXXXXXXXXXX"
+        "placeholder": "+XXXXXXXXXXX",
+        "validateJava": "PHONE"
     }],
     "profile/name": [{
         "is_dated": false,
@@ -111,17 +121,20 @@
                 "descr_key": "generics.last_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }
         ],
         "validate": "return true;",
         "instantiable": false,
-        "descr_key": "generics.name"
+        "descr_key": "generics.name",
+        "validateJava": ""
     }],
     "profile/address": [{
         "is_dated": false,
@@ -135,54 +148,64 @@
                 "descr_key": "generics.careof",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.street",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.num",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.letterbox",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.more",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.postcode",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.city",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.district",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
                 "enum": "countries",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.areAddress(test);",
         "instantiable": true,
         "descr_key": "generics.address",
         "new_key": ["new.address"],
-        "new_keys_only": false
+        "new_keys_only": false,
+        "validateJava": "ADDRESS"
     }],
     "profile/birthdata": [{
         "requires": "profile/country",
@@ -204,22 +227,26 @@
                 "descr_key": "generics.birthdate",
                 "mode": "date",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.city",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.gender",
                 "mode": "select",
                 "enum": "genders",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": false,
-        "descr_key": "generics.birthdata"
+        "descr_key": "generics.birthdata",
+        "validateJava": ""
     }],
     "profile/bd": [{
         "has_requirements": true,
@@ -234,32 +261,38 @@
                 "descr_key": "generics.birthdate",
                 "mode": "date",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.city",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
                 "enum": "countries",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.gender",
                 "mode": "select",
                 "enum": "genders",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.religion",
                 "mode": "select",
                 "enum": "religions",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": false,
-        "descr_key": "generics.birthdata"
+        "descr_key": "generics.birthdata",
+        "validateJava": ""
     }],
     "profile/identity": [{
         "is_dated": true,
@@ -273,42 +306,49 @@
                 "descr_key": "generics.country",
                 "mode": "select",
                 "enum": "countries",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.eidNo",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "xxx-xxxxxxx-yy"
+                "placeholder": "xxx-xxxxxxx-yy",
+                "validateJava": ""
             }, {
                 "descr_key": "generics.rrn",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "xx.xx.xx-xxx.xx"
+                "placeholder": "xx.xx.xx-xxx.xx",
+                "validateJava": ""
             }, {
                 "descr_key": "generics.driving",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "xxxxxxxxxx"
+                "placeholder": "xxxxxxxxxx",
+                "validateJava": ""
             }, {
                 "descr_key": "generics.permitNo",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.livingNo",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.areIdentity(test);",
         "instantiable": true,
         "descr_key": "generics.identity",
         "new_keys": [],
-        "new_key_is": "generics.country"
+        "new_key_is": "generics.country",
+        "validateJava": ""
     }],
     "profile/bank": [{
         "is_dated": true,
@@ -322,39 +362,46 @@
                 "descr_key": "generics.last_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.bankAddress",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
                 "enum": "countries",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.BIC",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.IBAN",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.areAccount(test);",
         "instantiable": true,
         "descr_key": "generics.bank",
         "new_key": [],
-        "new_keys_only": false
+        "new_keys_only": false,
+        "validateJava": "ACCOUNT"
     }],
 
 
@@ -370,32 +417,38 @@
                 "descr_key": "generics.picture",
                 "mode": "file",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.last_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.dependent",
                 "mode": "checkbox",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": false,
-        "descr_key": "generics.mother"
+        "descr_key": "generics.mother",
+        "validateJava": ""
     }],
     "family/father": [{
         "is_dated": true,
@@ -409,32 +462,38 @@
                 "descr_key": "generics.picture",
                 "mode": "file",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.last_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.dependent",
                 "mode": "checkbox",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": false,
-        "descr_key": "generics.father"
+        "descr_key": "generics.father",
+        "validateJava": ""
     }],
     "family/children": [{
         "is_dated": true,
@@ -448,32 +507,38 @@
                 "descr_key": "generics.picture",
                 "mode": "file",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.relation",
                 "mode": "select",
                 "enum": "relations",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.last_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.dependent",
                 "mode": "checkbox",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
@@ -481,7 +546,8 @@
         "descr_key": "generics.children",
         "new_keys": [],
         "new_key_is": "generics.first_name",
-        "share_as_folder": true
+        "share_as_folder": true,
+        "validateJava": ""
     }],
     "family/status": [{
         "is_dated": true,
@@ -493,7 +559,8 @@
         "json_keys": [],
         "validate": "return true;",
         "instantiable": false,
-        "descr_key": "generics.familyStatus"
+        "descr_key": "generics.familyStatus",
+        "validateJava": ""
     }],
     "family/partners": [{
         "is_dated": true,
@@ -507,89 +574,106 @@
                 "descr_key": "generics.picture",
                 "mode": "file",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.relation",
                 "mode": "select",
                 "enum": "partners",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.last_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.eidNo",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "xxx-xxxxxxx-yy"
+                "placeholder": "xxx-xxxxxxx-yy",
+                "validateJava": ""
             }, {
                 "descr_key": "generics.rrn",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "xx.xx.xx-xxx.xx"
+                "placeholder": "xx.xx.xx-xxx.xx",
+                "validateJava": ""
             }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.dependent",
                 "mode": "checkbox",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.lifeIn",
                 "mode": "date",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.street",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.num",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.letterbox",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.more",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.postcode",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.city",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.district",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
                 "enum": "countries",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.birthdate', 'generics.lifeIn'], test);",
@@ -598,7 +682,8 @@
         "new_keys": [],
         "new_key_is": "generics.first_name",
         "share_as_folder": true,
-        "from_now": true
+        "from_now": true,
+        "validateJava": "ADDRESS"
     }],
     "family/employers": [{
         "is_dated": true,
@@ -612,17 +697,20 @@
                 "descr_key": "generics.legalName",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.lifeIn",
                 "mode": "date",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.lifeOut",
                 "mode": "date",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.lifeIn', 'generics.lifeOut'], test);",
@@ -630,7 +718,8 @@
         "descr_key": "generics.employers",
         "new_key": [],
         "new_keys_only": false,
-        "share_as_folder": true
+        "share_as_folder": true,
+        "validateJava": ""
     }],
 
 
@@ -646,46 +735,54 @@
                 "descr_key": "generics.legalName",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.tradeName",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.socialName",
                 "mode": "select",
                 "enum": "corpos",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.tax",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
                 "enum": "countries",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.site_url",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "https://..."
+                "placeholder": "https://...",
+                "validateJava": "URL"
             }, {
                 "descr_key": "generics.facebook",
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "mysupercompany"
+                "placeholder": "mysupercompany",
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.areCorporate(test);",
         "instantiable": true,
         "descr_key": "generics.corporateInfo",
         "new_key": ["new.corporate"],
-        "new_keys_only": false
+        "new_keys_only": false,
+        "validateJava": ""
     }],
     "corporate/address": [{
         "is_dated": true,
@@ -700,53 +797,63 @@
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "Company SA"
+                "placeholder": "Company SA",
+                "validateJava": ""
             }, {
                 "descr_key": "generics.street",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.num",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.letterbox",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.more",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.postcode",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.city",
                 "mode": "text",
                 "enum": "",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.district",
                 "mode": "text",
                 "enum": "",
-                "required": false
+                "required": false,
+                "validateJava": ""
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
                 "enum": "countries",
-                "required": true
+                "required": true,
+                "validateJava": ""
             }
         ],
         "validate": "return ngData.checking.areAddress(test);",
         "instantiable": true,
         "descr_key": "generics.address",
         "new_key": ["new.address"],
-        "new_keys_only": false
+        "new_keys_only": false,
+        "validateJava": "ADDRESS"
     }]
 }
