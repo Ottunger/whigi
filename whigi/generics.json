@@ -124,10 +124,22 @@
                 "required": true,
                 "validateJava": ""
             }, {
+                "descr_key": "generics.olnames",
+                "mode": "text",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
                 "enum": "",
                 "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.ofnames",
+                "mode": "text",
+                "enum": "",
+                "required": false,
                 "validateJava": ""
             }
         ],
@@ -312,7 +324,7 @@
                 "descr_key": "generics.eidNo",
                 "mode": "text",
                 "enum": "",
-                "required": false,
+                "required": true,
                 "placeholder": "xxx-xxxxxxx-yy",
                 "validateJava": ""
             }, {
@@ -426,15 +438,39 @@
                 "required": true,
                 "validateJava": ""
             }, {
+                "descr_key": "generics.olnames",
+                "mode": "text",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
                 "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
+                "descr_key": "generics.ofnames",
+                "mode": "text",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
                 "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.disability",
+                "mode": "select",
+                "enum": "disabilities",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.familyStatus",
+                "mode": "select",
+                "enum": "status",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -477,9 +513,27 @@
                 "required": true,
                 "validateJava": ""
             }, {
+                "descr_key": "generics.ofnames",
+                "mode": "text",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
                 "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.disability",
+                "mode": "select",
+                "enum": "disabilities",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.familyStatus",
+                "mode": "select",
+                "enum": "status",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -526,6 +580,12 @@
                 "mode": "text",
                 "enum": "",
                 "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.ofnames",
+                "mode": "text",
+                "enum": "",
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.birthdate",
@@ -615,12 +675,6 @@
                 "required": false,
                 "validateJava": ""
             }, {
-                "descr_key": "generics.dependent",
-                "mode": "checkbox",
-                "enum": "",
-                "required": true,
-                "validateJava": ""
-            }, {
                 "descr_key": "generics.lifeIn",
                 "mode": "date",
                 "enum": "",
@@ -672,6 +726,12 @@
                 "descr_key": "generics.country",
                 "mode": "select",
                 "enum": "countries",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.dependent",
+                "mode": "checkbox",
+                "enum": "",
                 "required": true,
                 "validateJava": ""
             }
