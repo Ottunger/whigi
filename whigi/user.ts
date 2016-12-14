@@ -1141,15 +1141,7 @@ export function createOAuth(req, res) {
  * @param {Response} res The response.
  */
 export function removeOAuth(req, res) {
-    db.retrieveOauth(req.params.id).then(function(o: Oauth) {
-        if(!o) {
-            res.type('application/json').status(200).json({error: ''});
-            return;
-        }
-        if(o.bearer_id != req.user._id) {
-            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
-            return;
-        }
+    function complete(o: Oauth) {
         for(var i = 0; i < req.user.oauth.length; i++) {
             if(req.user.oauth[i].id == req.params.id) {
                 req.user.oauth.splice(i, 1);
@@ -1157,11 +1149,23 @@ export function removeOAuth(req, res) {
             }
         }
         req.user.persist().then(function() {
-            o.unlink();
+            if(!!o)
+                o.unlink();
             res.type('application/json').status(200).json({error: ''});
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
+    }
+    db.retrieveOauth(req.params.id).then(function(o: Oauth) {
+        if(!o) {
+            complete(undefined);
+            return;
+        }
+        if(o.bearer_id != req.user._id) {
+            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+            return;
+        }
+        complete(o);
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
