@@ -15,7 +15,8 @@ db.users.update({_id: 'whigi-restore'}, {
     is_company: 9,
     company_info: {
         name: 'Whigi Restore System',
-        request: {'Whigi': 'requests.restoreLine'}
+        request: {'Whigi': 'requests.restoreLine'},
+        is_company: true
     },
     hidden_id: 'shortersook2',
     sha_master: '4ef3eb469e0ddce543cd39ce3cc3614148923b0d5ad4aff16ddcf15869167403'
@@ -33,7 +34,8 @@ db.users.update({_id: 'whigi-gwp'}, {
     is_company: 9,
     company_info: {
         name: 'Whigi Giveaway System',
-        request: {'Whigi': 'requests.gwpLine'}
+        request: {'Whigi': 'requests.gwpLine'},
+        is_company: true
     },
     hidden_id: 'shortersook1',
     sha_master: '4ef3eb469e0ddce543cd39ce3cc3614148923b0d5ad4aff16ddcf15869167403'
@@ -51,7 +53,8 @@ db.users.update({_id: 'whigi-wissl'}, {
     is_company: 9,
     company_info: {
         name: 'Whigi and Wissl Systems',
-        request: {'Whigi': 'requests.whigiLine'}
+        request: {'Whigi': 'requests.whigiLine'},
+        is_company: true
     },
     hidden_id: 'shortersook0',
     sha_master: '4ef3eb469e0ddce543cd39ce3cc3614148923b0d5ad4aff16ddcf15869167403'

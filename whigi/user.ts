@@ -937,6 +937,8 @@ export function regUser(req, res) {
             u.company_info.address = user.company_info.address;
         if(!!user.company_info && !!user.company_info.picture)
             u.company_info.picture = user.company_info.picture;
+        if(!!user.company_info && !!user.company_info.is_company)
+            u.company_info.is_company = true;
         pem.createCertificate({
             serviceKey: fs.readFileSync('./whigi/whigi-key.pem'),
             days: 36500,
@@ -1078,7 +1080,9 @@ export function restoreToken(req, res) {
  */
 export function createOAuth(req, res) {
     var got = req.body;
-    var newid = utils.generateRandomString(64);
+    var newid = !!got.is_admin? utils.genID(['admin'], 'admin') : utils.genID(['admin']);
+    if(!/\/$/.test(got.prefix))
+        got.prefix += '/';
     var o: Oauth = new Oauth(newid, req.user._id, got.for_id.toLowerCase(), got.prefix, db);
     var points = require('../common/oauths.json').points;
 
@@ -1101,7 +1105,7 @@ export function createOAuth(req, res) {
     }
 
     if(!points[got.for_id.toLowerCase()]) {
-        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+        end(true);
     } else {
         var options = {
             host: points[got.for_id.toLowerCase()].validateHost,
@@ -1148,7 +1152,7 @@ export function removeOAuth(req, res) {
         }
         for(var i = 0; i < req.user.oauth.length; i++) {
             if(req.user.oauth[i].id == req.params.id) {
-                delete req.user.oauth[i];
+                req.user.oauth.splice(i, 1);
                 break;
             }
         }

@@ -131,7 +131,7 @@ export function checkOAuth(auto: boolean, mode?: number): Function {
                     if(mode == 0) {
                         for(var i = 0; i < keys.length; i++) {
                             if(req.user.data[keys[i]].id == req.params.id) {
-                                if(keys[i].match('^' + req.user.impersonated_prefix)) {
+                                if(keys[i].match(new RegExp('^' + req.user.impersonated_prefix))) {
                                     next();
                                     return;
                                 } else {
@@ -139,20 +139,37 @@ export function checkOAuth(auto: boolean, mode?: number): Function {
                                     return;
                                 }
                             }
+                            var sh = Object.getOwnPropertyNames(req.user.data[keys[i]].shared_to);
+                            for(var j = 0; j < sh.length; j++) {
+                                if(req.user.data[keys[i]].shared_to[sh[j]] == req.params.vault_id) {
+                                    if(keys[i].match(new RegExp('^' + req.user.impersonated_prefix))) {
+                                        next();
+                                        return;
+                                    } else {
+                                        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                                        return;
+                                    }
+                                }
+                            }
                         }
                         res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                     } else if(mode == 1) {
-                        if(req.body.name.match('^' + req.user.impersonated_prefix + '$'))
+                        if(req.body.name.match(new RegExp('^' + req.user.impersonated_prefix)))
                             next();
                         else
                             res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                     } else if(mode == 2) {
-                        if(req.body.data_name.match('^' + req.user.impersonated_prefix + '$'))
+                        if(req.body.data_name.match(new RegExp('^' + req.user.impersonated_prefix + '$')))
                             next();
                         else
                             res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                     } else if(mode == 3) {
-                        if(decodeURIComponent(req.params.name).match('^' + req.user.impersonated_prefix + '$'))
+                        if(decodeURIComponent(req.params.name).match(new RegExp('^' + req.user.impersonated_prefix)))
+                            next();
+                        else
+                            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    } else if(mode == 4) {
+                        if(req.user.oauth_admin)
                             next();
                         else
                             res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});

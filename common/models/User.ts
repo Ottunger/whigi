@@ -52,6 +52,7 @@ export class User extends IModel {
     public cert: string;
     public hidden_id: string;
     public impersonated_prefix: string;
+    public oauth_admin: boolean;
     private trigrams: {[id: string]: More};
     
     /**
@@ -91,7 +92,7 @@ export class User extends IModel {
             this.cert = u.cert;
         if('hidden_id' in u)
             this.hidden_id = u.hidden_id;
-        this.impersonated_prefix = undefined;
+        this.oauth_admin = false;
         this.trigrams = {};
     }
 

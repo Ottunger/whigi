@@ -191,6 +191,7 @@ pass.use(new TS(function(token, done) {
                     ticket.persist();
                 } else {
                     user.impersonated_prefix = ticket.prefix;
+                    user.oauth_admin = ticket._id.substr(0, 5) == 'admin';
                 }
                 return done(null, user);
             } else {
@@ -330,9 +331,9 @@ connect(function(e) {
     app.post('/api/v:version/vault/new', checks.checkOAuth(false, 2));
     app.delete('/api/v:version/vault/:vault_id', checks.checkOAuth(true));
     app.delete('/api/v:version/vault/forother/:vault_id', checks.checkOAuth(true));
-    app.get('/api/v:version/vault/time/:vault_id', checks.checkOAuth(true));
-    app.post('/api/v:version/oauth/new', checks.checkOAuth(true));
-    app.delete('/api/v:version/oauth/:id', checks.checkOAuth(true));
+    app.get('/api/v:version/vault/time/:vault_id', checks.checkOAuth(false, 0));
+    app.post('/api/v:version/oauth/new', checks.checkOAuth(false, 4));
+    app.delete('/api/v:version/oauth/:id', checks.checkOAuth(false, 4));
     app.post('/api/v:version/ask', checks.checkOAuth(true));
     //API POST CHECKS
     app.post('/api/v:version/close/:id', checks.checkBody(['new_keys']));
@@ -344,7 +345,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/uname', checks.checkBody(['new_username']));
     app.post('/api/v:version/user/create', checks.checkBody(['username', 'password']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
-    app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix', 'token']));
+    app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix']));
     //-----
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch', 'trigger', 'real_name', 'version']));
     app.post('/api/v:version/ask', checks.checkBody(['list', 'expire', 'trigger', 'towards']));
