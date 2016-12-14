@@ -143,116 +143,126 @@ export function create(req, res) {
     var id: string = req.query.user.toLowerCase();
     var lid: string = encodeURIComponent(id);
 
-    whigi('GET', '/api/v1/profile').then(function(user) {
-        if(rsa_key == '') {
-            try {
-                var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + user.salt), user);
-                var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-                rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key[0]));
-            } catch(e) {
-                console.log('Cannot decrypt our keys.');
-                res.redirect('/error.html');
-                return;
-            }
+    whigi('GET', '/user/' + lid).then(function(known) {
+        if(!known.company_info || !known.company_info.is_company) {
+            console.log('Remote user is not a company: ' + lid + '.');
+            res.redirect('/error.html');
+            return;
         }
-
-        whigi('GET', '/api/v1/profile/data').then(function(data) {
-            user.data = data.data;
-            user.shared_with_me = data.shared_with_me;
-            decryptVault(user, id, 'keys/auth/whigi-gwp').then(function(vault) {
-                var resp: string = utils.atob(response);
-                var nc = decryptAES(resp, utils.toBytes(vault.decr_data));
-                if(nc == req.session.challenge) {
-                    //Check if exists
-                    fs.access('/var/www/' + lid, function(err) {
-                        if(!!err) {
-                            //Continue
-                            var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
-                            decryptVault(user, id, 'profile/email').then(function(vault2) {
-                                var email = vault2.decr_data;
-                                fs.writeFile('/etc/nginx/sites-available/' + lid, `
-                                    server {
-                                            listen 443;
-                                            server_name  ` + lid + `.envict.com;
-                                            error_log /home/gregoire/nginx.err;
-                                            access_log  /home/gregoire/nginx.log;
-                                            gzip on;
-                                            gzip_min_length 1000;
-                                            gzip_proxied any;
-                                            gzip_comp_level 7;
-                                            gzip_types *;
-                                            location / {
-                                                    proxy_pass      https://localhost:` + httpsport + `;
-                                                    proxy_set_header    Host            $host;
-                                                    proxy_set_header    X-Real-IP       $remote_addr;
-                                                    proxy_set_header    X-Forwarded-for $remote_addr;
-                                                    port_in_redirect on;
-                                            }
-                                    }
-                                `, function(e) {
-                                    if(e) {
-                                        console.log('Cannot write file.');
-                                        res.redirect('/error.html');
-                                    } else {
-                                        fs.writeFile('/etc/apache2/sites-available/' + lid + '.conf', `
-                                            <VirtualHost *:` + httpsport + `>
-                                                SSLEngine On
-                                                SSLCertificateFile /home/gregoire/envict.bundle.crt
-                                                SSLCertificateKeyFile /home/gregoire/envict.com.key
-                                                ServerName ` + lid + `.envict.com
-                                                ServerAdmin whigi.com@gmail.com
-                                                DocumentRoot /var/www/` + lid + `
-                                                ErrorLog \${APACHE_LOG_DIR}/error.log
-                                                CustomLog \${APACHE_LOG_DIR}/access.log combined
-                                            </VirtualHost>
-                                        `, function(e) {
-                                            if(e) {
-                                                console.log('Cannot write file.');
-                                                remove(req, {}, false);
-                                                res.redirect('/error.html');
-                                            } else {
-                                                var mode = (!!req.params.wptype)? req.params.wptype : 'classic', plgs;
-                                                switch(mode) {
-                                                    case 'zenbership':
-                                                        zenbership(req, res, lid, httpsport, req.query.lgcode);
-                                                        break;
-                                                    case 'selling':
-                                                        plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch cmb2 kirki woorcommerce woocommerce-gateway-paypal-express-checkout woocommerce-shortcodes yith-woocommerce-wishlist';
-                                                        wordpress(req, res, lid, httpsport, plgs);
-                                                        break;
-                                                    case 'classic':
-                                                    default:
-                                                        plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch';
-                                                        wordpress(req, res, lid, httpsport, plgs);
-                                                        break;
-                                                }
-                                            }
-                                        });
-                                    }
-                                });
-                            }, function(e) {
-                                console.log('Cannot read email.', e);
-                                res.redirect('/error.html');
-                            });
-                        } else {
-                            //Account already existed
-                            res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '.envict.com'));
-                        }
-                    });
-                } else {
-                    console.log('Challenge was ' + req.session.challenge + ' but read ' + nc + ' for user ' + id + '.');
+        whigi('GET', '/api/v1/profile').then(function(user) {
+            if(rsa_key == '') {
+                try {
+                    var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + user.salt), user);
+                    var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+                    rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key[0]));
+                } catch(e) {
+                    console.log('Cannot decrypt our keys.');
                     res.redirect('/error.html');
+                    return;
                 }
+            }
+
+            whigi('GET', '/api/v1/profile/data').then(function(data) {
+                user.data = data.data;
+                user.shared_with_me = data.shared_with_me;
+                decryptVault(user, id, 'keys/auth/whigi-gwp').then(function(vault) {
+                    var resp: string = utils.atob(response);
+                    var nc = decryptAES(resp, utils.toBytes(vault.decr_data));
+                    if(nc == req.session.challenge) {
+                        //Check if exists
+                        fs.access('/var/www/' + lid, function(err) {
+                            if(!!err) {
+                                //Continue
+                                var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
+                                decryptVault(user, id, 'profile/email').then(function(vault2) {
+                                    var email = vault2.decr_data;
+                                    fs.writeFile('/etc/nginx/sites-available/' + lid, `
+                                        server {
+                                                listen 443;
+                                                server_name  ` + lid + `.envict.com;
+                                                error_log /home/gregoire/nginx.err;
+                                                access_log  /home/gregoire/nginx.log;
+                                                gzip on;
+                                                gzip_min_length 1000;
+                                                gzip_proxied any;
+                                                gzip_comp_level 7;
+                                                gzip_types *;
+                                                location / {
+                                                        proxy_pass      https://localhost:` + httpsport + `;
+                                                        proxy_set_header    Host            $host;
+                                                        proxy_set_header    X-Real-IP       $remote_addr;
+                                                        proxy_set_header    X-Forwarded-for $remote_addr;
+                                                        port_in_redirect on;
+                                                }
+                                        }
+                                    `, function(e) {
+                                        if(e) {
+                                            console.log('Cannot write file.');
+                                            res.redirect('/error.html');
+                                        } else {
+                                            fs.writeFile('/etc/apache2/sites-available/' + lid + '.conf', `
+                                                <VirtualHost *:` + httpsport + `>
+                                                    SSLEngine On
+                                                    SSLCertificateFile /home/gregoire/envict.bundle.crt
+                                                    SSLCertificateKeyFile /home/gregoire/envict.com.key
+                                                    ServerName ` + lid + `.envict.com
+                                                    ServerAdmin whigi.com@gmail.com
+                                                    DocumentRoot /var/www/` + lid + `
+                                                    ErrorLog \${APACHE_LOG_DIR}/error.log
+                                                    CustomLog \${APACHE_LOG_DIR}/access.log combined
+                                                </VirtualHost>
+                                            `, function(e) {
+                                                if(e) {
+                                                    console.log('Cannot write file.');
+                                                    remove(req, {}, false);
+                                                    res.redirect('/error.html');
+                                                } else {
+                                                    var mode = (!!req.params.wptype)? req.params.wptype : 'classic', plgs;
+                                                    switch(mode) {
+                                                        case 'zenbership':
+                                                            zenbership(req, res, lid, httpsport, req.query.lgcode);
+                                                            break;
+                                                        case 'selling':
+                                                            plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch cmb2 kirki woorcommerce woocommerce-gateway-paypal-express-checkout woocommerce-shortcodes yith-woocommerce-wishlist';
+                                                            wordpress(req, res, lid, httpsport, plgs);
+                                                            break;
+                                                        case 'classic':
+                                                        default:
+                                                            plgs = 'whigi-wp wp-force-https ckeditor-for-wordpress seo-ultimate wordpress-seo wptouch';
+                                                            wordpress(req, res, lid, httpsport, plgs);
+                                                            break;
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                }, function(e) {
+                                    console.log('Cannot read email.', e);
+                                    res.redirect('/error.html');
+                                });
+                            } else {
+                                //Account already existed
+                                res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '.envict.com'));
+                            }
+                        });
+                    } else {
+                        console.log('Challenge was ' + req.session.challenge + ' but read ' + nc + ' for user ' + id + '.');
+                        res.redirect('/error.html');
+                    }
+                }, function(e) {
+                    console.log('Cannot read response.');
+                    res.redirect('/error.html');
+                });
             }, function(e) {
-                console.log('Cannot read response.');
+                console.log('Cannot read data.');
                 res.redirect('/error.html');
             });
         }, function(e) {
-            console.log('Cannot read data.');
+            console.log('Cannot read profile.');
             res.redirect('/error.html');
         });
     }, function(e) {
-        console.log('Cannot read profile.');
+        console.log('Cannot read remote user.');
         res.redirect('/error.html');
     });
 }
