@@ -1,0 +1,50 @@
+{
+    "__comment": "WITH REQUIREMENTS",
+    "profile/birthdata": [{
+        "requires": "profile/country",
+        "modes": [
+            ["Belgium", "profile/bd_be"],
+            [".*", "profile/bd"]
+        ]
+    }],
+    "profile/bd_be": [{
+        "has_requirements": true,
+        "is_dated": false,
+        "json_keys": [
+            {
+                "descr_key": "generics.birthdate",
+                "mode": "date",
+                "enum": "",
+                "required": true,
+                "validateJava": ""
+            }
+        ],
+        "instantiable": false
+    }],
+    "profile/bd": [{
+        "has_requirements": true,
+        "is_dated": false,
+        "json_keys": [
+            {
+                "descr_key": "generics.birthdate",
+                "mode": "date",
+                "enum": "",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.country",
+                "mode": "select",
+                "enum": "countries",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.religion",
+                "mode": "select",
+                "enum": "religions",
+                "required": false,
+                "validateJava": ""
+            }
+        ],
+        "instantiable": false
+    }]
+}

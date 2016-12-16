@@ -220,48 +220,6 @@
         "validateJava": "ADDRESS"
     }],
     "profile/birthdata": [{
-        "requires": "profile/country",
-        "modes": [
-            ["Belgium", "profile/bd_be"],
-            [".*", "profile/bd"]
-        ]
-    }],
-    "profile/bd_be": [{
-        "has_requirements": true,
-        "is_dated": false,
-        "long_descr_key": "",
-        "help_url": "",
-        "icon": "fa fa-signing",
-        "mode": "json_keys",
-        "enum": "",
-        "json_keys": [
-            {
-                "descr_key": "generics.birthdate",
-                "mode": "date",
-                "enum": "",
-                "required": true,
-                "validateJava": ""
-            }, {
-                "descr_key": "generics.city",
-                "mode": "text",
-                "enum": "",
-                "required": true,
-                "validateJava": ""
-            }, {
-                "descr_key": "generics.gender",
-                "mode": "select",
-                "enum": "genders",
-                "required": true,
-                "validateJava": ""
-            }
-        ],
-        "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
-        "instantiable": false,
-        "descr_key": "generics.birthdata",
-        "validateJava": ""
-    }],
-    "profile/bd": [{
-        "has_requirements": true,
         "is_dated": false,
         "long_descr_key": "",
         "help_url": "",
@@ -302,8 +260,10 @@
             }
         ],
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
-        "instantiable": false,
+        "instantiable": true,
         "descr_key": "generics.birthdata",
+        "new_keys": [],
+        "new_key_is": "generics.country",
         "validateJava": ""
     }],
     "profile/identity": [{
