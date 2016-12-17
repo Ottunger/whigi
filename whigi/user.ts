@@ -22,7 +22,7 @@ import {Oauth} from '../common/models/Oauth';
 import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
 import {RSAPool} from '../utils/RSAPool';
-var mailer, oid: {[id: string]: string}, size: number;
+var mailer, oid: {[id: string]: string[]}, size: number;
 var db: Datasource;
 var rsa: RSAPool;
 
@@ -313,7 +313,7 @@ export function prepGoCompany9(req, res) {
                     oid = {};
                 }
                 size++;
-                oid[uid] = req.query.username;
+                oid[uid] = [req.query.username, req.query.toreturn];
                 var redir = utils.RUNNING_ADDR + '/api/v1/eid/callback?req=' + uid;
                 res.redirect('https://www.e-contract.be/eid-idp/protocol/openid/auth-ident?openid.ns=' + encodeURIComponent('http://specs.openid.net/auth/2.0')
                     + '&openid.claimed_id=' + encodeURIComponent('http://specs.openid.net/auth/2.0/identifier_select') + '&openid.identity=' + encodeURIComponent('http://specs.openid.net/auth/2.0/identifier_select')
@@ -356,7 +356,7 @@ export function goCompany9(req, res) {
         if((new Date).getTime() - 60*1000 > stamp) {
             res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
         } else {
-            if(checks.isWhigi(oid[req.query.req])) {
+            if(checks.isWhigi(oid[req.query.req][0])) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
@@ -364,15 +364,16 @@ export function goCompany9(req, res) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
-            db.retrieveUser(oid[req.query.req], true).then(function(u: User) {
+            db.retrieveUser(oid[req.query.req][0], true).then(function(u: User) {
                 u.is_company = 9;
                 u.company_info.name = req.body['openid.ax.value.attr21'];
+                u.company_info.first_name = req.body['openid.ax.value.attr1'];
+                u.company_info.last_name = req.body['openid.ax.value.attr20'];
                 u.company_info.rrn = req.body['openid.ax.value.attr18'];
                 var home: string[] = req.body['openid.ax.value.attr5'].trim().split(' ');
                 var num = home.pop();
                 u.company_info.address = JSON.stringify({
-                    "generics.last_name": req.body['openid.ax.value.attr20'],
-                    "generics.first_name": req.body['openid.ax.value.attr1'],
+                    "generics.careof": req.body['openid.ax.value.attr21'],
                     "generics.street": home.join(' '),
                     "generics.num": num,
                     "generics.letterbox": "",
@@ -396,7 +397,7 @@ export function goCompany9(req, res) {
                     if(!e)
                         u.cert = keys.certificate;
                     u.persist().then(function() {
-                        res.redirect('/profile/eidok');
+                        res.redirect('/profile/eidok?toreturn=' + oid[req.query.req][1]);
                     }, function(e) {
                         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                     });
