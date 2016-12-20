@@ -12,19 +12,6 @@
         "descr_key": "generics.langs",
         "validateJava": ""
     }],
-    "profile/country": [{
-        "is_dated": false,
-        "long_descr_key": "generics.countrylong",
-        "help_url": "",
-        "icon": "fa fa-flag-checkered",
-        "mode": "select",
-        "enum": "countries",
-        "json_keys": [],
-        "validate": "return true;",
-        "instantiable": false,
-        "descr_key": "generics.country",
-        "validateJava": ""
-    }],
     "profile/communications": [{
         "is_dated": false,
         "long_descr_key": "",
@@ -260,8 +247,35 @@
             }
         ],
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
-        "instantiable": true,
+        "instantiable": false,
         "descr_key": "generics.birthdata",
+        "validateJava": ""
+    }],
+    "profile/nationalities": [{
+        "is_dated": false,
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "fa fa-flag-checkered",
+        "mode": "json_keys",
+        "enum": "",
+        "json_keys": [
+            {
+                "descr_key": "generics.since",
+                "mode": "date",
+                "enum": "",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.country",
+                "mode": "select",
+                "enum": "countries",
+                "required": true,
+                "validateJava": ""
+            }
+        ],
+        "validate": "return ngData.checking.keyIs('date', 'generics.since', test);",
+        "instantiable": true,
+        "descr_key": "generics.nationalities",
         "new_keys": [],
         "new_key_is": "generics.country",
         "validateJava": ""
@@ -311,6 +325,18 @@
                 "descr_key": "generics.livingNo",
                 "mode": "text",
                 "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.gender",
+                "mode": "select",
+                "enum": "genders",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.religion",
+                "mode": "select",
+                "enum": "religions",
                 "required": false,
                 "validateJava": ""
             }
