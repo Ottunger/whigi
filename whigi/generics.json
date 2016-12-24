@@ -159,7 +159,7 @@
                 "descr_key": "generics.num",
                 "mode": "text",
                 "enum": "",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.letterbox",
@@ -268,7 +268,7 @@
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
-                "enum": "countries",
+                "enum": "countries-short",
                 "required": true,
                 "validateJava": ""
             }
@@ -284,7 +284,7 @@
         "is_dated": true,
         "long_descr_key": "",
         "help_url": "identities",
-        "icon": "fa fa-terminal",
+        "icon": "fa fa-universal-access",
         "mode": "json_keys",
         "enum": "",
         "json_keys": [
@@ -299,7 +299,19 @@
                 "mode": "text",
                 "enum": "",
                 "required": true,
-                "placeholder": "xxx-xxxxxxx-yy",
+                "placeholder": "be: xxx-xxxxxxx-yy",
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.eidFrom",
+                "mode": "date",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.eidTo",
+                "mode": "date",
+                "enum": "",
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.rrn",
@@ -316,8 +328,32 @@
                 "placeholder": "xxxxxxxxxx",
                 "validateJava": ""
             }, {
+                "descr_key": "generics.drivingFrom",
+                "mode": "date",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.drivingTo",
+                "mode": "date",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
                 "descr_key": "generics.permitNo",
                 "mode": "text",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.permitFrom",
+                "mode": "date",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.permitTo",
+                "mode": "date",
                 "enum": "",
                 "required": false,
                 "validateJava": ""
@@ -328,15 +364,15 @@
                 "required": false,
                 "validateJava": ""
             }, {
-                "descr_key": "generics.gender",
-                "mode": "select",
-                "enum": "genders",
-                "required": true,
+                "descr_key": "generics.livingFrom",
+                "mode": "date",
+                "enum": "",
+                "required": false,
                 "validateJava": ""
             }, {
-                "descr_key": "generics.religion",
-                "mode": "select",
-                "enum": "religions",
+                "descr_key": "generics.livingTo",
+                "mode": "date",
+                "enum": "",
                 "required": false,
                 "validateJava": ""
             }
@@ -348,6 +384,46 @@
         "new_key_is": "generics.country",
         "validateJava": ""
     }],
+    "profile/passport": [{
+        "is_dated": true,
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "fa fa-universal-access",
+        "mode": "json_keys",
+        "enum": "",
+        "json_keys": [
+            {
+                "descr_key": "generics.issuer",
+                "mode": "select",
+                "enum": "countries",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.docNo",
+                "mode": "text",
+                "enum": "",
+                "required": true,
+                "placeholder": "",
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.eidFrom",
+                "mode": "date",
+                "enum": "",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.eidTo",
+                "mode": "date",
+                "enum": "",
+                "required": true,
+                "validateJava": ""
+            }
+        ],
+        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.eidFrom', 'generics.eidTo'], test);",
+        "instantiable": true,
+        "descr_key": "generics.passports",
+        "validateJava": ""
+    }],
     "profile/bank": [{
         "is_dated": true,
         "long_descr_key": "",
@@ -357,16 +433,16 @@
         "enum": "",
         "json_keys": [
             {
-                "descr_key": "generics.last_name",
+                "descr_key": "generics.owner_name",
                 "mode": "text",
                 "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
-                "descr_key": "generics.first_name",
+                "descr_key": "generics.other_owner_names",
                 "mode": "text",
                 "enum": "",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.bankAddress",
@@ -389,6 +465,12 @@
             }, {
                 "descr_key": "generics.IBAN",
                 "mode": "text",
+                "enum": "",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.several_owners",
+                "mode": "checkbox",
                 "enum": "",
                 "required": true,
                 "validateJava": ""
@@ -448,6 +530,12 @@
                 "required": false,
                 "validateJava": ""
             }, {
+                "descr_key": "generics.deathdate",
+                "mode": "date",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
                 "descr_key": "generics.disability",
                 "mode": "select",
                 "enum": "disabilities",
@@ -470,6 +558,7 @@
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": false,
         "descr_key": "generics.mother",
+        "json_from_key": "generics.birthdate",
         "validateJava": ""
     }],
     "family/father": [{
@@ -511,6 +600,12 @@
                 "required": false,
                 "validateJava": ""
             }, {
+                "descr_key": "generics.deathdate",
+                "mode": "date",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
                 "descr_key": "generics.disability",
                 "mode": "select",
                 "enum": "disabilities",
@@ -533,6 +628,7 @@
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": false,
         "descr_key": "generics.father",
+        "json_from_key": "generics.birthdate",
         "validateJava": ""
     }],
     "family/children": [{
@@ -580,6 +676,18 @@
                 "required": false,
                 "validateJava": ""
             }, {
+                "descr_key": "generics.deathdate",
+                "mode": "date",
+                "enum": "",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.disability",
+                "mode": "select",
+                "enum": "disabilities",
+                "required": false,
+                "validateJava": ""
+            }, {
                 "descr_key": "generics.dependent",
                 "mode": "checkbox",
                 "enum": "",
@@ -593,6 +701,7 @@
         "new_keys": [],
         "new_key_is": "generics.first_name",
         "share_as_folder": true,
+        "json_from_key": "generics.birthdate",
         "validateJava": ""
     }],
     "family/status": [{
@@ -676,7 +785,7 @@
                 "descr_key": "generics.num",
                 "mode": "text",
                 "enum": "",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.letterbox",
@@ -728,7 +837,7 @@
         "new_keys": [],
         "new_key_is": "generics.first_name",
         "share_as_folder": true,
-        "from_now": true,
+        "json_from_ask": true,
         "validateJava": "ADDRESS"
     }],
     "family/employers": [{
@@ -763,7 +872,7 @@
         "instantiable": true,
         "descr_key": "generics.employers",
         "new_key": [],
-        "new_keys_only": false,
+        "new_keys_is": "generics.legalName",
         "share_as_folder": true,
         "validateJava": ""
     }],
@@ -826,8 +935,8 @@
         "validate": "return ngData.checking.areCorporate(test);",
         "instantiable": true,
         "descr_key": "generics.corporateInfo",
-        "new_key": ["new.corporate"],
-        "new_keys_only": false,
+        "new_key": [],
+        "new_keys_is": "generics.legalName",
         "validateJava": ""
     }],
     "corporate/address": [{
@@ -843,7 +952,7 @@
                 "mode": "text",
                 "enum": "",
                 "required": false,
-                "placeholder": "Company SA",
+                "placeholder": "John Doe",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.street",
@@ -855,7 +964,7 @@
                 "descr_key": "generics.num",
                 "mode": "text",
                 "enum": "",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.letterbox",
