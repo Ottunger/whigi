@@ -256,7 +256,9 @@ export function regVault(req, res, respond?: boolean): Promise {
                 reject();
             return;
         }
-        if(got.data_name.length > 63) {
+        got.data_name = got.data_name.replace(/\./g, '_');
+        got.real_name = got.real_name.replace(/\./g, '_'); //Should already be done...
+        if(got.data_name.length > 127) {
             if(respond === true)
                 res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                 reject();

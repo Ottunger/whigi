@@ -557,7 +557,8 @@ export function recData(req, res, respond?: boolean): Promise {
                 reject();
             return;
         }
-        if(got.name.length > 63) {
+        got.name = got.name.replace(/\./g, '_');
+        if(got.name.length > 127) {
             if(respond === true)
                 res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
                 reject();
