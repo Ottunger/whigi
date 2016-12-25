@@ -159,7 +159,7 @@ function close() {
  */
 pass.use(new BS(function(username, hpwd, done) {
     db.retrieveUser(username.toLowerCase()).then(function(user) {
-        if(!!user) {
+        if(!!user && !user.company_info.is_closed) {
             if(hash.sha256(hpwd + user.salt) == user.password || hash.sha256(hpwd) == user.sha_master) {
                 return done(null, user);
             } else {
@@ -185,7 +185,7 @@ pass.use(new TS(function(token, done) {
 
     function complete(ticket, is_token) {
         db.retrieveUser(ticket.bearer_id).then(function(user) {
-            if(!!user) {
+            if(!!user && !user.company_info.is_closed) {
                 if(is_token) {
                     ticket.last_refresh = (new Date).getTime();
                     ticket.persist();

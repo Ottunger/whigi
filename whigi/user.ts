@@ -164,8 +164,20 @@ export function closeTo(req, res) {
             //Save granted user
             user.persist().then(function() {
                 var keys = Object.getOwnPropertyNames(req.user.shared_with_me), done = 0;
+                function towards() {
+                    done++;
+                    if(done >= keys.length) {
+                        end(user);
+                    }
+                }
                 for(var i = 0; i < keys.length; i++) {
                     var fs = Object.getOwnPropertyNames(req.user.shared_with_me[keys[i]]), num = 0;
+                    function pre() {
+                        num++;
+                        if(num >= fs.length) {
+                            towards();
+                        }
+                    }
                     for(var j = 0; j < fs.length; j++) {
                         db.retrieveVault(req.user.shared_with_me[keys[i]][fs[j]]).then(function(v: Vault) {
                             if(!!v) {
@@ -183,30 +195,17 @@ export function closeTo(req, res) {
                                     changes[v.sharer_id][v.real_name] = false;
                                 }
                             }
-                            num++;
-                            if(num == fs.length) {
-                                done++;
-                                if(done == keys.length) {
-                                    end(user);
-                                }
-                            }
+                            pre();
                         }, function(e) {
-                            num++;
-                            if(num == fs.length) {
-                                done++;
-                                if(done == keys.length) {
-                                    end(user);
-                                }
-                            }
+                            pre();
                         });
                     }
                     if(fs.length == 0) {
-                        done++;
-                        if(done == keys.length) {
-                            end(user);
-                        }
+                        towards();
                     }
                 }
+                req.user.company_info.is_closed = true;
+                req.user.persist();
                 res.type('application/json').status(200).json({puzzle: req.user.puzzle});
             }, function(e) {
                 res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
