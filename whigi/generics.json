@@ -189,6 +189,8 @@
                 "descr_key": "generics.district",
                 "mode": "text",
                 "enum": "",
+                "ifKey": "generics.country",
+                "ifCheck": "return ['United States'].indexOf(test) != -1;",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -815,6 +817,8 @@
                 "descr_key": "generics.district",
                 "mode": "text",
                 "enum": "",
+                "ifKey": "generics.country",
+                "ifCheck": "return ['United States'].indexOf(test) != -1;",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -902,6 +906,7 @@
                 "descr_key": "generics.socialName",
                 "mode": "select",
                 "enum": "corpos",
+                "enumMore": "generics.country",
                 "required": true,
                 "validateJava": ""
             }, {
@@ -994,6 +999,8 @@
                 "descr_key": "generics.district",
                 "mode": "text",
                 "enum": "",
+                "ifKey": "generics.country",
+                "ifCheck": "return ['United States'].indexOf(test) != -1;",
                 "required": false,
                 "validateJava": ""
             }, {

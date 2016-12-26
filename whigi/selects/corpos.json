@@ -1,5 +1,9 @@
 {
     "values": [
-        "Personne physique", "SA", "SPRL", "SCRL", "SCRI", "SNC", "SCS", "SCA", "ASBL", "AISBL", "De Fait", "Loi 1901", "Gmbh"
-    ]
+        "Personne physique", "SA", "SPRL", "SCRL", "SCRI", "SNC", "SCS", "SCA", "ASBL", "AISBL", "De Fait"
+    ],
+    "more": {
+        "France": ["Loi 1901"],
+        "Germany": ["Gmbh"]
+    }
 }
