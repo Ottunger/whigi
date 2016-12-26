@@ -143,7 +143,7 @@ export function create(req, res) {
     var id: string = req.query.user.toLowerCase();
     var lid: string = encodeURIComponent(id);
 
-    whigi('GET', '/user/' + lid).then(function(known) {
+    whigi('GET', '/api/v1/user/' + lid).then(function(known) {
         if(!known.company_info || !known.company_info.is_company) {
             console.log('Remote user is not a company: ' + lid + '.');
             res.redirect('/error.html');
@@ -174,6 +174,7 @@ export function create(req, res) {
                             if(!!err) {
                                 //Continue
                                 var httpsport = Math.floor(Math.random() * (65535 - 1025)) + 1025;
+                                var mode = (!!req.params.wptype)? req.params.wptype : 'classic';
                                 decryptVault(user, id, 'profile/email').then(function(vault2) {
                                     var email = vault2.decr_data;
                                     fs.writeFile('/etc/nginx/sites-available/' + lid, `
@@ -188,7 +189,7 @@ export function create(req, res) {
                                                 gzip_comp_level 7;
                                                 gzip_types *;
                                                 location / {
-                                                        proxy_pass      https://localhost:` + httpsport + `;
+                                                        proxy_pass      http` + (mode == 'helios'? '' : 's') + `://localhost:` + httpsport + `;
                                                         proxy_set_header    Host            $host;
                                                         proxy_set_header    X-Real-IP       $remote_addr;
                                                         proxy_set_header    X-Forwarded-for $remote_addr;
@@ -200,13 +201,17 @@ export function create(req, res) {
                                             console.log('Cannot write file.');
                                             res.redirect('/error.html');
                                         } else {
+                                            if(mode == 'helios') {
+                                                helios(req, res, lid, httpsport, req.query.oauth, req.query.dk, req.query.sha);
+                                                return;
+                                            }
                                             fs.writeFile('/etc/apache2/sites-available/' + lid + '.conf', `
                                                 <VirtualHost *:` + httpsport + `>
                                                     SSLEngine On
                                                     SSLCertificateFile /home/gregoire/envict.bundle.crt
                                                     SSLCertificateKeyFile /home/gregoire/envict.com.key
                                                     ServerName ` + lid + `.envict.com
-                                                    ServerAdmin whigi.com@gmail.com
+                                                    ServerAdmin ` + email + `
                                                     DocumentRoot /var/www/` + lid + `
                                                     ErrorLog \${APACHE_LOG_DIR}/error.log
                                                     CustomLog \${APACHE_LOG_DIR}/access.log combined
@@ -217,7 +222,7 @@ export function create(req, res) {
                                                     remove(req, {}, false);
                                                     res.redirect('/error.html');
                                                 } else {
-                                                    var mode = (!!req.params.wptype)? req.params.wptype : 'classic', plgs;
+                                                    var plgs;
                                                     switch(mode) {
                                                         case 'zenbership':
                                                             zenbership(req, res, lid, httpsport, req.query.lgcode);
@@ -392,6 +397,55 @@ function zenbership(req, res, lid: string, httpsport: number, lgcode?: string) {
             res.redirect('/error.html');
         } else {
             res.redirect('https://' + lid + '.envict.com/admin');
+            exec('service nginx force-reload');
+        }
+    });
+}
+
+/**
+ * Complete a Helios install.
+ * @function helios
+ * @private
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ * @param {String} lid New subdomain.
+ * @param {Number} httpsport New selected port.
+ * @param {String} oauth OAuth ticket to install.
+ * @param {String} dk DK key.
+ * @param {String} sha_master SHA Master.
+ */
+function helios(req, res, lid: string, httpsport: number, oauth: string, dk: string, sha_master: string) {
+    exec(`
+        sudo -u postgres psql -c "DROP DATABASE IF EXISTS ` + lid + `;" &&
+        sudo -u postgres psql -c "CREATE DATABASE ` + lid + `;" &&
+        umount -l /var/www/` + lid + ` ;
+        rm -rf /usr/www/` + lid + ` ;
+        mkdir -p /usr/www/` + lid + ` ;
+        mkdir -p /var/www/` + lid + ` ;
+        rm -f /etc/nginx/sites-enabled/` + lid + ` &&
+        ln -s /etc/nginx/sites-available/` + lid + ` /etc/nginx/sites-enabled/` + lid + ` &&
+        dd if=/dev/zero of=/usr/www/` + lid + `/disk count=409600
+        mkfs -t ext3 -q /usr/www/` + lid + `/disk -F &&
+        mount -o loop,rw,usrquota,grpquota /usr/www/` + lid + `/disk /var/www/` + lid + ` &&
+        cp -r /home/gregoire/helios-server/* /var/www/` + lid + `/ &&
+        export C_FORCE_ROOT=1
+        sed -i "s/.*'NAME': 'helios'.*/        'NAME': '` + lid + `',/" /var/www/` + lid + `/settings.py &&
+        sed -i "s/.*WHIGI_USER_ID =.*/WHIGI_USER_ID = get_from_env('WHIGI_USER_ID', '` + lid + `')/" /var/www/` + lid + `/settings.py &&
+        sed -i "s/.*WHIGI_OAUTH_TOKEN =.*/WHIGI_OAUTH_TOKEN = get_from_env('WHIGI_OAUTH_TOKEN', '` + oauth + `')/" /var/www/` + lid + `/settings.py &&
+        sed -i "s/.*WHIGI_DK =.*/WHIGI_DK = get_from_env('WHIGI_DK', '` + dk + `')/" /var/www/` + lid + `/settings.py &&
+        sed -i "s/.*WHIGI_SHA_MASTER =.*/WHIGI_SHA_MASTER = get_from_env('WHIGI_SHA_MASTER', '` + sha_master + `')/" /var/www/` + lid + `/settings.py &&
+        sed -i "s/.*WHIGI_HOST =.*/WHIGI_HOST = get_from_env('WHIGI_HOST', 'https:\/\/` + lid + `.envict.com')/" /var/www/` + lid + `/settings.py &&
+        sed -i "s/.*WHIGI_CREATOR_ACCOUNTS =.*/WHIGI_CREATOR_ACCOUNTS = get_from_env('WHIGI_CREATOR_ACCOUNTS', '` + lid + `')/" /var/www/` + lid + `/settings.py &&
+        sed -i "s/.*WHIGI_TRUSTEES_ACCOUNTS =.*/WHIGI_TRUSTEES_ACCOUNTS = get_from_env('WHIGI_TRUSTEES_ACCOUNTS', '` + lid + `')/" /var/www/` + lid + `/settings.py &&
+        nohup python /var/www/` + lid + `/manage.py celeryd & &&
+        nohup python /var/www/` + lid + `/manage.py runserver ` + httpsport + ` &
+    `, function(err, stdout, stderr) {
+        if(err) {
+            console.log('Cannot complete OPs:\n' + stderr);
+            remove(req, {}, false);
+            res.redirect('/error.html');
+        } else {
+            res.redirect('https://' + lid + '.envict.com/');
             exec('service nginx force-reload');
         }
     });
