@@ -95,6 +95,8 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/data\/trigger\/[a-zA-Z0-9%_\-]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/vault\/link\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/new\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/?$/))
@@ -304,6 +306,7 @@ connect(function(e) {
     app.get('/api/v:version/data/:name/to/:now', pauth);
     app.get('/api/v:version/data/trigger/:data_name', pauth);
     app.delete('/api/v:version/data/:data_name', pauth);
+    app.post('/api/v:version/vault/link', pauth);
     app.post('/api/v:version/vault/new', pauth);
     app.delete('/api/v:version/vault/:vault_id', pauth);
     app.delete('/api/v:version/vault/forother/:vault_id', pauth);
@@ -328,6 +331,7 @@ connect(function(e) {
     app.get('/api/v:version/data/byname/:name', checks.checkOAuth(false, 3));
     app.get('/api/v:version/data/:name/to/:now', checks.checkOAuth(true));
     app.delete('/api/v:version/data/:data_name', checks.checkOAuth(true));
+    app.post('/api/v:version/vault/link', checks.checkOAuth(false, 2));
     app.post('/api/v:version/vault/new', checks.checkOAuth(false, 2));
     app.delete('/api/v:version/vault/:vault_id', checks.checkOAuth(true));
     app.delete('/api/v:version/vault/forother/:vault_id', checks.checkOAuth(true));
@@ -347,6 +351,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix']));
     //-----
+    app.post('/api/v:version/vault/link', checks.checkBody(['vault_id', 'data_name']));
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch', 'trigger', 'real_name', 'version']));
     app.post('/api/v:version/ask', checks.checkBody(['list', 'expire', 'trigger', 'towards']));
     //API LONG LIVED COMMANDS
@@ -355,8 +360,9 @@ connect(function(e) {
     app.post('/api/v:version/profile/token/new', checks.checkPuzzle);
     //-----
     app.get('/api/v:version/data/:name/to/:now', checks.checkPuzzle);
+    app.post('/api/v:version/vault/link', checks.checkPuzzle);
     app.post('/api/v:version/vault/new', checks.checkPuzzle);
-    //app.post('/api/v:version/ask', checks.checkPuzzle);
+    app.post('/api/v:version/ask', checks.checkPuzzle);
     //API ROUTES
     app.get('/api/v:version/peek/:id', user.peekUser);
     app.get('/api/v:version/user/:id', user.getUser);
@@ -386,6 +392,7 @@ connect(function(e) {
     app.get('/api/v:version/data/:name/to/:now', data.renameData);
     app.get('/api/v:version/data/trigger/:data_name', data.triggerVaults);
     app.delete('/api/v:version/data/:data_name', data.removeData);
+    app.post('/api/v:version/vault/link', data.linkVault);
     app.post('/api/v:version/vault/new', data.regVault);
     app.delete('/api/v:version/vault/:vault_id', data.removeVault);
     app.delete('/api/v:version/vault/forother/:vault_id', data.removeStorable);

@@ -23,6 +23,7 @@ export class Vault extends IModel {
     public real_name: string;
     public version: number;
     public storable: string[];
+    public links: string[];
 
     /**
      * Create a Vault from a bare database description.
@@ -57,6 +58,7 @@ export class Vault extends IModel {
             this.version = u.version;
         if('storable' in u)
             this.storable = u.storable;
+        this.links = u.links || [];
     }
 
     /**
@@ -79,7 +81,8 @@ export class Vault extends IModel {
             trigger: this.trigger,
             real_name: this.real_name,
             version: this.version,
-            storable: this.storable
+            storable: this.storable,
+            links: this.links
         };
         return ret;
     }

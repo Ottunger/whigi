@@ -1068,13 +1068,47 @@
                 "class": "primary",
                 "actions": [
                     {
+                        "name": "vaultlink",
+                        "path": "/api/v{version}/vault/link",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "200, 201, 400, 403, 412, 500",
+                        "method": "POST",
+                        "desc": "Create a simlink for a share",
+                        "description": "Create a simlink for a share on the granted side, so that the same data can be at several locations.",
+                        "post": {
+                            "vault_id": {
+                                "type": "String",
+                                "description": "The vault ID on which to act",
+                                "required": true
+                            },
+                            "data_name": {
+                                "type": "string",
+                                "description": "A new link name, will return 200 if already existed",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "puzzle": {
+                                "type": "string",
+                                "description": "User puzzle"
+                            }
+                        }
+                    },
+                    {
                         "name": "vaultnew",
                         "path": "/api/v{version}/vault/new",
                         "auth": "YES",
                         "puzzle": "YES",
                         "input": "application/json",
                         "output": "application/json",
-                        "status": "201, 400, 404, 412, 500",
+                        "status": "201, 400, 403, 404, 412, 500",
                         "method": "POST",
                         "desc": "Create a share",
                         "description": "Create a new share. When asking the server to perform encryption, send the plain AES key in query parameters.",
@@ -1144,6 +1178,11 @@
                             "mail": {
                                 "type": "string",
                                 "description": "A full URL to plebiscite by mail to the user that is given the grant",
+                                "required": false
+                            },
+                            "links": {
+                                "type": "array",
+                                "description": "An array of links to already create, maximum 10",
                                 "required": false
                             }
                         },
@@ -1331,6 +1370,15 @@
                             "shared_as": {
                                 "type": "string",
                                 "description": "Registered name at granted user's side"
+                            },
+                            "links": {
+                                "type": "array",
+                                "description": {
+                                    "{i}": {
+                                        "type": "string",
+                                        "description": "A link name for this vault"
+                                    }
+                                }
                             }
                         }
                     },
@@ -1347,7 +1395,7 @@
                         "description": "Ask for some sharing using an email or a Whigi username.",
                         "post": {
                             "list": {
-                                "type": "Array",
+                                "type": "array",
                                 "description": "An array of the data to be requsted in the grant. For use with a special name, seperate with //",
                                 "required": true
                             },
