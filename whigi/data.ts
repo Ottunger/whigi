@@ -318,7 +318,7 @@ export function regVault(req, res, respond?: boolean): Promise {
             } else {
                 if(got.shared_to_id.toLowerCase() in req.user.data[got.real_name].shared_to) {
                     if(respond === true)
-                        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id.toLowerCase()]});
+                        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id.toLowerCase()], new: false});
                     reject();
                 } else {
                     //Cannot create a storable vault if we are trying to create a bound vault
@@ -433,7 +433,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                                     v.persist();
                                 sharee.persist().then(function() {
                                     if(respond === true)
-                                        res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id});
+                                        res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id, new: true});
                                     resolve();
                                 }, function(e) {
                                     if(respond === true)
