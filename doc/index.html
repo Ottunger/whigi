@@ -174,7 +174,7 @@
                             },
                             "warnContext": {
                                 "type": "object",
-                                "description": "Any context required during template rendering",
+                                "description": "Any context required during template rendering, you can issue your i18n strings within i18n object",
                                 "required": false
                             }
                         },
@@ -1180,6 +1180,16 @@
                                 "description": "A full URL to plebiscite by mail to the user that is given the grant",
                                 "required": false
                             },
+                            "template": {
+                                "type": "string",
+                                "description": "A validated by our team template code to use instead of the default one",
+                                "required": false
+                            },
+                            "templateContext": {
+                                "type": "object",
+                                "description": "Any context required during template rendering, you can issue your i18n strings within i18n object",
+                                "required": false
+                            },
                             "links": {
                                 "type": "array",
                                 "description": "An array of links to already create, maximum 10",
@@ -1421,6 +1431,21 @@
                             "why": {
                                 "type": "string",
                                 "description": "A description to use of why the grant is requested",
+                                "required": false
+                            },
+                            "lang": {
+                                "type": "string",
+                                "description": "A language code to use if using an email",
+                                "required": false
+                            },
+                            "template": {
+                                "type": "string",
+                                "description": "A validated by our team template code to use instead of the default one",
+                                "required": false
+                            },
+                            "templateContext": {
+                                "type": "object",
+                                "description": "Any context required during template rendering, you can issue your i18n strings within i18n object",
                                 "required": false
                             }
                         },

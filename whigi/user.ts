@@ -858,9 +858,9 @@ export function regUser(req, res) {
     function end(u: User) {
         u.persist().then(function() {
             res.type('application/json').status(201).json({error: '', _id: u._id, hidden_id: u.hidden_id});
-            //Warnign mail
+            //Warning mail
             if('warn' in req.body && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(req.body.warn)) {
-                mailer.sendMail(utils.mailConfig(req.body.warn, !!req.body['warnMode']? req.body['warnMode'] : 'otherAccount', req, Object.assign({
+                mailer.sendMail(utils.mailConfig(req.body.warn, req.body['warnMode'] || 'otherAccount', req, Object.assign({
                     uid: u._id,
                     pwd: req.body.password
                 }, req.body.warnContext || {})), function(e, i) {});

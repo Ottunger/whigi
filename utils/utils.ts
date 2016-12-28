@@ -119,9 +119,10 @@ export function loopOn(array: any[], apply: Function, callin: Function, callback
  * @param {String} str The string to translate.
  * @param {Request} req The language as a IANA code.
  * @param {User} userin A user object whose lang should be used rather than ours.
+ * @param {Object} more Dictionary to prefer to use before fallback dictionary.
  * @return {String} The translated string or itself if no match.
  */
-export function i18n(str: string, req: any, userin?: any) {
+export function i18n(str: string, req: any, userin?: any, more?: {[id: string]: {[id: string]: string}}) {
     userin = userin || req.user;
     var lang = (!!userin && !!userin.company_info)? userin.company_info.lang : undefined;
     if(lang == undefined)
@@ -134,7 +135,9 @@ export function i18n(str: string, req: any, userin?: any) {
             lang = 'en';
     }
     
-    if(str in strings[lang])
+    if(!!more && !!more[lang] && !!more[lang][str])
+        return more[lang][str];
+    else if(str in strings[lang])
         return strings[lang][str];
     return str;
 }
@@ -150,17 +153,17 @@ export function i18n(str: string, req: any, userin?: any) {
  * @param {User} userin For i18n.
  * @return {Object} Mail config.
  */
-export function mailConfig(to: string, subject: string, req: any, context?: {[id: string]: string}, userin?: any): any {
-    if(['reset', 'needRestore', 'otherAccount', 'createdFor', 'newVault', 'askGrant'].indexOf(subject) == -1)
+export function mailConfig(to: string, subject: string, req: any, context?: {[id: string]: any}, userin?: any): any {
+    if(mc.vendorTemplates.indexOf(subject) == -1 && mc.templates.indexOf(subject) == -1)
         return {};
     try{
         context = Object.assign({
             myURL: RUNNING_ADDR
-        }, context);
+        }, context || {});
         var ret = {
             from: 'Whigi - WiSSL <' + MAIL_ADDR + '>',
             to: '<' + to + '>',
-            subject: i18n(mc[subject + 'Subject'], req, userin)
+            subject: i18n(mc[subject + 'Subject'], req, userin, context['i18n'])
         };
         var template: string = fs.readFileSync(path.join(__dirname, 'mails/' + mc[subject + 'HTML']), 'utf8'), parsed = template;
 
@@ -170,7 +173,7 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
         while(match != null) {
             match[1] = match[1].trim();
             if(/^['"].*['"]$/.test(match[1]))
-                by = i18n(match[1].substr(1, match[1].length - 2), req, userin);
+                by = i18n(match[1].substr(1, match[1].length - 2), req, userin, context['i18n']);
             else
                 by = context[match[1]] || '???';
             parsed = parsed.substr(0, match.index + shift) + by + parsed.substr(match.index + match[0].length + shift);

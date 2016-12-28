@@ -372,11 +372,11 @@ export function regVault(req, res, respond?: boolean): Promise {
                         if(!!req.body.mail) {
                             //Send mail, maybe?
                             utils.mailUser(sharee._id, db, function(mail: string) {
-                                mailer.sendMail(utils.mailConfig(mail, 'newVault', req, {
+                                mailer.sendMail(utils.mailConfig(mail, req.body.template || 'newVault', req, Object.assign({
                                     requester: req.user._id,
                                     given_url: req.body.mail,
                                     share: v._id
-                                }, sharee), function(e, i) {});
+                                }, req.body.templateContext || {}), sharee), function(e, i) {});
                             });
                         }
                         if(v.data_crypted_aes.indexOf('datafragment') == 0 && !!req.query.key) {
@@ -810,10 +810,10 @@ export function removeAny(req, res) {
  */
 export function askGrants(req, res) {
     function complete(u: User, mail: string, given_url: string) {
-        mailer.sendMail(utils.mailConfig(mail, 'askGrant', req, {
+        mailer.sendMail(utils.mailConfig(mail, req.body.template || 'askGrant', req, Object.assign({
             requester: req.user._id,
             given_url: given_url
-        }, u), function(e, i) {});
+        }, req.body.templateContext || {}), u), function(e, i) {});
     }
 
     var gurl: string = utils.RUNNING_ADDR + '/account/' + req.user._id;
@@ -828,7 +828,7 @@ export function askGrants(req, res) {
     gurl += '/' + req.body.expire + '/' + encodeURIComponent(req.body.trigger);
     if(/^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(req.body.towards)) {
         res.type('application/json').status(200).json({error: ''});
-        complete(undefined, req.body.towards, gurl);
+        complete(req.body.lang, req.body.towards, gurl);
     } else {
         utils.mailUser(req.body.towards, db, function(email, person) {
             res.type('application/json').status(200).json({error: ''});

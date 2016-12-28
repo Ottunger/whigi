@@ -1,4 +1,7 @@
 {
+    "templates": ["reset", "needRestore", "otherAccount", "createdFor", "newVault", "askGrant"],
+    "vendorTemplates": ["whigiContactsAsk"],
+
     "otherAccountSubject": "mail.subject.otherAccount",
     "resetSubject": "mail.subject.reset",
     "needRestoreSubject": "mail.subject.needRestore",
@@ -11,5 +14,8 @@
     "needRestoreHTML": "need_restore.html",
     "createdForHTML": "created_for.html",
     "newVaultHTML": "new_vault.html",
-    "askGrantHTML": "ask_grant.html"
+    "askGrantHTML": "ask_grant.html",
+
+    "whigiContactsAskSubject": "subject",
+    "whigiContactsAskHTML": "ask_grant_whigi_contacts.html"
 }
