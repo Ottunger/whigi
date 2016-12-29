@@ -154,7 +154,7 @@ export function checkOAuth(auto: boolean, mode?: number): Function {
                         }
                         res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                     } else if(mode == 1) {
-                        if(req.body.name.match(new RegExp('^' + req.user.impersonated_prefix)))
+                        if(req.body.name.match(new RegExp('^' + req.user.impersonated_prefix)) && req.user.oauth_admin)
                             next();
                         else
                             res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
