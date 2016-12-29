@@ -16,42 +16,36 @@
         "is_dated": false,
         "long_descr_key": "",
         "help_url": "",
-        "icon": "fa fa-at",
+        "icon": "fa fa-envelope-o",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.site_url",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "https://...",
                 "validateJava": "URL"
             }, {
                 "descr_key": "generics.facebook",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "john.doe",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.skype",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "john.doe",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.linkedin",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "john.doe",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.twitter",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "@johnDoe",
                 "validateJava": "TWITTER"
@@ -68,9 +62,8 @@
         "is_dated": false,
         "long_descr_key": "",
         "help_url": "",
-        "icon": "fa fa-at",
+        "icon": "fa fa-envelope-o",
         "mode": "text",
-        "enum": "",
         "json_keys": [],
         "validate": "return ngData.checking.isEmail(test);",
         "instantiable": true,
@@ -86,7 +79,6 @@
         "help_url": "",
         "icon": "fa fa-phone",
         "mode": "text",
-        "enum": "",
         "json_keys": [],
         "validate": "return ngData.checking.isPhone(test);",
         "instantiable": true,
@@ -102,30 +94,26 @@
         "help_url": "",
         "icon": "fa fa-user",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.last_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.olnames",
+                "help_url": "onames",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.ofnames",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }
@@ -141,54 +129,45 @@
         "help_url": "address",
         "icon": "fa fa-map-pin",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.careof",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.street",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.num",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.letterbox",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.more",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.postcode",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.city",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.district",
                 "mode": "text",
-                "enum": "",
                 "ifKey": "generics.country",
                 "ifCheck": "return ['United States'].indexOf(test) != -1;",
                 "required": false,
@@ -214,18 +193,15 @@
         "help_url": "",
         "icon": "fa fa-signing",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.city",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
@@ -259,12 +235,10 @@
         "help_url": "",
         "icon": "fa fa-flag-checkered",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.since",
                 "mode": "date",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
@@ -288,7 +262,6 @@
         "help_url": "identities",
         "icon": "fa fa-universal-access",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.country",
@@ -299,82 +272,69 @@
             }, {
                 "descr_key": "generics.eidNo",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "placeholder": "be: xxx-xxxxxxx-yy",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.eidFrom",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.eidTo",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.rrn",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "xx.xx.xx-xxx.xx",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.driving",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "xxxxxxxxxx",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.drivingFrom",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.drivingTo",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.permitNo",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.permitFrom",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.permitTo",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.livingNo",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.livingFrom",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.livingTo",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }
@@ -392,7 +352,6 @@
         "help_url": "",
         "icon": "fa fa-universal-access",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.issuer",
@@ -403,20 +362,17 @@
             }, {
                 "descr_key": "generics.docNo",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "placeholder": "",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.eidFrom",
                 "mode": "date",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.eidTo",
                 "mode": "date",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }
@@ -432,24 +388,20 @@
         "help_url": "banks",
         "icon": "fa fa-money",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.owner_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.other_owner_names",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.bankAddress",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -461,19 +413,16 @@
             }, {
                 "descr_key": "generics.BIC",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.IBAN",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.several_owners",
                 "mode": "checkbox",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }
@@ -493,48 +442,40 @@
         "help_url": "",
         "icon": "fa fa-users",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.picture",
                 "mode": "file",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.last_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.olnames",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.ofnames",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.deathdate",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -552,7 +493,6 @@
             }, {
                 "descr_key": "generics.dependent",
                 "mode": "checkbox",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }
@@ -561,7 +501,8 @@
         "instantiable": false,
         "descr_key": "generics.mother",
         "json_from_key": "generics.birthdate",
-        "validateJava": ""
+        "validateJava": "",
+        "can_trigger_account": true
     }],
     "family/father": [{
         "is_dated": true,
@@ -569,42 +510,35 @@
         "help_url": "",
         "icon": "fa fa-users",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.picture",
                 "mode": "file",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.last_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.ofnames",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.deathdate",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -622,7 +556,6 @@
             }, {
                 "descr_key": "generics.dependent",
                 "mode": "checkbox",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }
@@ -631,7 +564,8 @@
         "instantiable": false,
         "descr_key": "generics.father",
         "json_from_key": "generics.birthdate",
-        "validateJava": ""
+        "validateJava": "",
+        "can_trigger_account": true
     }],
     "family/children": [{
         "is_dated": true,
@@ -639,12 +573,10 @@
         "help_url": "family",
         "icon": "fa fa-users",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.picture",
                 "mode": "file",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -656,31 +588,26 @@
             }, {
                 "descr_key": "generics.last_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.ofnames",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.deathdate",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -692,7 +619,6 @@
             }, {
                 "descr_key": "generics.dependent",
                 "mode": "checkbox",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }
@@ -704,7 +630,8 @@
         "new_key_is": "generics.first_name",
         "share_as_folder": true,
         "json_from_key": "generics.birthdate",
-        "validateJava": ""
+        "validateJava": "",
+        "can_trigger_account": true
     }],
     "family/status": [{
         "is_dated": true,
@@ -725,12 +652,10 @@
         "help_url": "family",
         "icon": "fa fa-users",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.picture",
                 "mode": "file",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -742,81 +667,68 @@
             }, {
                 "descr_key": "generics.last_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.first_name",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.eidNo",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "xxx-xxxxxxx-yy",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.rrn",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "xx.xx.xx-xxx.xx",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.birthdate",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.lifeIn",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.street",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.num",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.letterbox",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.more",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.postcode",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.city",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.district",
                 "mode": "text",
-                "enum": "",
                 "ifKey": "generics.country",
                 "ifCheck": "return ['United States'].indexOf(test) != -1;",
                 "required": false,
@@ -830,7 +742,6 @@
             }, {
                 "descr_key": "generics.dependent",
                 "mode": "checkbox",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }
@@ -850,24 +761,20 @@
         "help_url": "work",
         "icon": "fa fa-podcast",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.legalName",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.lifeIn",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.lifeOut",
                 "mode": "date",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }
@@ -888,18 +795,15 @@
         "help_url": "corpos",
         "icon": "fa fa-briefcase",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.legalName",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.tradeName",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -912,7 +816,6 @@
             }, {
                 "descr_key": "generics.tax",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -924,14 +827,12 @@
             }, {
                 "descr_key": "generics.site_url",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "https://...",
                 "validateJava": "URL"
             }, {
                 "descr_key": "generics.facebook",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "mysupercompany",
                 "validateJava": ""
@@ -950,55 +851,46 @@
         "help_url": "address",
         "icon": "fa fa-map-pin",
         "mode": "json_keys",
-        "enum": "",
         "json_keys": [
             {
                 "descr_key": "generics.careof",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "placeholder": "John Doe",
                 "validateJava": ""
             }, {
                 "descr_key": "generics.street",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.num",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.letterbox",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.more",
                 "mode": "text",
-                "enum": "",
                 "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.postcode",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.city",
                 "mode": "text",
-                "enum": "",
                 "required": true,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.district",
                 "mode": "text",
-                "enum": "",
                 "ifKey": "generics.country",
                 "ifCheck": "return ['United States'].indexOf(test) != -1;",
                 "required": false,
