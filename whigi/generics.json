@@ -244,7 +244,7 @@
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
-                "enum": "countries-short",
+                "enum": "countries",
                 "required": true,
                 "validateJava": ""
             }
