@@ -169,7 +169,7 @@
                 "descr_key": "generics.district",
                 "mode": "text",
                 "ifKey": "generics.country",
-                "ifCheck": "return ['United States'].indexOf(test) != -1;",
+                "ifCheck": "return ['USA'].indexOf(test) != -1;",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -730,7 +730,7 @@
                 "descr_key": "generics.district",
                 "mode": "text",
                 "ifKey": "generics.country",
-                "ifCheck": "return ['United States'].indexOf(test) != -1;",
+                "ifCheck": "return ['USA'].indexOf(test) != -1;",
                 "required": false,
                 "validateJava": ""
             }, {
@@ -892,7 +892,7 @@
                 "descr_key": "generics.district",
                 "mode": "text",
                 "ifKey": "generics.country",
-                "ifCheck": "return ['United States'].indexOf(test) != -1;",
+                "ifCheck": "return ['USA'].indexOf(test) != -1;",
                 "required": false,
                 "validateJava": ""
             }, {
