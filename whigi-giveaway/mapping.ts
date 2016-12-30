@@ -430,6 +430,7 @@ function helios(req, res, lid: string, httpsport: number, oauth: string, dk: str
         cp -r /home/gregoire/helios-server/* /var/www/` + lid + `/ &&
         export C_FORCE_ROOT=1
         sed -i "s/.*'NAME': 'helios'.*/        'NAME': '` + lid + `',/" /var/www/` + lid + `/settings.py &&
+        sed -i "s/.*'URL_HOST' =.*/URL_HOST = get_from_env('URL_HOST', 'https:\/\/` + lid + `.envict.com')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_USER_ID =.*/WHIGI_USER_ID = get_from_env('WHIGI_USER_ID', '` + lid + `')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_OAUTH_TOKEN =.*/WHIGI_OAUTH_TOKEN = get_from_env('WHIGI_OAUTH_TOKEN', '` + oauth + `')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_DK =.*/WHIGI_DK = get_from_env('WHIGI_DK', '` + dk + `')/" /var/www/` + lid + `/settings.py &&
@@ -437,8 +438,10 @@ function helios(req, res, lid: string, httpsport: number, oauth: string, dk: str
         sed -i "s/.*WHIGI_HOST =.*/WHIGI_HOST = get_from_env('WHIGI_HOST', 'https:\/\/` + lid + `.envict.com')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_CREATOR_ACCOUNTS =.*/WHIGI_CREATOR_ACCOUNTS = get_from_env('WHIGI_CREATOR_ACCOUNTS', '` + lid + `')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_TRUSTEES_ACCOUNTS =.*/WHIGI_TRUSTEES_ACCOUNTS = get_from_env('WHIGI_TRUSTEES_ACCOUNTS', '` + lid + `')/" /var/www/` + lid + `/settings.py &&
-        nohup python /var/www/` + lid + `/manage.py celeryd & &&
-        nohup python /var/www/` + lid + `/manage.py runserver ` + httpsport + ` &
+        cd /var/www/` + lid + `/ &&
+        bash reset.sh &&
+        nohup python manage.py celeryd & &&
+        nohup python manage.py runserver ` + httpsport + ` &
     `, function(err, stdout, stderr) {
         if(err) {
             console.log('Cannot complete OPs:\n' + stderr);
