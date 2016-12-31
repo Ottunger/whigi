@@ -432,7 +432,8 @@
         "descr_key": "generics.bank",
         "new_key": [],
         "new_keys_only": false,
-        "validateJava": "ACCOUNT"
+        "validateJava": "ACCOUNT",
+        "transform": "var obj = JSON.parse(test); for(var i = 0; i < obj.length; i++) {var ins = JSON.parse(obj[i].value); ins['generics.IBAN'] = ins['generics.IBAN'].toUpperCase().replace(/ /g, ''); obj[i].value = JSON.stringify(ins);} return JSON.stringify(obj);"
     }],
 
 
