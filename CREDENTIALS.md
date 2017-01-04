@@ -28,3 +28,6 @@ Whici CC/RLI Common key
 MapQuest:
 	account: ??? (Ottunger / ???)
 	key: 2K6TBGZx4CJCyoW7WARDUr7uII0PU4JA
+Paypal:
+	sandbox: 'Ab1nQtpjUsjHLacxp12lcTHwJte7Eo4mu90KnGskaqeV3dSdJuaVKNtulPH0bVvvNYmggghGmW4qkjUB',
+	production: 'AZRFFe5p-BPGJAOumTbKn236C4TXj0soTWJutS1uhqAZiQpfI-jF2GGgE4-l8l-o4-QPkQGls3g0AfJr'

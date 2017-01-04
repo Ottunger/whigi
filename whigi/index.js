@@ -88,6 +88,10 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/eid\/bce\/[0-9]{10}\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/nominatim\/.+\.php?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/payed\/[a-zA-Z0-9%]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     //-----
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
@@ -303,6 +307,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/token/new', pauth);
     app.delete('/api/v:version/profile/token', pauth);
     app.get('/api/v:version/eid/bce/:bce', pauth);
+    app.post('/api/v:version/nominatim/:php', pauth);
     //-----
     app.get('/api/v:version/data/:id', pauth);
     app.get('/api/v:version/data/byname/:name', pauth);
@@ -392,6 +397,8 @@ connect(function(e) {
     app.post('/api/v:version/eid/callback', body.urlencoded({extended: true}));
     app.post('/api/v:version/eid/callback', user.goCompany9);
     app.get('/api/v:version/eid/bce/:bce', user.goBCE);
+    app.post('/api/v:version/nominatim/:php', user.nominatim);
+    app.get('/api/v:version/payed/:for', user.payed);
     //------
     app.get('/api/v:version/data/:id', data.getData);
     app.get('/api/v:version/data/byname/:name', data.getDataByName);

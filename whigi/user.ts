@@ -6,6 +6,7 @@
 
 'use strict';
 declare var require: any
+var http = require('http');
 var https = require('https');
 var ndm = require('nodemailer');
 var utils = require('../utils/utils');
@@ -577,13 +578,14 @@ export function contData(req, res) {
  * @param {Request} req The request.
  * @param {Response} res The response.
  * @param {Boolean} respond Whether to answer in res.
+ * @param {Boolean} force above Whigi.
  * @return {Promise} When completed.
  */
-export function recData(req, res, respond?: boolean): Promise {
+export function recData(req, res, respond?: boolean, force?: boolean): Promise {
     var got = req.body;
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
-        if(checks.isWhigi(req.user._id)) {
+        if(checks.isWhigi(req.user._id) && force !== true) {
             if(respond === true)
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 reject();
@@ -642,7 +644,7 @@ export function recData(req, res, respond?: boolean): Promise {
                 req.user.persist().then(function() {
                     if(respond === true)
                         res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid, decr_aes: newaes});
-                    resolve(req.pass);
+                    resolve(newid);
                 }, function(e) {
                     if(respond === true)
                         res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
@@ -1202,4 +1204,96 @@ export function removeOAuth(req, res) {
     }, function(e) {
         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
+}
+
+/**
+ * Use nominatim transparently if connected.
+ * @function nominatim
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function nominatim(req, res) {
+    var options = {
+        host: 'localhost',
+        port: 9000,
+        path: '/' + req.params.php,
+        method: 'POST',
+        headers: {}
+    };
+    var data = JSON.stringify(req.body);
+    options.headers['Content-Type'] = 'application/json';
+    options.headers['Content-Length'] = Buffer.byteLength(data);
+    var ht = http.request(options, function(result) {
+        var r = '';
+        result.on('data', function(chunk) {
+            r += chunk;
+        });
+        result.on('end', function() {
+            res.type('application/json').status(200).json(r);
+        });
+    }).on('error', function(err) {
+        res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+    });
+    ht.write(data);
+    ht.end();
+}
+
+/**
+ * Receive a message for payment.
+ * @function payed
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function payed(req, res) {
+    var forpath = decodeURIComponent(req.params.for);
+    console.log(req.query);
+    console.log(req.params);
+    console.log(req.body);
+    if(true) {
+        db.retrieveUser('whigi-wissl').then(function(whigi) {
+            var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + whigi.salt), whigi);
+            var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+            var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(whigi.rsa_pri_key[0]));
+            recData({
+                user: whigi,
+                body: {
+                    name: forpath + '/' + req.body.user,
+                    decr_data: req.body.amount,
+                    key: btoa(utils.arr2str(master_key)),
+                    is_bound: true,
+                    is_dated: false,
+                    version: 0
+                }
+            }, {}, false, true).then(function(newid: string) {
+                data.regVault({
+                    user: whigi,
+                    body: {
+                        shared_to_id: req.body.user,
+                        real_name: forpath + '/' + req.body.user,
+                        data_name: forpath,
+                        trigger: '',
+                        expire_epoch: 0,
+                        aes_crypted_shared_pub: '',
+                        data_crypted_aes: newid,
+                        version: 0
+                    },
+                    query: {
+                        key: rsa_key
+                    }
+                }, {}, false).then(function() {
+                    res.type('application/json').status(200).json({error: ''});
+                }, function(e) {
+                    res.type('application/json').status(200).json({error: ''});
+                });
+            }, function(e) {
+                res.type('application/json').status(200).json({error: ''});
+            });
+        }, function(e) {
+            res.type('application/json').status(200).json({error: ''});
+        });
+    } else {
+        res.type('application/json').status(200).json({error: ''});
+    }
 }

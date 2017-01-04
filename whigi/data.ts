@@ -424,7 +424,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                                 }
                                 sharee.shared_with_me[req.user._id][v.data_name] = v._id;
                                 for(var i = 0; i < 10 && i < got.links.length; i++) {
-                                    if(!got.links[i] in sharee.shared_with_me) {
+                                    if(!(got.links[i] in sharee.shared_with_me)) {
                                         sharee.shared_with_me[req.user._id][got.links[i]] = v._id;
                                         v.links.push(got.links[i]);
                                     }

@@ -18,7 +18,7 @@ Whigi repo is actually a collection of projects working for the Whigi project in
 
 
 # Installation of Whigi and Standalone client
-All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS providers, often over 4443, whereas Whigi, Whigi-restore and Whigi-giveaway are behind nginx.
+All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS providers, often over 443, whereas Whigi, Whigi-restore and Whigi-giveaway are behind nginx.
 - Clone the gitlab repository.
 - Make sure to have installed node=4.7.X, mongo=3.2.X, nginx>=1.6.X. (A how to can be found in whigi-giveaway/README.md)
 - Modify the nginx.conf package to specify where you cloned your repo and the path to logs. Be careful where the HTTPS endpoint is! Especially if running several nginx in chain.
@@ -39,6 +39,16 @@ All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS p
   - sudo apt-get update && sudo apt-get install init-system-helpers socat esl-erlang && sudo apt-get install rabbitmq-server
   - The RabbitMQ broker should be clustered, and publicly available at an IP/name stated in endpoints.json
 - Launch Whigi-restore/Whigi-giveaway and Whigi-RLI/Whigi-CC if desired. They cannot run on the machine as they will listen on port 443!: nohup npm run whigi-XXX &
+- Whigi-adverts requires nominatim, so Whigi can create a nominamtim (after). You will also need to setup a PayPal account with the good webhooks!
+  - sudo apt-get install build-essential libxml2-dev libpq-dev libbz2-dev libtool automake libproj-dev libboost-dev libboost-system-dev libboost-filesystem-dev libboost-thread-dev libexpat-dev gcc proj-bin libgeos-c1 libgeos++-dev libexpat-dev php5 php-pear php5-pgsql php5-json php-db php5-fpm postgresql postgis postgresql-contrib postgresql-9.3-postgis-2.1 postgresql-server-dev-9.3 wget
+  - wget http://www.nominatim.org/release/Nominatim-2.5.1.tar.bz2
+  - tar xvf Nominatim-2.5.1.tar.bz2
+  - rm Nominatim-2.5.1.tar.bz2 ; cd Nominatim-2.5.1 ; ./configure ; make
+  - echo "<?php @define('CONST\_Osm2pgsql\_Flatnode\_File', '/home/gregoire/.nominatim/map');" > settings/local.php
+  - sudo -u postgres createuser -s root
+  - createuser -SDR www-data
+  - ./utils/setup.php --osm-file _your-file.pbf_ --all --osm2pgsql-cache 3000 2>&1 > /dev/null
+  - ./utils/specialphrases.php --countries > data/specialphrases\_countries.sql ; psql -d nominatim -f data/specialphrases\_countries.sql
 
 # See CHANGELOG for a description of API endpoints.
 A greater description is given in the documents found in the doc folder.

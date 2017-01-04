@@ -912,6 +912,68 @@
                 ]
             },
             {
+                "name": "nominatim",
+                "path": "/api/v{version}/nominatim",
+                "class": "primary",
+                "actions": [
+                    {
+                        "name": "nominatimget",
+                        "path": "/api/v{version}/nominatim/{php}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "status": "200, 600",
+                        "output": "application/json",
+                        "method": "POST",
+                        "desc": "Reach nominatim",
+                        "description": "Reach nominatim if auth is OK.",
+                        "pathing": {
+                            "php": {
+                                "type": "string",
+                                "description": "The function to call to nominatim, with the trailing .php.",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "response": {
+                                "type": "object",
+                                "description": "See nominatim doc for queries and responses"
+                            },
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "payed",
+                "path": "/api/v{version}/payed",
+                "class": "primary",
+                "actions": [
+                    {
+                        "name": "payedget",
+                        "path": "/api/v{version}/payed/{for}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "status": "200",
+                        "output": "application/json",
+                        "method": "GET",
+                        "desc": "Callback for payments",
+                        "description": "Callback from PayPal.",
+                        "pathing": {
+                            "for": {
+                                "type": "string",
+                                "description": "A URL encoded path to grant the proof on",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "Will always be empty"
+                            },
+                        }
+                    }
+                ]
+            },
+            {
                 "name": "data",
                 "path": "/api/v{version}/data",
                 "class": "primary",

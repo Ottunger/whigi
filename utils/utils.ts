@@ -141,7 +141,7 @@ export function regPuzzle(puzzle: string): string {
 export function i18n(str: string, req: any, userin?: any, more?: {[id: string]: {[id: string]: string}}) {
     userin = userin || req.user;
     var lang = (!!userin && !!userin.company_info)? userin.company_info.lang : undefined;
-    if(lang == undefined)
+    if(lang == undefined && !!req.get)
         lang = req.get('Accept-Language');
     if(lang == undefined)
         lang = 'en';
