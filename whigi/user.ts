@@ -578,14 +578,13 @@ export function contData(req, res) {
  * @param {Request} req The request.
  * @param {Response} res The response.
  * @param {Boolean} respond Whether to answer in res.
- * @param {Boolean} force above Whigi.
  * @return {Promise} When completed.
  */
-export function recData(req, res, respond?: boolean, force?: boolean): Promise {
+export function recData(req, res, respond?: boolean): Promise {
     var got = req.body;
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
-        if(checks.isWhigi(req.user._id) && force !== true) {
+        if(checks.isWhigi(req.user._id) && req.whigiforce !== true) {
             if(respond === true)
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 reject();
@@ -1264,9 +1263,10 @@ export function payed(req, res) {
                     key: btoa(utils.arr2str(master_key)),
                     is_bound: true,
                     is_dated: false,
-                    version: 0
+                    version: 0,
+                    whigiforce: true
                 }
-            }, {}, false, true).then(function(newid: string) {
+            }, {}, false).then(function(newid: string) {
                 data.regVault({
                     user: whigi,
                     body: {

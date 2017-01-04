@@ -44,10 +44,11 @@ All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS p
   - wget http://www.nominatim.org/release/Nominatim-2.5.1.tar.bz2
   - tar xvf Nominatim-2.5.1.tar.bz2
   - rm Nominatim-2.5.1.tar.bz2 ; cd Nominatim-2.5.1 ; ./configure ; make
-  - echo "<?php @define('CONST\_Osm2pgsql\_Flatnode\_File', '/home/gregoire/.nominatim/map');" > settings/local.php
+  - wget http://download.geofabrik.de/europe/belgium-latest.osm.pbf
+  - mkdir -p /home/gregoire/.nominatim ; echo "<?php @define('CONST\_Osm2pgsql\_Flatnode\_File', '/home/gregoire/.nominatim/map');" > settings/local.php
   - sudo -u postgres createuser -s root
   - createuser -SDR www-data
-  - ./utils/setup.php --osm-file _your-file.pbf_ --all --osm2pgsql-cache 3000 2>&1 > /dev/null
+  - ./utils/setup.php --osm-file belgium-latest.osm.pbf --all --osm2pgsql-cache 3000 2>&1 > /dev/null
   - ./utils/specialphrases.php --countries > data/specialphrases\_countries.sql ; psql -d nominatim -f data/specialphrases\_countries.sql
 
 # See CHANGELOG for a description of API endpoints.
