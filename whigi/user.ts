@@ -44,6 +44,11 @@ export function managerInit(dbg: Datasource) {
     rsa = new RSAPool(10, 1024, false);
     oid = {};
     size = 0;
+    User.trgs = [];
+    for(var i = 0; i < 26; i++)
+        for(var j = 1; j < 26; j++)
+            for(var k = 2; k < 26; k++)
+                User.trgs.push(String.fromCharCode(97+i) + String.fromCharCode(97+j) + String.fromCharCode(97+k));
 }
 
 /**
@@ -531,6 +536,33 @@ export function someData(req, res) {
         }
         res.type('application/json').status(200).json({
             stale: stale,
+            shared_with_me: sh
+        });
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Forges the response to list some possessed data as json, or HTTP 500 code.
+ * @function contData
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function contData(req, res) {
+    var got = req.body;
+    if(!(got.discard.constructor === Array)) {
+        res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
+        return;
+    }
+    req.user.fill([], true).then(function() {
+        var sh = {}, dis = new Set(got.discard), keys = Object.getOwnPropertyNames(req.user.shared_with_me);
+        for(var i = 0; i < keys.length; i++) {
+            if(!dis.has(req.user.shared_with_me[keys[i]]))
+                sh[keys[i]] = req.user.shared_with_me[keys[i]];
+        }
+        res.type('application/json').status(200).json({
             shared_with_me: sh
         });
     }, function(e) {

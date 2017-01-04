@@ -5,6 +5,8 @@ The clients that remember a token should also remember a combination hash(passwo
 Remember that clients are authenticated using a match on hash(hash(password) + salt).
 To generate email templates for the whigi-restore, check https://html-online.com/editor/.
 
+=>Careful: Whigi-giveaway, Whigi-restore and Whigi-advert cannot run on Windows!
+
 # Projects
 Whigi repo is actually a collection of projects working for the Whigi project initially. Larger 3rd parties shall start a new project on their own.
 - Whigi @whigi: Manages the backend of the storage solution
@@ -12,6 +14,7 @@ Whigi repo is actually a collection of projects working for the Whigi project in
 - Whigi-restore @whigi-restore: Manages a small 3rd party to restore user's passwords.
 - Whigi-RLI @whigi-rli: Network nodes to provide Whigi redundancy.
 - Whigi-CC @whigi-cc: Another form of redundancy based on Captain Cook.
+- Whigi-advert @whigi-advert: A collector for ethical ads.
 
 
 # Installation of Whigi and Standalone client

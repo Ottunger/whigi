@@ -113,6 +113,22 @@ export function loopOn(array: any[], apply: Function, callin: Function, callback
 }
 
 /**
+ * Solves the server puzzle, then return a string for it.
+ * @function regPuzzle
+ * @private
+ * @param {String} puzzle Challenge.
+ * @return {String} Puzzle solution.
+ */
+export function regPuzzle(puzzle: string): string {
+    var i = 0, complete;
+    do {
+        complete = hash.sha256(puzzle + i);
+        i++;
+    } while(complete.charAt(0) != '0' || complete.charAt(1) != '0' || complete.charAt(2) != '0');
+    return '?puzzle=' + (i - 1);
+}
+
+/**
  * Tries to translate a string into the given language.
  * @function i18n
  * @public

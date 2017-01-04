@@ -62,6 +62,8 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/data\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/profile\/data\/discard\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/data\/new\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/user\/.+\/?$/))
@@ -294,6 +296,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/info3', pauth);
     app.get('/api/v:version/profile/data', pauth);
     app.post('/api/v:version/profile/data', pauth);
+    app.post('/api/v:version/profile/data/discard', pauth);
     app.post('/api/v:version/profile/data/new', pauth);
     app.post('/api/v:version/profile/update', pauth);
     app.post('/api/v:version/profile/uname', pauth);
@@ -344,6 +347,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/info2', checks.checkBody(['request']));
     app.post('/api/v:version/profile/info3', checks.checkBody(['lang']));
     app.post('/api/v:version/profile/data', checks.checkBody(['maybe_stale', 'needed']));
+    app.post('/api/v:version/profile/data', checks.checkBody(['discard']));
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated', 'version', 'is_bound', 'encr_aes']));
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
     app.post('/api/v:version/profile/uname', checks.checkBody(['new_username']));
@@ -356,6 +360,7 @@ connect(function(e) {
     app.post('/api/v:version/ask', checks.checkBody(['list', 'expire', 'trigger', 'towards']));
     //API LONG LIVED COMMANDS
     app.post('/api/v:version/close/:id', checks.checkPuzzle);
+    app.post('/api/v:version/profile/data/discard', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/new', checks.checkPuzzle);
     app.post('/api/v:version/profile/token/new', checks.checkPuzzle);
     //-----
@@ -373,6 +378,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/info3', user.setLang);
     app.get('/api/v:version/profile/data', user.listData);
     app.post('/api/v:version/profile/data', user.someData);
+    app.post('/api/v:version/profile/data/discard', user.contData);
     app.post('/api/v:version/profile/data/new', user.recData);
     app.post('/api/v:version/profile/update', user.updateUser);
     app.post('/api/v:version/profile/uname', user.changeUsername);

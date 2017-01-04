@@ -54,6 +54,7 @@ export class User extends IModel {
     public impersonated_prefix: string;
     public oauth_admin: boolean;
     private trigrams: {[id: string]: More};
+    static trgs: string[];
     
     /**
      * Create a User from a bare database description.
@@ -142,18 +143,23 @@ export class User extends IModel {
      * @function fill
      * @public
      * @param {Array} names Names to add for split shares.
+     * @param {Boolean} full Force completely full.
      * @return A promise when ready.
      */
-    fill(names?: string[]) {
+    fill(names?: string[], full?: boolean) {
         var self = this;
         names = names || [];
 
         return new Promise(function(resolve, reject) {
             function populate(names: string[]) {
                 var needed = {}, keys: string[], done = 0;
-                for(var i = 0; i < names.length; i++)
-                    needed[names[i].substr(0, 3)] = true;
-                keys = Object.getOwnPropertyNames(needed);
+                if(full !== true) {
+                    for(var i = 0; i < names.length; i++)
+                        needed[names[i].substr(0, 3)] = true;
+                    keys = Object.getOwnPropertyNames(needed);
+                } else {
+                    keys = User.trgs;
+                }
                 for(var i = 0; i < keys.length; i++) {
                     if(keys[i] in self.shared_with_me['whigi-system']) {
                         self.db.retrieveGeneric('users', {_id: self.shared_with_me['whigi-system'][keys[i]]}, {none: false}).then(function(add: More) {
@@ -189,7 +195,7 @@ export class User extends IModel {
                         self.shared_with_me = user.shared_with_me;
                     else
                         self.shared_with_me = {};
-                    if(!('whigi-system' in self.shared_with_me) || names.length == 0)
+                    if(!('whigi-system' in self.shared_with_me) || (names.length == 0 && full !== true))
                         resolve();
                     else
                         populate(names);
@@ -332,7 +338,8 @@ export class User extends IModel {
             oauth: this.oauth,
             sha_master: this.sha_master,
             cert: this.cert,
-            hidden_id: this.hidden_id
+            hidden_id: this.hidden_id,
+            impersonated_prefix: this.impersonated_prefix
         };
         return ret;
     }

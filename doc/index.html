@@ -481,6 +481,34 @@
                         }
                     },
                     {
+                        "name": "profiledatap2",
+                        "path": "/api/v{version}/user/profile/data/discard",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "output": "application/json",
+                        "status": "200, 400, 500",
+                        "method": "POST",
+                        "desc": "Retrieve some own data",
+                        "description": "Retrieve list shared data, for users not in submitted list.",
+                        "post": {
+                            "discard": {
+                                "type": "array",
+                                "description": "An array of people we do not want",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "shared_with_me": {
+                                "type": "object",
+                                "description": "Object indexed by sharer for those asked, of data names that point to vault ID"
+                            }
+                        }
+                    },
+                    {
                         "name": "profiledatanew",
                         "path": "/api/v{version}/user/profile/data/new",
                         "auth": "YES",

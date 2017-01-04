@@ -25,3 +25,6 @@ MySQL for giveaway
 	root pass: abcdefgh
 Whici CC/RLI Common key
 	key: c087Mr2tHL4RXjxU49Fs8XOvQ5EWVZqAeuErxqdO
+MapQuest:
+	account: ??? (Ottunger / ???)
+	key: 2K6TBGZx4CJCyoW7WARDUr7uII0PU4JA
