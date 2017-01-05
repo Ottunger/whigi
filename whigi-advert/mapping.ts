@@ -50,7 +50,7 @@ export function managerInit(ua: string, dbs: any) {
                                     [bl, tr],
                                     [bl, tl]
                                 ]]};
-                                db.collection('campaigns').update({_id: cmp._id}, cmp, {upsert: true}).then(console.log, console.log);
+                                db.collection('campaigns').update({_id: cmp._id}, cmp, {upsert: true});
                                 setTimeout(function() {
                                     db.collection('campaigns').remove({_id: cmp._id});
                                 }, when);

@@ -514,7 +514,7 @@ export function regVault(req, res, respond?: boolean): Promise {
                     params: {vault_id: whigi.data['payments/' + topay[got.shared_to_id] + '/' + req.user._id].shared_to[req.user._id]}
                 }, {}, false).then(function() {
                     whigi.data['payments/' + topay[got.shared_to_id] + '/' + req.user._id].shared_to = {};
-                    db.retrieveUser(req.user._id, true).then(function(now) {console.log(now.shared_with_me);
+                    db.retrieveUser(req.user._id, true).then(function(now) {
                         req.user = now;
                         //Archive the payment
                         renameData({
