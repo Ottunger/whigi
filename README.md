@@ -50,6 +50,7 @@ All Whigi instances run over HTTPS. Whigi-CC and Whigi-RLI are their own HTTPS p
   - createuser -SDR www-data
   - ./utils/setup.php --osm-file belgium-latest.osm.pbf --all --osm2pgsql-cache 3000 2>&1 > /dev/null
   - ./utils/specialphrases.php --countries > data/specialphrases\_countries.sql ; psql -d nominatim -f data/specialphrases\_countries.sql
+  - mkdir -m 755 /var/www/nominatim ; ./utils/setup.php --create-website /var/www/nominatim
 
 # See CHANGELOG for a description of API endpoints.
 A greater description is given in the documents found in the doc folder.

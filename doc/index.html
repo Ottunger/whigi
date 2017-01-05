@@ -949,14 +949,50 @@
                 "actions": [
                     {
                         "name": "payedget",
-                        "path": "/api/v{version}/payed/{for}",
-                        "auth": "NO",
+                        "path": "/api/v{version}/payed/{for}/{pid}",
+                        "auth": "YES",
                         "puzzle": "NO",
-                        "status": "200",
+                        "status": "200, 403, 500, 600",
                         "output": "application/json",
                         "method": "GET",
                         "desc": "Callback for payments",
                         "description": "Callback from PayPal.",
+                        "pathing": {
+                            "for": {
+                                "type": "string",
+                                "description": "A URL encoded path to grant the proof on",
+                                "required": true
+                            },
+                            "pid": {
+                                "type": "string",
+                                "description": "Payment to execute",
+                                "required": true
+                            }
+                        },
+                        "post": {
+                            "payer_id": {
+                                "type": "string",
+                                "description": "The payer ID",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                        }
+                    },
+                    {
+                        "name": "payedinitget",
+                        "path": "/api/v{version}/payed/init/begin/{for}",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "status": "200, 400, 500, 600",
+                        "output": "application/json",
+                        "method": "GET",
+                        "desc": "Request for payment",
+                        "description": "Ask the server to create a payment to the API.",
                         "pathing": {
                             "for": {
                                 "type": "string",
@@ -967,7 +1003,7 @@
                         "response": {
                             "error": {
                                 "type": "string",
-                                "description": "Will always be empty"
+                                "description": "An error message, translated, if any"
                             },
                         }
                     }
@@ -1170,7 +1206,7 @@
                         "description": "Create a simlink for a share on the granted side, so that the same data can be at several locations.",
                         "post": {
                             "vault_id": {
-                                "type": "String",
+                                "type": "string",
                                 "description": "The vault ID on which to act",
                                 "required": true
                             },
@@ -1201,7 +1237,7 @@
                         "status": "201, 400, 403, 404, 412, 500",
                         "method": "POST",
                         "desc": "Create a share",
-                        "description": "Create a new share. When asking the server to perform encryption, send the plain AES key in query parameters.",
+                        "description": "Create a new share. When asking the server to perform encryption, send the plain AES key in query parameters. If the sharee is expecting payments to accept shares, make sure to have credited whigi-wissl first.",
                         "query": {
                             "key": {
                                 "type": "string",

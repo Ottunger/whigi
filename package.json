@@ -50,8 +50,8 @@
   "scripts": {
     "serve": "cp --force nginx.conf /etc/nginx/sites-available/whigi && rm -f /etc/nginx/sites-enabled/whigi && ln -s /etc/nginx/sites-available/whigi /etc/nginx/sites-enabled/whigi && service nginx restart",
     "serve-giveaway": "cp --force whigi-giveaway/nginx.conf /etc/nginx/sites-available/whigi-giveaway && rm -f /etc/nginx/sites-enabled/whigi-giveaway && ln -s /etc/nginx/sites-available/whigi-giveaway /etc/nginx/sites-enabled/whigi-giveaway && service nginx restart",
-    "whigi": "node whigi/index.js 8080 whigi2-demo.envict.com whigi2-restore.envict.com whigi.com@gmail.com false false /root/Whigi",
-    "whigi-dev": "node whigi/index.js 443 localhost localhost:444 whigi.com@gmail.com true true /root/Whigi",
+    "whigi": "node whigi/index.js 8080 whigi2-demo.envict.com whigi2-restore.envict.com whigi.com@gmail.com false false /root/Whigi ./endpoints.json false",
+    "whigi-dev": "node whigi/index.js 443 localhost localhost:444 whigi.com@gmail.com true true /root/Whigi ./endpoints.json true",
     "whigi-restore": "node whigi-restore/index.js 8081 whigi2-restore.envict.com whigi2-demo.envict.com whigi.com@gmail.com false false",
     "whigi-restore-dev": "node whigi-restore/index.js 444 localhost localhost whigi.com@gmail.com true true",
     "whigi-advert-world": "node whigi-advert/index.js 8090 whigi2-advert-world.envict.com whigi2-demo.envict.com whigi.com@gmail.com false false whigi-advert-world",

@@ -18,7 +18,7 @@ import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
 import {IModel} from '../common/models/IModel';
 var fupt = require('../common/cdnize/full-update_pb');
-var mailer, last = 0;
+var mailer, last = 0, topay: {[id: string]: string} = require('./payed.json');
 var db: Datasource;
 
 /**
@@ -130,37 +130,57 @@ export function getDataByName(req, res) {
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.
+ * @param {Boolean} respond Should respond.
+ * @return {Promise} When complete.
  */
-export function renameData(req, res) {
+export function renameData(req, res, respond): Promise {
     var old = decodeURIComponent(req.params.name), now = decodeURIComponent(req.params.now);
-    req.user.fill().then(function() {
-        if(!(old in req.user.data)) {
-            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+    return new Promise(function(resolve, reject) {
+        if(checks.isWhigi(req.user._id) && req.whigiforce !== true) {
+            if(respond === true)
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+            reject();
             return;
         }
-        if(now in req.user.data) {
-            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-            return;
-        }
-        req.user.data[now] = req.user.data[old];
-        delete req.user.data[old];
-        req.user.persist().then(function() {
-            res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
-            //Now transfer to vaults
-            var keys = Object.getOwnPropertyNames(req.user.data[now].shared_to);
-            keys.forEach(function(key) {
-                db.retrieveVault(req.user.data[now].shared_to[key]).then(function(v: Vault) {
-                    if(!!v) {
-                        v.real_name = now;
-                        v.persist();
-                    }
+        req.user.fill().then(function() {
+            if(!(old in req.user.data)) {
+                if(respond === true)
+                    res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+                reject();
+                return;
+            }
+            if(now in req.user.data) {
+                if(respond === true)
+                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                reject();
+                return;
+            }
+            req.user.data[now] = req.user.data[old];
+            delete req.user.data[old];
+            req.user.persist().then(function() {
+                if(respond === true)
+                    res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
+                resolve();
+                //Now transfer to vaults
+                var keys = Object.getOwnPropertyNames(req.user.data[now].shared_to);
+                keys.forEach(function(key) {
+                    db.retrieveVault(req.user.data[now].shared_to[key]).then(function(v: Vault) {
+                        if(!!v) {
+                            v.real_name = now;
+                            v.persist();
+                        }
+                    });
                 });
+            }, function(e) {
+                if(respond === true)
+                    res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                reject();
             });
         }, function(e) {
-            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+            if(respond === true)
+                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+            reject();
         });
-    }, function(e) {
-        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
     });
 }
 
@@ -204,6 +224,11 @@ export function triggerVaults(req, res) {
 export function removeData(req, res, respond?: boolean) {
     var name = decodeURIComponent(req.params.data_name);
     respond = respond !== false;
+    if(checks.isWhigi(req.user._id)) {
+        if(respond === true)
+            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+        return;
+    }
     req.user.fill().then(function() {
         if(name in req.user.data) {
             if(respond === true && Object.getOwnPropertyNames(req.user.data[name].shared_to).length != 0) {
@@ -288,153 +313,148 @@ export function regVault(req, res, respond?: boolean): Promise {
     var got = req.body;
     got.links = got.links || [];
     respond = respond !== false;
-    var storable = (typeof got.storable !== undefined && got.storable === true);
+    var storable = got.storable === true;
     return new Promise(function(resolve, reject) {
-        if(got.shared_to_id.toLowerCase() == 'whigi-dev-null') {
-            if(respond === true)
-                res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: null});
-                resolve();
-            return;
-        }
-        if(storable && checks.isWhigi(got.shared_to_id)) {
-            if(respond === true)
-                res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
-                reject();
-            return;
-        }
-        got.data_name = got.data_name.replace(/\./g, '_');
-        got.real_name = got.real_name.replace(/\./g, '_'); //Should already be done...
-        if(got.data_name.length > 127) {
-            if(respond === true)
-                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                reject();
-            return;
-        }
-        req.user.fill().then(function() {
-            if(!(got.real_name in req.user.data)) {
+        //The handler
+        function complete() {
+            got.data_name = got.data_name.replace(/\./g, '_');
+            got.real_name = got.real_name.replace(/\./g, '_'); //Should already be done...
+            if(got.data_name.length > 127) {
                 if(respond === true)
-                    res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
-                reject();
-            } else {
-                if(got.shared_to_id.toLowerCase() in req.user.data[got.real_name].shared_to) {
+                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                    reject();
+                return;
+            }
+            req.user.fill().then(function() {
+                if(!(got.real_name in req.user.data)) {
                     if(respond === true)
-                        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id.toLowerCase()], new: false});
+                        res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
                     reject();
                 } else {
-                    //Cannot create a storable vault if we are trying to create a bound vault
-                    if(storable && got.data_crypted_aes.indexOf('datafragment') == 0) {
+                    if(got.shared_to_id.toLowerCase() in req.user.data[got.real_name].shared_to) {
                         if(respond === true)
-                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                            res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id.toLowerCase()], new: false});
                         reject();
-                        return;
-                    }
-                    var keys = Object.getOwnPropertyNames(req.user.data[got.real_name].shared_to);
-                    //Cannot create a storable vault if vaults exist
-                    if(storable && keys.length != 0) {
-                        if(respond === true)
-                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                        reject();
-                        return;
-                    }
-                    //Cannot create a vault if a storable one exists
-                    if(keys.length == 1 && req.user.data[got.real_name].shared_to[keys[0]].indexOf('storable') == 0) {
-                        if(respond === true)
-                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                        reject();
-                        return;
-                    }
-                    var v: Vault = new Vault({
-                        _id: storable? utils.genID(['storable'], 'storable') : utils.genID(['storable']),
-                        shared_to_id: got.shared_to_id.toLowerCase(),
-                        data_name: got.data_name,
-                        aes_crypted_shared_pub: got.aes_crypted_shared_pub,
-                        data_crypted_aes: got.data_crypted_aes,
-                        sharer_id: req.user._id,
-                        last_access: 0,
-                        expire_epoch: got.expire_epoch,
-                        trigger: got.trigger.replace(/^https?:\/\//, ''),
-                        is_dated: req.user.data[got.real_name].is_dated,
-                        real_name: got.real_name,
-                        version: got.version
-                    }, db);
-                    db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
-                        if(!sharee) {
+                    } else {
+                        //Cannot create a storable vault if we are trying to create a bound vault
+                        if(storable && got.data_crypted_aes.indexOf('datafragment') == 0) {
                             if(respond === true)
-                                res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
+                                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                             reject();
                             return;
                         }
-                        v.trigger = v.trigger.replace(/:whigi_id:/g, sharee._id).replace(/:whigi_hidden_id:/g, sharee.hidden_id);
-                        if(sharee._id == req.user._id) {
-                            //Make sure only object is printed to DB
-                            sharee = req.user;
+                        var keys = Object.getOwnPropertyNames(req.user.data[got.real_name].shared_to);
+                        //Cannot create a storable vault if vaults exist
+                        if(storable && keys.length != 0) {
+                            if(respond === true)
+                                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                            reject();
+                            return;
                         }
-                        if(!!req.body.mail) {
-                            //Send mail, maybe?
-                            utils.mailUser(sharee._id, db, function(mail: string) {
-                                mailer.sendMail(utils.mailConfig(mail, req.body.template || 'newVault', req, Object.assign({
-                                    requester: req.user._id,
-                                    given_url: req.body.mail,
-                                    share: v._id
-                                }, req.body.templateContext || {}), sharee), function(e, i) {});
-                            });
+                        //Cannot create a vault if a storable one exists
+                        if(keys.length == 1 && req.user.data[got.real_name].shared_to[keys[0]].indexOf('storable') == 0) {
+                            if(respond === true)
+                                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                            reject();
+                            return;
                         }
-                        if(v.data_crypted_aes.indexOf('datafragment') == 0 && !!req.query.key) {
-                            //Bound vault from mobile
-                            try {
-                                var naes: number[] = utils.str2arr(utils.atob(req.query.key))
-                                v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
-                            } catch(e) {
+                        var v: Vault = new Vault({
+                            _id: storable? utils.genID(['storable'], 'storable') : utils.genID(['storable']),
+                            shared_to_id: got.shared_to_id.toLowerCase(),
+                            data_name: got.data_name,
+                            aes_crypted_shared_pub: got.aes_crypted_shared_pub,
+                            data_crypted_aes: got.data_crypted_aes,
+                            sharer_id: req.user._id,
+                            last_access: 0,
+                            expire_epoch: got.expire_epoch,
+                            trigger: got.trigger.replace(/^https?:\/\//, ''),
+                            is_dated: req.user.data[got.real_name].is_dated,
+                            real_name: got.real_name,
+                            version: got.version
+                        }, db);
+                        db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
+                            if(!sharee) {
                                 if(respond === true)
-                                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                                    res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
                                 reject();
                                 return;
                             }
-                        } else if(!!got.decr_data) {
-                            //Unbound vault from mobile
-                            try {
-                                var naes: number[] = utils.toBytes(utils.generateRandomString(64));
-                                v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
-                                v.data_crypted_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
-                                    .encrypt(aes.util.convertStringToBytes(got.decr_data))));
-                            } catch(e) {
-                                if(respond === true)
-                                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                                reject();
-                                return;
+                            v.trigger = v.trigger.replace(/:whigi_id:/g, sharee._id).replace(/:whigi_hidden_id:/g, sharee.hidden_id);
+                            if(sharee._id == req.user._id) {
+                                //Make sure only object is printed to DB
+                                sharee = req.user;
                             }
-                        }
-                        if(storable) {
-                            v.storable = [(!!got.store_path)? got.store_path : got.data_name];
-                        }
-                        v.persist().then(function() {
-                            req.user.data[got.real_name].shared_to[v.shared_to_id] = v._id;
-                            req.user.persist().then(function() {
-                                sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
-                                //We were already granted something to that name
-                                if(v.data_name in sharee.shared_with_me[req.user._id]) {
-                                    db.retrieveVault(sharee.shared_with_me[req.user._id][v.data_name]).then(function(ret: Vault) {
-                                        if(!!req.user.data[ret.real_name] && !!req.user.data[ret.real_name].shared_to)
-                                            delete req.user.data[ret.real_name].shared_to[sharee._id];
-                                        for(var i = 0; i < ret.links.length; i++)
-                                            delete sharee.shared_with_me[req.user._id][ret.links[i]];
-                                        req.user.persist();
-                                        ret.unlink();
-                                    });
-                                }
-                                sharee.shared_with_me[req.user._id][v.data_name] = v._id;
-                                for(var i = 0; i < 10 && i < got.links.length; i++) {
-                                    if(!(got.links[i] in sharee.shared_with_me)) {
-                                        sharee.shared_with_me[req.user._id][got.links[i]] = v._id;
-                                        v.links.push(got.links[i]);
-                                    }
-                                }
-                                if(v.links.length > 0)
-                                    v.persist();
-                                sharee.persist().then(function() {
+                            if(!!req.body.mail) {
+                                //Send mail, maybe?
+                                utils.mailUser(sharee._id, db, function(mail: string) {
+                                    mailer.sendMail(utils.mailConfig(mail, req.body.template || 'newVault', req, Object.assign({
+                                        requester: req.user._id,
+                                        given_url: req.body.mail,
+                                        share: v._id
+                                    }, req.body.templateContext || {}), sharee), function(e, i) {});
+                                });
+                            }
+                            if(v.data_crypted_aes.indexOf('datafragment') == 0 && !!req.query.key) {
+                                //Bound vault from mobile
+                                try {
+                                    var naes: number[] = req.whigiforce? req.query.key : utils.str2arr(utils.atob(req.query.key))
+                                    v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
+                                } catch(e) {
                                     if(respond === true)
-                                        res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id, new: true});
-                                    resolve();
+                                        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                                    reject();
+                                    return;
+                                }
+                            } else if(!!got.decr_data) {
+                                //Unbound vault from mobile
+                                try {
+                                    var naes: number[] = utils.toBytes(utils.generateRandomString(64));
+                                    v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
+                                    v.data_crypted_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
+                                        .encrypt(aes.util.convertStringToBytes(got.decr_data))));
+                                } catch(e) {
+                                    if(respond === true)
+                                        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                                    reject();
+                                    return;
+                                }
+                            }
+                            if(storable) {
+                                v.storable = [(!!got.store_path)? got.store_path : got.data_name];
+                            }
+                            v.persist().then(function() {
+                                req.user.data[got.real_name].shared_to[v.shared_to_id] = v._id;
+                                req.user.persist().then(function() {
+                                    sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
+                                    //We were already granted something to that name
+                                    if(v.data_name in sharee.shared_with_me[req.user._id]) {
+                                        db.retrieveVault(sharee.shared_with_me[req.user._id][v.data_name]).then(function(ret: Vault) {
+                                            if(!!req.user.data[ret.real_name] && !!req.user.data[ret.real_name].shared_to)
+                                                delete req.user.data[ret.real_name].shared_to[sharee._id];
+                                            for(var i = 0; i < ret.links.length; i++)
+                                                delete sharee.shared_with_me[req.user._id][ret.links[i]];
+                                            req.user.persist();
+                                            ret.unlink();
+                                        });
+                                    }
+                                    sharee.shared_with_me[req.user._id][v.data_name] = v._id;
+                                    for(var i = 0; i < 10 && i < got.links.length; i++) {
+                                        if(!(got.links[i] in sharee.shared_with_me)) {
+                                            sharee.shared_with_me[req.user._id][got.links[i]] = v._id;
+                                            v.links.push(got.links[i]);
+                                        }
+                                    }
+                                    if(v.links.length > 0)
+                                        v.persist();
+                                    sharee.persist().then(function() {
+                                        if(respond === true)
+                                            res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id, new: true});
+                                        resolve();
+                                    }, function(e) {
+                                        if(respond === true)
+                                            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                                        reject();
+                                    });
                                 }, function(e) {
                                     if(respond === true)
                                         res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
@@ -450,18 +470,85 @@ export function regVault(req, res, respond?: boolean): Promise {
                                 res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                             reject();
                         });
+                    }
+                }
+            }, function(e) {
+                if(respond === true)
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                reject();
+            });
+        }
+        //A bit of sanity check before doing
+        if(got.shared_to_id.toLowerCase() == 'whigi-dev-null') {
+            //Empty bin
+            if(respond === true)
+                res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: null});
+                resolve();
+            return;
+        }
+        if(checks.isWhigi(req.user._id) && req.whigiforce !== true) {
+            //Cannot create a vault as whigi account
+            if(respond === true)
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                reject();
+            return;
+        }
+        if(storable && checks.isWhigi(got.shared_to_id)) {
+            //Cannot share storable vault towards whigi accounts
+            if(respond === true)
+                res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
+                reject();
+            return;
+        }
+        if(!!topay[got.shared_to_id]) {
+            db.retrieveUser('whigi-wissl', true).then(function(whigi) {
+                if(!(('payments/' + topay[got.shared_to_id] + '/' + req.user._id) in whigi.data)) {
+                    if(respond === true)
+                        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.paying', req)});
+                        reject();
+                    return;
+                }
+                //Remove the share
+                removeVault({
+                    user: whigi,
+                    params: {vault_id: whigi.data['payments/' + topay[got.shared_to_id] + '/' + req.user._id].shared_to[req.user._id]}
+                }, {}, false).then(function() {
+                    whigi.data['payments/' + topay[got.shared_to_id] + '/' + req.user._id].shared_to = {};
+                    db.retrieveUser(req.user._id, true).then(function(now) {console.log(now.shared_with_me);
+                        req.user = now;
+                        //Archive the payment
+                        renameData({
+                            user: whigi,
+                            params: {
+                                name: encodeURIComponent('payments/' + topay[got.shared_to_id] + '/' + req.user._id),
+                                now: encodeURIComponent('payments_used/' + topay[got.shared_to_id] + '/' + req.user._id),
+                            },
+                            whigiforce: true
+                        }, {}, false).then(function() {
+                            complete();
+                        }, function(e) {
+                            if(respond === true)
+                                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                            reject();
+                        });
                     }, function(e) {
                         if(respond === true)
-                            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                         reject();
                     });
-                }
-            }
-        }, function(e) {
-            if(respond === true)
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-            reject();
-        });
+                }, function(e) {
+                    if(respond === true)
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    reject();
+                });
+            }, function(e) {
+                if(respond === true)
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                reject();
+            });
+        } else {
+            complete();
+        }
     });
 }
 
@@ -471,54 +558,75 @@ export function regVault(req, res, respond?: boolean): Promise {
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.
+ * @param {Boolean} respond Should respond.
+ * @return {Promise} When complete.
  */
-export function removeVault(req, res) {
-    function complete(v: Vault, s: User) {
-        v.unlink();
-        if(!!req.user.data[v.real_name])
-            delete req.user.data[v.real_name].shared_to[v.shared_to_id];
-        req.user.persist().then(function() {
-            res.type('application/json').status(200).json({error: ''});
-        }, function(e) {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-        });
-    }
-
-    req.user.fill().then(function() {
-        db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
-            if(!v) {
-                res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
-                return;
-            }
-            if(v.sharer_id != req.user._id || checks.isWhigi(v.shared_to_id)) {
-                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
-                return;
-            }
-            db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
-                if(!!sharee) {
-                    //Fix for self grants
-                    if(sharee._id == req.user._id)
-                        req.user = sharee;
-                    sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
-                    delete sharee.shared_with_me[req.user._id][v.data_name];
-                    for(var i = 0; i < v.links.length; i++)
-                        delete sharee.shared_with_me[req.user._id][v.links[i]];
-                    sharee.persist().then(function() {
-                        complete(v, sharee);
-                    }, function(e) {
-                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-                    });
-                } else {
-                    complete(v, undefined);
-                }
+export function removeVault(req, res, respond): Promise {
+    respond = respond !== false;
+    return new Promise(function(resolve, reject) {
+        function complete(v: Vault, s: User) {
+            v.unlink();
+            if(!!req.user.data[v.real_name])
+                delete req.user.data[v.real_name].shared_to[v.shared_to_id];
+            req.user.persist().then(function() {
+                if(respond === true)
+                    res.type('application/json').status(200).json({error: ''});
+                resolve();
             }, function(e) {
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                if(respond === true)
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                reject();
+            });
+        }
+        //Now loading...
+        req.user.fill().then(function() {
+            db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
+                if(!v) {
+                    if(respond === true)
+                        res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+                    reject();
+                    return;
+                }
+                if(v.sharer_id != req.user._id || checks.isWhigi(v.shared_to_id)) {
+                    if(respond === true)
+                        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    reject();
+                    return;
+                }
+                db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
+                    if(!!sharee) {
+                        //Fix for self grants
+                        if(sharee._id == req.user._id)
+                            req.user = sharee;
+                        sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
+                        delete sharee.shared_with_me[req.user._id][v.data_name];
+                        for(var i = 0; i < v.links.length; i++)
+                            delete sharee.shared_with_me[req.user._id][v.links[i]];
+                        sharee.persist().then(function() {
+                            complete(v, sharee);
+                        }, function(e) {
+                            if(respond === true)
+                                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                            reject();
+                        });
+                    } else {
+                        complete(v, undefined);
+                    }
+                }, function(e) {
+                    if(respond === true)
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    reject();
+                });
+            }, function(e) {
+                if(respond === true)
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                reject();
             });
         }, function(e) {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            if(respond === true)
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            reject();
         });
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
 }
 

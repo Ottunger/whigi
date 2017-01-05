@@ -29,9 +29,10 @@ var localhost = process.argv[3] || 'localhost';
 utils.RESTOREHOST = process.argv[4] || 'localhost'; 
 utils.RUNNING_ADDR = 'https://' + localhost;
 utils.MAIL_ADDR = process.argv[5] || 'whigi.com@gmail.com';
-utils.DEBUG = !!process.argv[6]? (process.argv[6] == 'true'? true : false): 'true';
+utils.DEBUG = !!process.argv[6]? (process.argv[6] == 'true'? true : false): true;
 var isHttps = !!process.argv[7]? process.argv[7] : 'true';
 utils.ENDPOINTS = !!process.argv[9]? process.argv[9] : './endpoints.json';
+utils.DEBUG_PPL = !!process.argv[10]? (process.argv[10] == 'true'? true : false): true;
 if(utils.DEBUG)
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -90,10 +91,12 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/nominatim\/.+\.php?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
-    else if(path.match(/\/api\/v[1-9]\/payed\/[a-zA-Z0-9%]+\/?$/))
+    else if(path.match(/\/api\/v[1-9]\/payed\/[a-zA-Z0-9%_]+\/[a-zA-Z0-9%\-]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/payed\/init\/begin\/[a-zA-Z0-9%\-]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     //-----
-    else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%]+\/?$/))
+    else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%\-]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/data\/byname\/[^\/]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
@@ -308,6 +311,8 @@ connect(function(e) {
     app.delete('/api/v:version/profile/token', pauth);
     app.get('/api/v:version/eid/bce/:bce', pauth);
     app.post('/api/v:version/nominatim/:php', pauth);
+    app.post('/api/v:version/payed/:for/:pid', pauth);
+    app.get('/api/v:version/payed/init/begin/:for', pauth);
     //-----
     app.get('/api/v:version/data/:id', pauth);
     app.get('/api/v:version/data/byname/:name', pauth);
@@ -359,6 +364,7 @@ connect(function(e) {
     app.post('/api/v:version/user/create', checks.checkBody(['username', 'password']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix']));
+    app.post('/api/v:version/payed/:for/:pid', checks.checkBody(['payer_id']));
     //-----
     app.post('/api/v:version/vault/link', checks.checkBody(['vault_id', 'data_name']));
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch', 'trigger', 'real_name', 'version']));
@@ -398,7 +404,8 @@ connect(function(e) {
     app.post('/api/v:version/eid/callback', user.goCompany9);
     app.get('/api/v:version/eid/bce/:bce', user.goBCE);
     app.post('/api/v:version/nominatim/:php', user.nominatim);
-    app.get('/api/v:version/payed/:for', user.payed);
+    app.post('/api/v:version/payed/:for/:pid', user.payed);
+    app.get('/api/v:version/payed/init/begin/:for', user.pay);
     //------
     app.get('/api/v:version/data/:id', data.getData);
     app.get('/api/v:version/data/byname/:name', data.getDataByName);

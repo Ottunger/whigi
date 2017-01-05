@@ -1,0 +1,43 @@
+{
+    "intent": "sale",
+    "payer": {
+        "payment_method": "paypal"
+    },
+    "transactions": [
+        {
+            "amount": {
+                "total": "12.10",
+                "currency": "EUR",
+                "details": {
+                    "subtotal": "10.00",
+                    "tax": "2.10",
+                    "shipping": "0.00",
+                    "handling_fee": "0.00",
+                    "shipping_discount": "0.00",
+                    "insurance": "0.00"
+                }
+            },
+            "description": "{{ 'advert.-pay' }}",
+            "payment_options": {
+                "allowed_payment_method": "INSTANT_FUNDING_SOURCE"
+            },
+            "soft_descriptor": "WISSL{{ invoice_nr }}",
+            "item_list": {
+                "items": [
+                    {
+                        "name": "{{ 'advert.-item' }}",
+                        "description": "{{ 'advert.-desc' }}",
+                        "quantity": "1",
+                        "price": "10.00",
+                        "tax": "2.10",
+                        "currency": "EUR"
+                    }
+                ]
+            }
+        }
+    ],
+    "redirect_urls": {
+        "return_url": "{{ return_url }}",
+        "cancel_url": "{{ cancel_url }}"
+    }
+}

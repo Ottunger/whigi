@@ -29,5 +29,6 @@ MapQuest:
 	account: ??? (Ottunger / ???)
 	key: 2K6TBGZx4CJCyoW7WARDUr7uII0PU4JA
 Paypal:
-	sandbox: 'Ab1nQtpjUsjHLacxp12lcTHwJte7Eo4mu90KnGskaqeV3dSdJuaVKNtulPH0bVvvNYmggghGmW4qkjUB',
-	production: 'AZRFFe5p-BPGJAOumTbKn236C4TXj0soTWJutS1uhqAZiQpfI-jF2GGgE4-l8l-o4-QPkQGls3g0AfJr'
+	Compte greg.mathonet@gmail.com:
+		sandbox: 'Ab1nQtpjUsjHLacxp12lcTHwJte7Eo4mu90KnGskaqeV3dSdJuaVKNtulPH0bVvvNYmggghGmW4qkjUB:EHDQFX7diKML4pMUZpdMt4-YXpC6hZSfoe885hqW4nV7VFvX1jGZqtBqwTkSnv99J3IyF0YKTPsOMk4U',
+		production: 'AZRFFe5p-BPGJAOumTbKn236C4TXj0soTWJutS1uhqAZiQpfI-jF2GGgE4-l8l-o4-QPkQGls3g0AfJr:EDlHrMZgtMStgC-MBn8x7ZcuHbzFG37SGiFSuklb_zu8Cp5uEzBqZ58nHbZZ5rJBJNFGkBamcZzOf0kT'

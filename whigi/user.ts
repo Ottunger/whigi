@@ -8,6 +8,7 @@
 declare var require: any
 var http = require('http');
 var https = require('https');
+var path = require('path');
 var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 var checks = require('../utils/checks');
@@ -23,8 +24,8 @@ import {Oauth} from '../common/models/Oauth';
 import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
 import {RSAPool} from '../utils/RSAPool';
-var mailer, oid: {[id: string]: string[]}, size: number;
-var db: Datasource;
+var mailer, oid: {[id: string]: string[]}, size: number, master_key: number[], rsa_key: string;
+var db: Datasource, ppal_token: string;
 var rsa: RSAPool;
 
 /**
@@ -43,13 +44,30 @@ export function managerInit(dbg: Datasource) {
     });
     db = dbg;
     rsa = new RSAPool(10, 1024, false);
+    //Prepare eID
     oid = {};
     size = 0;
+    //Prepare trigrams
     User.trgs = [];
     for(var i = 0; i < 26; i++)
         for(var j = 1; j < 26; j++)
             for(var k = 2; k < 26; k++)
                 User.trgs.push(String.fromCharCode(97+i) + String.fromCharCode(97+j) + String.fromCharCode(97+k));
+    //Prepare whigi-wissl
+    db.retrieveUser('whigi-wissl').then(function(whigi) {
+        master_key = utils.getMK(hash.sha256(require('./password.json').pwd + whigi.salt), whigi);
+        var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
+        rsa_key = aes.util.convertBytesToString(decrypter.decrypt(whigi.rsa_pri_key[0]));
+    }, function(e) {});
+    //Get PayPal token
+    setInterval(function() {
+        utils.paypalToken(function(token) {
+            ppal_token = token;
+        });
+    }, 12000000);
+    utils.paypalToken(function(token) {
+        ppal_token = token;
+    });
 }
 
 /**
@@ -611,7 +629,7 @@ export function recData(req, res, respond?: boolean): Promise {
                 }
             } else if(!!got.decr_data && !!got.key && got.is_bound) {
                 try {
-                    var mk = utils.str2arr(utils.atob(got.key)), newaes = utils.toBytes(utils.generateRandomString(64));
+                    var mk = req.whigiforce? got.key : utils.str2arr(utils.atob(got.key)), newaes = utils.toBytes(utils.generateRandomString(64));
                     got.encr_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(mk, new aes.Counter(0)).encrypt(newaes)));
                     got.encr_data = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(newaes, new aes.Counter(0)).encrypt(aes.util.convertStringToBytes(got.decr_data))));
                 } catch(e) {
@@ -643,7 +661,7 @@ export function recData(req, res, respond?: boolean): Promise {
                 req.user.persist().then(function() {
                     if(respond === true)
                         res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid, decr_aes: newaes});
-                    resolve(newid);
+                    resolve([newid, newaes]);
                 }, function(e) {
                     if(respond === true)
                         res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
@@ -1247,53 +1265,158 @@ export function nominatim(req, res) {
  */
 export function payed(req, res) {
     var forpath = decodeURIComponent(req.params.for);
-    console.log(req.query);
-    console.log(req.params);
-    console.log(req.body);
-    if(true) {
-        db.retrieveUser('whigi-wissl').then(function(whigi) {
-            var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + whigi.salt), whigi);
-            var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-            var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(whigi.rsa_pri_key[0]));
-            recData({
-                user: whigi,
-                body: {
-                    name: forpath + '/' + req.body.user,
-                    decr_data: req.body.amount,
-                    key: btoa(utils.arr2str(master_key)),
-                    is_bound: true,
-                    is_dated: false,
-                    version: 0,
-                    whigiforce: true
-                }
-            }, {}, false).then(function(newid: string) {
-                data.regVault({
-                    user: whigi,
-                    body: {
-                        shared_to_id: req.body.user,
-                        real_name: forpath + '/' + req.body.user,
-                        data_name: forpath,
-                        trigger: '',
-                        expire_epoch: 0,
-                        aes_crypted_shared_pub: '',
-                        data_crypted_aes: newid,
-                        version: 0
-                    },
-                    query: {
-                        key: rsa_key
-                    }
-                }, {}, false).then(function() {
-                    res.type('application/json').status(200).json({error: ''});
-                }, function(e) {
-                    res.type('application/json').status(200).json({error: ''});
-                });
-            }, function(e) {
-                res.type('application/json').status(200).json({error: ''});
-            });
-        }, function(e) {
+    var pid = req.params.pid, payer_id = req.body.payer_id;
+    db.retrieveUser('whigi-wissl', true).then(function(whigi) {
+        if(!!whigi.data['payments/' + forpath + '/' + req.user._id]) {
+            //Do not charge twice
             res.type('application/json').status(200).json({error: ''});
+            return;
+        }
+        var options = {
+            host: utils.DEBUG_PPL? 'api.sandbox.paypal.com' : 'api.paypal.com',
+            port: 443,
+            path: '/v1/payments/payment/' + pid + '/execute',
+            method: 'POST',
+            headers: {}
+        };
+        var pbody = JSON.stringify({payer_id: payer_id});
+        options.headers['Authorization'] = 'Bearer ' + ppal_token;
+        options.headers['Content-Type'] = 'application/json';
+        options.headers['Content-Length'] = Buffer.byteLength(pbody);
+        var ht = https.request(options, function(result) {
+            var r = '';
+            result.on('data', function(chunk) {
+                r += chunk;
+            });
+            result.on('end', function() {
+                var got = JSON.parse(r);
+                if(got.state != 'approved') {
+                    res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    return;
+                }
+                //Reload profile
+                db.retrieveUser('whigi-wissl').then(function(whigi) {
+                    recData({
+                        user: whigi,
+                        body: {
+                            name: 'payments/' + forpath + '/' + req.user._id,
+                            decr_data: r, /* The plaintext response from PayPal */
+                            key: master_key,
+                            is_bound: true,
+                            is_dated: false,
+                            version: 0
+                        },
+                        whigiforce: true
+                    }, {}, false).then(function(news: any[]) {
+                        data.regVault({
+                            user: whigi,
+                            body: {
+                                shared_to_id: req.user._id,
+                                real_name: 'payments/' + forpath + '/' + req.user._id,
+                                data_name: forpath,
+                                trigger: '',
+                                expire_epoch: 0,
+                                aes_crypted_shared_pub: '',
+                            data_crypted_aes: news[0],
+                                version: 0
+                            },
+                            query: {
+                                key: news[1]
+                            },
+                            whigiforce: true
+                        }, {}, false).then(function() {
+                            res.type('application/json').status(200).json({error: ''});
+                        }, function(e) {
+                            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                        });
+                    }, function(e) {
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    });
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            });
+        }).on('error', function(err) {
+            res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
         });
-    } else {
-        res.type('application/json').status(200).json({error: ''});
-    }
+        ht.write(pbody);
+        ht.end();
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
+ * Receive a request for payment.
+ * @function payed
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function pay(req, res) {
+    var forpath = decodeURIComponent(req.params.for), invoice = utils.generateRandomString(10);
+    db.retrieveUser('whigi-wissl', true).then(function(whigi) {
+        if(!!whigi.data['payments/' + forpath + '/' + req.user._id]) {
+            //Do not charge twice
+            res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
+            return;
+        }
+        var options = {
+            host: utils.DEBUG_PPL? 'api.sandbox.paypal.com' : 'api.paypal.com',
+            port: 443,
+            path: '/v1/payments/payment',
+            method: 'POST',
+            headers: {}
+        };
+        var data = utils.parser(path.join(__dirname, 'payments/' + forpath.replace(/[^\/]+\//g, '') + '.json'), req, {
+            return_url: utils.RUNNING_ADDR + '/makeadv',
+            cancel_url: utils.RUNNING_ADDR,
+            invoice_nr: invoice
+        });
+        options.headers['Authorization'] = 'Bearer ' + ppal_token;
+        options.headers['Content-Type'] = 'application/json';
+        options.headers['Content-Length'] = Buffer.byteLength(data);
+        var ht = https.request(options, function(result) {
+            var r = '';
+            result.on('data', function(chunk) {
+                r += chunk;
+            });
+            result.on('end', function() {
+                var got = JSON.parse(r);
+                if(!got.id) {
+                    res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+                    return;
+                }
+                //Reload profile
+                db.retrieveUser('whigi-wissl').then(function(whigi) {
+                    recData({
+                        user: whigi,
+                        body: {
+                            name: 'paypals/' + req.user._id + '/' + got.id,
+                            decr_data: r, /* The plaintext response from PayPal */
+                            key: master_key,
+                            is_bound: true,
+                            is_dated: false,
+                            version: 0
+                        },
+                        whigiforce: true
+                    }, {}, false).then(function(newid: string) {
+                        res.type('application/json').status(200).json({
+                            id: got.id
+                        });
+                    }, function(e) {
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                    });
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            });
+        }).on('error', function(err) {
+            res.type('application/json').status(600).json({error: utils.i18n('external.down', req)});
+        });
+        ht.write(data);
+        ht.end();
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
 }

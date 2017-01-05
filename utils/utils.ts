@@ -25,6 +25,7 @@ export var RUNNING_ADDR = '';
 export var MAIL_ADDR = '';
 export var ENDPOINTS = '';
 export var DEBUG = true;
+export var DEBUG_PPL = true;
 
 /**
  * Returns the decoded version of a string incoded as binary base64.
@@ -181,26 +182,40 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
             to: '<' + to + '>',
             subject: i18n(mc[subject + 'Subject'], req, userin, context['i18n'])
         };
-        var template: string = fs.readFileSync(path.join(__dirname, 'mails/' + mc[subject + 'HTML']), 'utf8'), parsed = template;
-
-        var rgx = /{{ ?([^}]*) ?}}/g;
-        var match = rgx.exec(template);
-        var shift = 0, by;
-        while(match != null) {
-            match[1] = match[1].trim();
-            if(/^['"].*['"]$/.test(match[1]))
-                by = i18n(match[1].substr(1, match[1].length - 2), req, userin, context['i18n']);
-            else
-                by = context[match[1]] || '???';
-            parsed = parsed.substr(0, match.index + shift) + by + parsed.substr(match.index + match[0].length + shift);
-            shift += by.length - match[0].length;
-            match = rgx.exec(template);
-        }
-        ret['html'] = parsed;
+        
+        ret['html'] = parser(path.join(__dirname, 'mails/' + mc[subject + 'HTML']), req, context, userin);
         return ret;
     } catch(e) {
         return {};
     }
+}
+
+/**
+ * Parses a template.
+ * @function parser
+ * @public
+ * @param {String} file File to load.
+ * @param {Request} req For i18n.
+ * @param {Object} context More context.
+ * @param {User} userin For i18n.
+ * @return {Object} Mail config.
+ */
+export function parser(file: string, req: any, context?: {[id: string]: any}, userin?: any): string {
+    var template: string = fs.readFileSync(file, 'utf8'), parsed = template;
+    var rgx = /{{ ?([^}]*) ?}}/g;
+    var match = rgx.exec(template);
+    var shift = 0, by;
+    while(match != null) {
+        match[1] = match[1].trim();
+        if(/^['"].*['"]$/.test(match[1]))
+            by = i18n(match[1].substr(1, match[1].length - 2), req, userin, context['i18n']);
+        else
+            by = context[match[1]] || '???';
+        parsed = parsed.substr(0, match.index + shift) + by + parsed.substr(match.index + match[0].length + shift);
+        shift += by.length - match[0].length;
+        match = rgx.exec(template);
+    }
+    return parsed;
 }
 
 /**
@@ -520,47 +535,37 @@ export function checkCaptcha(c: string, callback: Function) {
 }
 
 /**
- * Calls Whigi-restore to create a new mapping.
- * @function registerMapping
+ * Calls PayPal to get an access token.
+ * @function paypalToken
  * @public
- * @param {String} id Id.
- * @param {String} email Email.
- * @param {String} master_key Master key.
- * @param {Boolean} safe Whether to use recup_mail.
- * @param {String} recup_mail Recup mail to use.
- * @param {String} recup_mail2 Other email.
- * @param {Function} callback Callback will be called with true if error occured.
+ * @param {Function} callback Callback will be called undefined or token.
  */
-export function registerMapping(id: string, email: string, master_key: string, safe: boolean, recup_mail: string, recup_mail2: string, callback) {
-    var data = {
-        id: id,
-        email: email,
-        master_key: master_key,
-        safe: safe,
-        recup_mail: recup_mail,
-        recup_mail2: recup_mail2,
-        key: require('../common/key.json').key
-    };
+export function paypalToken(callback: Function) {
     var options = {
-        host: RESTOREHOST,
+        host: DEBUG_PPL? 'api.sandbox.paypal.com' : 'api.paypal.com',
         port: 443,
-        path: '/api/v1/new',
+        path: '/v1/oauth2/token',
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(data)
-        }
+        headers: {}
     };
-    var ht = https.request(options, function(res) {
+    var data = querystring.stringify({grant_type: 'client_credentials'});
+    options.headers['Authorization'] = 'Basic ' + new Buffer(DEBUG?
+        'Ab1nQtpjUsjHLacxp12lcTHwJte7Eo4mu90KnGskaqeV3dSdJuaVKNtulPH0bVvvNYmggghGmW4qkjUB:EHDQFX7diKML4pMUZpdMt4-YXpC6hZSfoe885hqW4nV7VFvX1jGZqtBqwTkSnv99J3IyF0YKTPsOMk4U' :
+        'AZRFFe5p-BPGJAOumTbKn236C4TXj0soTWJutS1uhqAZiQpfI-jF2GGgE4-l8l-o4-QPkQGls3g0AfJr:EDlHrMZgtMStgC-MBn8x7ZcuHbzFG37SGiFSuklb_zu8Cp5uEzBqZ58nHbZZ5rJBJNFGkBamcZzOf0kT').toString('base64');
+    options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    options.headers['Accept'] = 'application/json';
+    options.headers['Content-Length'] = Buffer.byteLength(data);
+    var ht = https.request(options, function(result) {
         var r = '';
-        res.on('data', function(chunk) {
+        result.on('data', function(chunk) {
             r += chunk;
         });
-        res.on('end', function() {
-            callback(false);
+        result.on('end', function() {
+            var got = JSON.parse(r);
+            callback(got.access_token);
         });
     }).on('error', function(err) {
-        callback(true);
+        callback();
     });
     ht.write(data);
     ht.end();
