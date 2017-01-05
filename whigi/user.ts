@@ -1231,10 +1231,11 @@ export function removeOAuth(req, res) {
  * @param {Response} res The response.
  */
 export function nominatim(req, res) {
+    var i = req.url.indexOf('?');
     var options = {
         host: 'localhost',
         port: 9000,
-        path: '/' + req.params.php,
+        path: '/' + req.params.php + (i > -1? req.url.substr(i) : ''),
         method: 'POST',
         headers: {}
     };

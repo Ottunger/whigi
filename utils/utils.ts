@@ -549,7 +549,7 @@ export function paypalToken(callback: Function) {
         headers: {}
     };
     var data = querystring.stringify({grant_type: 'client_credentials'});
-    options.headers['Authorization'] = 'Basic ' + new Buffer(DEBUG?
+    options.headers['Authorization'] = 'Basic ' + new Buffer(DEBUG_PPL?
         'Ab1nQtpjUsjHLacxp12lcTHwJte7Eo4mu90KnGskaqeV3dSdJuaVKNtulPH0bVvvNYmggghGmW4qkjUB:EHDQFX7diKML4pMUZpdMt4-YXpC6hZSfoe885hqW4nV7VFvX1jGZqtBqwTkSnv99J3IyF0YKTPsOMk4U' :
         'AZRFFe5p-BPGJAOumTbKn236C4TXj0soTWJutS1uhqAZiQpfI-jF2GGgE4-l8l-o4-QPkQGls3g0AfJr:EDlHrMZgtMStgC-MBn8x7ZcuHbzFG37SGiFSuklb_zu8Cp5uEzBqZ58nHbZZ5rJBJNFGkBamcZzOf0kT').toString('base64');
     options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
