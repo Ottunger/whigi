@@ -1,6 +1,6 @@
 /**
  * Class for generating sets that discriminate in non appartenance.
- * @module Uploader
+ * @module BloomFilter
  * @author Mathonet Grégoire
  */
 

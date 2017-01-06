@@ -13,6 +13,26 @@ var aes = require('aes-js');
 var utils = require('../utils/utils');
 var uaccount, db, profile, rsa_key;
 
+class RawAd {
+    _id: string
+    lat: string;
+    lon: string;
+    radius : string;
+    url: string;
+    topics: {[ln: string]: string};
+}
+
+class Ad {
+    _id: string;
+    lat: number;
+    lon: number;
+    who: string;
+    location: any;
+    radius : number;
+    url: string;
+    topics: {[ln: string]: string[]};
+}
+
 /**
  * Sets up the mailer before use.
  * @function managerInit
@@ -34,25 +54,36 @@ export function managerInit(ua: string, dbs: any) {
                             return;
                         //Now we have to insert a new share!
                         decryptVault(data.shared_with_me[sharer][campaign]).then(function(vault) {
-                            var cmp = JSON.parse(vault.decr_data), when = vault.expire_epoch - (new Date).getTime();
+                            var cmp: RawAd = JSON.parse(vault.decr_data), when = vault.expire_epoch - (new Date).getTime();
                             if(when > 0) {
-                                cmp.topics = cmp.topics.split(',').map(function(el) {return el.trim().toLowerCase()});
-                                cmp.who = sharer;
+                                var ad: Ad = {
+                                    _id: cmp._id,
+                                    radius: parseFloat(cmp.radius),
+                                    lat: parseFloat(cmp.lat),
+                                    lon: parseFloat(cmp.lon),
+                                    location: null,
+                                    who: sharer,
+                                    topics: {},
+                                    url: /https?:\/\//.test(cmp.url)? cmp.url : 'https://' + utils.WHIGIHOST
+                                };
+                                //i18n messages
+                                var lns = Object.getOwnPropertyNames(cmp.topics);
+                                for(var i = 0; i < lns.length; i++) {
+                                    ad.topics[lns[i]] = cmp.topics[lns[i]].split(',').map(function(el) {return el.trim().toLowerCase()}).filter(function(el) {return el.length > 3});
+                                }
                                 //We're nice, make a square
-                                cmp.radius = parseFloat(cmp.radius);
-                                cmp.lat = parseFloat(cmp.lat); cmp.lon = parseFloat(cmp.lon);
-                                var tl = cmp.lat - (cmp.radius / 110.574), tr = cmp.lat + (cmp.radius / 110.574);
-                                var bl = cmp.lon - (cmp.radius / (111.32*Math.cos(tl))), br = cmp.lon + (cmp.radius / (111.32*Math.cos(tl)));
-                                cmp.location = {type: 'Polygon', coordinates: [[
+                                var tl = ad.lat - (ad.radius / 110.574), tr = ad.lat + (ad.radius / 110.574);
+                                var bl = ad.lon - (ad.radius / (111.32*Math.cos(tl))), br = ad.lon + (ad.radius / (111.32*Math.cos(tl)));
+                                ad.location = {type: 'Polygon', coordinates: [[
                                     [bl, tl],
                                     [br, tl],
                                     [br, tr],
                                     [bl, tr],
                                     [bl, tl]
                                 ]]};
-                                db.collection('campaigns').update({_id: cmp._id}, cmp, {upsert: true});
+                                db.collection('campaigns').update({_id: ad._id}, ad, {upsert: true});
                                 setTimeout(function() {
-                                    db.collection('campaigns').remove({_id: cmp._id});
+                                    db.collection('campaigns').remove({_id: ad._id});
                                 }, when);
                             }
                         }, function(e) {/*Vault has probably expired*/});
@@ -188,7 +219,7 @@ function decryptVault(id: string): Promise {
  * @param {Response} res The response.
  */
 export function search(req, res) {
-    var points = req.body.points, terms = req.body.terms;
+    var points = req.body.points, terms = req.body.terms, lang: string = (req.body.lang || 'en' ).toString();
     if(!(points.constructor === Array)) {
         res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
         return;
@@ -212,15 +243,34 @@ export function search(req, res) {
             }
         });
     }
-    for(var i = 0; i < terms.length; i++)
-        query.$and[1].$or.push({topics: terms[i].toLowerCase()});
+    terms = terms.map(function(el) {return el.trim().toLowerCase();}).filter(function(el) {return el.length > 3});
+    for(var i = 0; i < terms.length; i++) {
+        var limitor = {}
+        limitor['topics.' + lang] = terms[i];
+        query.$and[1].$or.push(limitor);
+    }
     db.collection('campaigns').find(query).toArray().then(function(docs) {
-        docs.sort(function(a, b) {return b.topics.length - a.topics.length;});
-        res.type('application/json').status(200).json(docs.map(function(doc) {
+        function ns(a: any[], b: any[]): number {
+            var n = 0;
+            for(var i = 0; i < a.length; i++)
+                if(b.indexOf(a[i]) != -1)
+                    n++;
+            return n;
+        }
+        docs.sort(function(a, b) {
+            //If result is negtive, a is put before b.
+            var scorea = a.radius / 60, scoreb = b.radius / 60;
+            scorea += a.topics.length;
+            scoreb += b.topics.length;
+            scorea -= 2*ns(terms, a.tpoics);
+            scoreb -= 2*ns(terms, b.tpoics);
+            return scoreb - scorea;
+        });
+        res.type('application/json').status(200).json(docs.map(function(doc: Ad) {
             return {
                 who: doc.who,
                 cid: doc._id,
-                url: doc.url || 'https://' + utils.WHIGIHOST
+                url: doc.url
             };    
         }));
     }, function(e) {
