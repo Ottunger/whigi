@@ -212,6 +212,32 @@ function decryptVault(id: string): Promise {
 }
 
 /**
+ * Computes a distance.
+ * @function distance
+ * @param {Number} lat1 Latitude 1.
+ * @param {Number} lon1 Longitude 1.
+ * @param {Number} lat2 Latitude 2.
+ * @param {Number} lon2 Longitude 2.
+ * @param {String} unit K or M.
+ * @return {Number} Value.
+ */
+function distance(lat1: number, lon1: number, lat2: number, lon2: number, unit: string): number {
+	var radlat1 = Math.PI * lat1/180;
+	var radlat2 = Math.PI * lat2/180;
+	var theta = lon1 - lon2;
+	var radtheta = Math.PI * theta/180;
+	var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+	dist = Math.acos(dist);
+	dist = dist * 180/Math.PI;
+	dist = dist * 60 * 1.1515;
+	if(unit == 'K')
+        dist = dist * 1.609344;
+	if(unit == 'N')
+        dist = dist * 0.8684;
+	return dist;
+}
+
+/**
  * Searches a campaign.
  * @function search
  * @public
@@ -219,7 +245,8 @@ function decryptVault(id: string): Promise {
  * @param {Response} res The response.
  */
 export function search(req, res) {
-    var points = req.body.points, terms = req.body.terms, lang: string = (req.body.lang || 'en' ).toString();
+    var points: {lat: number, lon: number}[] = req.body.points;
+    var terms = req.body.terms, lang: string = (req.body.lang || 'en' ).toString();
     if(!(points.constructor === Array)) {
         res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
         return;
@@ -249,7 +276,7 @@ export function search(req, res) {
         limitor['topics.' + lang] = terms[i];
         query.$and[1].$or.push(limitor);
     }
-    db.collection('campaigns').find(query).toArray().then(function(docs) {
+    db.collection('campaigns').find(query).toArray().then(function(docs: Ad[]) {
         function ns(a: any[], b: any[]): number {
             var n = 0;
             for(var i = 0; i < a.length; i++)
@@ -260,10 +287,10 @@ export function search(req, res) {
         docs.sort(function(a, b) {
             //If result is negtive, a is put before b.
             var scorea = a.radius / 60, scoreb = b.radius / 60;
-            scorea += a.topics.length;
-            scoreb += b.topics.length;
-            scorea -= 2*ns(terms, a.tpoics);
-            scoreb -= 2*ns(terms, b.tpoics);
+            scorea += a.topics[lang].length + Math.log(Math.min(...points.map(function(pt) {return distance(pt.lat, pt.lon, a.lat, a.lon, 'K')})));
+            scoreb += b.topics[lang].length + Math.log(Math.min(...points.map(function(pt) {return distance(pt.lat, pt.lon, b.lat, b.lon, 'K')})));;
+            scorea -= 2*ns(terms, a.topics[lang]);
+            scoreb -= 2*ns(terms, b.topics[lang]);
             return scoreb - scorea;
         });
         res.type('application/json').status(200).json(docs.map(function(doc: Ad) {
