@@ -435,7 +435,7 @@ function helios(req, res, lid: string, httpsport: number, oauth: string, dk: str
         sed -i "s/.*WHIGI_OAUTH_TOKEN =.*/WHIGI_OAUTH_TOKEN = get_from_env('WHIGI_OAUTH_TOKEN', '` + oauth + `')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_DK =.*/WHIGI_DK = get_from_env('WHIGI_DK', '` + dk + `')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_SHA_MASTER =.*/WHIGI_SHA_MASTER = get_from_env('WHIGI_SHA_MASTER', '` + sha_master + `')/" /var/www/` + lid + `/settings.py &&
-        sed -i "s/.*WHIGI_HOST =.*/WHIGI_HOST = get_from_env('WHIGI_HOST', 'https:\/\/` + lid + `.envict.com')/" /var/www/` + lid + `/settings.py &&
+        sed -i "s/.*WHIGI_HOST =.*/WHIGI_HOST = get_from_env('WHIGI_HOST', 'https:\/\/` + utils.WHIGIHOST + `)/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_CREATOR_ACCOUNTS =.*/WHIGI_CREATOR_ACCOUNTS = get_from_env('WHIGI_CREATOR_ACCOUNTS', '` + lid + `')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_TRUSTEES_ACCOUNTS =.*/WHIGI_TRUSTEES_ACCOUNTS = get_from_env('WHIGI_TRUSTEES_ACCOUNTS', '` + lid + `')/" /var/www/` + lid + `/settings.py &&
         cd /var/www/` + lid + `/ &&
