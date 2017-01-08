@@ -16,6 +16,6 @@
     "newVaultHTML": "new_vault.html",
     "askGrantHTML": "ask_grant.html",
 
-    "whigiContactsAskSubject": "subject",
+    "whigiContactsAskSubject": "mail.subject.needRestore",
     "whigiContactsAskHTML": "ask_grant_whigi_contacts.html"
 }
