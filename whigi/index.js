@@ -357,7 +357,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/info2', checks.checkBody(['request']));
     app.post('/api/v:version/profile/info3', checks.checkBody(['lang']));
     app.post('/api/v:version/profile/data', checks.checkBody(['maybe_stale', 'needed']));
-    app.post('/api/v:version/profile/data', checks.checkBody(['discard']));
+    app.post('/api/v:version/profile/data/discard', checks.checkBody(['discard']));
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated', 'version', 'is_bound', 'encr_aes']));
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
     app.post('/api/v:version/profile/uname', checks.checkBody(['new_username']));
