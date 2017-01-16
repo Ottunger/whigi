@@ -1,8 +1,10 @@
 {
     "values": [
         "Partner",
-        "Family member",
-        "Friend",
+        "Cohabitant",
         "Other"
-    ]
+    ],
+    "more": {
+        "FRA": ["PACS"]
+    }
 }

@@ -258,6 +258,7 @@
     }],
     "profile/identity": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "identities",
         "icon": "fa fa-universal-access",
@@ -348,6 +349,7 @@
     }],
     "profile/passport": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "",
         "icon": "fa fa-universal-access",
@@ -384,6 +386,7 @@
     }],
     "profile/bank": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "banks",
         "icon": "fa fa-money",
@@ -439,6 +442,7 @@
 
     "family/mother": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "",
         "icon": "fa fa-users",
@@ -507,6 +511,7 @@
     }],
     "family/father": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "",
         "icon": "fa fa-users",
@@ -570,6 +575,7 @@
     }],
     "family/children": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "family",
         "icon": "fa fa-users",
@@ -636,6 +642,7 @@
     }],
     "family/status": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "",
         "icon": "fa fa-link",
@@ -649,6 +656,7 @@
     }],
     "family/partners": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "family",
         "icon": "fa fa-users",
@@ -663,6 +671,7 @@
                 "descr_key": "generics.relation",
                 "mode": "select",
                 "enum": "partners",
+                "enumMore": "generics.country",
                 "required": true,
                 "validateJava": ""
             }, {
@@ -758,6 +767,7 @@
     }],
     "family/employers": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "work",
         "icon": "fa fa-podcast",
@@ -792,6 +802,7 @@
 
     "corporate": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "corpos",
         "icon": "fa fa-briefcase",
@@ -848,6 +859,7 @@
     }],
     "corporate/address": [{
         "is_dated": true,
+        "is_dated_day_only": true,
         "long_descr_key": "",
         "help_url": "address",
         "icon": "fa fa-map-pin",

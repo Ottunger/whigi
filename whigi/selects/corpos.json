@@ -3,7 +3,7 @@
         "Personne physique", "SA", "SPRL", "SCRL", "SCRI", "SNC", "SCS", "SCA", "ASBL", "AISBL", "De Fait"
     ],
     "more": {
-        "France": ["Loi 1901"],
-        "Germany": ["Gmbh"]
+        "FRA": ["Loi 1901"],
+        "DEU": ["Gmbh"]
     }
 }
