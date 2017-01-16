@@ -870,7 +870,6 @@ export function changeUsername(req, res) {
 export function regUser(req, res) {
     var user = req.body, proposal = user.username.toLowerCase().replace(/[^a-z0-9\-]/g, '');
     var pre_master_key: string = utils.generateRandomString(64);
-    var rd: Function = recData;
     var array: any[] = [], index = 0;
 
     function next(u: User) {
@@ -890,11 +889,14 @@ export function regUser(req, res) {
                             data_name: work.shared_as,
                             trigger: work.shared_trigger,
                             expire_epoch: work.shared_epoch,
-                            aes_crypted_shared_pub: utils.encryptRSA(naes, pub_key),
-                            data_crypted_aes: utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
-                                .encrypt(aes.util.convertStringToBytes(work.data)))),
+                            aes_crypted_shared_pub: '',
+                            data_crypted_aes: work.news[0],
                             version: work.version
-                        }
+                        },
+                        query: {
+                            key: work.news[1]
+                        },
+                        whigiforce: true
                     }, {}, false).then(function() {
                         next(u);
                     }, function(e) {
@@ -917,39 +919,44 @@ export function regUser(req, res) {
                 }, req.body.warnContext || {})), function(e, i) {});
             }
             //Adding data and vaults
-            if('more' in req.body) {
-                var done = 0;
-                for(var i = 0; i < req.body.more.length; i++) {
-                    var encr = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
-                        .encrypt(aes.util.convertStringToBytes(req.body.more[i].data))));
-                    rd({
-                        user: u,
-                        body: {
-                            name: req.body.more[i].real_name,
-                            is_dated: req.body.more[i].is_dated,
-                            encr_data: encr,
-                            version: req.body.more[i].version,
-                            is_bound: false,
-                            encr_aes: ''
-                        },
-                        pass: req.body.more[i]
-                    }, {}, false).then(function(passed) {
-                        for(var j = 0; j < passed.shared_to.length; j++) {
-                            array.push({
-                                shared_to_id: passed.shared_to[j],
-                                real_name: passed.real_name,
-                                shared_as: passed.shared_as,
-                                shared_trigger: passed.shared_trigger,
-                                shared_epoch: passed.shared_epoch,
-                                data: passed.data,
-                                version: passed.version
-                            });
-                        }
-                        done++;
-                        if(done == req.body.more.length)
-                            next(u);
-                    });
-                }
+            req.body.more = req.body.more || [];
+            req.body.more.unshift({
+                real_name: 'profile/lang',
+                is_dated: false,
+                decr_data: 'en',
+                version: 0,
+                shared_to: []
+            });
+            var done = 0;
+            for(var i = 0; i < req.body.more.length; i++) {
+                recData({
+                    user: u,
+                    body: {
+                        name: req.body.more[i].real_name,
+                        is_dated: req.body.more[i].is_dated,
+                        decr_data: req.body.more[i].data,
+                        version: req.body.more[i].version,
+                        is_bound: true,
+                        key: utils.toBytes(pre_master_key)
+                    },
+                    whigiforce: true
+                }, {}, false).then(function(passed) {
+                    for(var j = 0; j < passed.shared_to.length; j++) {
+                        array.push({
+                            shared_to_id: passed.shared_to[j],
+                            real_name: passed.real_name,
+                            shared_as: passed.shared_as,
+                            shared_trigger: passed.shared_trigger,
+                            shared_epoch: passed.shared_epoch,
+                            data: passed.data,
+                            version: passed.version,
+                            news: passed
+                        });
+                    }
+                    done++;
+                    if(done == req.body.more.length)
+                        next(u);
+                });
             }
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
@@ -1318,7 +1325,7 @@ export function payed(req, res) {
                                 trigger: '',
                                 expire_epoch: 0,
                                 aes_crypted_shared_pub: '',
-                            data_crypted_aes: news[0],
+                                data_crypted_aes: news[0],
                                 version: 0
                             },
                             query: {

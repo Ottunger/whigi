@@ -242,9 +242,9 @@
                 "required": true,
                 "validateJava": ""
             }, {
-                "descr_key": "generics.country",
+                "descr_key": "generics.nationality",
                 "mode": "select",
-                "enum": "countries",
+                "enum": "nationalities",
                 "required": true,
                 "validateJava": ""
             }
@@ -253,7 +253,7 @@
         "instantiable": true,
         "descr_key": "generics.nationalities",
         "new_keys": [],
-        "new_key_is": "generics.country",
+        "new_key_is": "generics.nationality",
         "validateJava": ""
     }],
     "profile/identity": [{
