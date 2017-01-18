@@ -180,7 +180,7 @@ export function create(req, res) {
                                     fs.writeFile('/etc/nginx/sites-available/' + lid, `
                                         server {
                                                 listen 443;
-                                                server_name  ` + lid + `.envict.com;
+                                                server_name  ` + lid + `.` + utils.RESTOREHOST + `;
                                                 error_log /home/gregoire/nginx.err;
                                                 access_log  /home/gregoire/nginx.log;
                                                 gzip on;
@@ -210,7 +210,7 @@ export function create(req, res) {
                                                     SSLEngine On
                                                     SSLCertificateFile /home/gregoire/envict.bundle.crt
                                                     SSLCertificateKeyFile /home/gregoire/envict.com.key
-                                                    ServerName ` + lid + `.envict.com
+                                                    ServerName ` + lid + `.` + utils.RESTOREHOST + `
                                                     ServerAdmin ` + email + `
                                                     DocumentRoot /var/www/` + lid + `
                                                     ErrorLog \${APACHE_LOG_DIR}/error.log
@@ -247,7 +247,7 @@ export function create(req, res) {
                                 });
                             } else {
                                 //Account already existed
-                                res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '.envict.com'));
+                                res.redirect('/success.html#' + encodeURIComponent('https://' + lid + '.' + utils.RESTOREHOST));
                             }
                         });
                     } else {
@@ -332,7 +332,7 @@ function wordpress(req, res, lid: string, httpsport: number, plgs: string) {
                 cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
                 chown -hR www-data:www-data /var/www/` + lid + `/ &&
                 chmod -R 770 /var/www/` + lid + `/ &&
-                wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `.envict.com --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + lid + ` --skip-email ;
+                wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `.` + utils.RESTOREHOST + ` --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + lid + ` --skip-email ;
                 wp --allow-root --path=/var/www/` + lid + ` plugin activate ` + plgs + ` ;
                 wp --allow-root --path=/var/www/` + lid + ` theme activate clean-lite
             `, function(err, stdout, stderr) {
@@ -341,7 +341,7 @@ function wordpress(req, res, lid: string, httpsport: number, plgs: string) {
                     remove(req, {}, false);
                     res.redirect('/error.html');
                 } else {
-                    res.redirect('https://' + lid + '.envict.com/wp-login.php');
+                    res.redirect('https://' + lid + '.' + utils.RESTOREHOST + '/wp-login.php');
                     exec('service nginx force-reload');
                     setTimeout(function() {
                         exec('wp --allow-root --path=/var/www/' + lid + ' plugin deactivate whigi-wp', function() {
@@ -389,14 +389,14 @@ function zenbership(req, res, lid: string, httpsport: number, lgcode?: string) {
         dd if=/dev/zero of=/usr/www/` + lid + `/disk count=409600
         mkfs -t ext3 -q /usr/www/` + lid + `/disk -F &&
         mount -o loop,rw,usrquota,grpquota /usr/www/` + lid + `/disk /var/www/` + lid + ` &&
-        bash /home/gregoire/whigi-zb/clean.sh root ` + require('./password.json').pwd + ` ` + lid + ` /var/www ` + lid + ` /home/gregoire whigi-zb localhost:` + httpsport + ` ` + utils.WHIGIHOST + ` whigi-gwp ` + require('./password.json').pwd + ` ` + lgcode + ` false https://` + lid + `.envict.com
+        bash /home/gregoire/whigi-zb/clean.sh root ` + require('./password.json').pwd + ` ` + lid + ` /var/www ` + lid + ` /home/gregoire whigi-zb localhost:` + httpsport + ` ` + utils.WHIGIHOST + ` whigi-gwp ` + require('./password.json').pwd + ` ` + lgcode + ` false https://` + lid + `.` + utils.RESTOREHOST + `
     `, function(err, stdout, stderr) {
         if(err) {
             console.log('Cannot complete OPs:\n' + stderr);
             remove(req, {}, false);
             res.redirect('/error.html');
         } else {
-            res.redirect('https://' + lid + '.envict.com/admin');
+            res.redirect('https://' + lid + '.' + utils.RESTOREHOST + '/admin');
             exec('service nginx force-reload');
         }
     });
@@ -430,7 +430,7 @@ function helios(req, res, lid: string, httpsport: number, oauth: string, dk: str
         cp -r /home/gregoire/helios-server/* /var/www/` + lid + `/ &&
         export C_FORCE_ROOT=1
         sed -i "s/.*'NAME': 'helios'.*/        'NAME': '` + lid + `',/" /var/www/` + lid + `/settings.py &&
-        sed -i "s/.*'URL_HOST' =.*/URL_HOST = get_from_env('URL_HOST', 'https:\/\/` + lid + `.envict.com')/" /var/www/` + lid + `/settings.py &&
+        sed -i "s/.*'URL_HOST' =.*/URL_HOST = get_from_env('URL_HOST', 'https:\/\/` + lid + `.` + utils.RESTOREHOST + `')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_USER_ID =.*/WHIGI_USER_ID = get_from_env('WHIGI_USER_ID', '` + lid + `')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_OAUTH_TOKEN =.*/WHIGI_OAUTH_TOKEN = get_from_env('WHIGI_OAUTH_TOKEN', '` + oauth + `')/" /var/www/` + lid + `/settings.py &&
         sed -i "s/.*WHIGI_DK =.*/WHIGI_DK = get_from_env('WHIGI_DK', '` + dk + `')/" /var/www/` + lid + `/settings.py &&
@@ -448,7 +448,7 @@ function helios(req, res, lid: string, httpsport: number, oauth: string, dk: str
             remove(req, {}, false);
             res.redirect('/error.html');
         } else {
-            res.redirect('https://' + lid + '.envict.com/');
+            res.redirect('https://' + lid + '.' + utils.RESTOREHOST + '/');
             exec('service nginx force-reload');
         }
     });

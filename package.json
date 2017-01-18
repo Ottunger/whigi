@@ -58,7 +58,7 @@
     "whigi-advert-world-dev": "node whigi-advert/index.js 445 localhost localhost whigi.com@gmail.com true true whigi-advert-world",
     "whigi-advert-bel": "node whigi-advert/index.js 8091 whigi2-advert-bel.envict.com whigi2-demo.envict.com whigi.com@gmail.com false false whigi-advert-bel",
     "whigi-advert-bel-dev": "node whigi-advert/index.js 446 localhost localhost whigi.com@gmail.com true true whigi-advert-bel",
-    "whigi-giveaway": "node whigi-giveaway/index.js 8082 whigi2-giveaway.envict.com whigi2-demo.envict.com whigi.com@gmail.com https://www.wissl.org",
+    "whigi-giveaway": "node whigi-giveaway/index.js 8082 whigi2-giveaway.envict.com whigi2-demo.envict.com whigi.com@gmail.com https://whigi2-giveaway.envict.com envict.com",
     "whigi-rli": "node whigi-rli/index.js 4443 whigi2-rli.envict.com true",
     "whigi-cc": "node whigi-cc/index.js 4443 whigi2-cc.envict.com true domain198.12.12.12 whigi2-cc.general.com",
     "build_whigi_data": "node_modules/.bin/tsc --removeComments whigi/data.ts && echo ok || echo not ok",
