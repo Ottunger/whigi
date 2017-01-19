@@ -273,8 +273,10 @@ export function linkVault(req, res) {
         if(v.links.length < 9 && v.links.indexOf(got.data_name) == -1) {
             v.links.push(got.data_name);
             db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee) {
-                if(got.data_name in sharee.shared_with_me[req.user._id]) {
+                if(got.data_name in sharee.shared_with_me[req.user._id] && sharee.shared_with_me[req.user._id][got.data_name] != v._id) {
                     res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                } else if(got.data_name in sharee.shared_with_me[req.user._id]) {
+                    res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
                 } else {
                     v.persist().then(function() {
                         sharee.shared_with_me[req.user._id][got.data_name] = v._id;

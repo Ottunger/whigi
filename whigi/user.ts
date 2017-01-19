@@ -923,33 +923,32 @@ export function regUser(req, res) {
             req.body.more.unshift({
                 real_name: 'profile/lang',
                 is_dated: false,
-                decr_data: 'en',
+                data: 'en',
                 version: 0,
                 shared_to: []
             });
             var done = 0;
-            for(var i = 0; i < req.body.more.length; i++) {
+            req.body.more.forEach(function(item) {
                 recData({
                     user: u,
                     body: {
-                        name: req.body.more[i].real_name,
-                        is_dated: req.body.more[i].is_dated,
-                        decr_data: req.body.more[i].data,
-                        version: req.body.more[i].version,
+                        name: item.real_name,
+                        is_dated: item.is_dated,
+                        decr_data: item.data,
+                        version: item.version,
                         is_bound: true,
                         key: utils.toBytes(pre_master_key)
                     },
                     whigiforce: true
                 }, {}, false).then(function(passed) {
-                    for(var j = 0; j < passed.shared_to.length; j++) {
+                    for(var j = 0; j < (item.shared_to || []).length; j++) {
                         array.push({
-                            shared_to_id: passed.shared_to[j],
-                            real_name: passed.real_name,
-                            shared_as: passed.shared_as,
-                            shared_trigger: passed.shared_trigger,
-                            shared_epoch: passed.shared_epoch,
-                            data: passed.data,
-                            version: passed.version,
+                            shared_to_id: item.shared_to[j],
+                            real_name: item.real_name,
+                            shared_as: item.shared_as,
+                            shared_trigger: item.shared_trigger,
+                            shared_epoch: item.shared_epoch,
+                            version: item.version,
                             news: passed
                         });
                     }
@@ -957,7 +956,7 @@ export function regUser(req, res) {
                     if(done == req.body.more.length)
                         next(u);
                 });
-            }
+            });
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
