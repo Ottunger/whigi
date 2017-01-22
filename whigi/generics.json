@@ -54,7 +54,6 @@
         "validate": "return ngData.checking.areCommunications(test);",
         "instantiable": false,
         "descr_key": "generics.communications",
-        "new_key": [],
         "new_keys_only": false,
         "validateJava": ""
     }],
@@ -67,8 +66,9 @@
         "json_keys": [],
         "validate": "return ngData.checking.isEmail(test);",
         "instantiable": true,
+        "name_placeholder": "generics.pl_email",
         "descr_key": "generics.email",
-        "new_key": ["new.email"],
+        "new_key": ["new.principal"],
         "new_keys_only": false,
         "placeholder": "...@...",
         "validateJava": "EMAIL"
@@ -82,11 +82,13 @@
         "json_keys": [],
         "validate": "return ngData.checking.isPhone(test);",
         "instantiable": true,
+        "name_placeholder": "generics.pl_tel",
         "descr_key": "generics.tel",
-        "new_key": ["new.tel"],
+        "new_key": ["new.work", "new.home"],
         "new_keys_only": false,
         "placeholder": "+XXXXXXXXXXX",
-        "validateJava": "PHONE"
+        "validateJava": "PHONE",
+        "transform": "return test.replace(/[\\.:\\/ ]/g, '');"
     }],
     "profile/name": [{
         "is_dated": false,
@@ -182,8 +184,9 @@
         ],
         "validate": "return ngData.checking.areAddress(test);",
         "instantiable": true,
+        "name_placeholder": "generics.pl_addr",
         "descr_key": "generics.address",
-        "new_key": ["new.address"],
+        "new_key": ["new.principal"],
         "new_keys_only": false,
         "validateJava": "ADDRESS"
     }],
@@ -252,7 +255,6 @@
         "validate": "return ngData.checking.keyIs('date', 'generics.since', test);",
         "instantiable": true,
         "descr_key": "generics.nationalities",
-        "new_keys": [],
         "new_key_is": "generics.nationality",
         "validateJava": ""
     }],
@@ -343,7 +345,6 @@
         "validate": "return ngData.checking.areIdentity(test);",
         "instantiable": true,
         "descr_key": "generics.identity",
-        "new_keys": [],
         "new_key_is": "generics.country",
         "validateJava": ""
     }],
@@ -381,6 +382,7 @@
         ],
         "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.eidFrom', 'generics.eidTo'], test);",
         "instantiable": true,
+        "name_placeholder": "generics.pl_ppt",
         "descr_key": "generics.passports",
         "validateJava": ""
     }],
@@ -432,8 +434,8 @@
         ],
         "validate": "return ngData.checking.areAccount(test);",
         "instantiable": true,
+        "name_placeholder": "generics.pl_bank",
         "descr_key": "generics.bank",
-        "new_key": [],
         "new_keys_only": false,
         "validateJava": "ACCOUNT",
         "transform": "var obj = JSON.parse(test); for(var i = 0; i < obj.length; i++) {var ins = JSON.parse(obj[i].value); ins['generics.IBAN'] = ins['generics.IBAN'].toUpperCase().replace(/ /g, ''); obj[i].value = JSON.stringify(ins);} return JSON.stringify(obj);"
@@ -633,7 +635,6 @@
         "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
         "instantiable": true,
         "descr_key": "generics.children",
-        "new_keys": [],
         "new_key_is": "generics.first_name",
         "share_as_folder": true,
         "json_from_key": "generics.birthdate",
@@ -759,7 +760,6 @@
         "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.birthdate', 'generics.lifeIn'], test);",
         "instantiable": true,
         "descr_key": "generics.partners",
-        "new_keys": [],
         "new_key_is": "generics.first_name",
         "share_as_folder": true,
         "json_from_ask": true,
@@ -793,7 +793,6 @@
         "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.lifeIn', 'generics.lifeOut'], test);",
         "instantiable": true,
         "descr_key": "generics.employers",
-        "new_key": [],
         "new_keys_is": "generics.legalName",
         "share_as_folder": true,
         "validateJava": ""
@@ -851,11 +850,11 @@
             }
         ],
         "validate": "return ngData.checking.areCorporate(test);",
-        "instantiable": true,
+        "instantiable": false,
         "descr_key": "generics.corporateInfo",
-        "new_key": [],
         "new_keys_is": "generics.legalName",
-        "validateJava": ""
+        "validateJava": "",
+        "json_from_ask": true
     }],
     "corporate/address": [{
         "is_dated": true,
@@ -916,10 +915,11 @@
                 "validateJava": ""
             }
         ],
-        "validate": "return ngData.checking.areAddress(test);",
+        "validate": "return ngData.checking.allAre('address', test);",
         "instantiable": true,
+        "name_placeholder": "generics.pl_addr",
         "descr_key": "generics.address",
-        "new_key": ["new.address"],
+        "new_key": ["new.principal"],
         "new_keys_only": false,
         "validateJava": "ADDRESS"
     }]
