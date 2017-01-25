@@ -280,7 +280,7 @@ connect(function(e) {
         res.type('application/json').status(200).json(require('./generics_paths.json'));
     });
     app.get('/api/v:version/schemas/:name/:v1/:v2', function(req, res) {
-        res.type('application/json').status(200).json(require('./schemas/' + req.params.name + '_' + req.params.v1 + '_' + req.params.v2 + '.json'));
+        res.type('application/json').status(200).json(require('./schemas/' + encodeURIComponent(req.params.name) + '_' + req.params.v1 + '_' + req.params.v2 + '.json'));
     });
     app.get('/api/v:version/selects/:key', function(req, res) {
         res.type('application/json').status(200).json(require('./selects/' + req.params.key + '.json'));

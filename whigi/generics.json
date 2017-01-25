@@ -189,6 +189,71 @@
         "new_key": ["new.principal"],
         "new_keys_only": false,
         "validateJava": "ADDRESS"
+    }, {
+        "is_dated": true,
+        "long_descr_key": "",
+        "help_url": "address",
+        "icon": "fa fa-map-pin",
+        "mode": "json_keys",
+        "json_keys": [
+            {
+                "descr_key": "generics.careof",
+                "mode": "text",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.street",
+                "mode": "text",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.num",
+                "mode": "text",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.letterbox",
+                "mode": "text",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.more",
+                "mode": "text",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.postcode",
+                "mode": "text",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.city",
+                "mode": "text",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.district",
+                "mode": "text",
+                "ifKey": "generics.country",
+                "ifCheck": "return ['USA'].indexOf(test) != -1;",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.country",
+                "mode": "select",
+                "enum": "countries",
+                "required": true,
+                "validateJava": ""
+            }
+        ],
+        "validate": "return ngData.checking.allAre('address', test);",
+        "instantiable": true,
+        "name_placeholder": "generics.pl_addr",
+        "descr_key": "generics.address",
+        "new_key": ["new.principal"],
+        "new_keys_only": false,
+        "validateJava": "",
+        "json_from_ask": true
     }],
     "profile/birthdata": [{
         "is_dated": false,
