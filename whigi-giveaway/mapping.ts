@@ -11,7 +11,7 @@ var https = require('https');
 var hash = require('js-sha256');
 var aes = require('aes-js');
 var fs = require('fs');
-var sys = require('sys')
+var sys = require('sys');
 var exec = require('child_process').exec;
 var utils = require('../utils/utils');
 var mailer, rsa_key;

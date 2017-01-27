@@ -168,17 +168,21 @@ export function i18n(str: string, req: any, userin?: any, more?: {[id: string]: 
  * @param {Request} req For i18n.
  * @param {Object} context More context.
  * @param {User} userin For i18n.
+ * @param {Boolean} notwhigi Prevent check of template.
+ * @param {String} from Then, a from name.
  * @return {Object} Mail config.
  */
-export function mailConfig(to: string, subject: string, req: any, context?: {[id: string]: any}, userin?: any): any {
-    if(mc.vendorTemplates.indexOf(subject) == -1 && mc.templates.indexOf(subject) == -1)
+export function mailConfig(to: string, subject: string, req: any, context?: {[id: string]: any}, userin?: any,
+    notwhigi?: boolean, from?: string, template?: string): any {
+    //Sanity check first
+    if(notwhigi !== true && mc.vendorTemplates.indexOf(subject) == -1 && mc.templates.indexOf(subject) == -1)
         return {};
     try{
         context = Object.assign({
             myURL: RUNNING_ADDR
         }, context || {});
         var ret = {
-            from: 'Whigi - WiSSL <' + MAIL_ADDR + '>',
+            from: ((notwhigi === true && !!from)? from : 'WiSSL') + ' <' + MAIL_ADDR + '>',
             to: '<' + to + '>',
             subject: i18n(mc[subject + 'Subject'], req, userin, context['i18n'])
         };
@@ -473,11 +477,12 @@ export function lameTrigger(db: any, user: any, id: string, save: boolean) {
                 user.persist();
                 v.unlink();
             }
-        } else if(!!v.trigger && v.trigger != '') {
+        } else if(!!v.trigger) {
             try {
+                var pt = v.trigger.split('/', 2);
                 var ht = https.request({
-                    host: v.trigger.split('/', 2)[0],
-                    path: v.trigger.split('/', 2)[1],
+                    host: pt[0],
+                    path: pt[1] + (pt[1].indexOf('?') == -1)? '?' : '&' + 'username=' + v.shared_to_id + '&vault=' + encodeURIComponent(v.data_name),
                     port: 443,
                     method: 'GET'
                 }, function(res) {
