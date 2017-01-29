@@ -185,7 +185,7 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
         var ret = {
             from: ((notwhigi === true && !!from)? from : 'WiSSL') + ' <' + MAIL_ADDR + '>',
             to: '<' + to + '>',
-            subject: i18n(mc[subject + 'Subject'], req, userin, context['i18n'])
+            subject: i18n((notwhigi === true)? subject : mc[subject + 'Subject'], req, userin, context['i18n'])
         };
         
         ret['html'] = parser(!!template? template : path.join(__dirname, 'mails/' + mc[subject + 'HTML']), req, context, userin);
