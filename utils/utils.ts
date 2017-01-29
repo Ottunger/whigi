@@ -170,6 +170,7 @@ export function i18n(str: string, req: any, userin?: any, more?: {[id: string]: 
  * @param {User} userin For i18n.
  * @param {Boolean} notwhigi Prevent check of template.
  * @param {String} from Then, a from name.
+ * @param {String} template A template file path.
  * @return {Object} Mail config.
  */
 export function mailConfig(to: string, subject: string, req: any, context?: {[id: string]: any}, userin?: any,
@@ -187,7 +188,7 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
             subject: i18n(mc[subject + 'Subject'], req, userin, context['i18n'])
         };
         
-        ret['html'] = parser(path.join(__dirname, 'mails/' + mc[subject + 'HTML']), req, context, userin);
+        ret['html'] = parser(!!template? template : path.join(__dirname, 'mails/' + mc[subject + 'HTML']), req, context, userin);
         return ret;
     } catch(e) {
         return {};
