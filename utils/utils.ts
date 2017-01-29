@@ -14,11 +14,11 @@ var aes = require('aes-js');
 var RSA = require('node-rsa');
 var hash = require('js-sha256');
 var constants = require('constants');
-var strings = {
+var mc = require('./mails/config.json');
+export var strings = {
     en: require('./i18n/en.json'),
     fr: require('./i18n/fr.json')
 };
-var mc = require('./mails/config.json');
 export var WHIGIHOST = '';
 export var RESTOREHOST = '';
 export var RUNNING_ADDR = '';
