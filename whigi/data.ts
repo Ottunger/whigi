@@ -135,6 +135,7 @@ export function getDataByName(req, res) {
  */
 export function renameData(req, res, respond): Promise {
     var old = decodeURIComponent(req.params.name), now = decodeURIComponent(req.params.now);
+    respond = respond !== false;
     return new Promise(function(resolve, reject) {
         if(checks.isWhigi(req.user._id) && req.whigiforce !== true) {
             if(respond === true)
