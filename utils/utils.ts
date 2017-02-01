@@ -13,6 +13,7 @@ var https = require('https');
 var aes = require('aes-js');
 var RSA = require('node-rsa');
 var hash = require('js-sha256');
+var pki = require('node-forge').pki;
 var constants = require('constants');
 var mc = require('./mails/config.json');
 export var strings = {
@@ -575,4 +576,84 @@ export function paypalToken(callback: Function) {
     });
     ht.write(data);
     ht.end();
+}
+
+/**
+ * Returns a certificate.
+ * @function whigiCert
+ * @public
+ * @param {String} pubPem Public PEM.
+ * @param {String} priPemLoc Private PEM location.
+ * @param {Object} params Remote params.
+ * @return {String} Certificate PEM.
+ */
+export function whigiCert(pubPem: string, priPemLoc: string, params: any): string {
+    var cert = pki.createCertificate();
+    cert.publicKey = pki.publicKeyFromPem(pubPem);
+    cert.serialNumber = '01';
+    cert.validity.notBefore = new Date();
+    cert.validity.notAfter = new Date();
+    cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 100);
+    var localAttrs = [
+        {
+            name: 'commonName',
+            value: 'wissl.org'
+        }, {
+            name: 'countryName',
+            value: 'BE'
+        }, {
+            shortName: 'ST',
+            value: 'Hainaut'
+        }, {
+            name: 'localityName',
+            value: 'Lodelinsart'
+        }, {
+            name: 'organizationName',
+            value: 'WiSSL'
+        }
+    ], remoteAttrs = [
+        {
+            name: 'commonName',
+            value: params.commonName
+        }, {
+            name: 'countryName',
+            value: params.countryName
+        }, {
+            name: 'localityName',
+            value: params.localityName
+        }, {
+            name: 'organizationName',
+            value: params.organizationName
+        }
+    ];
+    cert.setSubject(remoteAttrs);
+    cert.setIssuer(localAttrs);
+    cert.setExtensions([
+        {
+            name: 'keyUsage',
+            keyCertSign: true,
+            digitalSignature: true,
+            nonRepudiation: false,
+            keyEncipherment: true,
+            dataEncipherment: true
+        }, {
+            name: 'extKeyUsage',
+            serverAuth: true,
+            clientAuth: true,
+            codeSigning: true,
+            emailProtection: true,
+            timeStamping: true
+        }, {
+            name: 'nsCertType',
+            client: true,
+            server: false,
+            email: true,
+            objsign: true,
+            sslCA: false,
+            emailCA: false,
+            objCA: false
+        }
+    ]);
+    cert.sign(pki.privateKeyFromPem(fs.readFileSync(priPemLoc)));
+    return pki.certificateToPem(cert);
 }

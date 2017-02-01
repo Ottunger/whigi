@@ -18,6 +18,7 @@
     "limiter": "^1.1.0",
     "mocha": "^3.0.2",
     "mongodb": "^2.2.22",
+    "node-forge": "^0.6.48",
     "node-rsa": "0.4.1",
     "node-schedule": "^1.1.1",
     "nodemailer": "^2.5.0",
@@ -26,8 +27,6 @@
     "passport-local": "^1.0.0",
     "passport-openid": "^0.4.0",
     "passport-token-auth": "^0.1.2",
-    "pem": "^1.8.3",
-    "promise": "^7.1.1",
     "querystring": "^0.2.0",
     "typescript": "^1.8.10",
     "typescript-require": "^0.2.9-1"

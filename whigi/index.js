@@ -238,16 +238,31 @@ pass.use(new TS(function(token, done) {
  * @public
  */
 function pauth(req, res, next) {
-    pass.authenticate(['token', 'basic'], function(err, user, info) {
-        if(err) {
+    var cert = req.socket.getPeerCertificate();
+    if(!!cert.subject) {
+        var id = cert.subject.CN;
+        db.retrieveUser(id).then(function(user) {
+            if(!!user && !user.company_info.is_closed) {
+                req.user = user;
+                next();
+            } else {
+                res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
+            }
+        }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-        } else if(!user) {
-            res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
-        } else {
-            req.user = user;
-            next();
-        }
-    })(req, res, next);
+        });
+    } else {
+        pass.authenticate(['token', 'basic'], function(err, user, info) {
+            if(err) {
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            } else if(!user) {
+                res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
+            } else {
+                req.user = user;
+                next();
+            }
+        })(req, res, next);
+    }
 }
 
 //Now connect to DB then start serving requests
@@ -443,7 +458,13 @@ connect(function(e) {
     }
 
     if(isHttps == 'true') {
-        var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-cert.pem')}, app);
+        var servers = https.createServer({
+            key: fs.readFileSync(__dirname + '/whigi-key.pem'),
+            cert: fs.readFileSync(__dirname + '/whigi-cert.pem'),
+            ca: fs.readFileSync(__dirname + '/whigi-cert.pem'),
+            requestCert: true,
+            rejectUnauthorized: false
+        }, app);
         servers.listen(httpport);
     } else {
         var server = http.createServer(app);

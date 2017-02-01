@@ -12,7 +12,6 @@ var path = require('path');
 var ndm = require('nodemailer');
 var utils = require('../utils/utils');
 var checks = require('../utils/checks');
-var pem = require('pem');
 var hash = require('js-sha256');
 var aes = require('aes-js');
 var fs = require('fs');
@@ -405,25 +404,17 @@ export function goCompany9(req, res) {
                     "generics.city": req.body['openid.ax.value.attr9'],
                     "generics.country": "Belgium"
                 });
-                pem.createCertificate({
-                    serviceKey: fs.readFileSync('./whigi/whigi-key.pem'),
-                    days: 36500,
-                    clientKey: u.rsa_pub_key,
-                    country: 'BE',
-                    state: '',
-                    locality: req.body['openid.ax.value.attr9'],
-                    organization: '',
-                    organizationUnit: '',
-                    commonName: req.body['openid.ax.value.attr21'],
-                    emailAddress: ''
-                }, function(e, keys) {
-                    if(!e)
-                        u.cert = keys.certificate;
-                    u.persist().then(function() {
-                        res.redirect('/profile/eidok?toreturn=' + oid[req.query.req][1]);
-                    }, function(e) {
-                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-                    });
+                //Now issue the certificate
+                u.cert = utils.whigiCert(u.rsa_pub_key, './whigi/whigi-key.pem', {
+                    commonName: u._id,
+                    countryName: 'BE',
+                    localityName: req.body['openid.ax.value.attr9'],
+                    organizationName: req.body['openid.ax.value.attr21']
+                });
+                u.persist().then(function() {
+                    res.redirect('/profile/eidok?toreturn=' + oid[req.query.req][1]);
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                 });
             }, function(e) {
                 res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
@@ -476,25 +467,17 @@ export function goBCE(req, res) {
                 var parts = name.trim().split(',');
                 if(/Administrateur/.test(rows[0]) && mn.indexOf(parts[0].trim().toLowerCase()) > -1 && mn.indexOf(parts[1].trim().toLowerCase()) > -1) {
                     req.user.company_info.name = /nomination sociale:<\/td><td class="QL" colspan="3">(.*?)<br>/.exec(r)[0].trim();
-                    pem.createCertificate({
-                        serviceKey: fs.readFileSync('./whigi/whigi-key.pem'),
-                        days: 36500,
-                        clientKey: req.user.rsa_pub_key,
-                        country: 'BE',
-                        state: '',
-                        locality: '',
-                        organization: req.user.company_info.name,
-                        organizationUnit: '',
-                        commonName: '',
-                        emailAddress: ''
-                    }, function(e, keys) {
-                        if(!e)
-                            req.user.cert = keys.certificate;
-                        req.user.persist().then(function() {
-                            res.type('application/json').status(200).json({error: '', name: req.user.company_info.name});
-                        }, function(e) {
-                            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-                        });
+                    //Now issue the certificate
+                    req.user.cert = utils.whigiCert(req.user.rsa_pub_key, './whigi/whigi-key.pem', {
+                        commonName: req.user._id,
+                        countryName: 'BE',
+                        localityName: '',
+                        organizationName: req.user.company_info.name
+                    });
+                    req.user.persist().then(function() {
+                        res.type('application/json').status(200).json({error: '', name: req.user.company_info.name});
+                    }, function(e) {
+                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                     });
                     return;
                 }
@@ -997,24 +980,14 @@ export function regUser(req, res) {
             u.company_info.picture = user.company_info.picture;
         if(!!user.company_info && !!user.company_info.is_company)
             u.company_info.is_company = true;
-        pem.createCertificate({
-            serviceKey: fs.readFileSync('./whigi/whigi-key.pem'),
-            days: 36500,
-            clientKey: u.rsa_pub_key,
-            country: 'BE',
-            state: '',
-            locality: '',
-            organization: '',
-            organizationUnit: '',
-            commonName: '',
-            emailAddress: ''
-        }, function(e, keys) {
-            if(!e)
-                u.cert = keys.certificate;
-            else
-                u.cert = '';
-            end(u);
+        //Now issue the certificate
+        u.cert = utils.whigiCert(u.rsa_pub_key, './whigi/whigi-key.pem', {
+            commonName: u._id,
+            countryName: 'BE',
+            localityName: '',
+            organizationName: ''
         });
+        end(u);
     }
 
     if(user.password.length >= 8 && !checks.isWhigi(user.username)) {
