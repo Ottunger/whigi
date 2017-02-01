@@ -12,7 +12,7 @@ var https = require('https');
 var pass = require('passport');
 var fs = require('fs');
 var hash = require('js-sha256');
-var mc = require('promised-mongo');
+var mc = require('mongodb').MongoClient;
 var BS = require('passport-http').BasicStrategy;
 var TS = require('passport-token-auth');
 var utils = require('../utils/utils');
@@ -132,20 +132,17 @@ function listOptions(path, res, next) {
  * @param {Function} callback Callback.
  */ 
 function connect(callback) {
-    var d;
-    //if(utils.DEBUG)
-        d = mc('localhost:27017/whigi');
-    //else
-    //    d = mc('whigiuser:sorryMeND3dIoKwR@localhost:27017/whigi');
-    if(d) {
-        db = new datasources.Datasource(d, process.argv[8], true, false);
-        user.managerInit(db);
-        data.managerInit(db);
-        checks.prepareRL();
-        callback(false);
-    } else {
-        callback(true);
-    }
+    mc.connect('mongodb://localhost:27017/whigi', function(err, d) {
+        if(!err) {
+            db = new datasources.Datasource(d, process.argv[8], true, false);
+            user.managerInit(db);
+            data.managerInit(db);
+            checks.prepareRL();
+            callback(false);
+        } else {
+            callback(true);
+        }
+    });
 }
 
 /**
@@ -213,7 +210,7 @@ pass.use(new TS(function(token, done) {
         });
     }
 
-    db.retrieveToken(token).then(function(ticket) {
+    db.retrieveToken({_id: token}).then(function(ticket) {
         if(!!ticket) {
             if(ticket.is_eternal == false && ticket.last_refresh < (new Date).getTime() - 30*60*1000) {
                 ticket.unlink();
@@ -271,6 +268,11 @@ connect(function(e) {
             next();
         });
     }
+    app.use(function(req, res, next) {
+        if(!!req.body)
+            req.bodylength = Buffer.byteLength(req.body, 'utf8');
+        next();
+    });
     app.use(body.json({limit: '5000mb'}));
 
     app.get('/api/v:version/generics.json', function(req, res) {

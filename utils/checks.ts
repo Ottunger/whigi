@@ -40,7 +40,7 @@ export function checkPuzzle(req, res, next) {
         if(complete.charAt(0) == '0' && complete.charAt(1) == '0' && complete.charAt(2) == '0') {
             req.user.puzzle = utils.generateRandomString(16);
             req.user.persist();
-            rl.removeTokens(((req.user._id.indexOf('wiuser') == 0)? 5 : 1) * Buffer.byteLength(req.body, 'utf8'), function(e, r) {
+            rl.removeTokens(((req.user._id.indexOf('wiuser') == 0)? 5 : 1) * req.bodylength, function(e, r) {
                 if(r < 0) {
                     res.type('application/json').status(429).json({error: utils.i18n('client.burst', req), puzzle: req.user.puzzle});
                 } else {

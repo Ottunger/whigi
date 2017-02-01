@@ -87,8 +87,16 @@ export class Datasource {
      * @return {Promise} Whether went OK locally.
      */
     unlink(name: string, id: string): Promise {
+        var self = this;
         this.updated(id, name, true);
-        return this.db.collection(name).remove({_id: id});
+        return new Promise(function(resolve, reject) {
+            self.db.collection(name).remove({_id: id}, function(err) {
+                if(err)
+                    reject(err);
+                else
+                    resolve();
+            });
+        });
     }
 
     /**
@@ -102,29 +110,28 @@ export class Datasource {
      */
     retrieveGeneric(db: string, query: any, selector: any): Promise<any> {
         var self = this;
-        if(this.useCDN && this.up.isReady()) {
-            return new Promise(function(resolve, reject) {
-                self.db.collection(db).findOne(query, selector).then(function(data) {
-                    if(!!data) {
-                        resolve(data);
-                    } else {
+        return new Promise(function(resolve, reject) {
+            if(self.useCDN && self.up.isReady()) {
+                self.db.collection(db).findOne(query, selector, function(err, data) {
+                    if(err || !data) {
                         self.down.fetch(query._id, db).then(function(data) {
                             resolve(data);
                         }, function(e) {
                             reject(e);
                         });
-                    }
-                }, function(e) {
-                    self.down.fetch(query._id, db).then(function(data) {
+                    } else {
                         resolve(data);
-                    }, function(e) {
-                        reject(e);
-                    });
+                    }
                 });
-            });
-        } else {
-            return this.db.collection(db).findOne(query, selector);
-        }
+            } else {
+                self.db.collection(db).findOne(query, selector, function(err, data) {
+                    if(err)
+                        reject(err);
+                    else
+                        resolve(data);
+                });
+            }
+        });
     }
 
     /**

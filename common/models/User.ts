@@ -218,10 +218,11 @@ export class User extends IModel {
         return new Promise(function(resolve, reject) {
             function complete(resolve, reject) {
                 self.updated('users');
-                self.db.getDatabase().collection('users').update({_id: self._id}, self.allFields(), {upsert: true}).then(function() {
-                    resolve();
-                }, function(e) {
-                    reject(e);
+                self.db.getDatabase().collection('users').update({_id: self._id}, self.allFields(), {upsert: true}, function(err) {
+                    if(err)
+                        reject(err);
+                    else
+                        resolve();
                 });
             }
             function end() {
@@ -260,11 +261,7 @@ export class User extends IModel {
                         keys = Object.getOwnPropertyNames(self.trigrams);
                         for(var i = 0; i < keys.length; i++) {
                             self.db.updated(self.trigrams[keys[i]]._id, 'users');
-                            self.db.getDatabase().collection('users').update({_id: self.trigrams[keys[i]]._id}, self.trigrams[keys[i]], {upsert: true}).then(function() {
-                                done++;
-                                if(done)
-                                    end();
-                            }, function(e) {
+                            self.db.getDatabase().collection('users').update({_id: self.trigrams[keys[i]]._id}, self.trigrams[keys[i]], {upsert: true}, function() {
                                 done++;
                                 if(done)
                                     end();
