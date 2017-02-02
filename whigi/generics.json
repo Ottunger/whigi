@@ -822,7 +822,7 @@
                 "validateJava": ""
             }
         ],
-        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.birthdate', 'generics.lifeIn'], test);",
+        "validate": "return ngData.checking.keysAre(['date', 'date', 'identity'], ['generics.birthdate', 'generics.lifeIn', ''], test);",
         "instantiable": true,
         "descr_key": "generics.partners",
         "new_key_is": "generics.first_name",
