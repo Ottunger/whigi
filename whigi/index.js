@@ -239,7 +239,7 @@ pass.use(new TS(function(token, done) {
  * @public
  */
 function pauth(req, res, next) {
-    var cert = req.socket.getPeerCertificate();
+    var cert = config.https? req.socket.getPeerCertificate() : {};
     if(!!cert.subject) {
         var id = cert.subject.CN;
         db.retrieveUser(id).then(function(user) {
