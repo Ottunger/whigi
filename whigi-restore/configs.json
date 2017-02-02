@@ -1,0 +1,26 @@
+{
+    "localhost": {
+        "port": 444,
+        "localhost": "localhost",
+        "whigihost": "localhost",
+        "mail": "whigi.com@gmail.com",
+        "debug": true,
+        "https": true
+    },
+    "whigi2-restore": {
+        "port": 8081,
+        "localhost": "whigi2-restore.envict.com",
+        "whigihost": "whigi2-demo.envict.com",
+        "mail": "whigi.com@gmail.com",
+        "debug": false,
+        "https": false
+    },
+    "wissl-restore": {
+        "port": 8081,
+        "localhost": "whigi-restore.wissl.org",
+        "whigihost": "whigi.wissl.org",
+        "mail": "whigi.com@gmail.com",
+        "debug": false,
+        "https": false
+    }
+}

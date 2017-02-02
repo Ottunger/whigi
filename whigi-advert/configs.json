@@ -1,0 +1,56 @@
+{
+    "localhost-bel": {
+        "port": 446,
+        "localhost": "localhost",
+        "whigihost": "localhost",
+        "mail": "whigi.com@gmail.com",
+        "debug": true,
+        "https": true,
+        "uaccount": "whigi-advert-bel"
+    },
+    "localhost-world": {
+        "port": 445,
+        "localhost": "localhost",
+        "whigihost": "localhost",
+        "mail": "whigi.com@gmail.com",
+        "debug": true,
+        "https": true,
+        "uaccount": "whigi-advert-world"
+    },
+    "whigi2-advert-bel": {
+        "port": 8091,
+        "localhost": "whigi2-advert-bel.envict.com",
+        "whigihost": "whigi2-demo.envict.com",
+        "mail": "whigi.com@gmail.com",
+        "debug": false,
+        "https": false,
+        "uaccount": "whigi-advert-bel"
+    },
+    "whigi2-advert-world": {
+        "port": 8090,
+        "localhost": "whigi2-advert-world.envict.com",
+        "whigihost": "whigi2-demo.envict.com",
+        "mail": "whigi.com@gmail.com",
+        "debug": false,
+        "https": false,
+        "uaccount": "whigi-advert-world"
+    },
+    "wissl-advert-bel": {
+        "port": 8091,
+        "localhost": "whigi-advert-bel.wissl.org",
+        "whigihost": "whigi.wissl.org",
+        "mail": "whigi.com@gmail.com",
+        "debug": false,
+        "https": false,
+        "uaccount": "whigi-advert-bel"
+    },
+    "wissl-advert-world": {
+        "port": 8090,
+        "localhost": "whigi-advert-world.wissl.org",
+        "whigihost": "whigi.wissl.org",
+        "mail": "whigi.com@gmail.com",
+        "debug": false,
+        "https": false,
+        "uaccount": "whigi-advert-world"
+    }
+}

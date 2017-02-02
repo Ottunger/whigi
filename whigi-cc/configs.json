@@ -1,0 +1,10 @@
+{
+    "whigi2-cc": {
+        "port": 4443,
+        "localhost": "whigi2-cc.envict.com",
+        "debug": true,
+        "domain": "domain198.12.12.12",
+        "upper": "null",
+        "endpoints": "../common/cdnize/endpoints.json"
+    }
+}

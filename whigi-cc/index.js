@@ -13,13 +13,15 @@ var utils = require('../utils/utils');
 var mapping = require('./mapping');
 
 //Set the running configuration
-//Launch as ">$ node index.js 443 whigi-cc.envict.com false domain whigi-cc.general.com" for instance
-var httpsport = parseInt(process.argv[2]) || 443;
-var localhost = process.argv[3] || 'localhost';
-utils.DEBUG = !!process.argv[4]? process.argv[4] : true;
-utils.RUNNING_ADDR = process.argv[5] || 'domain192.68.12.12';
-utils.WHIGIHOST = (!!process.argv[6] && process.argv[6] != 'null')? process.argv[6] : undefined;
-utils.ENDPOINTS = !!process.argv[7]? process.argv[7] : '../common/cdnize/endpoints.json';
+//Launch as ">$ node index.js localhost" for instance
+var configs = require('./configs.json');
+var config = configs[process.argv[2]];
+var httpport = config.port;
+var localhost = config.localhost;
+utils.DEBUG = config.debug;
+utils.RUNNING_ADDR = config.domain;
+utils.WHIGIHOST = config.upper;
+utils.ENDPOINTS = config.endpoints;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 /**

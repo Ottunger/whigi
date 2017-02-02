@@ -23,16 +23,17 @@ var datasources = require('../common/Datasource');
 var db;
 
 //Set the running configuration
-//Launch as ">$ node index.js 80 whigi.envict.com whigi-restore.envict.com whigi.com@gmail.com false false `pwd`" for instance
-var httpport = parseInt(process.argv[2]) || 80;
-var localhost = process.argv[3] || 'localhost';
-utils.RESTOREHOST = process.argv[4] || 'localhost'; 
+//Launch as ">$ node index.js localhost" for instance
+var configs = require('./configs.json');
+var config = configs[process.argv[2]];
+var httpport = config.port;
+var localhost = config.localhost;
+utils.RESTOREHOST = config.restorehost; 
 utils.RUNNING_ADDR = 'https://' + localhost;
-utils.MAIL_ADDR = process.argv[5] || 'whigi.com@gmail.com';
-utils.DEBUG = !!process.argv[6]? (process.argv[6] == 'true'? true : false): true;
-var isHttps = !!process.argv[7]? process.argv[7] : 'true';
-utils.ENDPOINTS = !!process.argv[9]? process.argv[9] : './endpoints.json';
-utils.DEBUG_PPL = !!process.argv[10]? (process.argv[10] == 'true'? true : false): true;
+utils.MAIL_ADDR = config.mail;
+utils.DEBUG = config.debug;
+utils.ENDPOINTS = config.endpoints;
+utils.DEBUG_PPL = config.debug_ppl;
 if(utils.DEBUG)
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -134,7 +135,7 @@ function listOptions(path, res, next) {
 function connect(callback) {
     mc.connect('mongodb://localhost:27017/whigi', function(err, d) {
         if(!err) {
-            db = new datasources.Datasource(d, process.argv[8], true, false);
+            db = new datasources.Datasource(d, config.mount, true, false);
             user.managerInit(db);
             data.managerInit(db);
             checks.prepareRL();
@@ -457,7 +458,7 @@ connect(function(e) {
         });
     }
 
-    if(isHttps == 'true') {
+    if(config.https) {
         var servers = https.createServer({
             key: fs.readFileSync(__dirname + '/whigi-key.pem'),
             cert: fs.readFileSync(__dirname + '/whigi-cert.pem'),

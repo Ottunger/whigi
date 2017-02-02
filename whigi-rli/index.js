@@ -13,11 +13,13 @@ var utils = require('../utils/utils');
 var mapping = require('./mapping');
 
 //Set the running configuration
-//Launch as ">$ node index.js 443 whigi-rli.envict.com false" for instance
-var httpsport = parseInt(process.argv[2]) || 443;
-var localhost = process.argv[3] || 'localhost';
-utils.DEBUG = !!process.argv[4]? process.argv[4] : true;
-utils.ENDPOINTS = !!process.argv[5]? process.argv[5] : '../common/cdnize/endpoints.json';
+//Launch as ">$ node index.js localhost" for instance
+var configs = require('./configs.json');
+var config = configs[process.argv[2]];
+var httpport = config.port;
+var localhost = config.localhost;
+utils.DEBUG = config.debug;
+utils.ENDPOINTS = config.endpoints;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 /**

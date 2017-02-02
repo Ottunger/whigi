@@ -14,14 +14,16 @@ var utils = require('../utils/utils');
 var mapping = require('./mapping');
 
 //Set the running configuration
-//Launch as ">$ node index.js 80 whigi-giveaway.envict.com whigi.envict.com whigi.com@gmail.com *.envict.com envict.com" for instance
-var httpport = parseInt(process.argv[2]) || 80;
-var localhost = process.argv[3] || 'localhost';
-utils.WHIGIHOST = process.argv[4] || 'localhost'; 
+//Launch as ">$ node index.js localhost" for instance
+var configs = require('./configs.json');
+var config = configs[process.argv[2]];
+var httpport = config.port;
+var localhost = config.localhost;
+utils.WHIGIHOST = config.whigihost; 
 utils.RUNNING_ADDR = 'https://' + utils.WHIGIHOST;
-utils.MAIL_ADDR = process.argv[5] || 'whigi.com@gmail.com';
-var allowed = process.argv[6] || '*';
-utils.RESTOREHOST = process.argv[7] || 'envict.com';
+utils.MAIL_ADDR = config.mail;
+var allowed = config.allowed;
+utils.RESTOREHOST = config.domain;
 
 /**
  * Sets the API to connect to the database.

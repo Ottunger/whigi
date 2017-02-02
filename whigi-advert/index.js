@@ -15,15 +15,16 @@ var utils = require('../utils/utils');
 var mapping = require('./mapping');
 
 //Set the running configuration
-//Launch as ">$ node index.js 80 whigi-advert.envict.com whigi.envict.com whigi.com@gmail.com false false" for instance
-var httpport = parseInt(process.argv[2]) || 80;
-var localhost = process.argv[3] || 'localhost';
-utils.WHIGIHOST = process.argv[4] || 'localhost'; 
+//Launch as ">$ node index.js localhost" for instance
+var configs = require('./configs.json');
+var config = configs[process.argv[2]];
+var httpport = config.port;
+var localhost = config.localhost;
+utils.WHIGIHOST = config.whigihost; 
 utils.RUNNING_ADDR = 'https://' + utils.WHIGIHOST;
-utils.MAIL_ADDR = process.argv[5] || 'whigi.com@gmail.com';
-utils.DEBUG = !!process.argv[6]? process.argv[6] : true;
-var isHttps = !!process.argv[7]? process.argv[7] : 'true';
-var uaccount = !!process.argv[8]? process.argv[8] : 'whigi-advert-world';
+utils.MAIL_ADDR = config.mail;
+utils.DEBUG = config.debug;
+var uaccount = config.uaccount;
 if(utils.DEBUG)
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -110,7 +111,7 @@ connect(function(e) {
         });
     }
     
-    if(isHttps == 'true') {
+    if(config.https) {
         var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-advert-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-advert-cert.pem')}, app);
         servers.listen(httpport);
     } else {

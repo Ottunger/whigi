@@ -1,0 +1,8 @@
+{
+    "whigi2-rli": {
+        "port": 4443,
+        "localhost": "whigi2-rli.envict.com",
+        "debug": true,
+        "endpoints": "../common/cdnize/endpoints.json"
+    }
+}

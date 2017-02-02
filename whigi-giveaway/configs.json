@@ -1,0 +1,18 @@
+{
+    "whigi2-giveaway": {
+        "port": 8082,
+        "localhost": "whigi2-giveaway.envict.com",
+        "whigihost": "whigi2-demo.envict.com",
+        "mail": "whigi.com@gmail.com",
+        "allowed": "https://whigi2-giveaway.envict.com",
+        "domain": "envict.com"
+    },
+    "wissl-giveaways": {
+        "port": 8082,
+        "localhost": "wissl-giveaways.wissl.org",
+        "whigihost": "whigi.wissl.org",
+        "mail": "whigi.com@gmail.com",
+        "allowed": "https://wissl-giveaways.wissl.org",
+        "domain": "wissl.org"
+    }
+}

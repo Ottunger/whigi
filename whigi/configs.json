@@ -1,0 +1,35 @@
+{
+    "localhost": {
+        "port": 443,
+        "localhost": "localhost",
+        "restorehost": "localhost:444",
+        "mail": "whigi.com@gmail.com",
+        "debug": true,
+        "https": true,
+        "endpoints": "./endpoints.json",
+        "debug_ppl": true,
+        "mount": "D:/Projects/Whigi"
+    },
+    "whigi2-demo": {
+        "port": 8080,
+        "localhost": "whigi2-demo.envict.com",
+        "restorehost": "whigi2-restore.envict.com",
+        "mail": "whigi.com@gmail.com",
+        "debug": false,
+        "https": false,
+        "endpoints": "./endpoints.json",
+        "debug_ppl": true,
+        "mount": "/home/gregoire/Whigi"
+    },
+    "wissl": {
+        "port": 8080,
+        "localhost": "whigi.wissl.org",
+        "restorehost": "whigi-restore.wissl.org",
+        "mail": "whigi.com@gmail.com",
+        "debug": false,
+        "https": false,
+        "endpoints": "./endpoints.json",
+        "debug_ppl": false,
+        "mount": "/home/gregoire/Whigi"
+    }
+}
