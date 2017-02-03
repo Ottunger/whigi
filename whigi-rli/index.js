@@ -65,6 +65,12 @@ if(utils.DEBUG == false) {
     });
 }
 
-var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-rli-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-rli-cert.pem')}, app);
+var servers = https.createServer({
+    key: fs.readFileSync(__dirname + '/../whigi/whigi-key.pem'),
+    cert: fs.readFileSync(__dirname + '/../whigi/whigi-cert.pem'),
+    ca: fs.readFileSync(__dirname + '/../whigi/whigi-cert.pem'),
+    requestCert: true,
+    rejectUnauthorized: true
+}, app);
 servers.listen(httpsport);
 console.log('Booststrap finished.');

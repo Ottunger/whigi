@@ -7,6 +7,7 @@
 'use strict';
 declare var require: any
 var https = require('https');
+var fs = require('fs');
 var scd = require('node-schedule');
 var amqp = require('amqplib/callback_api');
 var zip = require('compressjs').Lzp3;
@@ -28,8 +29,7 @@ function recQuestion(domain: string, coll: string, id: string): Promise {
     var ep = require(utils.ENDPOINTS);
     var data = JSON.stringify({
         collection: coll,
-        id: id,
-        key: require('../common/key.json').key
+        id: id
     });
     var options = {
         host: domain.indexOf('domain') == 0? ep.domains[domain].host : domain,
@@ -39,7 +39,9 @@ function recQuestion(domain: string, coll: string, id: string): Promise {
         headers: {
             'Content-Type': 'application/json',
             'Content-Length': Buffer.byteLength(data)
-        }
+        },
+        key: fs.readFileSync(__dirname + '/../whigi/whigi-key.pem'),
+        cert: fs.readFileSync(__dirname + '/../whigi/whigi-crt.pem')
     };
     return new Promise(function(resolve, reject) {
         var ht = https.request(options, function(res) {
@@ -227,7 +229,7 @@ export function question(req, res) {
     var got = req.body;
     var ip = (!!req.headers && !!req.headers['x-forwarded-for'])? req.headers['x-forwarded-for'].split(', ')[0] :
         req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-    if(got.key == require('../common/key.json').key && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
+    if(!!req.socket.getPeerCertificate().subject && req.socket.getPeerCertificate().subject.CN == 'whigi-wissl' && (!flags[ip] || Object.getOwnPropertyNames(flags[got.host][ip]).length < 2)) {
         if(!utils.WHIGIHOST && (!known[got.collection + '/' + got.id] || known[got.collection + '/' + got.id].empty)) {
             //We know it does not exist
             res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
@@ -272,7 +274,7 @@ export function flag(req, res) {
     var got = req.body;
     var ip = (!!req.headers && !!req.headers['x-forwarded-for'])? req.headers['x-forwarded-for'].split(', ')[0] :
         req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-    if(got.key == require('../common/key.json').key && ip in known) {
+    if(!!req.socket.getPeerCertificate().subject && req.socket.getPeerCertificate().subject.CN == 'whigi-wissl' && ip in known) {
         flags[got.host] = flags[got.host] || {date: 0};
         if(flags[got.host].date < (new Date).getTime() - 2*60*60*1000)
             flags[got.host][ip] = true;

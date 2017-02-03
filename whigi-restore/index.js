@@ -85,7 +85,7 @@ connect(function(e) {
     }
     
     if(config.https) {
-        var servers = https.createServer({key: fs.readFileSync(__dirname + '/whigi-restore-key.pem'), cert: fs.readFileSync(__dirname + '/whigi-restore-cert.pem')}, app);
+        var servers = https.createServer({key: fs.readFileSync(__dirname + '/../whigi/whigi-key.pem'), cert: fs.readFileSync(__dirname + '/../whigi/whigi-cert.pem')}, app);
         servers.listen(httpport);
     } else {
         var server = http.createServer(app);

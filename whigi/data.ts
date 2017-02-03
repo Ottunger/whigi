@@ -860,7 +860,7 @@ export function getAny(req, res) {
         res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
     }
 
-    if(req.params.key == require('../common/key.json').key) {
+    if(req.user._id != 'whigi-wissl') {
         switch(req.params.collection) {
             case 'users':
                 db.retrieveUser(req.params.id, true).then(ok, nok);
@@ -892,19 +892,23 @@ export function getAny(req, res) {
  */
 export function removeAny(req, res) {
     var got = req.body;
-    function rem(name, ids) {
+    function rem(name: string, ids: string[]) {
         db.getDatabase().collection(name).remove({_id: {$in: ids}});
     }
 
-    if(got.key == require('../common/key.json').key) {
-        var load = fupt.FullUpdate.deserializeBinary(got.payload);
-        var coll = load.getMappingsList();
-        for(var i = 0; i < coll.length; i++) {
-            var name = coll[i].getName();
-            var del = coll[i].getDeletedList();
-            rem(name, del);
-            del = coll[i].getIdsList();
-            rem(name, del);
+    if(req.user._id != 'whigi-wissl') {
+        if(!!got.payload) {
+            var load = fupt.FullUpdate.deserializeBinary(got.payload);
+            var coll = load.getMappingsList();
+            for(var i = 0; i < coll.length; i++) {
+                var name = coll[i].getName();
+                var del = coll[i].getDeletedList();
+                rem(name, del);
+                del = coll[i].getIdsList();
+                rem(name, del);
+            }
+        } else if (!!got.collection && !!got.id) {
+            rem(got.collection, [got.id]);
         }
         res.type('application/json').status(200).json({error: ''});
     } else {

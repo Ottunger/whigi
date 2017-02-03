@@ -7,6 +7,7 @@
 'use strict';
 declare var require: any
 var https = require('https');
+var fs = require('fs');
 var amqp = require('amqplib/callback_api');
 var zip = require('compressjs').Lzp3;
 var utils = require('../utils/utils');
@@ -23,8 +24,7 @@ var known = {}, flags = {};
  */
 function sendDelete(host: string, buf: number[]) {
     var data = JSON.stringify({
-        payload: buf,
-        key: require('../common/key.json').key
+        payload: buf
     });
     var options = {
         host: host,
@@ -34,7 +34,9 @@ function sendDelete(host: string, buf: number[]) {
         headers: {
             'Content-Type': 'application/json',
             'Content-Length': Buffer.byteLength(data)
-        }
+        },
+        key: fs.readFileSync(__dirname + '/../whigi/whigi-key.pem'),
+        cert: fs.readFileSync(__dirname + '/../whigi/whigi-crt.pem')
     };
     var ht = https.request(options, function(res) {
         var r = '';
@@ -160,7 +162,7 @@ export function close() {
  */
 export function question(req, res) {
     var got = req.body;
-    if(got.key == require('../common/key.json').key) {
+    if(!!req.socket.getPeerCertificate().subject && req.socket.getPeerCertificate().subject.CN == 'whigi-wissl') {
         var ret = {points: {}}, ips = Object.getOwnPropertyNames(known);
         for(var i = 0; i < ips.length; i++) {
             if(known[ips[i]].at < (new Date).getTime() - 4*60*60*1000) {
@@ -188,7 +190,7 @@ export function flag(req, res) {
     var got = req.body;
     var ip = (!!req.headers && !!req.headers['x-forwarded-for'])? req.headers['x-forwarded-for'].split(', ')[0] :
         req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-    if(got.key == require('../common/key.json').key && ip in known) {
+    if(!!req.socket.getPeerCertificate().subject && req.socket.getPeerCertificate().subject.CN == 'whigi-wissl' && ip in known) {
         flags[got.host] = flags[got.host] || {date: 0};
         if(flags[got.host].date < (new Date).getTime() - 2*60*60*1000)
             flags[got.host][ip] = true;

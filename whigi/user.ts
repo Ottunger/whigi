@@ -53,11 +53,8 @@ export function managerInit(dbg: Datasource) {
             for(var k = 2; k < 26; k++)
                 User.trgs.push(String.fromCharCode(97+i) + String.fromCharCode(97+j) + String.fromCharCode(97+k));
     //Prepare whigi-wissl
-    db.retrieveUser('whigi-wissl').then(function(whigi) {
-        master_key = utils.getMK(hash.sha256(require('./password.json').pwd + whigi.salt), whigi);
-        var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-        rsa_key = aes.util.convertBytesToString(decrypter.decrypt(whigi.rsa_pri_key[0]));
-    }, function(e) {});
+    master_key = require('./whigi-mk').key;
+    rsa_key = fs.readFileSync(__dirname + '/whigi-key.pem');
     //Get PayPal token
     setInterval(function() {
         utils.paypalToken(function(token) {
@@ -1090,7 +1087,7 @@ export function removeToken(req, res, respond?: boolean) {
  */
 export function restoreToken(req, res) {
     var got = req.body;
-    if(got.key == require('../common/key.json').key) {
+    if(req.user._id != 'whigi-wissl') {
         var t: Token = new Token(got.token_id, got.bearer_id, (new Date).getTime(), false, db);
         t.persist().then(function() {
             res.type('application/json').status(201).json({error: '', _id: got.token_id});

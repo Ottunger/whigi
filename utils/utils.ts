@@ -259,9 +259,7 @@ export function getMK(kd: string, profile: any): number[] {
 export function mailUser(sharee: string, db: any, callback: Function, err?: Function) {
     db.retrieveUser('whigi-wissl', true, [sharee]).then(function(owned) {
         db.retrieveVault(owned.shared_with_me[sharee]['profile/email']).then(function(va) {
-            var master_key = getMK(hash.sha256(require('../whigi/password.json').pwd + owned.salt), owned);
-            var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-            var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(owned.rsa_pri_key[0]));
+            var rsa_key = fs.readFileSync(__dirname + '/../whigi/whigi-key.pem');
             var aesKey: number[] = decryptRSA(va.aes_crypted_shared_pub, rsa_key);
             //Have to check for bound vaults...
             if(va.data_crypted_aes.indexOf('datafragment') == 0) {

@@ -5,7 +5,8 @@
         "whigihost": "whigi2-demo.envict.com",
         "mail": "whigi.com@gmail.com",
         "allowed": "https://whigi2-giveaway.envict.com",
-        "domain": "envict.com"
+        "domain": "envict.com",
+        "secret": "AsessionSecret"
     },
     "wissl-giveaways": {
         "port": 8082,
@@ -13,6 +14,7 @@
         "whigihost": "whigi.wissl.org",
         "mail": "whigi.com@gmail.com",
         "allowed": "https://wissl-giveaways.wissl.org",
-        "domain": "wissl.org"
+        "domain": "wissl.org",
+        "secret": "AsessionSecret"
     }
 }

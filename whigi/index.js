@@ -328,6 +328,9 @@ connect(function(e) {
     app.post('/api/v:version/profile/token/new', pauth);
     app.delete('/api/v:version/profile/token', pauth);
     app.get('/api/v:version/eid/bce/:bce', pauth);
+    app.post('/api/v:version/profile/restore-token', pauth);
+    app.post('/api/v:version/oauth/new', pauth);
+    app.delete('/api/v:version/oauth/:id', pauth);
     app.post('/api/v:version/nominatim/:php', pauth);
     app.post('/api/v:version/payed/:for/:pid', pauth);
     app.get('/api/v:version/payed/init/begin/:for', pauth);
@@ -343,8 +346,8 @@ connect(function(e) {
     app.delete('/api/v:version/vault/forother/:vault_id', pauth);
     app.get('/api/v:version/vault/:vault_id', pauth);
     app.get('/api/v:version/vault/time/:vault_id', pauth);
-    app.post('/api/v:version/oauth/new', pauth);
-    app.delete('/api/v:version/oauth/:id', pauth);
+    app.get('/api/v:version/any/:collection/:id', pauth);
+    app.post('/api/v:version/any/remove', pauth);
     app.post('/api/v:version/ask', pauth);
     //API LIMITATIONS FOR OAUTH
     app.post('/api/v:version/close/:id', checks.checkOAuth(true));
@@ -381,11 +384,13 @@ connect(function(e) {
     app.post('/api/v:version/profile/uname', checks.checkBody(['new_username']));
     app.post('/api/v:version/user/create', checks.checkBody(['username', 'password']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
+    app.post('/api/v:version/profile/restore-token', checks.checkBody(['token_id', 'bearer_id']));
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix']));
     app.post('/api/v:version/payed/:for/:pid', checks.checkBody(['payer_id']));
     //-----
     app.post('/api/v:version/vault/link', checks.checkBody(['vault_id', 'data_name']));
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch', 'trigger', 'real_name', 'version']));
+    //app.post('/api/v:version/any/remove', checks.checkBody(['collection', 'id']));
     app.post('/api/v:version/ask', checks.checkBody(['list', 'expire', 'trigger', 'towards']));
     //API LONG LIVED COMMANDS
     app.post('/api/v:version/close/:id', checks.checkPuzzle);
@@ -436,7 +441,7 @@ connect(function(e) {
     app.delete('/api/v:version/vault/forother/:vault_id', data.removeStorable);
     app.get('/api/v:version/vault/:vault_id', data.getVault);
     app.get('/api/v:version/vault/time/:vault_id', data.accessVault);
-    app.get('/api/v:version/any/:key/:collection/:id', data.getAny);
+    app.get('/api/v:version/any/:collection/:id', data.getAny);
     app.post('/api/v:version/any/remove', data.removeAny);
     app.post('/api/v:version/ask', data.askGrants);
 
@@ -460,8 +465,8 @@ connect(function(e) {
 
     if(config.https) {
         var servers = https.createServer({
-            key: fs.readFileSync(__dirname + '/whigi-key.pem'),
-            cert: fs.readFileSync(__dirname + '/whigi-cert.pem'),
+            key: fs.readFileSync(config.keypem),
+            cert: fs.readFileSync(config.certpem),
             ca: fs.readFileSync(__dirname + '/whigi-cert.pem'),
             requestCert: true,
             rejectUnauthorized: false

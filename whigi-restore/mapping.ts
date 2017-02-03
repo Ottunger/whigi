@@ -8,6 +8,7 @@
 declare var require: any
 var ndm = require('nodemailer');
 var https = require('https');
+var fs = require('fs');
 var hash = require('js-sha256');
 var aes = require('aes-js');
 var utils = require('../utils/utils');
@@ -44,9 +45,8 @@ function whigi(method: string, path: string, data?: any): Promise {
         port: 443,
         path: '/api/v1' + path,
         method: method,
-        headers: {
-          'Authorization': 'Basic ' + new Buffer('whigi-restore:' + hash.sha256(require('./password.json').pwd)).toString('base64')
-        }
+        key: fs.readFileSync(__dirname + '/../whigi/whigi-key.pem'),
+        cert: fs.readFileSync(__dirname + '/whigi-restore-cert.pem')
     };
     if(method == 'POST') {
         data = JSON.stringify(data);
@@ -124,7 +124,7 @@ export function mapGet(req, res) {
  */
 export function requestMapping(req, res) {
     var username = req.params.id.toLowerCase();
-    function complete(recup, mk, pk, data) {
+    function complete(recup, pk, data) {
         try {
             if(recup) {
                 whigi('GET', '/vault/' + data.shared_with_me[username]['profile/recup_id']).then(function(vault) {
@@ -192,15 +192,13 @@ export function requestMapping(req, res) {
     }
 
     whigi('GET', '/profile').then(function(profile) {
-        var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + profile.salt), profile);
-        var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-        var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(profile.rsa_pri_key[0]));
+        var rsa_key = fs.readFileSync(__dirname + '/../whigi/whigi-key.pem');
         whigi('GET', '/profile/data').then(function(data) {
             if(!!data && !!data.shared_with_me && !!data.shared_with_me[username] && !!data.shared_with_me[username]['profile/email'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
                 if(!!data.shared_with_me[username]['profile/recup_id']) {
-                    complete(true, master_key, rsa_key, data);
+                    complete(true, rsa_key, data);
                 } else if(!!data.shared_with_me[username]['keys/pwd/mine2']) {
-                    complete(false, master_key, rsa_key, data);
+                    complete(false, rsa_key, data);
                 } else {
                     res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
                 }
@@ -224,7 +222,7 @@ export function requestMapping(req, res) {
  */
 export function mixMapping(req, res) {
     var username = req.params.id.toLowerCase();
-    function complete(mk, pk, data) {
+    function complete(pk, data) {
         try {
             whigi('GET', '/vault/' + data.shared_with_me[username]['profile/email']).then(function(vault) {
                 var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
@@ -260,12 +258,10 @@ export function mixMapping(req, res) {
     }
 
     whigi('GET', '/profile').then(function(profile) {
-        var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + profile.salt), profile);
-        var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-        var rsa_key = aes.util.convertBytesToString(decrypter.decrypt(profile.rsa_pri_key[0]));
+        var rsa_key = fs.readFileSync(__dirname + '/../whigi/whigi-key.pem');
         whigi('GET', '/profile/data').then(function(data) {
             if(!!data && !!data.shared_with_me && !!data.shared_with_me[username] && !!data.shared_with_me[username]['profile/email'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
-                complete(master_key, rsa_key, data);
+                complete(rsa_key, data);
             } else {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
             }

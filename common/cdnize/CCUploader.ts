@@ -7,7 +7,6 @@
 'use strict';
 declare var require: any
 var scd = require('node-schedule');
-var https = require('https');
 var amqp = require('amqplib/callback_api');
 var zip = require('compressjs').Lzp3;
 var fupt = require('./full-update_pb');

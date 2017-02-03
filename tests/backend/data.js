@@ -242,8 +242,10 @@ exports.test = function() {
                     it('should return any mapping for the good key', function(done) {
                         var f = new fk.FakeRes(true);
                         me.getAny({
+                            user: {
+                                _id: 'whigi-wissl'
+                            },
                             params: {
-                                key: require('../../common/key.json').key,
                                 collection: 'users',
                                 id: dummy_user._id
                             }
@@ -256,8 +258,10 @@ exports.test = function() {
                     it('should remove mappings for the good key', function(done) {
                         var f = new fk.FakeRes(false);
                         me.removeAny({
+                            user: {
+                                _id: 'whigi-wissl'
+                            },
                             body: {
-                                key: require('../../common/key.json').key,
                                 payload: new fupt.FullUpdate().serializeBinary()
                             }
                         }, f);

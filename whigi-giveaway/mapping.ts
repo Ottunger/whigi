@@ -47,9 +47,8 @@ function whigi(method: string, path: string, data?: any): Promise {
         port: 443,
         path: path,
         method: method,
-        headers: {
-            'Authorization': 'Basic ' + new Buffer('whigi-gwp:' + hash.sha256(require('./password.json').pwd)).toString('base64')
-        }
+        key: fs.readFileSync(__dirname + '/../whigi/whigi-key.pem'),
+        cert: fs.readFileSync(__dirname + '/whigi-gwp-cert.pem')
     };
     if(method == 'POST') {
         data = JSON.stringify(data);
@@ -151,15 +150,7 @@ export function create(req, res) {
         }
         whigi('GET', '/api/v1/profile').then(function(user) {
             if(rsa_key == '') {
-                try {
-                    var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + user.salt), user);
-                    var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-                    rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key[0]));
-                } catch(e) {
-                    console.log('Cannot decrypt our keys.');
-                    res.redirect('/error.html');
-                    return;
-                }
+                rsa_key = fs.readFileSync(__dirname + '/../whigi/whigi-key.pem');
             }
 
             whigi('GET', '/api/v1/profile/data').then(function(data) {
@@ -470,15 +461,7 @@ export function remove(req, res, respond?: boolean) {
 
     whigi('GET', '/api/v1/profile').then(function(user) {
         if(rsa_key == '') {
-            try {
-                var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + user.salt), user);
-                var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-                rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key[0]));
-            } catch(e) {
-                console.log('Cannot decrypt our keys.');
-                if(respond === true)
-                    res.redirect('/error.html');
-            }
+            rsa_key = fs.readFileSync(__dirname + '/../whigi/whigi-key.pem');
         }
 
         whigi('GET', '/api/v1/profile/data').then(function(data) {

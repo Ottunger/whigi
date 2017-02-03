@@ -8,7 +8,9 @@
         "https": true,
         "endpoints": "./endpoints.json",
         "debug_ppl": true,
-        "mount": "D:/Projects/Whigi"
+        "mount": "D:/Projects/Whigi",
+        "keypem": "D:/Projects/Whigi/whigi/whigi-key.pem",
+        "certpem": "D:/Projects/Whigi/whigi/whigi-cert.pem"
     },
     "whigi2-demo": {
         "port": 8080,
@@ -19,7 +21,9 @@
         "https": false,
         "endpoints": "./endpoints.json",
         "debug_ppl": true,
-        "mount": "/home/gregoire/Whigi"
+        "mount": "/home/gregoire/Whigi",
+        "keypem": "/home/gregoire/envict.com.key",
+        "certpem": "/home/gregoire/envict.bundle.crt"
     },
     "wissl": {
         "port": 8080,
@@ -30,6 +34,8 @@
         "https": false,
         "endpoints": "./endpoints.json",
         "debug_ppl": false,
-        "mount": "/home/gregoire/Whigi"
+        "mount": "/home/gregoire/Whigi",
+        "keypem": "/etc/ssl/certs/wissl.org.key",
+        "certpem": "/etc/ssl/certs/wissl.bundle.cert"
     }
 }

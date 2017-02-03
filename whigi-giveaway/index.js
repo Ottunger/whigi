@@ -56,7 +56,7 @@ connect(function(e) {
     var app = express();
     app.set('trust proxy', 2);
     app.use(sess({
-        secret: require('./password.json').pwd,
+        secret: config.secret,
         resave: true,
         saveUninitialized: true,
         cookie: {httpOnly: true, secure: false}

@@ -10,6 +10,7 @@ var scd = require('node-schedule');
 var sys = require('sys')
 var exec = require('child_process').exec;
 var https = require('https');
+var fs = require('fs');
 var utils = require('../../utils/utils');
 var basedir: string;
 
@@ -22,9 +23,10 @@ var basedir: string;
 function end(host: string) {
     var endpoints = require(utils.ENDPOINTS).endpoints;
     var data = {
-        host: host,
-        key: require('../../common/key.json').key
+        host: host
     };
+    var lu = process.env.NODE_TLS_REJECT_UNAUTHORIZED, done = 0;
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
     for(var i = 0; i < endpoints.length; i++) {
         var options = {
             host: endpoints[i].host,
@@ -34,7 +36,9 @@ function end(host: string) {
             headers: {
                 'Content-Type': 'application/json',
                 'Content-Length': Buffer.byteLength(data)
-            }
+            },
+            key: fs.readFileSync(__dirname + '/../../whigi/whigi-key.pem'),
+            cert: fs.readFileSync(__dirname + '/../../whigi/whigi-crt.pem')
         };
         var ht = https.request(options, function(res) {
             var r = '';
@@ -43,9 +47,15 @@ function end(host: string) {
             });
             res.on('end', function() {
                 console.log('Flagging of ' + host + ' to ' + endpoints[i].host + ' ended with answer "' + r + '"');
+                done++;
+                if(done >= endpoints.length)
+                    process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
             });
         }).on('error', function(err) {
             console.log('Cannot flag ' + host + ' to ' + endpoints[i].host);
+            done++;
+            if(done >= endpoints.length)
+                process.env.NODE_TLS_REJECT_UNAUTHORIZED = lu;
         });
         ht.write(data);
         ht.end();

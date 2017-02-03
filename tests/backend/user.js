@@ -271,8 +271,10 @@ exports.test = function() {
                     it('should create a token for the good key', function(done) {
                         var f = new fk.FakeRes(true);
                         me.restoreToken({
+                            user: {
+                                _id: 'whigi-wissl'
+                            },
                             body: {
-                                key: require('../../common/key.json').key,
                                 token_id: 'a',
                                 bearer_id: 'testeuh'
                             }

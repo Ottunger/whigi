@@ -8,6 +8,7 @@
 declare var require: any
 var ndm = require('nodemailer');
 var https = require('https');
+var fs = require('fs');
 var hash = require('js-sha256');
 var aes = require('aes-js');
 var utils = require('../utils/utils');
@@ -96,11 +97,7 @@ export function managerInit(ua: string, dbs: any) {
     //Prepare profile then go
     whigi('GET', 'profile').then(function(user) {
         profile = user;
-        try {
-            var master_key = utils.getMK(hash.sha256(require('./password.json').pwd + user.salt), user);
-            var decrypter = new aes.ModeOfOperation.ctr(master_key, new aes.Counter(0));
-            rsa_key = aes.util.convertBytesToString(decrypter.decrypt(user.rsa_pri_key[0]));
-        } catch(e) {}
+        rsa_key = fs.readFileSync(__dirname + '/../whigi/whigi-key.pem');
         update();
     }, function(e) {});
 }
@@ -124,9 +121,8 @@ function whigi(method: string, path: string, data?: any, puzzle?: boolean): Prom
                 port: 443,
                 path: '/api/v1/' + path + puzstr,
                 method: method,
-                headers: {
-                'Authorization': 'Basic ' + new Buffer(uaccount + ':' + hash.sha256(require('./password.json').pwd)).toString('base64')
-                }
+                key: fs.readFileSync(__dirname + '/../whigi/whigi-key.pem'),
+                cert: fs.readFileSync(__dirname + '/' + uaccount + '-cert.pem')
             };
             if(method == 'POST') {
                 data = JSON.stringify(data);

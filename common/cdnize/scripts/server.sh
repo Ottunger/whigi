@@ -10,9 +10,6 @@ cd whigi
 get data.js
 get index.js
 get user.js
-get whigi-cert.pem
-get whigi-csr.pem
-get whigi-key.pem
 cd ../utils
 get BloomFilter.js
 get RSAPool.js
@@ -40,9 +37,6 @@ bye
 diff $1/data.js $2/whigi/data.js 1>&2
 diff $1/index.js $2/whigi/index.js 1>&2
 diff $1/user.js $2/whigi/user.js 1>&2
-diff $1/whigi-cert.pem $2/whigi/whigi-cert.pem 1>&2
-diff $1/whigi-csr.pem $2/whigi/whigi-csr.pem 1>&2
-diff $1/whigi-key.pem $2/whigi/whigi-key.pem 1>&2
 diff $1/BloomFilter.js $2/utils/Bloomfilter.js 1>&2
 diff $1/RSAPool.js $2/utils/RSAPool.js 1>&2
 diff $1/checks.js $2/utils/checks.js 1>&2

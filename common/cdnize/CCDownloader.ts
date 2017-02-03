@@ -7,6 +7,7 @@
 'use strict';
 declare var require: any
 var https = require('https');
+var fs = require('fs');
 var utils = require('../../utils/utils');
 
 export class Downloader {
@@ -33,8 +34,7 @@ export class Downloader {
         var endpoints = e.endpoints, hosts = e.hosts;
         var data = JSON.stringify({
             collection: name,
-            id: id,
-            key: require('../../common/key.json').key
+            id: id
         });
         var asked = 0, points = {}, tried = 0, found = false, keys, erred = false;
         var lu = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
@@ -59,8 +59,10 @@ export class Downloader {
                         var options = {
                             host: keys[i],
                             port: hosts[keys[i]],
-                            path: '/api/v1/any/' + require('../../common/key.json').key + '/' + name + '/' + id,
-                            method: 'GET'
+                            path: '/api/v1/any/' + name + '/' + id,
+                            method: 'GET',
+                            key: fs.readFileSync(__dirname + '/../../whigi/whigi-key.pem'),
+                            cert: fs.readFileSync(__dirname + '/../../whigi/whigi-crt.pem')
                         };
                         var ht = https.request(options, function(res) {
                             var r = '';
@@ -99,7 +101,9 @@ export class Downloader {
                     headers: {
                         'Content-Type': 'application/json',
                         'Content-Length': Buffer.byteLength(data)
-                    }
+                    },
+                    key: fs.readFileSync(__dirname + '/../../whigi/whigi-key.pem'),
+                    cert: fs.readFileSync(__dirname + '/../../whigi/whigi-crt.pem')
                 };
                 var ht = https.request(options, function(res) {
                     var r = '';
