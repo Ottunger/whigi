@@ -13,6 +13,7 @@ var pass = require('passport');
 var fs = require('fs');
 var hash = require('js-sha256');
 var mc = require('mongodb').MongoClient;
+var pki = require('node-forge').pki;
 var BS = require('passport-http').BasicStrategy;
 var TS = require('passport-token-auth');
 var utils = require('../utils/utils');
@@ -20,7 +21,7 @@ var checks = require('../utils/checks');
 var user = require('./user');
 var data = require('./data');
 var datasources = require('../common/Datasource');
-var db;
+var db, rpem;
 
 //Set the running configuration
 //Launch as ">$ node index.js localhost" for instance
@@ -136,6 +137,7 @@ function connect(callback) {
     mc.connect('mongodb://localhost:27017/whigi', function(err, d) {
         if(!err) {
             db = new datasources.Datasource(d, config.mount, true, false);
+            rpem = pki.certificateFromPem(fs.readFileSync(__dirname + '/whigi-cert.pem'));
             user.managerInit(db);
             data.managerInit(db);
             checks.prepareRL();
@@ -234,14 +236,46 @@ pass.use(new TS(function(token, done) {
 }));
 
 /**
+ * Chunks the string.
+ * @fucntion chunk
+ * @public
+ * @param {String} str Input.
+ * @param {Number} n Break.
+ * @return {String[]} Chunks.
+ */
+function chunk(str, n) {
+    var ret = [], i, len;
+    for(i = 0, len = str.length; i < len; i += n) {
+        ret.push(str.substr(i, n))
+    }
+    return ret
+};
+
+/**
  * Is the first middleware for passport.
  * @function pauth
  * @public
  */
 function pauth(req, res, next) {
-    var cert = config.https? req.socket.getPeerCertificate() : {};
-    if(!!cert.subject) {
-        var id = cert.subject.CN;
+    var cert;
+    if(!!req.get('X-SSL-CERT')) {
+        var t = '-----BEGIN CERTIFICATE-----\n' + chunk(req.get('X-SSL-CERT'), 64).join('\n') + '\n-----END CERTIFICATE-----';
+    } else if(config.https) {
+        var t = '-----BEGIN CERTIFICATE-----\n' + chunk(req.socket.getPeerCertificate().raw.toString('base64'), 64).join('\n') + '\n-----END CERTIFICATE-----';
+    }
+    try {
+        cert = pki.certificateFromPem(t);
+    } catch(e) {}
+    if(!!cert) {
+        var ok = false;
+        try {
+            ok = rpem.verify(cert);
+        } catch(e) {}
+        if(!ok) {
+            res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
+            return;
+        }
+        var id = cert.subject.getField('CN').value;
         db.retrieveUser(id).then(function(user) {
             if(!!user && !user.company_info.is_closed) {
                 req.user = user;

@@ -595,19 +595,19 @@ export function whigiCert(pubPem: string, priPemLoc: string, params: any): strin
     var localAttrs = [
         {
             name: 'commonName',
-            value: 'wissl.org'
+            value: 'whigi-wissl'
         }, {
             name: 'countryName',
             value: 'BE'
         }, {
             shortName: 'ST',
-            value: 'Hainaut'
+            value: 'Some-State'
         }, {
             name: 'localityName',
             value: 'Lodelinsart'
         }, {
             name: 'organizationName',
-            value: 'WiSSL'
+            value: 'whigi-wissl'
         }
     ], remoteAttrs = [
         {
