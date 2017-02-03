@@ -49,7 +49,7 @@ export function managerInit(ua: string, dbs: any) {
             sharers.forEach(function(sharer) {
                 var campaigns = Object.getOwnPropertyNames(data.shared_with_me[sharer]);
                 campaigns.forEach(function(campaign) {
-                    db.collection('campaigns').findOne({_id: campaign}).then(function(cmp) {
+                    db.collection('campaigns').findOne({_id: campaign}, function(err, cmp) {
                         if(!!cmp)
                             return;
                         //Now we have to insert a new share!
@@ -276,7 +276,8 @@ export function search(req, res) {
         limitor['topics.' + lang] = terms[i];
         query.$and[1].$or.push(limitor);
     }
-    db.collection('campaigns').find(query).toArray().then(function(docs: Ad[]) {
+    db.collection('campaigns').find(query).toArray(function(err, docs: Ad[]) {
+        docs = docs || [];
         function ns(a: any[], b: any[]): number {
             var n = 0;
             for(var i = 0; i < a.length; i++)

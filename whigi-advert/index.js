@@ -10,7 +10,7 @@ var body = require('body-parser');
 var http = require('http');
 var https = require('https');
 var fs = require('fs');
-var mc = require('promised-mongo');
+var mc = require('mongodb').MongoClient;
 var utils = require('../utils/utils');
 var mapping = require('./mapping');
 
@@ -50,13 +50,14 @@ function listOptions(path, res, next) {
  * @param {Function} callback Callback.
  */ 
 function connect(callback) {
-    d = mc('localhost:27017/' + uaccount);
-    if(d) {
-        mapping.managerInit(uaccount, d);
-        callback(false);
-    } else {
-        callback(true);
-    }
+    mc.connect('mongodb://localhost:27017/' + uaccount, function(err, d) {
+        if(!err) {
+            mapping.managerInit(uaccount, d);
+            callback(false);
+        } else {
+            callback(true);
+        }
+    });
 }
 
 /**
