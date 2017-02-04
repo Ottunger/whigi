@@ -591,7 +591,7 @@ export function whigiCert(pubPem: string, priPemLoc: string, params: any): strin
     cert.serialNumber = '01';
     cert.validity.notBefore = new Date();
     cert.validity.notAfter = new Date();
-    cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 100);
+    cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1000);
     var localAttrs = [
         {
             name: 'commonName',

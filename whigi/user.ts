@@ -989,7 +989,7 @@ export function regUser(req, res) {
 
     if(user.password.length >= 8 && !checks.isWhigi(user.username)) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
-            if(ok || utils.DEBUG || req.query.android === 'true' || proposal.indexOf('wiuser-') == 0) {
+            if(ok || utils.DEBUG || req.query.android === 'true' || proposal.indexOf('wiuser') == 0) {
                 db.retrieveUser(proposal).then(function(u) {
                     if(u == undefined)
                         complete();
@@ -1001,6 +1001,70 @@ export function regUser(req, res) {
             } else {
                 res.type('application/json').status(400).json({error: utils.i18n('client.captcha', req)});
             }
+        });
+    } else {
+        res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
+    }
+}
+
+/**
+ * Forges the response to the registration of a user that keeps his keys.
+ * @function regUserDummy
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function regUserDummy(req, res) {
+    var user = req.body, proposal = user.username.toLowerCase().replace(/[^a-z0-9\-]/g, '');
+
+    function end(u: User) {
+        u.persist().then(function() {
+            res.type('application/json').status(201).json({error: '', _id: u._id, hidden_id: u.hidden_id, cert: u.cert});
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    }
+    function complete() {
+        var u: User = new User({}, db);
+        u._id = proposal;
+        u.puzzle = utils.generateRandomString(16);
+        u.data = {};
+        u.shared_with_me = {};
+        u.oauth = [];
+        u.rsa_pub_key = req.body.public_pem;
+        u.is_company = !!user.company_info? 1 : 0;
+        u.company_info = {by_key: true};
+        u.hidden_id = utils.generateRandomString(24);
+        if(!!user.company_info && !!user.company_info.name)
+            u.company_info.name = user.company_info.name;
+        if(!!user.company_info && !!user.company_info.bce)
+            u.company_info.bce = user.company_info.bce;
+        if(!!user.company_info && !!user.company_info.rrn)
+            u.company_info.rrn = user.company_info.rrn;
+        if(!!user.company_info && !!user.company_info.address)
+            u.company_info.address = user.company_info.address;
+        if(!!user.company_info && !!user.company_info.picture)
+            u.company_info.picture = user.company_info.picture;
+        if(!!user.company_info && !!user.company_info.is_company)
+            u.company_info.is_company = true;
+        //Now issue the certificate
+        u.cert = utils.whigiCert(u.rsa_pub_key, './whigi/whigi-key.pem', {
+            commonName: u._id,
+            countryName: 'BE',
+            localityName: '',
+            organizationName: ''
+        });
+        end(u);
+    }
+
+    if(!checks.isWhigi(user.username) && proposal.indexOf('wiuser') != 0) {
+        db.retrieveUser(proposal).then(function(u) {
+            if(u == undefined)
+                complete();
+            else
+                res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
     } else {
         res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});

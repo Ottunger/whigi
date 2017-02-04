@@ -176,6 +176,61 @@
                                 "type": "object",
                                 "description": "Any context required during template rendering, you can issue your i18n strings within i18n object",
                                 "required": false
+                            },
+                            "company_info": {
+                                "type": "object",
+                                "description": "Any public info to already apply",
+                                "required": false
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "_id": {
+                                "type": "string",
+                                "description": "The newly created username, which may be changed according to our rules"
+                            },
+                            "hidden_id": {
+                                "type": "string",
+                                "description": "The true unique ID of the new user"
+                            }
+                        }
+                    },
+                    {
+                        "name": "userack",
+                        "path": "/api/v{version}/user/ack",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "201, 400, 500",
+                        "method": "POST",
+                        "desc": "Create a new user",
+                        "description": "Create a new user from client side.",
+                        "query": {
+                            "captcha": {
+                                "type": "string",
+                                "description": "A captcha to validate",
+                                "required": true
+                            }
+                        },
+                        "post": {
+                            "username": {
+                                "type": "string",
+                                "description": "Desired username",
+                                "required": true
+                            },
+                            "public_key": {
+                                "type": "string",
+                                "description": "PEM encoded public key",
+                                "required": true
+                            },
+                            "company_info": {
+                                "type": "object",
+                                "description": "Any public info to already apply",
+                                "required": false
                             }
                         },
                         "response": {

@@ -11,7 +11,8 @@ db.users.update({_id: 'whigi-restore'}, {
     company_info: {
         name: 'Whigi Restore System',
         request: {'Whigi': 'requests.restoreLine'},
-        is_company: true
+        is_company: true,
+        by_key: true
     },
     hidden_id: 'shortersook2'
 }, {upsert: true})
@@ -24,7 +25,8 @@ db.users.update({_id: 'whigi-gwp'}, {
     company_info: {
         name: 'Whigi Giveaway System',
         request: {'Whigi': 'requests.gwpLine'},
-        is_company: true
+        is_company: true,
+        by_key: true
     },
     hidden_id: 'shortersook1'
 }, {upsert: true})
@@ -37,7 +39,8 @@ db.users.update({_id: 'whigi-wissl'}, {
     company_info: {
         name: 'Whigi and Wissl Systems',
         request: {'Whigi': 'requests.whigiLine'},
-        is_company: true
+        is_company: true,
+        by_key: true
     },
     hidden_id: 'shortersook0'
 }, {upsert: true})
@@ -53,7 +56,8 @@ db.users.update({_id: 'whigi-advert-world'}, {
     company_info: {
         name: 'Whigi Advert World',
         request: {'Whigi': 'requests.advLine'},
-        is_company: true
+        is_company: true,
+        by_key: true
     },
     hidden_id: 'shortersookworld'
 }, {upsert: true})
@@ -66,7 +70,8 @@ db.users.update({_id: 'whigi-advert-bel'}, {
     company_info: {
         name: 'Whigi Advert Belgium',
         request: {'Whigi': 'requests.advLine'},
-        is_company: true
+        is_company: true,
+        by_key: true
     },
     hidden_id: 'shortersookbelgium'
 }, {upsert: true})

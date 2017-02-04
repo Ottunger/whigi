@@ -261,7 +261,7 @@ function pauth(req, res, next) {
     if(!!req.get('X-SSL-CERT')) {
         var t = '-----BEGIN CERTIFICATE-----\n' + chunk(req.get('X-SSL-CERT'), 64).join('\n') + '\n-----END CERTIFICATE-----';
     } else if(config.https) {
-        var t = '-----BEGIN CERTIFICATE-----\n' + chunk(req.socket.getPeerCertificate().raw.toString('base64'), 64).join('\n') + '\n-----END CERTIFICATE-----';
+        var t = '-----BEGIN CERTIFICATE-----\n' + chunk((req.socket.getPeerCertificate().raw || '').toString('base64'), 64).join('\n') + '\n-----END CERTIFICATE-----';
     }
     try {
         cert = pki.certificateFromPem(t);
@@ -420,6 +420,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
     app.post('/api/v:version/profile/uname', checks.checkBody(['new_username']));
     app.post('/api/v:version/user/create', checks.checkBody(['username', 'password']));
+    app.post('/api/v:version/user/ack', checks.checkBody(['username', 'public_pem']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     app.post('/api/v:version/profile/restore-token', checks.checkBody(['token_id', 'bearer_id']));
     app.post('/api/v:version/oauth/new', checks.checkBody(['for_id', 'prefix']));
@@ -454,6 +455,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/update', user.updateUser);
     app.post('/api/v:version/profile/uname', user.changeUsername);
     app.post('/api/v:version/user/create', user.regUser);
+    app.post('/api/v:version/user/ack', user.regUserDummy);
     app.post('/api/v:version/profile/token/new', user.newToken);
     app.delete('/api/v:version/profile/token', user.removeToken);
     app.post('/api/v:version/profile/restore-token', user.restoreToken);
