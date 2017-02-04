@@ -370,6 +370,7 @@ connect(function(e) {
     app.get('/api/v:version/payed/init/begin/:for', pauth);
     //-----
     app.get('/api/v:version/data/:id', pauth);
+    app.post('/api/v:version/data/:id', pauth);
     app.get('/api/v:version/data/byname/:name', pauth);
     app.get('/api/v:version/data/:name/to/:now', pauth);
     app.get('/api/v:version/data/trigger/:data_name', pauth);
@@ -379,6 +380,7 @@ connect(function(e) {
     app.delete('/api/v:version/vault/:vault_id', pauth);
     app.delete('/api/v:version/vault/forother/:vault_id', pauth);
     app.get('/api/v:version/vault/:vault_id', pauth);
+    app.post('/api/v:version/vault/:vault_id', pauth);
     app.get('/api/v:version/vault/time/:vault_id', pauth);
     app.get('/api/v:version/any/:collection/:id', pauth);
     app.post('/api/v:version/any/remove', pauth);
@@ -396,6 +398,7 @@ connect(function(e) {
     app.get('/api/v:version/eid/bce/:bce', checks.checkOAuth(true));
     //-----
     app.get('/api/v:version/data/:id', checks.checkOAuth(false, 0));
+    app.post('/api/v:version/data/:id', checks.checkOAuth(false, 0));
     app.get('/api/v:version/data/byname/:name', checks.checkOAuth(false, 3));
     app.get('/api/v:version/data/:name/to/:now', checks.checkOAuth(true));
     app.delete('/api/v:version/data/:data_name', checks.checkOAuth(true));
@@ -424,7 +427,7 @@ connect(function(e) {
     //-----
     app.post('/api/v:version/vault/link', checks.checkBody(['vault_id', 'data_name']));
     app.post('/api/v:version/vault/new', checks.checkBody(['data_name', 'shared_to_id', 'aes_crypted_shared_pub', 'data_crypted_aes', 'expire_epoch', 'trigger', 'real_name', 'version']));
-    //app.post('/api/v:version/any/remove', checks.checkBody(['collection', 'id']));
+    //app.post('/api/v:version/any/remove', checks.checkBody(['collection', 'id', 'payload']));
     app.post('/api/v:version/ask', checks.checkBody(['list', 'expire', 'trigger', 'towards']));
     //API LONG LIVED COMMANDS
     app.post('/api/v:version/close/:id', checks.checkPuzzle);
@@ -465,6 +468,7 @@ connect(function(e) {
     app.get('/api/v:version/payed/init/begin/:for', user.pay);
     //------
     app.get('/api/v:version/data/:id', data.getData);
+    app.post('/api/v:version/data/:id', data.getData);
     app.get('/api/v:version/data/byname/:name', data.getDataByName);
     app.get('/api/v:version/data/:name/to/:now', data.renameData);
     app.get('/api/v:version/data/trigger/:data_name', data.triggerVaults);
@@ -474,6 +478,7 @@ connect(function(e) {
     app.delete('/api/v:version/vault/:vault_id', data.removeVault);
     app.delete('/api/v:version/vault/forother/:vault_id', data.removeStorable);
     app.get('/api/v:version/vault/:vault_id', data.getVault);
+    app.post('/api/v:version/vault/:vault_id', data.getVault);
     app.get('/api/v:version/vault/time/:vault_id', data.accessVault);
     app.get('/api/v:version/any/:collection/:id', data.getAny);
     app.post('/api/v:version/any/remove', data.removeAny);

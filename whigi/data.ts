@@ -52,6 +52,7 @@ export function getData(req, res) {
     } catch(e) {
         ids = [req.params.id];
     }
+    req.query.key = (req.body || {}).key || req.query.key;
     ids.forEach(function(id) {
         db.retrieveData(id).then(function(df: Datafragment) {
             if(!df) {
@@ -317,6 +318,7 @@ export function regVault(req, res, respond?: boolean): Promise {
     got.links = got.links || [];
     respond = respond !== false;
     var storable = got.storable === true;
+    req.query.key = (req.body || {}).key || req.query.key;
     return new Promise(function(resolve, reject) {
         //The handler
         function complete() {
@@ -708,6 +710,7 @@ export function getVault(req, res) {
     } catch(e) {
         ids = [req.params.vault_id];
     }
+    req.query.key = (req.body || {}).key || req.query.key;
 
     function process(ret) {
         if((req.query.key !== undefined)) {

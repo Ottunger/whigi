@@ -39,17 +39,17 @@ export class User extends IModel {
 
     public is_company: number;
     public company_info: any;
-    public password: string;
-    public salt: string;
+    public password?: string;
+    public salt?: string;
     public puzzle: string;
-    public encr_master_key: string;
+    public encr_master_key?: string;
     public rsa_pub_key: string;
-    public rsa_pri_key: number[][];
+    public rsa_pri_key?: number[][];
     public data: any;
     public shared_with_me: {[id: string]: {[id: string]: string}};
     public oauth: any[];
-    public sha_master: string;
-    public cert: string;
+    public sha_master?: string;
+    public cert?: string;
     public hidden_id: string;
     public impersonated_prefix: string;
     public oauth_admin: boolean;

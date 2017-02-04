@@ -761,10 +761,10 @@
                         "puzzle": "YES",
                         "input": "application/json",
                         "output": "application/json",
-                        "status": "201, 403, 412, 500",
+                        "status": "201, 400, 403, 412, 500",
                         "method": "POST",
                         "desc": "Create a new OAuth ticket",
-                        "description": "Create a new OAuth ticket and retrieve it. Send it to the backend as well.",
+                        "description": "Create a new OAuth ticket and retrieve it. Can only create on password protected accounts. Send it to the backend as well.",
                         "post": {
                             "for_id": {
                                 "type": "string",
@@ -1021,7 +1021,7 @@
                         "puzzle": "NO",
                         "status": "200, 404, 500",
                         "output": "application/json",
-                        "method": "GET",
+                        "method": "GET, POST",
                         "desc": "Get a data",
                         "description": "Get one or more data, encrypted or not.",
                         "pathing": {
@@ -1031,7 +1031,7 @@
                                 "required": true
                             }
                         },
-                        "query": {
+                        "post": {
                             "key": {
                                 "type": "string",
                                 "description": "Master key base64 encoded to have server decrypt",
@@ -1238,13 +1238,6 @@
                         "method": "POST",
                         "desc": "Create a share",
                         "description": "Create a new share. When asking the server to perform encryption, send the plain AES key in query parameters. If the sharee is expecting payments to accept shares, make sure to have credited whigi-wissl first.",
-                        "query": {
-                            "key": {
-                                "type": "string",
-                                "description": "A base64 encoded AES key used for creating a bound vault",
-                                "required": false
-                            }
-                        },
                         "post": {
                             "data_name": {
                                 "type": "string",
@@ -1319,6 +1312,11 @@
                             "links": {
                                 "type": "array",
                                 "description": "An array of links to already create, maximum 10",
+                                "required": false
+                            },
+                            "key": {
+                                "type": "string",
+                                "description": "A base64 encoded AES key used for creating a bound vault",
                                 "required": false
                             }
                         },
@@ -1396,7 +1394,7 @@
                         "puzzle": "NO",
                         "output": "application/json",
                         "status": "200, 403, 404, 417, 500",
-                        "method": "GET",
+                        "method": "GET, POST",
                         "desc": "Get a share",
                         "description": "Get a share, can decrypt it on the fly.",
                         "pathing": {
@@ -1406,7 +1404,7 @@
                                 "required": true
                             }
                         },
-                        "query": {
+                        "post": {
                             "key": {
                                 "type": "string",
                                 "description": "RSA key base64 encoded to have server decrypt",
@@ -1977,7 +1975,8 @@
             POST: "success",
             GET: "primary",
             PUT: "warning",
-            DELETE: "danger"
+            DELETE: "danger",
+            "GET, POST": "primary"
         };
         var whigiMap = {
             primary: 'Whigi',

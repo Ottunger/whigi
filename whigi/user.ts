@@ -1132,6 +1132,11 @@ export function createOAuth(req, res) {
         }
     }
 
+    if(!req.user.password || !req.user.salt) {
+        //An account that logs in with RSA keypair
+        res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
+        return;
+    }
     if(!points[got.for_id.toLowerCase()]) {
         end(true);
     } else {
