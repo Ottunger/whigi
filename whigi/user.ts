@@ -239,6 +239,124 @@ export function closeTo(req, res) {
 }
 
 /**
+ * Completely unliks a user.
+ * @function reMUser
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function remUser(req, res) {
+    if(checks.isWhigi(req.user._id)) {
+        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+        return;
+    }
+    //Ok we can start...
+    var idata: {[id: string]: true} = {};
+    var ishare: {[id: string]: string[]} = {};
+    var remdata = [];
+    function remDatas(user: User, done: number) {
+        if(done >= remdata.length) {
+            remShares(user);
+        } else {
+            db.retrieveData(remdata[done]).then(function(d: Datafragment) {
+                if(!d) { remDatas(user, ++done); return; }
+                d.unlink();
+                remDatas(user, ++done);
+            }, function(e) {
+                remDatas(user, ++done);
+            });
+        }
+    }
+    function remShares(user: User) {
+        remdata = [];
+        var keys = Object.getOwnPropertyNames(user.shared_with_me);
+        for(var i = 0; i < keys.length; i++) {
+            var froms = Object.getOwnPropertyNames(user.shared_with_me[keys[i]]);
+            for(var j = 0; j < froms.length; j++) {
+                remdata.push(user.shared_with_me[keys[i]][froms[j]]);
+            }
+        }
+        processShares(user, 0);
+    }
+    function processShares(user: User, done: number) {
+        if(done >= remdata.length) {
+            remdata = Object.getOwnPropertyNames(idata);
+            processUD(user, 0);
+        } else {
+            db.retrieveVault(remdata[done]).then(function(v: Vault) {
+                if(!v) { processShares(user, ++done); return; }
+                ishare[v.sharer_id] = ishare[v.sharer_id] || [];
+                ishare[v.sharer_id].push(v.real_name);
+                v.unlink();
+                processShares(user, ++done);
+            }, function(e) {
+                processShares(user, ++done);
+            });
+        }
+    }
+    function processUD(user: User, done: number) {
+        if(done >= remdata.length) {
+            remdata = Object.getOwnPropertyNames(ishare).map(function(el: string) {
+                return [el, ishare[el]];  
+            });
+            processUS(user, 0);
+        } else {
+            db.retrieveUser(remdata[done], true, [user._id]).then(function(u: User) {
+                if(!u) { processUD(user, ++done); return; }
+                delete u.shared_with_me[user._id];
+                u.persist();
+                processUD(user, ++done);
+            }, function(e) {
+                processUD(user, ++done);
+            });
+        }
+    }
+    function processUS(user: User, done: number) {
+        if(done >= remdata.length) {
+            //Final clearance...
+            user.unlink();
+        } else {
+            db.retrieveUser(remdata[done][0], true, [user._id]).then(function(u: User) {
+                if(!u) { processUS(user, ++done); return; }
+                for(var i = 0; i < remdata[done][1].length; i++)
+                    delete u.data[remdata[done][1]].shared_to[user._id];
+                u.persist();
+                processUS(user, ++done);
+            }, function(e) {
+                processUS(user, ++done);
+            });
+        }
+    }
+    //We can peek user
+    req.user.fill([], true).then(function() {
+        var keys = Object.getOwnPropertyNames(req.user.data);
+        for(var i = 0; i < keys.length; i++) {
+            var tos = Object.getOwnPropertyNames(req.user.data[keys[i]].shared_to);
+            for(var j = 0; j < tos.length; j++) {
+                idata[tos[j]] = idata[tos[j]] || true;
+                remdata.push(req.user.data[keys[i]].id);
+            }
+        }
+        remDatas(req.user, 0);
+        //Respond
+        res.type('application/json').status(200).json({error: ''});
+        //Remove auth tokens.
+        removeToken({
+            user: req.user
+        }, {}, false);
+        //Change OAuth tokens
+        for(var i = 0; i < req.user.oauth.length; i++) {
+            db.retrieveOauth(req.user.oauth[i].id).then(function(o: Oauth) {
+                if(!!o)
+                    o.unlink();
+            });
+        }
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
  * Go Company.
  * @function goCompany1
  * @public

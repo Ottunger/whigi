@@ -58,7 +58,7 @@ function listOptions(path, res, next) {
     else if(path.match(/\/api\/v[1-9]\/user\/create\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/?$/))
-        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+        res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/close\/.+\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/info[2-3]?\/?$/))
@@ -99,7 +99,7 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     //-----
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%\-]+\/?$/))
-        res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
+        res.set('Access-Control-Allow-Methods', 'GET,POST,DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/data\/byname\/[^\/]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/data\/[a-zA-Z0-9%_\-]+\/to\/[a-zA-Z0-9%_\-]+\/?$/))
@@ -111,7 +111,7 @@ function listOptions(path, res, next) {
     else if(path.match(/\/api\/v[1-9]\/vault\/new\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/[a-zA-Z0-9]+\/?$/))
-        res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
+        res.set('Access-Control-Allow-Methods', 'GET,POST,DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/forother\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/?$/))
@@ -350,6 +350,7 @@ connect(function(e) {
     app.get('/api/v:version/user/:id', pauth);
     app.get('/api/v:version/profile', pauth);
     app.post('/api/v:version/close/:id', pauth);
+    app.delete('/api/v:version/profile', pauth);
     app.post('/api/v:version/profile/info', pauth);
     app.post('/api/v:version/profile/info2', pauth);
     app.post('/api/v:version/profile/info3', pauth);
@@ -387,6 +388,7 @@ connect(function(e) {
     app.post('/api/v:version/ask', pauth);
     //API LIMITATIONS FOR OAUTH
     app.post('/api/v:version/close/:id', checks.checkOAuth(true));
+    app.delete('/api/v:version/profile', checks.checkOAuth(true));
     app.post('/api/v:version/profile/info', checks.checkOAuth(true));
     app.post('/api/v:version/profile/info2', checks.checkOAuth(true));
     app.post('/api/v:version/profile/info3', checks.checkOAuth(true));
@@ -445,6 +447,7 @@ connect(function(e) {
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
     app.post('/api/v:version/close/:id', user.closeTo);
+    app.delete('/api/v:version/profile', user.remUser);
     app.post('/api/v:version/profile/info', user.goCompany1);
     app.post('/api/v:version/profile/info2', user.setRequests);
     app.post('/api/v:version/profile/info3', user.setLang);

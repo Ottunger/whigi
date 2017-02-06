@@ -374,6 +374,23 @@
                         }
                     },
                     {
+                        "name": "profilerm",
+                        "path": "/api/v{version}/user/profile",
+                        "auth": "YES",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 403, 500",
+                        "method": "DELETE",
+                        "desc": "Obliterate profile",
+                        "description": "Completely obliterate profile and anything related.",
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            }
+                        }
+                    },
+                    {
                         "name": "profileinfo",
                         "path": "/api/v{version}/user/profile/info",
                         "auth": "YES",
