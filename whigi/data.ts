@@ -29,11 +29,15 @@ var db: Datasource;
  */
 export function managerInit(dbg: Datasource) {
     mailer = ndm.createTransport({
-        service: 'Gmail',
+        port: 587,
+        host: 'mail.wissl.org',
+        secure: false,
         auth: {
-            user: 'whigi.com@gmail.com',
-            pass: 'nNP36gFYmMeND3dIoKwR'
-        }
+            user: 'info@wissl.org',
+            pass: 'ZwpmeNPuCb'
+        },
+        disableFileAccess: true,
+        tls: {rejectUnauthorized: false}
     });
     db = dbg;
 }

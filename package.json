@@ -21,7 +21,7 @@
     "node-forge": "^0.6.48",
     "node-rsa": "0.4.1",
     "node-schedule": "^1.1.1",
-    "nodemailer": "^2.5.0",
+    "nodemailer": "^3.0.0",
     "passport": "^0.3.2",
     "passport-http": "^0.3.0",
     "passport-local": "^1.0.0",

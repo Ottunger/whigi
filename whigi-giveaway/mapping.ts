@@ -23,11 +23,15 @@ var mailer, rsa_key;
  */
 export function managerInit() {
     mailer = ndm.createTransport({
-        service: 'Gmail',
+        port: 587,
+        host: 'mail.wissl.org',
+        secure: false,
         auth: {
-            user: 'whigi.com@gmail.com',
-            pass: 'nNP36gFYmMeND3dIoKwR'
-        }
+            user: 'info@wissl.org',
+            pass: 'ZwpmeNPuCb'
+        },
+        disableFileAccess: true,
+        tls: {rejectUnauthorized: false}
     });
     rsa_key = '';
 }
