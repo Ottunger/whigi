@@ -2,7 +2,7 @@
 
 echo "
 open $3
-user anonymous whigi.com@gmail.com
+user anonymous info@wissl.org
 binary
 
 lcd $1

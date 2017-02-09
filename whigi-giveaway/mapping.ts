@@ -327,7 +327,7 @@ function wordpress(req, res, lid: string, httpsport: number, plgs: string) {
                 cp -r /home/gregoire/wordpress/* /var/www/` + lid + `/ &&
                 chown -hR www-data:www-data /var/www/` + lid + `/ &&
                 chmod -R 770 /var/www/` + lid + `/ &&
-                wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `.` + utils.RESTOREHOST + ` --admin_user=whigi-gwp --admin_email=whigi.com@gmail.com --admin_password=` + utils.generateRandomString(20) + ` --title=` + lid + ` --skip-email ;
+                wp --allow-root --path=/var/www/` + lid + ` core install --url=https://` + lid + `.` + utils.RESTOREHOST + ` --admin_user=whigi-gwp --admin_email=info@wissl.org --admin_password=` + utils.generateRandomString(20) + ` --title=` + lid + ` --skip-email ;
                 wp --allow-root --path=/var/www/` + lid + ` plugin activate ` + plgs + ` ;
                 wp --allow-root --path=/var/www/` + lid + ` theme activate clean-lite
             `, function(err, stdout, stderr) {
