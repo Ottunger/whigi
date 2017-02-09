@@ -479,10 +479,10 @@ export function lameTrigger(db: any, user: any, id: string, save: boolean) {
             }
         } else if(!!v.trigger) {
             try {
-                var pt = v.trigger.split('/', 2);
+                var pt = v.trigger.indexOf('/');
                 var ht = https.request({
-                    host: pt[0],
-                    path: pt[1] + (pt[1].indexOf('?') == -1)? '?' : '&' + 'username=' + v.shared_to_id + '&vault=' + encodeURIComponent(v.data_name),
+                    host: v.trigger.substr(0, pt),
+                    path: v.trigger.substr(pt) + (v.trigger.substr(pt).indexOf('?') == -1)? '?' : '&' + 'username=' + v.shared_to_id + '&vault=' + encodeURIComponent(v.data_name),
                     port: 443,
                     method: 'GET'
                 }, function(res) {
