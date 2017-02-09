@@ -482,7 +482,7 @@ export function lameTrigger(db: any, user: any, id: string, save: boolean) {
                 var pt = v.trigger.indexOf('/');
                 var ht = https.request({
                     host: v.trigger.substr(0, pt),
-                    path: v.trigger.substr(pt) + (v.trigger.substr(pt).indexOf('?') == -1)? '?' : '&' + 'username=' + v.shared_to_id + '&vault=' + encodeURIComponent(v.data_name),
+                    path: v.trigger.substr(pt) + ((v.trigger.substr(pt).indexOf('?') == -1)? '?' : '&') + 'username=' + v.shared_to_id + '&vault=' + encodeURIComponent(v.data_name),
                     port: 443,
                     method: 'GET'
                 }, function(res) {
