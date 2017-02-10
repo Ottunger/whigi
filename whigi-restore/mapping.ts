@@ -131,11 +131,14 @@ export function requestMapping(req, res) {
     function complete(recup, pk, data) {
         try {
             if(recup) {
-                whigi('GET', '/vault/' + data.shared_with_me[username]['profile/recup_id']).then(function(vault) {
-                    var aesKey: number[] = utils.decryptRSA(vault.aes_crypted_shared_pub, pk);
-                    var recup_id = decryptAES(vault.data_crypted_aes, aesKey).toLowerCase();
-                    if(!(recup_id in data.shared_with_me)) {
+                whigi('GET', '/vault/whoto/' + username + '/keys%2Fpwd%2Fmine2').then(function(got) {
+                    if(!got.to || got.to.length == 0) {
                         res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
+                        return;
+                    }
+                    var recup_id = got.to[0];
+                    if(!(recup_id in data.shared_with_me)) {
+                        res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
                         return;
                     }
                     whigi('GET', '/vault/' + data.shared_with_me[recup_id]['profile/email']).then(function(vault) {
@@ -199,13 +202,7 @@ export function requestMapping(req, res) {
         var rsa_key = fs.readFileSync(__dirname + '/../whigi/whigi-key.pem');
         whigi('GET', '/profile/data').then(function(data) {
             if(!!data && !!data.shared_with_me && !!data.shared_with_me[username] && !!data.shared_with_me[username]['profile/email'] && !!data.shared_with_me[username]['keys/pwd/mine1']) {
-                if(!!data.shared_with_me[username]['profile/recup_id']) {
-                    complete(true, rsa_key, data);
-                } else if(!!data.shared_with_me[username]['keys/pwd/mine2']) {
-                    complete(false, rsa_key, data);
-                } else {
-                    res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
-                }
+                complete(!data.shared_with_me[username]['keys/pwd/mine2'], rsa_key, data);
             } else {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
             }

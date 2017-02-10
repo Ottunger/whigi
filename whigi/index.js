@@ -116,6 +116,8 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'DELETE').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/vault\/time\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/vault\/whoto\/.+\/[a-zA-Z0-9%\-]+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/any\/[a-zA-Z0-9]+\/[a-z]+\/[a-zA-Z0-9]+\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/any\/remove\/?$/))
@@ -485,6 +487,7 @@ connect(function(e) {
     app.get('/api/v:version/vault/:vault_id', data.getVault);
     app.post('/api/v:version/vault/:vault_id', data.getVault);
     app.get('/api/v:version/vault/time/:vault_id', data.accessVault);
+    app.get('/api/v:version/vault/whoto/:id/:name', data.whoTo);
     app.get('/api/v:version/any/:collection/:id', data.getAny);
     app.post('/api/v:version/any/remove', data.removeAny);
     app.post('/api/v:version/ask', data.askGrants);

@@ -1593,6 +1593,44 @@
                         }
                     },
                     {
+                        "name": "vaultwhoto",
+                        "path": "/api/v{version}/vault/whoto/{id}/{name}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "output": "application/json",
+                        "status": "200, 403, 404, 500",
+                        "method": "GET",
+                        "desc": "Get data receivers",
+                        "description": "Get info of who a data is shared to if public for this data name.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "User to seek for",
+                                "required": true
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "URL-encoded name of data to search for",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "to": {
+                                "type": "array",
+                                "description": {
+                                    "{i}": {
+                                        "type": "string",
+                                        "description": "User granted"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
                         "name": "vaultask",
                         "path": "/api/v{version}/ask",
                         "auth": "YES",

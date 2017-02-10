@@ -853,6 +853,38 @@ export function accessVault(req, res) {
 }
 
 /**
+ * Forges the response to list receivers for public shares.
+ * @function whoTo
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ */
+export function whoTo(req, res) {
+    db.retrieveUser(req.params.id, true).then(function(u: User) {
+        if(!u) {
+            res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
+            return;
+        }
+        var data = decodeURIComponent(req.params.name);
+        switch(data) {
+            case 'keys/pwd/mine1':
+            case 'keys/pwd/mine2':
+                break;
+            default:
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                return;
+        }
+        if(!u.data[data]) {
+            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+            return;
+        }
+        res.type('application/json').status(200).json({to: Object.getOwnPropertyNames(u.data[data].shared_to)});
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+    });
+}
+
+/**
  * Gets any data on behalf of Whigi.
  * @function getAny
  * @public
