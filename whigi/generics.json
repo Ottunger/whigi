@@ -12,6 +12,34 @@
         "descr_key": "generics.langs",
         "validateJava": ""
     }],
+    "profile/interests": [{
+        "is_dated": false,
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "fa fa-glass",
+        "mode": "json_keys",
+        "json_keys": [
+            {
+                "descr_key": "generics.sports",
+                "mode": "select",
+                "multiple": true,
+                "enum": "sports",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.books",
+                "mode": "select",
+                "multiple": true,
+                "enum": "books",
+                "required": false,
+                "validateJava": ""
+            }
+        ],
+        "validate": "return true;",
+        "instantiable": false,
+        "descr_key": "generics.interests",
+        "validateJava": ""
+    }],
     "profile/communications": [{
         "is_dated": false,
         "long_descr_key": "",
