@@ -1170,7 +1170,7 @@ export function regUserDummy(req, res) {
         if(!!user.company_info && !!user.company_info.is_company)
             u.company_info.is_company = true;
         //Now issue the certificate
-        u.cert = utils.whigiCert(u.rsa_pub_key, './whigi/whigi-key.pem', {
+        u.cert = utils.whigiCert(u.rsa_pub_key, __dirname + '/whigi-key.pem', {
             commonName: u._id,
             countryName: 'BE',
             localityName: '',
