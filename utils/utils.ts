@@ -172,10 +172,11 @@ export function i18n(str: string, req: any, userin?: any, more?: {[id: string]: 
  * @param {Boolean} notwhigi Prevent check of template.
  * @param {String} from Then, a from name.
  * @param {String} template A template file path.
+ * @param {Boolean} html Already HTML.
  * @return {Object} Mail config.
  */
 export function mailConfig(to: string, subject: string, req: any, context?: {[id: string]: any}, userin?: any,
-    notwhigi?: boolean, from?: string, template?: string): any {
+    notwhigi?: boolean, from?: string, template?: string, html?: boolean): any {
     //Sanity check first
     if(notwhigi !== true && mc.vendorTemplates.indexOf(subject) == -1 && mc.templates.indexOf(subject) == -1)
         return {};
@@ -189,7 +190,7 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
             subject: i18n((notwhigi === true)? subject : mc[subject + 'Subject'], req, userin, context['i18n'])
         };
         
-        ret['html'] = parser(!!template? template : path.join(__dirname, 'mails/' + mc[subject + 'HTML']), req, context, userin);
+        ret['html'] = parser(!!template? template : path.join(__dirname, 'mails/' + mc[subject + 'HTML']), req, context, userin, html);
         return ret;
     } catch(e) {
         return {};
@@ -204,10 +205,11 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
  * @param {Request} req For i18n.
  * @param {Object} context More context.
  * @param {User} userin For i18n.
+ * @param {Boolean} html Already HTML.
  * @return {Object} Mail config.
  */
-export function parser(file: string, req: any, context?: {[id: string]: any}, userin?: any): string {
-    var template: string = fs.readFileSync(file, 'utf8'), parsed = template;
+export function parser(file: string, req: any, context?: {[id: string]: any}, userin?: any, html?: boolean): string {
+    var template: string = !!html? file : fs.readFileSync(file, 'utf8'), parsed = template;
     var rgx = /{{ ?([^}]*) ?}}/g;
     var match = rgx.exec(template);
     var shift = 0, by;
