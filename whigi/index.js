@@ -59,6 +59,8 @@ function listOptions(path, res, next) {
         res.set('Access-Control-Allow-Methods', 'GET,POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/?$/))
         res.set('Access-Control-Allow-Methods', 'GET,DELETE').type('application/json').status(200).json({error: ''});
+    else if(path.match(/\/api\/v[1-9]\/close\/check\/.+\/?$/))
+        res.set('Access-Control-Allow-Methods', 'GET').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/close\/.+\/?$/))
         res.set('Access-Control-Allow-Methods', 'POST').type('application/json').status(200).json({error: ''});
     else if(path.match(/\/api\/v[1-9]\/profile\/info[2-3]?\/?$/))
@@ -351,6 +353,7 @@ connect(function(e) {
     //API AUTH DECLARATIONS
     app.get('/api/v:version/user/:id', pauth);
     app.get('/api/v:version/profile', pauth);
+    app.get('/api/v:version/close/check/:id', pauth);
     app.post('/api/v:version/close/:id', pauth);
     app.delete('/api/v:version/profile', pauth);
     app.post('/api/v:version/profile/info', pauth);
@@ -389,6 +392,7 @@ connect(function(e) {
     app.post('/api/v:version/any/remove', pauth);
     app.post('/api/v:version/ask', pauth);
     //API LIMITATIONS FOR OAUTH
+    app.get('/api/v:version/close/check/:id', checks.checkOAuth(true));
     app.post('/api/v:version/close/:id', checks.checkOAuth(true));
     app.delete('/api/v:version/profile', checks.checkOAuth(true));
     app.post('/api/v:version/profile/info', checks.checkOAuth(true));
@@ -435,6 +439,7 @@ connect(function(e) {
     //app.post('/api/v:version/any/remove', checks.checkBody(['collection', 'id', 'payload']));
     app.post('/api/v:version/ask', checks.checkBody(['list', 'expire', 'trigger', 'towards']));
     //API LONG LIVED COMMANDS
+    app.get('/api/v:version/close/check/:id', checks.checkPuzzle);
     app.post('/api/v:version/close/:id', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/discard', checks.checkPuzzle);
     app.post('/api/v:version/profile/data/new', checks.checkPuzzle);
@@ -448,6 +453,7 @@ connect(function(e) {
     app.get('/api/v:version/peek/:id', user.peekUser);
     app.get('/api/v:version/user/:id', user.getUser);
     app.get('/api/v:version/profile', user.getProfile);
+    app.get('/api/v:version/close/check/:id', user.canClose);
     app.post('/api/v:version/close/:id', user.closeTo);
     app.delete('/api/v:version/profile', user.remUser);
     app.post('/api/v:version/profile/info', user.goCompany1);

@@ -139,6 +139,79 @@ export function getProfile(req, res) {
 }
 
 /**
+ * Forges the response to whether can close.
+ * @function canClose
+ * @public
+ * @param {Request} req The request.
+ * @param {Response} res The response.
+ * @param {Boolean} respond To repsond.
+ * @return {Promise} When done.
+ */
+export function canClose(req, res, respond?: boolean): Promise {
+    return new Promise(function(resolve, reject) {
+        var dec = req.params.id.toLowerCase();
+        if(dec == req.user._id || checks.isWhigi(dec) || checks.isWhigi(req.user._id)) {
+            res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
+            return;
+        }
+        req.user.fill().then(function() {
+            db.retrieveUser(dec, true).then(function(user: User) {
+                if(!!user) {
+                    if('whigi-system' in user.shared_with_me || 'whigi-system' in req.user.shared_with_me) {
+                        if(respond !== false)
+                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                        reject();
+                        return;
+                    }
+                    var keys = Object.getOwnPropertyNames(req.user.data);
+                    for(var i = 0; i < keys.length; i++) {
+                        if(!user.data[keys[i]])
+                            continue;
+                        var kkeys = Object.getOwnPropertyNames(req.user.data[keys[i]].shared_to);
+                        for(var j = 0; j < kkeys.length; j++) {
+                            if(checks.isWhigi(kkeys[j]))
+                                continue;
+                            if(kkeys[j] in user.data[keys[i]].shared_to) {
+                                //Both accounts share towards same account
+                                if(respond !== false)
+                                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                                reject();
+                                return;
+                            }
+                        }
+                    }
+                    keys = Object.getOwnPropertyNames(req.user.shared_with_me);
+                    for(var i = 0; i < keys.length; i++) {
+                        if(keys[i] in user.shared_with_me) {
+                            //Both accounts receive same shares
+                            if(respond !== false)
+                                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                            reject();
+                            return;
+                        }
+                    }
+                    if(respond !== false)
+                        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
+                    resolve(user);
+                } else {
+                    if(respond !== false)
+                        res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
+                    reject();
+                }
+            }, function(e) {
+                if(respond !== false)
+                    res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                reject();
+            });
+        }, function(e) {
+            if(respond !== false)
+                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+            reject();
+        });
+    });
+}
+
+/**
  * Closes an account to another profile.
  * @function closeTo
  * @public
@@ -169,76 +242,63 @@ export function closeTo(req, res) {
         });
         nu.persist();
     }
-
-    if(dec == req.user._id || checks.isWhigi(dec) || checks.isWhigi(req.user._id)) {
-        res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
-        return;
-    }
-    db.retrieveUser(dec, true).then(function(user: User) {
-        if(!!user) {
-            if('whigi-system' in user.shared_with_me) {
-                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                return;
-            }
-            //Append RSA private keys
-            for(var i = 0; i < new_keys.length; i++)
-                user.rsa_pri_key.push(new_keys[i]);
-            //Append Hidden ID
-            user.hidden_id += req.user.hidden_id;
-            //Save granted user
-            user.persist().then(function() {
-                var keys = Object.getOwnPropertyNames(req.user.shared_with_me), done = 0;
-                function towards() {
-                    done++;
-                    if(done >= keys.length) {
-                        end(user);
-                    }
+    canClose(req, res, false).then(function(user: User) {
+        //Append RSA private keys
+        for(var i = 0; i < new_keys.length; i++)
+            user.rsa_pri_key.push(new_keys[i]);
+        //Append Hidden ID
+        user.hidden_id += req.user.hidden_id;
+        //Save granted user
+        user.persist().then(function() {
+            var keys = Object.getOwnPropertyNames(req.user.shared_with_me), done = 0;
+            function towards() {
+                done++;
+                if(done >= keys.length) {
+                    end(user);
                 }
-                for(var i = 0; i < keys.length; i++) {
-                    var fs = Object.getOwnPropertyNames(req.user.shared_with_me[keys[i]]), num = 0;
-                    function pre() {
-                        num++;
-                        if(num >= fs.length) {
-                            towards();
-                        }
-                    }
-                    for(var j = 0; j < fs.length; j++) {
-                        db.retrieveVault(req.user.shared_with_me[keys[i]][fs[j]]).then(function(v: Vault) {
-                            if(!!v) {
-                                v.shared_to_id = dec;
-                                v.persist();
-                                changes[v.sharer_id] = changes[v.sharer_id] || {};
-                                //Give transient, junk...
-                                if(!user.shared_with_me[v.sharer_id] || !user.shared_with_me[v.sharer_id][v.data_name]) {
-                                    //New user did not have this data from remote user
-                                    user.shared_with_me[v.sharer_id] = user.shared_with_me[v.sharer_id] || {};
-                                    user.shared_with_me[v.sharer_id][v.data_name] = v._id;
-                                    changes[v.sharer_id][v.real_name] = true;
-                                } else {
-                                    //New user already had this data!
-                                    changes[v.sharer_id][v.real_name] = false;
-                                }
-                            }
-                            pre();
-                        }, function(e) {
-                            pre();
-                        });
-                    }
-                    if(fs.length == 0) {
+            }
+            for(var i = 0; i < keys.length; i++) {
+                var fs = Object.getOwnPropertyNames(req.user.shared_with_me[keys[i]]), num = 0;
+                function pre() {
+                    num++;
+                    if(num >= fs.length) {
                         towards();
                     }
                 }
-                req.user.company_info.is_closed = true;
-                req.user.persist();
-                res.type('application/json').status(200).json({puzzle: req.user.puzzle});
-            }, function(e) {
-                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
-            });
-        } else {
-            res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
-        }
+                for(var j = 0; j < fs.length; j++) {
+                    db.retrieveVault(req.user.shared_with_me[keys[i]][fs[j]]).then(function(v: Vault) {
+                        if(!!v) {
+                            v.shared_to_id = dec;
+                            v.persist();
+                            changes[v.sharer_id] = changes[v.sharer_id] || {};
+                            //Give transient, junk...
+                            if(!user.shared_with_me[v.sharer_id] || !user.shared_with_me[v.sharer_id][v.data_name]) {
+                                //New user did not have this data from remote user
+                                user.shared_with_me[v.sharer_id] = user.shared_with_me[v.sharer_id] || {};
+                                user.shared_with_me[v.sharer_id][v.data_name] = v._id;
+                                changes[v.sharer_id][v.real_name] = true;
+                            } else {
+                                //New user already had this data!
+                                changes[v.sharer_id][v.real_name] = false;
+                            }
+                        }
+                        pre();
+                    }, function(e) {
+                        pre();
+                    });
+                }
+                if(fs.length == 0) {
+                    towards();
+                }
+            }
+            req.user.company_info.is_closed = true;
+            req.user.persist();
+            res.type('application/json').status(200).json({puzzle: req.user.puzzle});
+        }, function(e) {
+            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+        });
     }, function(e) {
-        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
     });
 }
 

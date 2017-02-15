@@ -784,13 +784,42 @@
                 "class": "primary",
                 "actions": [
                     {
+                        "name": "closecheck",
+                        "path": "/api/v{version}/close/check/{id}",
+                        "auth": "YES",
+                        "puzzle": "YES",
+                        "input": "application/json",
+                        "output": "application/json",
+                        "status": "200, 400, 403, 404, 412, 500",
+                        "method": "GET",
+                        "desc": "Check for closing",
+                        "description": "check if can close an ccount without doing anything.",
+                        "pathing": {
+                            "id": {
+                                "type": "string",
+                                "description": "The user to close to",
+                                "required": true
+                            }
+                        },
+                        "response": {
+                            "error": {
+                                "type": "string",
+                                "description": "An error message, translated, if any"
+                            },
+                            "puzzle": {
+                                "type": "string",
+                                "description": "User puzzle"
+                            }
+                        }
+                    },
+                    {
                         "name": "closeid",
                         "path": "/api/v{version}/close/{id}",
                         "auth": "YES",
                         "puzzle": "YES",
                         "input": "application/json",
                         "output": "application/json",
-                        "status": "200, 400, 403, 404, 412, 500",
+                        "status": "200, 400, 404, 412, 500",
                         "method": "POST",
                         "desc": "Close account to another user",
                         "description": "Close own account to another user, causing him to now own all previously held data and vaults.",
