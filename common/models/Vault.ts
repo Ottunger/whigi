@@ -122,7 +122,7 @@ export class Vault extends IModel {
      * @public
      * @return {Promise} Whether it went OK.
      */
-    unlink(): Promise {
+    unlink(): Promise<undefined> {
         return this.unlinkFrom('vaults');
     }
 

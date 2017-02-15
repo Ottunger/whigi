@@ -86,7 +86,7 @@ export class Datasource {
      * @param {String} id _id.
      * @return {Promise} Whether went OK locally.
      */
-    unlink(name: string, id: string): Promise {
+    unlink(name: string, id: string): Promise<undefined> {
         var self = this;
         this.updated(id, name, true);
         return new Promise(function(resolve, reject) {

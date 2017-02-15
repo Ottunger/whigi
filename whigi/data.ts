@@ -68,17 +68,17 @@ export function getData(req, res) {
                 var ret = df.sanitarize();
                 if(req.query.key !== undefined && df._id.indexOf('datafragment') != 0) {
                     try {
-                        ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
+                        ret['decr_data'] = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
                             new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
                         delete ret.encr_data;
                     } catch(e) {}
                 } else if(req.query.key !== undefined && df._id.indexOf('datafragment') == 0) {
                     try {
-                        ret.decr_aes = new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
+                        ret['decr_aes'] = new aes.ModeOfOperation.ctr(utils.str2arr(utils.atob(req.query.key)),
                             new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_aes));
-                        ret.decr_data = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(ret.decr_aes,
+                        ret['decr_data'] = aes.util.convertBytesToString(new aes.ModeOfOperation.ctr(ret['decr_aes'],
                             new aes.Counter(0)).decrypt(utils.str2arr(ret.encr_data)));
-                        ret.decr_aes = Array.from(ret.decr_aes);
+                        ret['decr_aes'] = Array.from(ret['decr_aes']);
                         delete ret.encr_data;
                         delete ret.encr_aes;
                     } catch(e) {}
@@ -138,7 +138,7 @@ export function getDataByName(req, res) {
  * @param {Boolean} respond Should respond.
  * @return {Promise} When complete.
  */
-export function renameData(req, res, respond): Promise {
+export function renameData(req, res, respond): Promise<undefined> {
     var old = decodeURIComponent(req.params.name), now = decodeURIComponent(req.params.now);
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
@@ -317,7 +317,7 @@ export function linkVault(req, res) {
  * @param {Boolean} respond Should respond.
  * @return {Promise} When complete.
  */
-export function regVault(req, res, respond?: boolean): Promise {
+export function regVault(req, res, respond?: boolean): Promise<undefined> {
     var got = req.body;
     got.links = got.links || [];
     respond = respond !== false;
@@ -570,7 +570,7 @@ export function regVault(req, res, respond?: boolean): Promise {
  * @param {Boolean} respond Should respond.
  * @return {Promise} When complete.
  */
-export function removeVault(req, res, respond): Promise {
+export function removeVault(req, res, respond): Promise<undefined> {
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
         function complete(v: Vault, s: User) {
@@ -761,7 +761,7 @@ export function getVault(req, res) {
                         req.user.fill([v.sharer_id]).then(function() {
                             delete req.user.shared_with_me[v.sharer_id][v.data_name];
                             for(var i = 0; i < v.links.length; i++)
-                                delete req.user.shared_with_me[v.sharer._id][v.links[i]];
+                                delete req.user.shared_with_me[v.sharer_id][v.links[i]];
                             req.user.persist();
                         });
                     }

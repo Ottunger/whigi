@@ -6,6 +6,8 @@
 
 'use strict';
 declare var require: any
+declare var Buffer: any
+declare var __dirname: any
 var https = require('https');
 var fs = require('fs');
 var scd = require('node-schedule');
@@ -25,7 +27,7 @@ var known: {[id: string]: {upd: number, contacts: string[], empty: boolean}} = {
  * @param {String} id ID required.
  * @return {Promise} On resolve, whether found or not.
  */
-function recQuestion(domain: string, coll: string, id: string): Promise {
+function recQuestion(domain: string, coll: string, id: string): Promise<any[]> {
     var ep = require(utils.ENDPOINTS);
     var data = JSON.stringify({
         collection: coll,

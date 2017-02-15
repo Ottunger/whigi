@@ -259,6 +259,9 @@ function chunk(str, n) {
  * Is the first middleware for passport.
  * @function pauth
  * @public
+ * @param {Request} req Request.
+ * @param {Response} res Response.
+ * @param {Function} next Middleware.
  */
 function pauth(req, res, next) {
     var cert;
@@ -276,8 +279,12 @@ function pauth(req, res, next) {
             ok = rpem.verify(cert);
         } catch(e) {}
         if(!ok) {
-            res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
-            return;
+            if(req.perm !== true) {
+                res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
+                return;
+            } else {
+                next();
+            }
         }
         var id = cert.subject.getField('CN').value;
         db.retrieveUser(id).then(function(user) {
@@ -285,17 +292,29 @@ function pauth(req, res, next) {
                 req.user = user;
                 next();
             } else {
-                res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
+                if(req.perm !== true)
+                    res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
+                else
+                    next();
             }
         }, function(e) {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            if(req.perm !== true)
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+            else
+                next();
         });
     } else {
         pass.authenticate(['token', 'basic'], function(err, user, info) {
             if(err) {
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                if(req.perm !== true)
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                else
+                    next();
             } else if(!user) {
-                res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
+                if(req.perm !== true)
+                    res.type('application/json').status(418).json({error: utils.i18n('client.auth', req)});
+                else
+                    next();
             } else {
                 req.user = user;
                 next();
@@ -365,6 +384,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/data/new', pauth);
     app.post('/api/v:version/profile/update', pauth);
     app.post('/api/v:version/profile/uname', pauth);
+    app.post('/api/v:version/user/create', function(req, res, next) {req.perm = true; pauth(req, res, next);});
     app.post('/api/v:version/profile/token/new', pauth);
     app.delete('/api/v:version/profile/token', pauth);
     app.get('/api/v:version/eid/bce/:bce', pauth);

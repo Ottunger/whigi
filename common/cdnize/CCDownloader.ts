@@ -6,6 +6,9 @@
 
 'use strict';
 declare var require: any
+declare var Buffer: any
+declare var __dirname: any
+declare var process: any
 var https = require('https');
 var fs = require('fs');
 var utils = require('../../utils/utils');
@@ -29,7 +32,7 @@ export class Downloader {
      * @param {String} name collection name.
      * @return {Promise} Result.
      */
-    fetch(id: string, name: string): Promise {
+    fetch(id: string, name: string): Promise<any> {
         var e = require(utils.ENDPOINTS);
         var endpoints = e.endpoints, hosts = e.hosts;
         var data = JSON.stringify({

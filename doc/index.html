@@ -131,14 +131,14 @@
                     {
                         "name": "usercreate",
                         "path": "/api/v{version}/user/create",
-                        "auth": "NO",
+                        "auth": "MAYBE",
                         "puzzle": "NO",
                         "input": "application/json",
                         "output": "application/json",
-                        "status": "201, 400, 500",
+                        "status": "201, 400, 403, 500",
                         "method": "POST",
                         "desc": "Create a new user",
-                        "description": "Create a new user with init information.",
+                        "description": "Create a new user with init information. If logged in, can create without captcha if granted this right.",
                         "query": {
                             "captcha": {
                                 "type": "string",

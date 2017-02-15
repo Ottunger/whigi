@@ -6,6 +6,7 @@
 
 'use strict';
 declare var require: any
+declare var Buffer: any
 var scd = require('node-schedule');
 var https = require('https');
 var amqp = require('amqplib/callback_api');

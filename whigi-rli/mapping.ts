@@ -6,6 +6,8 @@
 
 'use strict';
 declare var require: any
+declare var Buffer: any
+declare var __dirname: any
 var https = require('https');
 var fs = require('fs');
 var amqp = require('amqplib/callback_api');

@@ -6,6 +6,8 @@
 
 'use strict';
 declare var require: any
+declare var Buffer: any
+declare var __dirname: any
 var ndm = require('nodemailer');
 var https = require('https');
 var fs = require('fs');
@@ -112,7 +114,7 @@ export function managerInit(ua: string, dbs: any) {
  * @param {Boolean} puzzle Need puzzle.
  * @return {Promise} Promise.
  */
-function whigi(method: string, path: string, data?: any, puzzle?: boolean): Promise {
+function whigi(method: string, path: string, data?: any, puzzle?: boolean): Promise<any> {
     var puzstr = '';
     return new Promise(function(resolve, reject) {
         function complete() {
@@ -126,8 +128,9 @@ function whigi(method: string, path: string, data?: any, puzzle?: boolean): Prom
             };
             if(method == 'POST') {
                 data = JSON.stringify(data);
-                options.headers['Content-Type'] = 'application/json';
-                options.headers['Content-Length'] = Buffer.byteLength(data);
+                options['headers'] = {};
+                options['headers']['Content-Type'] = 'application/json';
+                options['headers']['Content-Length'] = Buffer.byteLength(data);
             }
             var ht = https.request(options, function(res) {
                 var r = '';
@@ -191,7 +194,7 @@ function encryptAES(data: string, key: number[]): string {
  * @param {String} id Vault ID.
  * @return {Promise} Data.
  */
-function decryptVault(id: string): Promise {
+function decryptVault(id: string): Promise<any> {
     return new Promise(function(resolve, reject) {
         whigi('GET', 'vault/' + id).then(function(vault) {
             try {

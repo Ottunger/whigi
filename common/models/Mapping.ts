@@ -88,7 +88,7 @@ export class Mapping extends IModel {
      * @public
      * @return {Promise} Whether it went OK.
      */
-    unlink(): Promise {
+    unlink(): Promise<undefined> {
         return this.unlinkFrom('mappings');
     }
 

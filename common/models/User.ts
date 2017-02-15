@@ -347,7 +347,7 @@ export class User extends IModel {
      * @public
      * @return {Promise} Whether it went OK.
      */
-    unlink(): Promise {
+    unlink(): Promise<undefined> {
         var keys = Object.getOwnPropertyNames(this.trigrams);
         for(var i = 0; i < keys.length; i++) {
             this.db.unlink('users', this.trigrams[keys[i]]._id);

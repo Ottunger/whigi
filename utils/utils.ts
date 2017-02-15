@@ -6,6 +6,8 @@
 
 'use strict';
 declare var require: any
+declare var Buffer: any
+declare var __dirname: any
 var fs = require('fs');
 var path = require('path');
 var querystring = require('querystring');
@@ -238,7 +240,7 @@ export function getMK(kd: string, profile: any): number[] {
     for(var i = 0; hash.sha256(hash.sha256(arr2str(master_key || []) || '')) != profile.sha_master; i++) {
         var key = toBytes(kd);
         var decrypter = new aes.ModeOfOperation.ctr(key, new aes.Counter(0));
-        master_key = Array.from(decrypter.decrypt(profile.encr_master_key));
+        master_key = <any>Array.from(decrypter.decrypt(profile.encr_master_key));
         kd = hash.sha256(kd);
         if(i == 1) {
             //We set to 1 or far more...

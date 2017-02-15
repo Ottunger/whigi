@@ -6,6 +6,8 @@
 
 'use strict';
 declare var require: any
+declare var Buffer: any
+declare var __dirname: any
 var ndm = require('nodemailer');
 var https = require('https');
 var fs = require('fs');
@@ -43,7 +45,7 @@ export function managerInit() {
  * @param {Object} data Data.
  * @return {Promise} Promise.
  */
-function whigi(method: string, path: string, data?: any): Promise {
+function whigi(method: string, path: string, data?: any): Promise<any> {
     var options = {
         host: utils.WHIGIHOST,
         port: 443,
@@ -54,8 +56,9 @@ function whigi(method: string, path: string, data?: any): Promise {
     };
     if(method == 'POST') {
         data = JSON.stringify(data);
-        options.headers['Content-Type'] = 'application/json';
-        options.headers['Content-Length'] = Buffer.byteLength(data);
+        options['headers'] = {};
+        options['headers']['Content-Type'] = 'application/json';
+        options['headers']['Content-Length'] = Buffer.byteLength(data);
     }
     return new Promise(function(resolve, reject) {
         var ht = https.request(options, function(res) {

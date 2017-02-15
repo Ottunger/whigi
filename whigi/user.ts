@@ -6,6 +6,8 @@
 
 'use strict';
 declare var require: any
+declare var Buffer: any
+declare var __dirname: any
 var http = require('http');
 var https = require('https');
 var path = require('path');
@@ -68,6 +70,42 @@ export function managerInit(dbg: Datasource) {
     utils.paypalToken(function(token) {
         ppal_token = token;
     });
+
+    //We need to flush transient accounts every now and then
+    setInterval(function() {
+        removeTransients();
+    }, 7*24*60*60*1000);
+    removeTransients();
+}
+
+/**
+ * Cleans transients.
+ * @function removeTransients
+ * @private
+ */
+function removeTransients() {
+    db.getDatabase().collection('users').find({_id: /^wiuser/}, {_id: true, data: true}).toArray(function(err, docs) {
+        docs = docs || [];
+        for(var i = 0; i < docs.length; i++) {
+            var keys = Object.getOwnPropertyNames(docs[i].data), keep = false;
+            for(var j = 0; j < keys.length; j++) {
+                var count = 0, kkeys = Object.getOwnPropertyNames(docs[i].data[keys[j]].shared_to);
+                for(var k = 0; k < kkeys.length; k++) {
+                    if(!checks.isWhigi(kkeys[k]))
+                        count++;
+                    if(count >= 2) {
+                        keep = true;
+                        break;
+                    }
+                }
+            }
+            if(!keep) {
+                db.retrieveUser(docs[i]._id).then(function(u: User) {
+                    remUser({user: u}, {}, false);
+                }, function(e) {});
+            }
+        }
+    });
 }
 
 /**
@@ -109,10 +147,10 @@ export function getUser(req, res) {
             rsa_pub_key: '-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCmL1BWiJEUXOrOPAnMM6VM7Iy3\nmAV5hOsP1lIj/6lDzpQ3Q+7fPkG8jBHHoSJM3wLWNtKQMBpu0VsxFnoMIuwkVc/+\nvZj7nlYMBLrSqOZfY8FBSrOt7Xv+IvgiYgShBAG4L9bVp5ABJGcsoZnEDa1TfW2H\nlwoPk7sd5wmY7J6f9wIDAQAB\n-----END PUBLIC KEY-----',
             is_company: 9,
             company_info: {
-                name: 'Whigi and Wissl Void Account',
+                name: 'WiSSL (and Whigi) Void Account',
                 request: {'Whigi': 'requests.whigiLine'}
             },
-            hidden_id: 'shortersook4',
+            hidden_id: 'shortersookdevnull',
         });
     } else {
         db.retrieveUser(dec).then(function(user: User) {
@@ -147,7 +185,7 @@ export function getProfile(req, res) {
  * @param {Boolean} respond To repsond.
  * @return {Promise} When done.
  */
-export function canClose(req, res, respond?: boolean): Promise {
+export function canClose(req, res, respond?: boolean): Promise<User> {
     return new Promise(function(resolve, reject) {
         var dec = req.params.id.toLowerCase();
         if(dec == req.user._id || checks.isWhigi(dec) || checks.isWhigi(req.user._id)) {
@@ -308,10 +346,12 @@ export function closeTo(req, res) {
  * @public
  * @param {Request} req The request.
  * @param {Response} res The response.
+ * @param {Boolean} respond Whether to respond.
  */
-export function remUser(req, res) {
+export function remUser(req, res, respond?: boolean) {
     if(checks.isWhigi(req.user._id)) {
-        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+        if(respond !== false)
+            res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
         return;
     }
     //Ok we can start...
@@ -403,7 +443,8 @@ export function remUser(req, res) {
         }
         remDatas(req.user, 0);
         //Respond
-        res.type('application/json').status(200).json({error: ''});
+        if(respond !== false)
+            res.type('application/json').status(200).json({error: ''});
         //Remove auth tokens.
         removeToken({
             user: req.user
@@ -416,7 +457,8 @@ export function remUser(req, res) {
             });
         }
     }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        if(respond !== false)
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
 }
 
@@ -760,7 +802,7 @@ export function contData(req, res) {
  * @param {Boolean} respond Whether to answer in res.
  * @return {Promise} When completed.
  */
-export function recData(req, res, respond?: boolean): Promise {
+export function recData(req, res, respond?: boolean): Promise<any[]> {
     var got = req.body;
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
@@ -869,7 +911,7 @@ export function updateUser(req, res) {
  */
 export function changeUsername(req, res) {
     var got = req.body, index = 0, array: {vid: string}[] = [], array2: string[] = [], array3: string[] = [];
-    var proposal = got.new_username.toLowerCase().replace(/[^a-z0-9\-\_]/g, '');
+    var proposal: string = got.new_username.toLowerCase().replace(/[^a-z0-9\-\_]/g, '');
 
     function final() {
         if(index < array3.length) {
@@ -1002,23 +1044,17 @@ export function changeUsername(req, res) {
         });
     }
 
-    if(req.user._id.indexOf('wiuser') != 0) {
+    if(req.user._id.indexOf('wiuser') != 0 || proposal.indexOf('wiuser') == 0) {
         res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
         return;
     }
-    utils.checkCaptcha(req.query.captcha, function(ok) {
-        if(ok || utils.DEBUG || req.query.android === 'true') {
-            db.retrieveUser(proposal).then(function(u) {
-                if(u == undefined)
-                    complete();
-                else
-                    res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
-            }, function(e) {
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-            });
-        } else {
-            res.type('application/json').status(400).json({error: utils.i18n('client.captcha', req)});
-        }
+    db.retrieveUser(proposal).then(function(u) {
+        if(u == undefined)
+            complete();
+        else
+            res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+    }, function(e) {
+        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
     });
 }
 
@@ -1030,7 +1066,7 @@ export function changeUsername(req, res) {
  * @param {Response} res The response.
  */
 export function regUser(req, res) {
-    var user = req.body, proposal = user.username.toLowerCase().replace(/[^a-z0-9\-]/g, '');
+    var user = req.body, proposal: string = user.username.toLowerCase().replace(/[^a-z0-9\-]/g, '');
     var pre_master_key: string = utils.generateRandomString(64);
     var array: any[] = [], index = 0;
 
@@ -1139,10 +1175,10 @@ export function regUser(req, res) {
         var ypt = hash.sha256(user.password + u.salt);
         for(var i = 0; i < 666; i++)
             ypt = hash.sha256(ypt);
-        u.encr_master_key = Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(ypt), new aes.Counter(0))
+        u.encr_master_key = <any>Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(ypt), new aes.Counter(0))
             .encrypt(utils.toBytes(pre_master_key)));
         u.rsa_pub_key = key.exportKey('public');
-        u.rsa_pri_key = [Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
+        u.rsa_pri_key = <any>[Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
             .encrypt(aes.util.convertStringToBytes(key.exportKey('private'))))];
         u.is_company = !!user.company_info? 1 : 0;
         u.company_info = {};
@@ -1171,12 +1207,32 @@ export function regUser(req, res) {
 
     if(user.password.length >= 8 && !checks.isWhigi(user.username)) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
-            if(ok || utils.DEBUG || req.query.android === 'true' || proposal.indexOf('wiuser') == 0) {
+            if(ok && proposal.indexOf('wiuser') != 0) {
+                //Can create non wiuser- account
                 db.retrieveUser(proposal).then(function(u) {
                     if(u == undefined)
                         complete();
                     else
                         res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            } else if(!!req.user && proposal.indexOf('wiuser') == 0) {
+                //Connected, maybe can create accounts??
+                db.retrieveUser('whigi-wissl', true).then(function(owned: User) {
+                    if(('usercreate/' + req.user._id) in owned.data) {
+                        //We gave him the right
+                        db.retrieveUser(proposal).then(function(u) {
+                            if(u == undefined)
+                                complete();
+                            else
+                                res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+                        }, function(e) {
+                            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                        });
+                    } else {
+                        res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+                    }
                 }, function(e) {
                     res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
                 });
@@ -1240,13 +1296,19 @@ export function regUserDummy(req, res) {
     }
 
     if(!checks.isWhigi(user.username) && proposal.indexOf('wiuser') != 0) {
-        db.retrieveUser(proposal).then(function(u) {
-            if(u == undefined)
-                complete();
-            else
-                res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
-        }, function(e) {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        utils.checkCaptcha(req.query.captcha, function(ok) {
+            if(ok) {
+                db.retrieveUser(proposal).then(function(u) {
+                    if(u == undefined)
+                        complete();
+                    else
+                        res.type('application/json').status(400).json({error: utils.i18n('client.userExists', req)});
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            } else {
+                res.type('application/json').status(400).json({error: utils.i18n('client.captcha', req)});
+            }
         });
     } else {
         res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
@@ -1628,7 +1690,7 @@ export function pay(req, res) {
                             version: 0
                         },
                         whigiforce: true
-                    }, {}, false).then(function(newid: string) {
+                    }, {}, false).then(function(adatas: any[]) {
                         res.type('application/json').status(200).json({
                             id: got.id
                         });

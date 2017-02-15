@@ -6,6 +6,9 @@
 
 'use strict';
 declare var require: any
+declare var Buffer: any
+declare var __dirname: any
+declare var process: any
 var scd = require('node-schedule');
 var sys = require('sys')
 var exec = require('child_process').exec;

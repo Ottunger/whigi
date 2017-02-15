@@ -28,7 +28,7 @@ export abstract class IModel {
      * @param {String} name The collection name.
      * @return {Promise} Whether it went OK.
      */
-    protected unlinkFrom(name: string): Promise {
+    protected unlinkFrom(name: string): Promise<undefined> {
         return this.db.unlink(name, this._id);
     }
 
@@ -46,6 +46,6 @@ export abstract class IModel {
     abstract allFields(): any
     abstract persist()
     abstract sanitarize()
-    abstract unlink(): Promise
+    abstract unlink(): Promise<undefined>
 
 }
