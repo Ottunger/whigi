@@ -1207,7 +1207,7 @@ export function regUser(req, res) {
 
     if(user.password.length >= 8 && !checks.isWhigi(user.username)) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
-            if(ok && proposal.indexOf('wiuser') != 0) {
+            if(ok) {
                 //Can create non wiuser- account
                 db.retrieveUser(proposal).then(function(u) {
                     if(u == undefined)
