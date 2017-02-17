@@ -18,7 +18,7 @@ import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
 import {IModel} from '../common/models/IModel';
 var fupt = require('../common/cdnize/full-update_pb');
-var mailer, last = 0, topay: {[id: string]: string} = require('./payed.json');
+var mailer, topay: {[id: string]: string} = require('./payed.json');
 var db: Datasource;
 
 /**
@@ -199,11 +199,6 @@ export function renameData(req, res, respond): Promise<undefined> {
  */
 export function triggerVaults(req, res) {
     var name = decodeURIComponent(req.params.data_name);
-    if(last >= (new Date).getTime() - 1000) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.fast', req)});
-        return;
-    }
-    last = (new Date).getTime();
     req.user.fill().then(function() {
         if(name in req.user.data) {
             var keys = Object.getOwnPropertyNames(req.user.data[name].shared_to);
