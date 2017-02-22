@@ -298,19 +298,19 @@
             }, {
                 "descr_key": "generics.city",
                 "mode": "text",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.country",
                 "mode": "select",
                 "enum": "countries",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.gender",
                 "mode": "select",
                 "enum": "genders",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.religion",
@@ -335,7 +335,7 @@
             {
                 "descr_key": "generics.since",
                 "mode": "date",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.nationality",
@@ -345,7 +345,7 @@
                 "validateJava": ""
             }
         ],
-        "validate": "return ngData.checking.keyIs('date', 'generics.since', test);",
+        "validate": "return ngData.checking.keyIs('date', 'generics.since', test, true);",
         "instantiable": true,
         "descr_key": "generics.nationalities",
         "new_key_is": "generics.nationality",
@@ -368,7 +368,7 @@
             }, {
                 "descr_key": "generics.eidNo",
                 "mode": "text",
-                "required": true,
+                "required": false,
                 "placeholder": "be: xxx-xxxxxxx-yy",
                 "validateJava": ""
             }, {
@@ -464,16 +464,16 @@
             }, {
                 "descr_key": "generics.eidFrom",
                 "mode": "date",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }, {
                 "descr_key": "generics.eidTo",
                 "mode": "date",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }
         ],
-        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.eidFrom', 'generics.eidTo'], test);",
+        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.eidFrom', 'generics.eidTo'], test, true);",
         "instantiable": true,
         "name_placeholder": "generics.pl_ppt",
         "descr_key": "generics.passports",
@@ -521,7 +521,7 @@
             }, {
                 "descr_key": "generics.several_owners",
                 "mode": "checkbox",
-                "required": true,
+                "required": false,
                 "validateJava": ""
             }
         ],
@@ -597,7 +597,7 @@
                 "validateJava": ""
             }
         ],
-        "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
+        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.birthdate', 'generics.deathdate'], test, true);",
         "instantiable": false,
         "descr_key": "generics.mother",
         "json_from_key": "generics.birthdate",
@@ -661,7 +661,7 @@
                 "validateJava": ""
             }
         ],
-        "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
+        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.birthdate', 'generics.deathdate'], test, true);",
         "instantiable": false,
         "descr_key": "generics.father",
         "json_from_key": "generics.birthdate",
@@ -725,7 +725,7 @@
                 "validateJava": ""
             }
         ],
-        "validate": "return ngData.checking.keyIs('date', 'generics.birthdate', test);",
+        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.birthdate', 'generics.deathdate'], test, true);",
         "instantiable": true,
         "descr_key": "generics.children",
         "new_key_is": "generics.first_name",
@@ -883,7 +883,7 @@
                 "validateJava": ""
             }
         ],
-        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.lifeIn', 'generics.lifeOut'], test);",
+        "validate": "return ngData.checking.keysAre(['date', 'date'], ['generics.lifeIn', 'generics.lifeOut'], test, true);",
         "instantiable": true,
         "descr_key": "generics.employers",
         "new_keys_is": "generics.legalName",
