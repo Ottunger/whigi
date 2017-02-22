@@ -2027,8 +2027,36 @@
                             },
                             "return_url": {
                                 "type": "string",
-                                "description": "URL encoded URL to be browsed back; you cannot know the result of the operation",
+                                "description": "URL-encoded URL to be browsed back; you cannot know the result of the operation",
                                 "required": true
+                            }
+                        },
+                        "response": null
+                    },
+                    {
+                        "name": "macc",
+                        "path": "/merge/{uname}/{password}/{return}",
+                        "auth": "NO",
+                        "puzzle": "NO",
+                        "status": "200",
+                        "method": "GET",
+                        "desc": "Merging accounts",
+                        "description": "Ask for merging the account with the given credentials into the current one.",
+                        "pathing": {
+                            "uname": {
+                                "type": "string",
+                                "description": "Username to merge",
+                                "required": true
+                            },
+                            "password": {
+                                "type": "string",
+                                "description": "Password to merge",
+                                "required": true
+                            },
+                            "return": {
+                                "type": "string",
+                                "description": "A URL-encoded URL to be browsed back upon success",
+                                "required": false
                             }
                         },
                         "response": null
