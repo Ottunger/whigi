@@ -355,7 +355,7 @@ export function remUser(req, res, respond?: boolean) {
         return;
     }
     //Ok we can start...
-    var idata: {[id: string]: true} = {};
+    var idata: {[id: string]: boolean} = {};
     var ishare: {[id: string]: string[]} = {};
     var remdata = [];
     function remDatas(user: User, done: number) {

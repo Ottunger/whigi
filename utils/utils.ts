@@ -461,6 +461,34 @@ export function encryptRSA(data: number[], rsa_key: string): string {
 }
 
 /**
+ * Trigger a name.
+ * @function trigger
+ * @public
+ * @param {Vault} v Vault.
+ * @param {Boolean} removed If removed.
+ */
+export function trigger(v: any, removed: boolean = false) {
+    if(!v.trigger)
+        return;
+    try {
+        var pt = v.trigger.indexOf('/');
+        var ht = https.request({
+            host: v.trigger.substr(0, pt),
+            path: v.trigger.substr(pt) + ((v.trigger.substr(pt).indexOf('?') == -1)? '?' : '&') + 'username=' + v.shared_to_id + '&vault=' + encodeURIComponent(v.data_name) + (removed? '&removed=true' : ''),
+            port: 443,
+            method: 'GET'
+        }, function(res) {
+            var r = '';
+            res.on('data', function(chunk) {
+                r += chunk;
+            });
+            res.on('end', function() {});
+        }).on('error', function(err) {});
+        ht.end();
+    } catch(e) {}
+}
+
+/**
  * Triggers a vault trigger with no feedback.
  * @function lameTrigger
  * @public
@@ -481,23 +509,8 @@ export function lameTrigger(db: any, user: any, id: string, save: boolean) {
                 user.persist();
                 v.unlink();
             }
-        } else if(!!v.trigger) {
-            try {
-                var pt = v.trigger.indexOf('/');
-                var ht = https.request({
-                    host: v.trigger.substr(0, pt),
-                    path: v.trigger.substr(pt) + ((v.trigger.substr(pt).indexOf('?') == -1)? '?' : '&') + 'username=' + v.shared_to_id + '&vault=' + encodeURIComponent(v.data_name),
-                    port: 443,
-                    method: 'GET'
-                }, function(res) {
-                    var r = '';
-                    res.on('data', function(chunk) {
-                        r += chunk;
-                    });
-                    res.on('end', function() {});
-                }).on('error', function(err) {});
-                ht.end();
-            } catch(e) {}
+        } else {
+            trigger(v);
         }
     });
 }

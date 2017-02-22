@@ -572,6 +572,8 @@ export function removeVault(req, res, respond): Promise<undefined> {
     respond = respond !== false;
     return new Promise(function(resolve, reject) {
         function complete(v: Vault, s: User) {
+            //Say we removed
+            utils.trigger(v, true);
             v.unlink();
             if(!!req.user.data[v.real_name])
                 delete req.user.data[v.real_name].shared_to[v.shared_to_id];
