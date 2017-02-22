@@ -149,7 +149,10 @@ export function requestMapping(req, res) {
                         var recup_mail = decryptAES(vault.data_crypted_aes, aesKey);
                         whigi('GET', '/user/' + recup_id).then(function(remote) {
                             mailer.sendMail(utils.mailConfig(recup_mail, 'needRestore', req, {
-                                username: username
+                                username: username,
+                                fb_url: 'https://whigi.wissl.org/images/whigi_contacts_fb.png',
+                                link_url: 'https://whigi.wissl.org/images/whigi_contacts_link.png',
+                                banner_url: 'https://whigi.wissl.org/images/whigi_contacts_banner.jpg'
                             }, remote), function(e, i) {});
                             res.type('application/json').status(200).json({error: ''});
                         }, function(e) {
@@ -180,7 +183,10 @@ export function requestMapping(req, res) {
                                 mailer.sendMail(utils.mailConfig(email, 'reset', req, {
                                     username: username,
                                     secret: encodeURIComponent(encrypt),
-                                    key: retKey
+                                    key: retKey,
+                                    fb_url: 'https://whigi.wissl.org/images/whigi_contacts_fb.png',
+                                    link_url: 'https://whigi.wissl.org/images/whigi_contacts_link.png',
+                                    banner_url: 'https://whigi.wissl.org/images/whigi_contacts_banner.jpg'
                                 }, remote), function(e, i) {});
                                 res.type('application/json').status(200).json({error: ''});
                             }, function(e) {
@@ -244,7 +250,10 @@ export function mixMapping(req, res) {
                         mailer.sendMail(utils.mailConfig(email, 'reset', req, {
                             username: username,
                             secret: encodeURIComponent(encrypt),
-                            key: retKey
+                            key: retKey,
+                            fb_url: 'https://whigi.wissl.org/images/whigi_contacts_fb.png',
+                            link_url: 'https://whigi.wissl.org/images/whigi_contacts_link.png',
+                            banner_url: 'https://whigi.wissl.org/images/whigi_contacts_banner.jpg'
                         }, remote), function(e, i) {});
                         res.type('application/json').status(200).json({error: ''});
                     }, function(e) {

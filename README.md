@@ -3,7 +3,7 @@ A project to make people possess their own data again.
 The clients should log in using generated token, for ease of unlogging all other clients.
 The clients that remember a token should also remember a combination hash(password + salt), that is able to decrypt the encrypted master key.
 Remember that clients are authenticated using a match on hash(hash(password) + salt).
-To generate email templates for the whigi-restore, check https://html-online.com/editor/.
+To generate email templates you can always use the editor @mailchimp: https://us14.admin.mailchimp.com/templates/ .
 
 =>Careful: Whigi-giveaway, Whigi-restore and Whigi-advert cannot run on Windows!
 

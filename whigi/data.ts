@@ -394,7 +394,10 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
                                     mailer.sendMail(utils.mailConfig(mail, req.body.template || 'newVault', req, Object.assign({
                                         requester: req.user._id,
                                         given_url: req.body.mail,
-                                        share: v._id
+                                        share: v._id,
+                                        fb_url: 'https://whigi.wissl.org/images/whigi_contacts_fb.png',
+                                        link_url: 'https://whigi.wissl.org/images/whigi_contacts_link.png',
+                                        banner_url: 'https://whigi.wissl.org/images/whigi_contacts_banner.jpg'
                                     }, req.body.templateContext || {}), sharee), function(e, i) {});
                                 });
                             }
@@ -961,7 +964,10 @@ export function askGrants(req, res) {
     function complete(u: User, mail: string, given_url: string) {
         mailer.sendMail(utils.mailConfig(mail, req.body.template || 'askGrant', req, Object.assign({
             requester: req.user._id,
-            given_url: given_url
+            given_url: given_url,
+            fb_url: 'https://whigi.wissl.org/images/whigi_contacts_fb.png',
+            link_url: 'https://whigi.wissl.org/images/whigi_contacts_link.png',
+            banner_url: 'https://whigi.wissl.org/images/whigi_contacts_banner.jpg'
         }, req.body.templateContext || {}), u), function(e, i) {});
     }
 

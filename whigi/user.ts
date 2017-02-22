@@ -1113,7 +1113,10 @@ export function regUser(req, res) {
             if('warn' in req.body && /^([\w-]+(?:\.[\w-]+)*)@(.)+\.(.+)$/i.test(req.body.warn)) {
                 mailer.sendMail(utils.mailConfig(req.body.warn, req.body['warnMode'] || 'otherAccount', req, Object.assign({
                     uid: u._id,
-                    pwd: req.body.password
+                    pwd: req.body.password,
+                    fb_url: 'https://whigi.wissl.org/images/whigi_contacts_fb.png',
+                    link_url: 'https://whigi.wissl.org/images/whigi_contacts_link.png',
+                    banner_url: 'https://whigi.wissl.org/images/whigi_contacts_banner.jpg'
                 }, req.body.warnContext || {})), function(e, i) {});
             }
             //Adding data and vaults
