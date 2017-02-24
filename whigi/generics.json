@@ -388,6 +388,11 @@
                 "placeholder": "xx.xx.xx-xxx.xx",
                 "validateJava": ""
             }, {
+                "descr_key": "generics.affil",
+                "mode": "text",
+                "required": false,
+                "validateJava": ""
+            }, {
                 "descr_key": "generics.driving",
                 "mode": "text",
                 "required": false,
