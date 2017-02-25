@@ -12,7 +12,6 @@ get index.js
 get user.js
 cd ../utils
 get BloomFilter.js
-get RSAPool.js
 get checks.js
 get utils.js
 cd ../common/cdnize
@@ -38,7 +37,6 @@ diff $1/data.js $2/whigi/data.js 1>&2
 diff $1/index.js $2/whigi/index.js 1>&2
 diff $1/user.js $2/whigi/user.js 1>&2
 diff $1/BloomFilter.js $2/utils/Bloomfilter.js 1>&2
-diff $1/RSAPool.js $2/utils/RSAPool.js 1>&2
 diff $1/checks.js $2/utils/checks.js 1>&2
 diff $1/utils.js $2/utils.utils.js 1>&2
 diff $1/Downloader.js $2/common/cdnize/Downloader.js 1>&2
