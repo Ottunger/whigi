@@ -447,7 +447,7 @@ connect(function(e) {
     app.post('/api/v:version/profile/data/new', checks.checkBody(['name', 'encr_data', 'is_dated', 'version', 'is_bound', 'encr_aes']));
     app.post('/api/v:version/profile/update', checks.checkBody(['new_password', 'encr_master_key', 'sha_master']));
     app.post('/api/v:version/profile/uname', checks.checkBody(['new_username']));
-    app.post('/api/v:version/user/create', checks.checkBody(['username', 'password']));
+    app.post('/api/v:version/user/create', checks.checkBody(['username', 'password', 'public_key', 'private_key']));
     app.post('/api/v:version/user/ack', checks.checkBody(['username', 'public_pem']));
     app.post('/api/v:version/profile/token/new', checks.checkBody(['is_eternal']));
     app.post('/api/v:version/profile/restore-token', checks.checkBody(['token_id', 'bearer_id']));

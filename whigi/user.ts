@@ -1164,52 +1164,53 @@ export function regUser(req, res) {
     }
     function complete() {
         var u: User = new User(user, db);
-        pki.rsa.generateKeyPair({bits: 2048, e: 0x10001, workers: -1}, function(err, key) {
-            if(err) {
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-                return;
-            }
-            u._id = proposal;
-            u.salt = utils.generateRandomString(64);
-            u.puzzle = utils.generateRandomString(16);
-            u.password = hash.sha256(hash.sha256(user.password) + u.salt);
-            u.data = {};
-            u.shared_with_me = {};
-            u.oauth = [];
-            u.sha_master = hash.sha256(hash.sha256(utils.arr2str(utils.toBytes(pre_master_key))));
+        try {
+            pki.publicKeyFromPem(req.body.public_key);
+            pki.privateKeyFromPem(req.body.private_key);
+        } catch(e) {
+            res.type('application/json').status(400).json({error: utils.i18n('client.missing', req)});
+            return;
+        }
+        u._id = proposal;
+        u.salt = utils.generateRandomString(64);
+        u.puzzle = utils.generateRandomString(16);
+        u.password = hash.sha256(hash.sha256(user.password) + u.salt);
+        u.data = {};
+        u.shared_with_me = {};
+        u.oauth = [];
+        u.sha_master = hash.sha256(hash.sha256(utils.arr2str(utils.toBytes(pre_master_key))));
 
-            var ypt = hash.sha256(user.password + u.salt);
-            for(var i = 0; i < 666; i++)
-                ypt = hash.sha256(ypt);
-            u.encr_master_key = <any>Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(ypt), new aes.Counter(0))
-                .encrypt(utils.toBytes(pre_master_key)));
-            u.rsa_pub_key = pki.publicKeyToPem(key.publicKey);
-            u.rsa_pri_key = <any>[Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
-                .encrypt(aes.util.convertStringToBytes(pki.privateKeyToPem(key.privateKey))))];
-            u.is_company = !!user.company_info? 1 : 0;
-            u.company_info = {};
-            u.hidden_id = utils.generateRandomString(24);
-            if(!!user.company_info && !!user.company_info.name)
-                u.company_info.name = user.company_info.name;
-            if(!!user.company_info && !!user.company_info.bce)
-                u.company_info.bce = user.company_info.bce;
-            if(!!user.company_info && !!user.company_info.rrn)
-                u.company_info.rrn = user.company_info.rrn;
-            if(!!user.company_info && !!user.company_info.address)
-                u.company_info.address = user.company_info.address;
-            if(!!user.company_info && !!user.company_info.picture)
-                u.company_info.picture = user.company_info.picture;
-            if(!!user.company_info && !!user.company_info.is_company)
-                u.company_info.is_company = true;
-            //Now issue the certificate
-            u.cert = utils.whigiCert(u.rsa_pub_key, './whigi/whigi-key.pem', {
-                commonName: u._id,
-                countryName: 'BE',
-                localityName: '',
-                organizationName: ''
-            });
-            end(u);
+        var ypt = hash.sha256(user.password + u.salt);
+        for(var i = 0; i < 666; i++)
+            ypt = hash.sha256(ypt);
+        u.encr_master_key = <any>Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(ypt), new aes.Counter(0))
+            .encrypt(utils.toBytes(pre_master_key)));
+        u.rsa_pub_key = req.body.public_key;
+        u.rsa_pri_key = <any>[Array.from(new aes.ModeOfOperation.ctr(utils.toBytes(pre_master_key), new aes.Counter(0))
+            .encrypt(aes.util.convertStringToBytes(req.body.private_key)))];
+        u.is_company = !!user.company_info? 1 : 0;
+        u.company_info = {};
+        u.hidden_id = utils.generateRandomString(24);
+        if(!!user.company_info && !!user.company_info.name)
+            u.company_info.name = user.company_info.name;
+        if(!!user.company_info && !!user.company_info.bce)
+            u.company_info.bce = user.company_info.bce;
+        if(!!user.company_info && !!user.company_info.rrn)
+            u.company_info.rrn = user.company_info.rrn;
+        if(!!user.company_info && !!user.company_info.address)
+            u.company_info.address = user.company_info.address;
+        if(!!user.company_info && !!user.company_info.picture)
+            u.company_info.picture = user.company_info.picture;
+        if(!!user.company_info && !!user.company_info.is_company)
+            u.company_info.is_company = true;
+        //Now issue the certificate
+        u.cert = utils.whigiCert(u.rsa_pub_key, './whigi/whigi-key.pem', {
+            commonName: u._id,
+            countryName: 'BE',
+            localityName: '',
+            organizationName: ''
         });
+        end(u);
     }
 
     if(user.password.length >= 8 && !checks.isWhigi(user.username)) {

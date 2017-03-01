@@ -181,6 +181,16 @@
                                 "type": "object",
                                 "description": "Any public info to already apply",
                                 "required": false
+                            },
+                            "public_key": {
+                                "type": "string",
+                                "description": "PEM encoded public key",
+                                "required": true
+                            },
+                            "private_key": {
+                                "type": "string",
+                                "description": "PEM encoded private key",
+                                "required": true
                             }
                         },
                         "response": {
@@ -222,7 +232,7 @@
                                 "description": "Desired username",
                                 "required": true
                             },
-                            "public_key": {
+                            "public_pem": {
                                 "type": "string",
                                 "description": "PEM encoded public key",
                                 "required": true
