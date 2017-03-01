@@ -476,7 +476,7 @@ export function trigger(v: any, removed: boolean = false, cs_key?: string, cs_ce
         var pt = v.trigger.indexOf('/');
         var cfg = {
             host: v.trigger.substr(0, pt),
-            path: v.trigger.substr(pt) + ((v.trigger.substr(pt).indexOf('?') == -1)? '?' : '&') + 'username=' + v.shared_to_id + '&vault=' + encodeURIComponent(v.data_name) + (removed? '&removed=true' : ''),
+            path: v.trigger.substr(pt) + ((v.trigger.substr(pt).indexOf('?') == -1)? '?' : '&') + 'username=' + v.sharer_id + '&vault=' + encodeURIComponent(v.data_name) + (removed? '&removed=true' : ''),
             port: 443,
             method: 'GET'
         };
