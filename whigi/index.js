@@ -142,8 +142,8 @@ function connect(callback) {
         if(!err) {
             db = new datasources.Datasource(d, config.mount, true, false);
             rpem = pki.certificateFromPem(fs.readFileSync(__dirname + '/whigi-cert.pem'));
-            user.managerInit(db);
-            data.managerInit(db);
+            user.managerInit(db, config);
+            data.managerInit(db, config);
             checks.prepareRL();
             callback(false);
         } else {

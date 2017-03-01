@@ -26,15 +26,16 @@ import {Oauth} from '../common/models/Oauth';
 import {Vault} from '../common/models/Vault';
 import {Datasource} from '../common/Datasource';
 var mailer, oid: {[id: string]: string[]}, size: number, master_key: number[], rsa_key: string;
-var db: Datasource, ppal_token: string;
+var db: Datasource, ppal_token: string, config;
 
 /**
  * Sets up the mailer before use.
  * @function managerInit
  * @public
  * @param {Datasource} dbg Database.
+ * @param {Object} c Config.
  */
-export function managerInit(dbg: Datasource) {
+export function managerInit(dbg: Datasource, c: any) {
     mailer = ndm.createTransport({
         port: 587,
         host: 'mail.wissl.org',
@@ -47,6 +48,7 @@ export function managerInit(dbg: Datasource) {
         tls: {rejectUnauthorized: false}
     });
     db = dbg;
+    config = c;
     //Prepare eID
     oid = {};
     size = 0;
@@ -848,7 +850,7 @@ export function recData(req, res, respond?: boolean): Promise<any[]> {
                 //Trigger the triggers, without updates for security
                 var keys = Object.getOwnPropertyNames(shared_to);
                 for(var i = 0; i < keys.length; i++) {
-                    utils.lameTrigger(db, req.user, shared_to[keys[i]], false);
+                    utils.lameTrigger(db, req.user, shared_to[keys[i]], false, config.keypem, config.certpem);
                 }
             }
             req.user.data[got.name] = {

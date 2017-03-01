@@ -19,15 +19,16 @@ import {Datasource} from '../common/Datasource';
 import {IModel} from '../common/models/IModel';
 var fupt = require('../common/cdnize/full-update_pb');
 var mailer, topay: {[id: string]: string} = require('./payed.json');
-var db: Datasource;
+var db: Datasource, config;
 
 /**
  * Set up.
  * @function managerInit
  * @public
  * @param {Datasource} dbg Database.
+ * @param {Object} c Config.
  */
-export function managerInit(dbg: Datasource) {
+export function managerInit(dbg: Datasource, c: any) {
     mailer = ndm.createTransport({
         port: 587,
         host: 'mail.wissl.org',
@@ -40,6 +41,7 @@ export function managerInit(dbg: Datasource) {
         tls: {rejectUnauthorized: false}
     });
     db = dbg;
+    config = c;
 }
 
 /**
@@ -203,7 +205,7 @@ export function triggerVaults(req, res) {
         if(name in req.user.data) {
             var keys = Object.getOwnPropertyNames(req.user.data[name].shared_to);
             for(var i = 0; i < keys.length; i++) {
-                utils.lameTrigger(db, req.user, req.user.data[name].shared_to[keys[i]], true);
+                utils.lameTrigger(db, req.user, req.user.data[name].shared_to[keys[i]], true, config.keypem, config.certpem);
             }
             res.type('application/json').status(200).json({error: ''});
         } else {
@@ -383,7 +385,7 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
                                 reject();
                                 return;
                             }
-                            v.trigger = v.trigger.replace(/:whigi_id:/g, sharee._id).replace(/:whigi_hidden_id:/g, sharee.hidden_id);
+                            v.trigger = v.trigger.replace(/:whigi_id:/g, req.user._id).replace(/:whigi_hidden_id:/g, req.user.hidden_id);
                             if(sharee._id == req.user._id) {
                                 //Make sure only object is printed to DB
                                 sharee = req.user;
@@ -573,7 +575,7 @@ export function removeVault(req, res, respond): Promise<undefined> {
     return new Promise(function(resolve, reject) {
         function complete(v: Vault, s: User) {
             //Say we removed
-            utils.trigger(v, true);
+            utils.trigger(v, true, config.keypem, config.certpem);
             v.unlink();
             if(!!req.user.data[v.real_name])
                 delete req.user.data[v.real_name].shared_to[v.shared_to_id];

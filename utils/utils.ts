@@ -465,19 +465,26 @@ export function encryptRSA(data: number[], rsa_key: string): string {
  * @function trigger
  * @public
  * @param {Vault} v Vault.
+ * @param {String} cs_key Client side key.
+ * @param {String} cs_cert Client side certificate.
  * @param {Boolean} removed If removed.
  */
-export function trigger(v: any, removed: boolean = false) {
+export function trigger(v: any, removed: boolean = false, cs_key?: string, cs_cert?: string) {
     if(!v.trigger)
         return;
     try {
         var pt = v.trigger.indexOf('/');
-        var ht = https.request({
+        var cfg = {
             host: v.trigger.substr(0, pt),
             path: v.trigger.substr(pt) + ((v.trigger.substr(pt).indexOf('?') == -1)? '?' : '&') + 'username=' + v.shared_to_id + '&vault=' + encodeURIComponent(v.data_name) + (removed? '&removed=true' : ''),
             port: 443,
             method: 'GET'
-        }, function(res) {
+        };
+        if(!!cs_key && !!cs_cert) {
+            cfg['key'] = fs.readFileSync(cs_key);
+            cfg['cert'] = fs.readFileSync(cs_cert);
+        }
+        var ht = https.request(cfg, function(res) {
             var r = '';
             res.on('data', function(chunk) {
                 r += chunk;
@@ -496,8 +503,10 @@ export function trigger(v: any, removed: boolean = false) {
  * @param {User} user Requesting user.
  * @param {String} id Vault ID.
  * @param {Boolean} save Whether to save the user.
+ * @param {String} cs_key Client side key.
+ * @param {String} cs_cert Client side certificate.
  */
-export function lameTrigger(db: any, user: any, id: string, save: boolean) {
+export function lameTrigger(db: any, user: any, id: string, save: boolean, cs_key?: string, cs_cert?: string) {
     db.retrieveVault(id).then(function(v) {
         if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
             db.retrieveUser(v.shared_to_id, true).then(function(u) {
@@ -510,7 +519,7 @@ export function lameTrigger(db: any, user: any, id: string, save: boolean) {
                 v.unlink();
             }
         } else {
-            trigger(v);
+            trigger(v, false, cs_key, cs_cert);
         }
     });
 }
