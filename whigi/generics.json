@@ -82,7 +82,6 @@
         "validate": "return ngData.checking.areCommunications(test);",
         "instantiable": false,
         "descr_key": "generics.communications",
-        "new_keys_only": false,
         "validateJava": ""
     }],
     "profile/email": [{
@@ -351,6 +350,42 @@
         "new_key_is": "generics.nationality",
         "validateJava": ""
     }],
+    "profile/diploma": [{
+        "is_dated": false,
+        "long_descr_key": "",
+        "help_url": "",
+        "icon": "fa fa-handshake-o",
+        "mode": "json_keys",
+        "json_keys": [
+            {
+                "descr_key": "generics.title",
+                "mode": "text",
+                "required": true,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.since",
+                "mode": "date",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.school",
+                "mode": "text",
+                "required": false,
+                "validateJava": ""
+            }, {
+                "descr_key": "generics.degree",
+                "mode": "select",
+                "enum": "degrees",
+                "required": false,
+                "validateJava": ""
+            }
+        ],
+        "validate": "return true;",
+        "instantiable": true,
+        "descr_key": "generics.diploma",
+        "new_key_is": "generics.title",
+        "validateJava": ""
+    }],
     "profile/identity": [{
         "is_dated": true,
         "is_dated_day_only": true,
@@ -534,7 +569,6 @@
         "instantiable": true,
         "name_placeholder": "generics.pl_bank",
         "descr_key": "generics.bank",
-        "new_keys_only": false,
         "validateJava": "ACCOUNT",
         "transform": "var obj = JSON.parse(test); for(var i = 0; i < obj.length; i++) {var ins = JSON.parse(obj[i].value); ins['generics.IBAN'] = ins['generics.IBAN'].toUpperCase().replace(/ /g, ''); obj[i].value = JSON.stringify(ins);} return JSON.stringify(obj);"
     }],
