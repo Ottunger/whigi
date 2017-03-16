@@ -354,7 +354,7 @@
         "is_dated": false,
         "long_descr_key": "",
         "help_url": "",
-        "icon": "fa fa-handshake-o",
+        "icon": "fa fa-institution",
         "mode": "json_keys",
         "json_keys": [
             {
