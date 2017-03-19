@@ -548,7 +548,7 @@ export function setLang(req, res) {
  * @param {Response} res The response.
  */
 export function prepGoCompany9(req, res) {
-    db.retrieveUser(req.query.username.toLowerCase()).then(function(user) {
+    db.retrieveUser(req.query.username.toLowerCase()).then(function(user: User) {
         if(!!user) {
             if(hash.sha256(req.query.hpwd + user.salt) == user.password || hash.sha256(req.query.hpwd) == user.sha_master) {
                 var uid = utils.generateRandomString(12) + '-' + (new Date).getTime();
@@ -988,6 +988,10 @@ export function changeUsername(req, res) {
             var prev = req.user._id;
             req.user._id = proposal;
             req.user.persist().then(function() {
+                //Hey we're OK actually!
+                db.uids[proposal] = db.uids[prev];
+                delete db.uids[prev];
+                //Unlink...
                 req.user._id = prev;
                 req.user.unlink();
                 //Respond
@@ -1215,7 +1219,7 @@ export function regUser(req, res) {
 
     if(user.password.length >= 8 && !checks.isWhigi(user.username)) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
-            if(ok) {
+            if(ok || config.localhost == 'localhost') {
                 //Can create non wiuser- account
                 db.retrieveUser(proposal).then(function(u) {
                     if(u == undefined)

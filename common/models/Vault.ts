@@ -34,30 +34,18 @@ export class Vault extends IModel {
      */
     constructor(u, db: Datasource) {
         super(u._id, db);
-        if('shared_to_id' in u)
-            this.shared_to_id = u.shared_to_id;
-        if('data_name' in u)
-            this.data_name = u.data_name;
-        if('aes_crypted_shared_pub' in u)
-            this.aes_crypted_shared_pub = u.aes_crypted_shared_pub;
-        if('data_crypted_aes' in u)
-            this.data_crypted_aes = u.data_crypted_aes;
-        if('sharer_id' in u)
-            this.sharer_id = u.sharer_id;
-        if('last_access' in u)
-            this.last_access = u.last_access;
-        if('expire_epoch' in u)
-            this.expire_epoch = u.expire_epoch;
-        if('is_dated' in u)
-            this.is_dated = u.is_dated;
-        if('trigger' in u)
-            this.trigger = u.trigger;
-        if('real_name' in u)
-            this.real_name = u.real_name;
-        if('version' in u)
-            this.version = u.version;
-        if('storable' in u)
-            this.storable = u.storable;
+        this.shared_to_id = u.shared_to_id;
+        this.data_name = u.data_name;
+        this.aes_crypted_shared_pub = u.aes_crypted_shared_pub;
+        this.data_crypted_aes = u.data_crypted_aes;
+        this.sharer_id = u.sharer_id;
+        this.last_access = u.last_access;
+        this.expire_epoch = u.expire_epoch;
+        this.is_dated = u.is_dated;
+        this.trigger = u.trigger;
+        this.real_name = u.real_name;
+        this.version = u.version;
+        this.storable = u.storable;
         this.links = u.links || [];
     }
 

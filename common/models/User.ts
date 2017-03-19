@@ -54,6 +54,8 @@ export class User extends IModel {
     public impersonated_prefix: string;
     public oauth_admin: boolean;
     private trigrams: {[id: string]: More};
+    //Specific
+    public lfetch: number;
     static trgs: string[];
     
     /**
@@ -65,36 +67,24 @@ export class User extends IModel {
      */
     constructor(u, db: Datasource) {
         super(u._id, db);
-        if('is_company' in u)
-            this.is_company = u.is_company;
-        if('company_info' in u)
-            this.company_info = u.company_info;
-        if('password' in u)
-            this.password = u.password;
-        if('salt' in u)
-            this.salt = u.salt;
-        if('puzzle' in u)
-            this.puzzle = u.puzzle;
-        if('encr_master_key' in u)
-            this.encr_master_key = u.encr_master_key;
-        if('rsa_pub_key' in u)
-            this.rsa_pub_key = u.rsa_pub_key;
-        if('rsa_pri_key' in u)
-            this.rsa_pri_key = u.rsa_pri_key;
-        if('data' in u)
-            this.data = u.data;
-        if('shared_with_me' in u)
-            this.shared_with_me = u.shared_with_me;
-        if('oauth' in u)
-            this.oauth = u.oauth;
-        if('sha_master' in u)
-            this.sha_master = u.sha_master;
-        if('cert' in u)
-            this.cert = u.cert;
-        if('hidden_id' in u)
-            this.hidden_id = u.hidden_id;
+        this.is_company = u.is_company;
+        this.company_info = u.company_info;
+        this.password = u.password;
+        this.salt = u.salt;
+        this.puzzle = u.puzzle;
+        this.encr_master_key = u.encr_master_key;
+        this.rsa_pub_key = u.rsa_pub_key;
+        this.rsa_pri_key = u.rsa_pri_key;
+        this.data = u.data;
+        this.shared_with_me = u.shared_with_me;
+        this.oauth = u.oauth;
+        this.sha_master = u.sha_master;
+        this.cert = u.cert;
+        this.hidden_id = u.hidden_id;
         this.oauth_admin = false;
+        //Special keys...
         this.trigrams = {};
+        this.lfetch = u.lfetch || 0;
     }
 
     /**
@@ -186,7 +176,7 @@ export class User extends IModel {
             if(self.data !== undefined && self.shared_with_me !== undefined) {
                 resolve();
             } else {
-                self.db.retrieveUser(self._id, true).then(function(user) {
+                self.db.retrieveUser(self._id, true, undefined, true).then(function(user) {
                     if(!!user && !!(user.data))
                         self.data = user.data;
                     else
@@ -207,21 +197,44 @@ export class User extends IModel {
     }
 
     /**
+     * Notify db that done.
+     * @function dispose
+     * @public
+     */
+    dispose() {
+        var self = this;
+        setTimeout(function() {
+            if(new Date().getTime() - self.lfetch > 5*60*1000) {
+                self.persist().then(function() {
+                    delete self.db.uids[self._id];
+                }, function(e) {
+                    self.dispose();
+                });
+            } else {
+                self.dispose();
+            }
+        }, 20*1000);
+    }
+
+    /**
      * Write the user to database.
      * @function persist
      * @public
+     * @param {Boolean} close If close.
      * @return A promise to check if everything went well.
      */
-    persist() {
+    persist(close: boolean = true) {
         var self = this;
         
         return new Promise(function(resolve, reject) {
             function complete(resolve, reject) {
                 self.updated('users');
                 self.db.getDatabase().collection('users').update({_id: self._id}, self.allFields(), {upsert: true}, function(err) {
+                    if(close)
+                        self.dispose();
                     if(err)
                         reject(err);
-                    else
+                    else 
                         resolve();
                 });
             }
@@ -229,7 +242,7 @@ export class User extends IModel {
                 var inputs = Object.assign({}, self.shared_with_me);
                 self.shared_with_me = {
                     'whigi-system': self.shared_with_me['whigi-system']
-                }
+                };
                 complete(function() {
                     self.shared_with_me = inputs;
                     resolve();
@@ -307,7 +320,9 @@ export class User extends IModel {
         if('whigi-system' in this.shared_with_me)
             return true;
         var keys = Object.getOwnPropertyNames(this.shared_with_me);
-        if(keys.length < 15000)
+        if(keys.length < 5000)
+            return false;
+        else if(keys.length > 10000)
             return false;
         var mid = 0;
         for(var i = 0; i < 100; i++)

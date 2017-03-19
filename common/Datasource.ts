@@ -20,6 +20,7 @@ export class Datasource {
     private up: Uploader;
     private down: Downloader;
     private int: Integrity;
+    public uids: {[id: string]: User};
 
     /**
      * Saves the database for later use by the connector.
@@ -40,6 +41,7 @@ export class Datasource {
             if(userIntegrity)
                 this.int = new Integrity(12, basedir);
         }
+        this.uids = {};
     }
 
     /**
@@ -141,32 +143,52 @@ export class Datasource {
      * @param {String} id User id.
      * @param {Boolean} data Whether to retrieve data array.
      * @param {String[]} names If data required, names to ensure to have.
+     * @param {Boolean} by_user If the user class calls it.
      * @return {Promise} The required item.
      */
-    retrieveUser(id: string, data?: boolean, names?: string[]): Promise<User> {
+    retrieveUser(id: string, data?: boolean, names?: string[], by_user: boolean = false): Promise<User> {
         var self = this;
         names = names || [];
         var decl = (data === true && names.length == 0)? fields : {data: false, shared_with_me: false};
 
         return new Promise<User>(function(resolve, reject) {
-            self.retrieveGeneric('users', {_id: id}, decl).then(function(doc) {
+            function complete(doc: User) {
                 if(!!doc) {
-                    var u: User = new User(doc, self);
+                    if(!doc.lfetch) {
+                        //Maybe someone had it??
+                        doc = self.uids[id] || doc;
+                        if(!doc.lfetch) {
+                            //Newly fetched!
+                            doc = new User(doc, self);
+                            self.uids[id] = doc;
+                            doc.lfetch = new Date().getTime();
+                            //Start ticking...
+                            doc.dispose();
+                        }
+                    }
                     if(data === true && names.length > 0) {
-                        u.fill(names).then(function() {
-                            resolve(u);
+                        doc.fill(names).then(function() {
+                            resolve(doc);
                         }, function(e) {
                             reject();
                         });
                     } else {
-                        resolve(u);
+                        resolve(doc);
                     }
                 } else {
                     resolve(undefined);
                 }
-            }, function(e) {
-                reject(e);
-            });
+            }
+            //Try to get from local store
+            if(!self.uids[id]) {
+                self.retrieveGeneric('users', {_id: id}, decl).then(function(doc: User) {
+                    complete(doc);
+                }, function(e) {
+                    reject(e);
+                });
+            } else {
+                complete(self.uids[id]);
+            }
         });
     }
 

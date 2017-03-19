@@ -378,7 +378,8 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
                             real_name: got.real_name,
                             version: got.version
                         }, db);
-                        db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
+                        //What we will do once remote fetched
+                        function now(sharee: User) {
                             if(!sharee) {
                                 if(respond === true)
                                     res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
@@ -386,10 +387,6 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
                                 return;
                             }
                             v.trigger = v.trigger.replace(/:whigi_id:/g, req.user._id).replace(/:whigi_hidden_id:/g, req.user.hidden_id);
-                            if(sharee._id == req.user._id) {
-                                //Make sure only object is printed to DB
-                                sharee = req.user;
-                            }
                             if(!!req.body.mail) {
                                 //Send mail, maybe?
                                 utils.mailUser(sharee._id, db, function(mail: string) {
@@ -474,11 +471,19 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
                                     res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                                 reject();
                             });
-                        }, function(e) {
-                            if(respond === true)
-                                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
-                            reject();
-                        });
+                        }
+                        //Load remote user
+                        if(v.shared_to_id != req.user._id) {
+                            db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
+                                now(sharee);    
+                            }, function(e) {
+                                if(respond === true)
+                                    res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                                reject();
+                            });
+                        } else {
+                            now(req.user._id);
+                        }
                     }
                 }
             }, function(e) {
@@ -523,23 +528,16 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
                     params: {vault_id: whigi.data['payments/' + topay[got.shared_to_id] + '/' + req.user._id].shared_to[req.user._id]}
                 }, {}, false).then(function() {
                     whigi.data['payments/' + topay[got.shared_to_id] + '/' + req.user._id].shared_to = {};
-                    db.retrieveUser(req.user._id, true).then(function(now) {
-                        req.user = now;
-                        //Archive the payment
-                        renameData({
-                            user: whigi,
-                            params: {
-                                name: encodeURIComponent('payments/' + topay[got.shared_to_id] + '/' + req.user._id),
-                                now: encodeURIComponent('payments_used/' + topay[got.shared_to_id] + '/' + req.user._id),
-                            },
-                            whigiforce: true
-                        }, {}, false).then(function() {
-                            complete();
-                        }, function(e) {
-                            if(respond === true)
-                                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-                            reject();
-                        });
+                    //Archive the payment. No need to reload, we are safe until we persist.
+                    renameData({
+                        user: whigi,
+                        params: {
+                            name: encodeURIComponent('payments/' + topay[got.shared_to_id] + '/' + req.user._id),
+                            now: encodeURIComponent('payments_used/' + topay[got.shared_to_id] + '/' + req.user._id),
+                        },
+                        whigiforce: true
+                    }, {}, false).then(function() {
+                        complete();
                     }, function(e) {
                         if(respond === true)
                             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
@@ -674,26 +672,30 @@ export function removeStorable(req, res) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
-            db.retrieveUser(v.sharer_id, true).then(function(sharer: User) {
-                if(!!sharer) {
-                    //Fix for self grants
-                    if(sharer._id == req.user._id)
-                        req.user = sharer;
-                    req.user.shared_with_me[sharer._id] = req.user.shared_with_me[sharer._id] || {};
-                    delete req.user.shared_with_me[sharer._id][v.data_name];
-                    for(var i = 0; i < v.links.length; i++)
-                        delete req.user.shared_with_me[sharer._id][v.links[i]];
-                    req.user.persist().then(function() {
-                        complete(v, sharer);
-                    }, function(e) {
-                        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-                    });
-                } else {
-                    complete(v, undefined);
-                }
-            }, function(e) {
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-            });
+            function now(sharer: User) {
+                req.user.shared_with_me[sharer._id] = req.user.shared_with_me[sharer._id] || {};
+                delete req.user.shared_with_me[sharer._id][v.data_name];
+                for(var i = 0; i < v.links.length; i++)
+                    delete req.user.shared_with_me[sharer._id][v.links[i]];
+                req.user.persist().then(function() {
+                    complete(v, sharer);
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            }
+            if(v.sharer_id != req.user._id) {
+                db.retrieveUser(v.sharer_id, true).then(function(sharer: User) {
+                    if(!!sharer) {
+                        now(sharer);
+                    } else {
+                        complete(v, undefined);
+                    }
+                }, function(e) {
+                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+                });
+            } else {
+                now(req.user);
+            }
         }, function(e) {
             res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
         });
@@ -748,23 +750,27 @@ export function getVault(req, res) {
                     return;
                 }
                 if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
-                    db.retrieveUser(v.sharer_id, true, [v.sharer_id]).then(function(u: User) {
-                        //Fix for self grants
-                        if(u._id == req.user._id) {
-                            req.user = u;
-                            delete req.user.shared_with_me[v.sharer_id][v.data_name];
+                    //If now we stumble accros some removal process...
+                    if(v.sharer_id == req.user._id) {
+                        db.retrieveUser(v.sharer_id, true, [v.sharer_id]).then(function(ufrom: User) {
+                            db.retrieveUser(req.user._id, true, [v.sharer_id]).then(function(uto: User) {
+                                delete ufrom.data[v.real_name].shared_to[v.shared_to_id];
+                                ufrom.persist();
+                                delete uto.shared_with_me[v.sharer_id][v.data_name];
+                                for(var i = 0; i < v.links.length; i++)
+                                    delete uto.shared_with_me[v.sharer_id][v.links[i]];
+                                uto.persist();
+                            }, function(e) {
+                                ufrom.dispose();
+                            });
+                        });
+                    } else {
+                        db.retrieveUser(req.user._id, true, [v.sharer_id]).then(function(uby: User) {
+                            delete uby.data[v.real_name].shared_to[v.shared_to_id];
+                            delete uby.shared_with_me[v.sharer_id][v.data_name];
                             for(var i = 0; i < v.links.length; i++)
-                                delete req.user.shared_with_me[v.sharer_id][v.links[i]];
-                        }
-                        delete u.data[v.real_name].shared_to[v.shared_to_id];
-                        u.persist();
-                    });
-                    if(v.sharer_id != req.user._id) {
-                        req.user.fill([v.sharer_id]).then(function() {
-                            delete req.user.shared_with_me[v.sharer_id][v.data_name];
-                            for(var i = 0; i < v.links.length; i++)
-                                delete req.user.shared_with_me[v.sharer_id][v.links[i]];
-                            req.user.persist();
+                                delete uby.shared_with_me[v.sharer_id][v.links[i]];
+                            uby.persist();
                         });
                     }
                     v.unlink();
@@ -830,17 +836,23 @@ export function accessVault(req, res) {
                 return;
             }
             if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
-                db.retrieveUser(v.shared_to_id, true, [v.sharer_id]).then(function(u: User) {
-                    //Fix for self grants
-                    if(u._id == req.user._id)
-                        req.user = u;
+                function now(u: User) {
                     delete u.shared_with_me[v.sharer_id][v.data_name];
                     for(var i = 0; i < v.links.length; i++)
                         delete u.shared_with_me[v.sharer_id][v.links[i]];
                     u.persist();
+                }
+                if(v.shared_to_id != req.user._id) {
+                    db.retrieveUser(v.shared_to_id, true, [v.sharer_id]).then(function(u: User) {
+                        now(u);
+                    });
+                } else {
+                    now(req.user);
+                }
+                db.retrieveUser(req.user._id, true, [v.sharer_id]).then(function(u: User) {
+                    delete u.data[v.real_name].shared_to[v.shared_to_id];
+                    u.persist();
                 });
-                delete req.user.data[v.real_name].shared_to[v.shared_to_id];
-                req.user.persist();
                 v.unlink();
                 res.type('application/json').status(417).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
                 return;

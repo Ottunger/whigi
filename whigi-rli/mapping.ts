@@ -38,7 +38,7 @@ function sendDelete(host: string, buf: number[]) {
             'Content-Length': Buffer.byteLength(data)
         },
         key: fs.readFileSync(__dirname + '/../whigi/whigi-key.pem'),
-        cert: fs.readFileSync(__dirname + '/../whigi/whigi-crt.pem')
+        cert: fs.readFileSync(__dirname + '/../whigi/whigi-cert.pem')
     };
     var ht = https.request(options, function(res) {
         var r = '';

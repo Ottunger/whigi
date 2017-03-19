@@ -43,7 +43,7 @@ function recQuestion(domain: string, coll: string, id: string): Promise<any[]> {
             'Content-Length': Buffer.byteLength(data)
         },
         key: fs.readFileSync(__dirname + '/../whigi/whigi-key.pem'),
-        cert: fs.readFileSync(__dirname + '/../whigi/whigi-crt.pem')
+        cert: fs.readFileSync(__dirname + '/../whigi/whigi-cert.pem')
     };
     return new Promise(function(resolve, reject) {
         var ht = https.request(options, function(res) {

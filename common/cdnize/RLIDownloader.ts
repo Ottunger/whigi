@@ -6,6 +6,9 @@
 
 'use strict';
 declare var require: any
+declare var Buffer: any
+declare var __dirname: any
+declare var process: any
 var https = require('https');
 var fs = require('fs');
 var utils = require('../../utils/utils');
@@ -62,7 +65,7 @@ export class Downloader {
                             path: '/api/v1/any/' + name + '/' + id,
                             method: 'GET',
                             key: fs.readFileSync(__dirname + '/../../whigi/whigi-key.pem'),
-                            cert: fs.readFileSync(__dirname + '/../../whigi/whigi-crt.pem')
+                            cert: fs.readFileSync(__dirname + '/../../whigi/whigi-cert.pem')
                         };
                         var ht = https.request(options, function(res) {
                             var r = '';
@@ -103,7 +106,7 @@ export class Downloader {
                         'Content-Length': Buffer.byteLength(data)
                     },
                     key: fs.readFileSync(__dirname + '/../../whigi/whigi-key.pem'),
-                    cert: fs.readFileSync(__dirname + '/../../whigi/whigi-crt.pem')
+                    cert: fs.readFileSync(__dirname + '/../../whigi/whigi-cert.pem')
                 };
                 var ht = https.request(options, function(res) {
                     var r = '';

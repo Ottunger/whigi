@@ -1,5 +1,7 @@
 db.createUser({user: 'admin', pwd: 'highersec@envict', roles:[{role:'userAdminAnyDatabase', db:'admin'}]})
 use whigi
+db.dropDatabase()
+use whigi
 db.createUser({user:'whigiuser', pwd:'sorryMeND3dIoKwR',roles:[{role:'userAdmin', db:'whigi'}]})
 
 db.users.update({_id: 'whigi-restore'}, {
