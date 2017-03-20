@@ -105,9 +105,10 @@ export class User extends IModel {
      * Returns a shallow copy safe for persisting.
      * @function allFields
      * @public
+     * @param {Object} shared Shared with me of pref.
      * @return Duplicated object.
      */
-    allFields() {
+    allFields(shared) {
         var ret = {
             is_company: this.is_company,
             company_info: this.company_info,
@@ -119,7 +120,7 @@ export class User extends IModel {
             rsa_pub_key : this.rsa_pub_key,
             rsa_pri_key: this.rsa_pri_key,
             data: this.data,
-            shared_with_me: this.shared_with_me,
+            shared_with_me: shared || this.shared_with_me,
             oauth: this.oauth,
             sha_master: this.sha_master,
             cert: this.cert,
@@ -227,9 +228,9 @@ export class User extends IModel {
         var self = this;
         
         return new Promise(function(resolve, reject) {
-            function complete(resolve, reject) {
+            function complete(system, resolve, reject) {
                 self.updated('users');
-                self.db.getDatabase().collection('users').update({_id: self._id}, self.allFields(), {upsert: true}, function(err) {
+                self.db.getDatabase().collection('users').update({_id: self._id}, self.allFields(system), {upsert: true}, function(err) {
                     if(close)
                         self.dispose();
                     if(err)
@@ -238,13 +239,8 @@ export class User extends IModel {
                         resolve();
                 });
             }
-            function end() {
-                var inputs = Object.assign({}, self.shared_with_me);
-                self.shared_with_me = {
-                    'whigi-system': self.shared_with_me['whigi-system']
-                };
-                complete(function() {
-                    self.shared_with_me = inputs;
+            function end(system) {
+                complete(system, function() {
                     resolve();
                 }, function(e) {
                     reject(e);
@@ -257,6 +253,7 @@ export class User extends IModel {
                     self.fill(keys).then(function() {
                         Object.assign(self.shared_with_me, inputs);
                         //Build local trigrams.
+                        var system = {'whigi-system': {}};
                         for(var i = 0; i < keys.length; i++) {
                             var tri = keys[i].substr(0, 3);
                             if(!(tri in self.trigrams)) {
@@ -265,7 +262,7 @@ export class User extends IModel {
                                     trigram: tri,
                                     values: {}
                                 }
-                                self.shared_with_me['whigi-system'][tri] = self.trigrams[tri]._id;
+                                system['whigi-system'][tri] = self.trigrams[tri]._id;
                             }
                             Object.assign(self.trigrams[tri].values, inputs[keys[i]]);
                         }
@@ -277,14 +274,14 @@ export class User extends IModel {
                             self.db.getDatabase().collection('users').update({_id: self.trigrams[keys[i]]._id}, self.trigrams[keys[i]], {upsert: true}, function() {
                                 done++;
                                 if(done)
-                                    end();
+                                    end(system);
                             });
                         }
                     }, function(e) {
                         reject(e);
                     });
                 } else {
-                    complete(resolve, reject);
+                    complete(undefined, resolve, reject);
                 }
             }, function(e) {
                 reject(e);

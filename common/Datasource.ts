@@ -161,11 +161,11 @@ export class Datasource {
                             //Newly fetched!
                             doc = new User(doc, self);
                             self.uids[id] = doc;
-                            doc.lfetch = new Date().getTime();
                             //Start ticking...
                             doc.dispose();
                         }
                     }
+                    doc.lfetch = new Date().getTime();
                     if(data === true && names.length > 0) {
                         doc.fill(names).then(function() {
                             resolve(doc);

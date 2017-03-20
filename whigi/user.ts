@@ -992,8 +992,8 @@ export function changeUsername(req, res) {
                 db.uids[proposal] = db.uids[prev];
                 delete db.uids[prev];
                 //Unlink...
-                req.user._id = prev;
-                req.user.unlink();
+                var rem = new User({_id: prev}, db);
+                rem.unlink();
                 //Respond
                 res.type('application/json').status(200).json({error: ''});
                 //Remove auth tokens.
