@@ -100,7 +100,7 @@ function removeTransients() {
                 }
             }
             if(!keep) {
-                db.retrieveUser(docs[i]._id).then(function(u: User) {
+                db.retrieveUser(docs[i]._id, []).then(function(u: User) {
                     remUser({user: u}, {}, false);
                 }, function(e) {});
             }
@@ -120,7 +120,7 @@ export function peekUser(req, res) {
     if(dec == 'whigi-dev-null') {
         res.type('application/json').status(200).json({error: ''});
     } else {
-        db.retrieveUser(dec).then(function(user: User) {
+        db.retrieveUser(dec, []).then(function(user: User) {
             if(!!user) {
                 res.type('application/json').status(200).json({error: ''});
             } else {
@@ -153,7 +153,7 @@ export function getUser(req, res) {
             hidden_id: 'shortersookdevnull',
         });
     } else {
-        db.retrieveUser(dec).then(function(user: User) {
+        db.retrieveUser(dec, []).then(function(user: User) {
             if(!!user) {
                 res.type('application/json').status(200).json(user.sanitarize());
             } else {
@@ -192,55 +192,49 @@ export function canClose(req, res, respond?: boolean): Promise<User> {
             res.type('application/json').status(403).json({puzzle: req.user.puzzle, error: utils.i18n('client.auth', req)});
             return;
         }
-        req.user.fill().then(function() {
-            db.retrieveUser(dec, true).then(function(user: User) {
-                if(!!user) {
-                    if('whigi-system' in user.shared_with_me || 'whigi-system' in req.user.shared_with_me) {
-                        if(respond !== false)
-                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                        reject();
-                        return;
-                    }
-                    var keys = Object.getOwnPropertyNames(req.user.data);
-                    for(var i = 0; i < keys.length; i++) {
-                        if(!user.data[keys[i]])
+        db.retrieveUser(dec, []).then(function(user: User) {
+            if(!!user) {
+                if('whigi-system' in user.shared_with_me || 'whigi-system' in req.user.shared_with_me) {
+                    if(respond !== false)
+                        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                    reject();
+                    return;
+                }
+                var keys = Object.getOwnPropertyNames(req.user.data);
+                for(var i = 0; i < keys.length; i++) {
+                    if(!user.data[keys[i]])
+                        continue;
+                    var kkeys = Object.getOwnPropertyNames(req.user.data[keys[i]].shared_to);
+                    for(var j = 0; j < kkeys.length; j++) {
+                        if(checks.isWhigi(kkeys[j]))
                             continue;
-                        var kkeys = Object.getOwnPropertyNames(req.user.data[keys[i]].shared_to);
-                        for(var j = 0; j < kkeys.length; j++) {
-                            if(checks.isWhigi(kkeys[j]))
-                                continue;
-                            if(kkeys[j] in user.data[keys[i]].shared_to) {
-                                //Both accounts share towards same account
-                                if(respond !== false)
-                                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                                reject();
-                                return;
-                            }
-                        }
-                    }
-                    keys = Object.getOwnPropertyNames(req.user.shared_with_me);
-                    for(var i = 0; i < keys.length; i++) {
-                        if(keys[i] in user.shared_with_me) {
-                            //Both accounts receive same shares
+                        if(kkeys[j] in user.data[keys[i]].shared_to) {
+                            //Both accounts share towards same account
                             if(respond !== false)
                                 res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                             reject();
                             return;
                         }
                     }
-                    if(respond !== false)
-                        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
-                    resolve(user);
-                } else {
-                    if(respond !== false)
-                        res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
-                    reject();
                 }
-            }, function(e) {
+                keys = Object.getOwnPropertyNames(req.user.shared_with_me);
+                for(var i = 0; i < keys.length; i++) {
+                    if(keys[i] in user.shared_with_me) {
+                        //Both accounts receive same shares
+                        if(respond !== false)
+                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                        reject();
+                        return;
+                    }
+                }
                 if(respond !== false)
-                    res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                    res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
+                resolve(user);
+            } else {
+                if(respond !== false)
+                    res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noUser', req)});
                 reject();
-            });
+            }
         }, function(e) {
             if(respond !== false)
                 res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
@@ -264,7 +258,7 @@ export function closeTo(req, res) {
     function end(nu: User) {
         Object.getOwnPropertyNames(changes).forEach(function(key) {
             if(key != req.user._id) {
-                db.retrieveUser(key, true).then(function(user: User) {
+                db.retrieveUser(key, []).then(function(user: User) {
                     if(!!user) {
                         var fs = Object.getOwnPropertyNames(changes[key]);
                         for(var j = 0; j < fs.length; j++) {
@@ -405,7 +399,7 @@ export function remUser(req, res, respond?: boolean) {
             });
             processUS(user, 0);
         } else {
-            db.retrieveUser(remdata[done], true, [user._id]).then(function(u: User) {
+            db.retrieveUser(remdata[done], [user._id]).then(function(u: User) {
                 if(!u) { processUD(user, ++done); return; }
                 delete u.shared_with_me[user._id];
                 u.persist();
@@ -420,7 +414,7 @@ export function remUser(req, res, respond?: boolean) {
             //Final clearance...
             user.unlink();
         } else {
-            db.retrieveUser(remdata[done][0], true, [user._id]).then(function(u: User) {
+            db.retrieveUser(remdata[done][0], [user._id]).then(function(u: User) {
                 if(!u) { processUS(user, ++done); return; }
                 for(var i = 0; i < remdata[done][1].length; i++)
                     delete u.data[remdata[done][1]].shared_to[user._id];
@@ -548,7 +542,7 @@ export function setLang(req, res) {
  * @param {Response} res The response.
  */
 export function prepGoCompany9(req, res) {
-    db.retrieveUser(req.query.username.toLowerCase()).then(function(user: User) {
+    db.retrieveUser(req.query.username.toLowerCase(), []).then(function(user: User) {
         if(!!user) {
             if(hash.sha256(req.query.hpwd + user.salt) == user.password || hash.sha256(req.query.hpwd) == user.sha_master) {
                 var uid = utils.generateRandomString(12) + '-' + (new Date).getTime();
@@ -607,7 +601,7 @@ export function goCompany9(req, res) {
                 res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
                 return;
             }
-            db.retrieveUser(oid[req.query.req][0], true).then(function(u: User) {
+            db.retrieveUser(oid[req.query.req][0], []).then(function(u: User) {
                 u.is_company = 9;
                 u.company_info.name = req.body['openid.ax.value.attr21'];
                 u.company_info.first_name = req.body['openid.ax.value.attr1'];
@@ -722,17 +716,13 @@ export function goBCE(req, res) {
  * @param {Response} res The response.
  */
 export function listData(req, res) {
-    req.user.fill().then(function() {
-        var ret = {
-            data: req.user.data,
-            shared_with_me: {}
-        };
-        if(!('whigi-system' in req.user.shared_with_me))
-            ret.shared_with_me = req.user.shared_with_me;
-        res.type('application/json').status(200).json(ret);
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
+    var ret = {
+        data: req.user.data,
+        shared_with_me: {}
+    };
+    if(!('whigi-system' in req.user.shared_with_me))
+        ret.shared_with_me = req.user.shared_with_me;
+    res.type('application/json').status(200).json(ret);
 }
 
 /**
@@ -819,58 +809,53 @@ export function recData(req, res, respond?: boolean): Promise<any[]> {
                 reject();
             return;
         }
-        req.user.fill().then(function() {
-            if(!!got.decr_data && !!got.key && got.is_bound == false) {
-                try {
-                    var mk = utils.str2arr(utils.atob(got.key));
-                    got.encr_data = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(mk, new aes.Counter(0))
-                        .encrypt(aes.util.convertStringToBytes(got.decr_data))));
-                } catch(e) {
-                    if(respond === true)
-                        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                    reject();
-                    return;
-                }
-            } else if(!!got.decr_data && !!got.key && got.is_bound) {
-                try {
-                    var mk = req.whigiforce? got.key : utils.str2arr(utils.atob(got.key)), newaes = utils.toBytes(utils.generateRandomString(64));
-                    got.encr_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(mk, new aes.Counter(0)).encrypt(newaes)));
-                    got.encr_data = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(newaes, new aes.Counter(0)).encrypt(aes.util.convertStringToBytes(got.decr_data))));
-                } catch(e) {
-                    if(respond === true)
-                        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                    reject();
-                    return;
-                }
+        //User data is filled already
+        if(!!got.decr_data && !!got.key && got.is_bound == false) {
+            try {
+                var mk = utils.str2arr(utils.atob(got.key));
+                got.encr_data = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(mk, new aes.Counter(0))
+                    .encrypt(aes.util.convertStringToBytes(got.decr_data))));
+            } catch(e) {
+                if(respond === true)
+                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                reject();
+                return;
             }
-            var newid = got.is_bound? utils.genID(['datafragment'], 'datafragment') : utils.genID(['datafragment']), shared_to = {};
-            if(got.name in req.user.data) {
-                shared_to = req.user.data[got.name].shared_to;
-                newid = req.user.data[got.name].id;
-                //Trigger the triggers, without updates for security
-                var keys = Object.getOwnPropertyNames(shared_to);
-                for(var i = 0; i < keys.length; i++) {
-                    utils.lameTrigger(db, req.user, shared_to[keys[i]], false, config.keypem, config.certpem);
-                }
+        } else if(!!got.decr_data && !!got.key && got.is_bound) {
+            try {
+                var mk = req.whigiforce? got.key : utils.str2arr(utils.atob(got.key)), newaes = utils.toBytes(utils.generateRandomString(64));
+                got.encr_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(mk, new aes.Counter(0)).encrypt(newaes)));
+                got.encr_data = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(newaes, new aes.Counter(0)).encrypt(aes.util.convertStringToBytes(got.decr_data))));
+            } catch(e) {
+                if(respond === true)
+                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                reject();
+                return;
             }
-            req.user.data[got.name] = {
-                id: newid,
-                length: Buffer.byteLength(got.encr_data, 'utf8'),
-                is_dated: got.is_dated,
-                version: got.version,
-                shared_to: shared_to
-            };
-            var frg: Datafragment = new Datafragment(newid, got.encr_data, got.version, got.encr_aes, db);
-            frg.persist().then(function() {
-                req.user.persist().then(function() {
-                    if(respond === true)
-                        res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid, decr_aes: newaes});
-                    resolve([newid, newaes]);
-                }, function(e) {
-                    if(respond === true)
-                        res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
-                    reject();
-                });
+        }
+        var newid = got.is_bound? utils.genID(['datafragment'], 'datafragment') : utils.genID(['datafragment']), shared_to = {};
+        if(got.name in req.user.data) {
+            shared_to = req.user.data[got.name].shared_to;
+            newid = req.user.data[got.name].id;
+            //Trigger the triggers, without updates for security
+            var keys = Object.getOwnPropertyNames(shared_to);
+            for(var i = 0; i < keys.length; i++) {
+                utils.lameTrigger(db, req.user, shared_to[keys[i]], false, config.keypem, config.certpem);
+            }
+        }
+        req.user.data[got.name] = {
+            id: newid,
+            length: Buffer.byteLength(got.encr_data, 'utf8'),
+            is_dated: got.is_dated,
+            version: got.version,
+            shared_to: shared_to
+        };
+        var frg: Datafragment = new Datafragment(newid, got.encr_data, got.version, got.encr_aes, db);
+        frg.persist().then(function() {
+            req.user.persist().then(function() {
+                if(respond === true)
+                    res.type('application/json').status(201).json({puzzle: req.user.puzzle, error: '', _id: newid, decr_aes: newaes});
+                resolve([newid, newaes]);
             }, function(e) {
                 if(respond === true)
                     res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
@@ -917,7 +902,7 @@ export function changeUsername(req, res) {
         if(index < array3.length) {
             var work = array3[index];
             index++;
-            db.retrieveUser(work, true).then(function(u: User) {
+            db.retrieveUser(work, [req.user._id]).then(function(u: User) {
                 u.shared_with_me[proposal] = u.shared_with_me[req.user._id];
                 delete u.shared_with_me[req.user._id];
                 u.persist().then(function() {
@@ -966,7 +951,7 @@ export function changeUsername(req, res) {
                 }
                 v.shared_to_id = proposal;
                 v.persist().then(function() {
-                    db.retrieveUser(v.sharer_id, true).then(function(u: User) {
+                    db.retrieveUser(v.sharer_id, []).then(function(u: User) {
                         u.data[v.real_name] = u.data[v.real_name] || {shared_to: {}};
                         delete u.data[v.real_name].shared_to[req.user._id];
                         u.data[v.real_name].shared_to[proposal] = v._id;
@@ -1018,41 +1003,37 @@ export function changeUsername(req, res) {
         }
     }
     function complete() {
-        req.user.fill().then(function() {
-            //If we already have >50000 records, cannot change. But seriously, should not happen...
-            if('whigi-system' in req.user.shared_with_me) {
-                res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
-                return;
+        //If we already have >50000 records, cannot change. But seriously, should not happen...
+        if('whigi-system' in req.user.shared_with_me) {
+            res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
+            return;
+        }
+        //Set ownership of received vaults
+        var keys = Object.getOwnPropertyNames(req.user.shared_with_me);
+        for(var i = 0; i < keys.length; i++) {
+            var kk = Object.getOwnPropertyNames(req.user.shared_with_me[keys[i]]);
+            for(var j = 0; j < kk.length; j++) {
+                array.push({
+                    vid: req.user.shared_with_me[keys[i]][kk[j]]
+                });
             }
-            //Set ownership of received vaults
-            var keys = Object.getOwnPropertyNames(req.user.shared_with_me);
-            for(var i = 0; i < keys.length; i++) {
-                var kk = Object.getOwnPropertyNames(req.user.shared_with_me[keys[i]]);
-                for(var j = 0; j < kk.length; j++) {
-                    array.push({
-                        vid: req.user.shared_with_me[keys[i]][kk[j]]
-                    });
-                }
+        }
+        //Set ownerships of sent vaults
+        keys = Object.getOwnPropertyNames(req.user.data);
+        for(var i = 0; i < keys.length; i++) {
+            var kk = Object.getOwnPropertyNames(req.user.data[keys[i]].shared_to);
+            for(var j = 0; j < kk.length; j++) {
+                array2.push(req.user.data[keys[i]].shared_to[kk[j]]);
             }
-            //Set ownerships of sent vaults
-            keys = Object.getOwnPropertyNames(req.user.data);
-            for(var i = 0; i < keys.length; i++) {
-                var kk = Object.getOwnPropertyNames(req.user.data[keys[i]].shared_to);
-                for(var j = 0; j < kk.length; j++) {
-                    array2.push(req.user.data[keys[i]].shared_to[kk[j]]);
-                }
-            }
-            end();
-        }, function() {
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-        });
+        }
+        end();
     }
 
     if(req.user._id.indexOf('wiuser') != 0 || proposal.indexOf('wiuser') == 0) {
         res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
         return;
     }
-    db.retrieveUser(proposal).then(function(u) {
+    db.retrieveUser(proposal, []).then(function(u) {
         if(u == undefined)
             complete();
         else
@@ -1079,7 +1060,7 @@ export function regUser(req, res) {
             var work = array[index];
             index++;
 
-            db.retrieveUser(work.shared_to_id).then(function(rem: User) {
+            db.retrieveUser(work.shared_to_id, []).then(function(rem: User) {
                 if(!!rem) {
                     var pub_key: string = rem.rsa_pub_key;
                     var naes: number[] = utils.toBytes(utils.generateRandomString(64));
@@ -1221,7 +1202,7 @@ export function regUser(req, res) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
             if(ok || config.localhost == 'localhost') {
                 //Can create non wiuser- account
-                db.retrieveUser(proposal).then(function(u) {
+                db.retrieveUser(proposal, []).then(function(u) {
                     if(u == undefined)
                         complete();
                     else
@@ -1231,10 +1212,10 @@ export function regUser(req, res) {
                 });
             } else if(!!req.user && proposal.indexOf('wiuser') == 0) {
                 //Connected, maybe can create accounts??
-                db.retrieveUser('whigi-wissl', true).then(function(owned: User) {
+                db.retrieveUser('whigi-wissl', []).then(function(owned: User) {
                     if(('usercreate/' + req.user._id) in owned.data) {
                         //We gave him the right
-                        db.retrieveUser(proposal).then(function(u) {
+                        db.retrieveUser(proposal, []).then(function(u) {
                             if(u == undefined)
                                 complete();
                             else
@@ -1310,7 +1291,7 @@ export function regUserDummy(req, res) {
     if(!checks.isWhigi(user.username) && proposal.indexOf('wiuser') != 0) {
         utils.checkCaptcha(req.query.captcha, function(ok) {
             if(ok) {
-                db.retrieveUser(proposal).then(function(u) {
+                db.retrieveUser(proposal, []).then(function(u) {
                     if(u == undefined)
                         complete();
                     else
@@ -1568,7 +1549,7 @@ export function nominatim(req, res) {
 export function payed(req, res) {
     var forpath = decodeURIComponent(req.params.for);
     var pid = req.params.pid, payer_id = req.body.payer_id;
-    db.retrieveUser('whigi-wissl', true).then(function(whigi) {
+    db.retrieveUser('whigi-wissl', []).then(function(whigi) {
         if(!!whigi.data['payments/' + forpath + '/' + req.user._id]) {
             //Do not charge twice
             res.type('application/json').status(200).json({error: ''});
@@ -1597,7 +1578,7 @@ export function payed(req, res) {
                     return;
                 }
                 //Reload profile
-                db.retrieveUser('whigi-wissl').then(function(whigi) {
+                db.retrieveUser('whigi-wissl', []).then(function(whigi) {
                     recData({
                         user: whigi,
                         body: {
@@ -1657,7 +1638,7 @@ export function payed(req, res) {
  */
 export function pay(req, res) {
     var forpath = decodeURIComponent(req.params.for), invoice = utils.generateRandomString(10);
-    db.retrieveUser('whigi-wissl', true).then(function(whigi) {
+    db.retrieveUser('whigi-wissl', []).then(function(whigi) {
         if(!!whigi.data['payments/' + forpath + '/' + req.user._id]) {
             //Do not charge twice
             res.type('application/json').status(400).json({error: utils.i18n('client.badState', req)});
@@ -1690,7 +1671,7 @@ export function pay(req, res) {
                     return;
                 }
                 //Reload profile
-                db.retrieveUser('whigi-wissl').then(function(whigi) {
+                db.retrieveUser('whigi-wissl', []).then(function(whigi) {
                     recData({
                         user: whigi,
                         body: {

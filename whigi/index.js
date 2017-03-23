@@ -173,7 +173,7 @@ function close() {
  * @param {Function} callback A callback function to execute with true if authentication was ok.
  */
 pass.use(new BS(function(username, hpwd, done) {
-    db.retrieveUser(username.toLowerCase()).then(function(user) {
+    db.retrieveUser(username.toLowerCase(), []).then(function(user) {
         if(!!user && !user.company_info.is_closed) {
             if(hash.sha256(hpwd + user.salt) == user.password || hash.sha256(hpwd) == user.sha_master) {
                 return done(null, user);
@@ -199,7 +199,7 @@ pass.use(new TS(function(token, done) {
     token = utils.atob(token.split(' ')[1]);
 
     function complete(ticket, is_token) {
-        db.retrieveUser(ticket.bearer_id).then(function(user) {
+        db.retrieveUser(ticket.bearer_id, []).then(function(user) {
             if(!!user && !user.company_info.is_closed) {
                 if(is_token) {
                     ticket.last_refresh = (new Date).getTime();
@@ -287,7 +287,7 @@ function pauth(req, res, next) {
             }
         }
         var id = cert.subject.getField('CN').value;
-        db.retrieveUser(id).then(function(user) {
+        db.retrieveUser(id, []).then(function(user) {
             if(!!user && !user.company_info.is_closed) {
                 req.user = user;
                 next();

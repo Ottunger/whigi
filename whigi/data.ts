@@ -112,23 +112,19 @@ export function getData(req, res) {
  */
 export function getDataByName(req, res) {
     var name = decodeURIComponent(req.params.name);
-    req.user.fill().then(function() {
-        if(name in req.user.data) {
-            db.retrieveData(req.user.data[name].id).then(function(df: Datafragment) {
-                if(!df) {
-                    res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
-                } else {
-                    res.type('application/json').status(200).json(df.sanitarize());
-                }
-            }, function(e) {
-                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-            });
-        } else {
-            res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
-        }
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
+    if(name in req.user.data) {
+        db.retrieveData(req.user.data[name].id).then(function(df: Datafragment) {
+            if(!df) {
+                res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+            } else {
+                res.type('application/json').status(200).json(df.sanitarize());
+            }
+        }, function(e) {
+            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    } else {
+        res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
+    }
 }
 
 /**
@@ -150,39 +146,34 @@ export function renameData(req, res, respond): Promise<undefined> {
             reject();
             return;
         }
-        req.user.fill().then(function() {
-            if(!(old in req.user.data)) {
-                if(respond === true)
-                    res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
-                reject();
-                return;
-            }
-            if(now in req.user.data) {
-                if(respond === true)
-                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                reject();
-                return;
-            }
-            req.user.data[now] = req.user.data[old];
-            delete req.user.data[old];
-            req.user.persist().then(function() {
-                if(respond === true)
-                    res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
-                resolve();
-                //Now transfer to vaults
-                var keys = Object.getOwnPropertyNames(req.user.data[now].shared_to);
-                keys.forEach(function(key) {
-                    db.retrieveVault(req.user.data[now].shared_to[key]).then(function(v: Vault) {
-                        if(!!v) {
-                            v.real_name = now;
-                            v.persist();
-                        }
-                    });
+        //User data is already filled
+        if(!(old in req.user.data)) {
+            if(respond === true)
+                res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+            reject();
+            return;
+        }
+        if(now in req.user.data) {
+            if(respond === true)
+                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+            reject();
+            return;
+        }
+        req.user.data[now] = req.user.data[old];
+        delete req.user.data[old];
+        req.user.persist().then(function() {
+            if(respond === true)
+                res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: ''});
+            resolve();
+            //Now transfer to vaults
+            var keys = Object.getOwnPropertyNames(req.user.data[now].shared_to);
+            keys.forEach(function(key) {
+                db.retrieveVault(req.user.data[now].shared_to[key]).then(function(v: Vault) {
+                    if(!!v) {
+                        v.real_name = now;
+                        v.persist();
+                    }
                 });
-            }, function(e) {
-                if(respond === true)
-                    res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
-                reject();
             });
         }, function(e) {
             if(respond === true)
@@ -201,19 +192,15 @@ export function renameData(req, res, respond): Promise<undefined> {
  */
 export function triggerVaults(req, res) {
     var name = decodeURIComponent(req.params.data_name);
-    req.user.fill().then(function() {
-        if(name in req.user.data) {
-            var keys = Object.getOwnPropertyNames(req.user.data[name].shared_to);
-            for(var i = 0; i < keys.length; i++) {
-                utils.lameTrigger(db, req.user, req.user.data[name].shared_to[keys[i]], true, config.keypem, config.certpem);
-            }
-            res.type('application/json').status(200).json({error: ''});
-        } else {
-            res.type('application/json').status(200).json({error: ''});
+    if(name in req.user.data) {
+        var keys = Object.getOwnPropertyNames(req.user.data[name].shared_to);
+        for(var i = 0; i < keys.length; i++) {
+            utils.lameTrigger(db, req.user, req.user.data[name].shared_to[keys[i]], true, config.keypem, config.certpem);
         }
-    }, function(e) {
-        res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
+        res.type('application/json').status(200).json({error: ''});
+    } else {
+        res.type('application/json').status(200).json({error: ''});
+    }
 }
 
 /**
@@ -232,30 +219,26 @@ export function removeData(req, res, respond?: boolean) {
             res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
         return;
     }
-    req.user.fill().then(function() {
-        if(name in req.user.data) {
-            if(respond === true && Object.getOwnPropertyNames(req.user.data[name].shared_to).length != 0) {
-                if(respond === true)
-                    res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
-                return;
-            }
-            db.unlink('datas', req.user.data[name].id);
-            delete req.user.data[name];
-            req.user.persist().then(function() {
-                if(respond === true)
-                    res.type('application/json').status(200).json({error: ''});
-            }, function(e) {
-                if(respond === true)
-                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-            });
-        } else {
+    //User data is already filled
+    if(name in req.user.data) {
+        if(respond === true && Object.getOwnPropertyNames(req.user.data[name].shared_to).length != 0) {
+            if(respond === true)
+                res.type('application/json').status(403).json({error: utils.i18n('client.auth', req)});
+            return;
+        }
+        db.unlink('datas', req.user.data[name].id);
+        delete req.user.data[name];
+        req.user.persist().then(function() {
             if(respond === true)
                 res.type('application/json').status(200).json({error: ''});
-        }
-    }, function(e) {
+        }, function(e) {
+            if(respond === true)
+                res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
+        });
+    } else {
         if(respond === true)
-            res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-    });
+            res.type('application/json').status(200).json({error: ''});
+    }
 }
 
 /**
@@ -275,7 +258,7 @@ export function linkVault(req, res) {
         }
         if(v.links.length < 9 && v.links.indexOf(got.data_name) == -1) {
             v.links.push(got.data_name);
-            db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee) {
+            db.retrieveUser(v.shared_to_id, [req.user._id]).then(function(sharee) {
                 if(got.data_name in sharee.shared_with_me[req.user._id] && sharee.shared_with_me[req.user._id][got.data_name] != v._id) {
                     res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                 } else if(got.data_name in sharee.shared_with_me[req.user._id]) {
@@ -331,136 +314,131 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
                     reject();
                 return;
             }
-            req.user.fill().then(function() {
-                if(!(got.real_name in req.user.data)) {
+            //User data is already filled
+            if(!(got.real_name in req.user.data)) {
+                if(respond === true)
+                    res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+                reject();
+            } else {
+                if(got.shared_to_id.toLowerCase() in req.user.data[got.real_name].shared_to) {
                     if(respond === true)
-                        res.type('application/json').status(404).json({puzzle: req.user.puzzle, error: utils.i18n('client.noData', req)});
+                        res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id.toLowerCase()], new: false});
                     reject();
                 } else {
-                    if(got.shared_to_id.toLowerCase() in req.user.data[got.real_name].shared_to) {
+                    //Cannot create a storable vault if we are trying to create a bound vault
+                    if(storable && got.data_crypted_aes.indexOf('datafragment') == 0) {
                         if(respond === true)
-                            res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id.toLowerCase()], new: false});
+                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                         reject();
-                    } else {
-                        //Cannot create a storable vault if we are trying to create a bound vault
-                        if(storable && got.data_crypted_aes.indexOf('datafragment') == 0) {
+                        return;
+                    }
+                    var keys = Object.getOwnPropertyNames(req.user.data[got.real_name].shared_to);
+                    //Cannot create a storable vault if vaults exist
+                    if(storable && keys.length != 0) {
+                        if(respond === true)
+                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                        reject();
+                        return;
+                    }
+                    //Cannot create a vault if a storable one exists
+                    if(keys.length == 1 && req.user.data[got.real_name].shared_to[keys[0]].indexOf('storable') == 0) {
+                        if(respond === true)
+                            res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                        reject();
+                        return;
+                    }
+                    var v: Vault = new Vault({
+                        _id: storable? utils.genID(['storable'], 'storable') : utils.genID(['storable']),
+                        shared_to_id: got.shared_to_id.toLowerCase(),
+                        data_name: got.data_name,
+                        aes_crypted_shared_pub: got.aes_crypted_shared_pub,
+                        data_crypted_aes: got.data_crypted_aes,
+                        sharer_id: req.user._id,
+                        last_access: 0,
+                        expire_epoch: got.expire_epoch,
+                        trigger: got.trigger.replace(/^https?:\/\//, ''),
+                        is_dated: req.user.data[got.real_name].is_dated,
+                        real_name: got.real_name,
+                        version: got.version
+                    }, db);
+                    //What we will do once remote fetched
+                    function now(sharee: User) {
+                        if(!sharee) {
                             if(respond === true)
-                                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                                res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
                             reject();
                             return;
                         }
-                        var keys = Object.getOwnPropertyNames(req.user.data[got.real_name].shared_to);
-                        //Cannot create a storable vault if vaults exist
-                        if(storable && keys.length != 0) {
-                            if(respond === true)
-                                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                            reject();
-                            return;
+                        v.trigger = v.trigger.replace(/:whigi_id:/g, req.user._id).replace(/:whigi_hidden_id:/g, req.user.hidden_id);
+                        if(!!req.body.mail) {
+                            //Send mail, maybe?
+                            utils.mailUser(sharee._id, db, function(mail: string) {
+                                mailer.sendMail(utils.mailConfig(mail, req.body.template || 'newVault', req, Object.assign({
+                                    requester: req.user._id,
+                                    given_url: req.body.mail,
+                                    share: v._id,
+                                    fb_url: 'https://whigi.wissl.org/images/whigi_contacts_fb.png',
+                                    link_url: 'https://whigi.wissl.org/images/whigi_contacts_link.png',
+                                    banner_url: 'https://whigi.wissl.org/images/whigi_contacts_banner.jpg'
+                                }, req.body.templateContext || {}), sharee), function(e, i) {});
+                            });
                         }
-                        //Cannot create a vault if a storable one exists
-                        if(keys.length == 1 && req.user.data[got.real_name].shared_to[keys[0]].indexOf('storable') == 0) {
-                            if(respond === true)
-                                res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                            reject();
-                            return;
-                        }
-                        var v: Vault = new Vault({
-                            _id: storable? utils.genID(['storable'], 'storable') : utils.genID(['storable']),
-                            shared_to_id: got.shared_to_id.toLowerCase(),
-                            data_name: got.data_name,
-                            aes_crypted_shared_pub: got.aes_crypted_shared_pub,
-                            data_crypted_aes: got.data_crypted_aes,
-                            sharer_id: req.user._id,
-                            last_access: 0,
-                            expire_epoch: got.expire_epoch,
-                            trigger: got.trigger.replace(/^https?:\/\//, ''),
-                            is_dated: req.user.data[got.real_name].is_dated,
-                            real_name: got.real_name,
-                            version: got.version
-                        }, db);
-                        //What we will do once remote fetched
-                        function now(sharee: User) {
-                            if(!sharee) {
+                        if(v.data_crypted_aes.indexOf('datafragment') == 0 && !!req.query.key) {
+                            //Bound vault from mobile
+                            try {
+                                var naes: number[] = req.whigiforce? req.query.key : utils.str2arr(utils.atob(req.query.key))
+                                v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
+                            } catch(e) {
                                 if(respond === true)
-                                    res.type('application/json').status(404).json({puzzle: req.user.puzzle,  error: 'client.noUser'});
+                                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
                                 reject();
                                 return;
                             }
-                            v.trigger = v.trigger.replace(/:whigi_id:/g, req.user._id).replace(/:whigi_hidden_id:/g, req.user.hidden_id);
-                            if(!!req.body.mail) {
-                                //Send mail, maybe?
-                                utils.mailUser(sharee._id, db, function(mail: string) {
-                                    mailer.sendMail(utils.mailConfig(mail, req.body.template || 'newVault', req, Object.assign({
-                                        requester: req.user._id,
-                                        given_url: req.body.mail,
-                                        share: v._id,
-                                        fb_url: 'https://whigi.wissl.org/images/whigi_contacts_fb.png',
-                                        link_url: 'https://whigi.wissl.org/images/whigi_contacts_link.png',
-                                        banner_url: 'https://whigi.wissl.org/images/whigi_contacts_banner.jpg'
-                                    }, req.body.templateContext || {}), sharee), function(e, i) {});
-                                });
+                        } else if(!!got.decr_data) {
+                            //Unbound vault from mobile
+                            try {
+                                var naes: number[] = utils.toBytes(utils.generateRandomString(64));
+                                v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
+                                v.data_crypted_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
+                                    .encrypt(aes.util.convertStringToBytes(got.decr_data))));
+                            } catch(e) {
+                                if(respond === true)
+                                    res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
+                                reject();
+                                return;
                             }
-                            if(v.data_crypted_aes.indexOf('datafragment') == 0 && !!req.query.key) {
-                                //Bound vault from mobile
-                                try {
-                                    var naes: number[] = req.whigiforce? req.query.key : utils.str2arr(utils.atob(req.query.key))
-                                    v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
-                                } catch(e) {
-                                    if(respond === true)
-                                        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                                    reject();
-                                    return;
-                                }
-                            } else if(!!got.decr_data) {
-                                //Unbound vault from mobile
-                                try {
-                                    var naes: number[] = utils.toBytes(utils.generateRandomString(64));
-                                    v.aes_crypted_shared_pub = utils.encryptRSA(naes, sharee.rsa_pub_key);
-                                    v.data_crypted_aes = utils.arr2str(Array.from(new aes.ModeOfOperation.ctr(naes, new aes.Counter(0))
-                                        .encrypt(aes.util.convertStringToBytes(got.decr_data))));
-                                } catch(e) {
-                                    if(respond === true)
-                                        res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.badState', req)});
-                                    reject();
-                                    return;
-                                }
-                            }
-                            if(storable) {
-                                v.storable = [(!!got.store_path)? got.store_path : got.data_name];
-                            }
-                            v.persist().then(function() {
-                                req.user.data[got.real_name].shared_to[v.shared_to_id] = v._id;
-                                req.user.persist().then(function() {
-                                    sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
-                                    //We were already granted something to that name
-                                    if(v.data_name in sharee.shared_with_me[req.user._id]) {
-                                        db.retrieveVault(sharee.shared_with_me[req.user._id][v.data_name]).then(function(ret: Vault) {
-                                            if(!!req.user.data[ret.real_name] && !!req.user.data[ret.real_name].shared_to)
-                                                delete req.user.data[ret.real_name].shared_to[sharee._id];
-                                            for(var i = 0; i < ret.links.length; i++)
-                                                delete sharee.shared_with_me[req.user._id][ret.links[i]];
-                                            req.user.persist();
-                                            ret.unlink();
-                                        });
-                                    }
-                                    sharee.shared_with_me[req.user._id][v.data_name] = v._id;
-                                    for(var i = 0; i < 10 && i < got.links.length; i++) {
-                                        if(!(got.links[i] in sharee.shared_with_me)) {
-                                            sharee.shared_with_me[req.user._id][got.links[i]] = v._id;
-                                            v.links.push(got.links[i]);
-                                        }
-                                    }
-                                    if(v.links.length > 0)
-                                        v.persist();
-                                    sharee.persist().then(function() {
-                                        if(respond === true)
-                                            res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id, new: true});
-                                        resolve();
-                                    }, function(e) {
-                                        if(respond === true)
-                                            res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
-                                        reject();
+                        }
+                        if(storable) {
+                            v.storable = [(!!got.store_path)? got.store_path : got.data_name];
+                        }
+                        v.persist().then(function() {
+                            req.user.data[got.real_name].shared_to[v.shared_to_id] = v._id;
+                            req.user.persist().then(function() {
+                                sharee.shared_with_me[req.user._id] = sharee.shared_with_me[req.user._id] || {};
+                                //We were already granted something to that name
+                                if(v.data_name in sharee.shared_with_me[req.user._id]) {
+                                    db.retrieveVault(sharee.shared_with_me[req.user._id][v.data_name]).then(function(ret: Vault) {
+                                        if(!!req.user.data[ret.real_name] && !!req.user.data[ret.real_name].shared_to)
+                                            delete req.user.data[ret.real_name].shared_to[sharee._id];
+                                        for(var i = 0; i < ret.links.length; i++)
+                                            delete sharee.shared_with_me[req.user._id][ret.links[i]];
+                                        req.user.persist();
+                                        ret.unlink();
                                     });
+                                }
+                                sharee.shared_with_me[req.user._id][v.data_name] = v._id;
+                                for(var i = 0; i < 10 && i < got.links.length; i++) {
+                                    if(!(got.links[i] in sharee.shared_with_me)) {
+                                        sharee.shared_with_me[req.user._id][got.links[i]] = v._id;
+                                        v.links.push(got.links[i]);
+                                    }
+                                }
+                                if(v.links.length > 0)
+                                    v.persist();
+                                sharee.persist().then(function() {
+                                    if(respond === true)
+                                        res.type('application/json').status(201).json({puzzle: req.user.puzzle,  error: '', _id: v._id, new: true});
+                                    resolve();
                                 }, function(e) {
                                     if(respond === true)
                                         res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
@@ -471,26 +449,26 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
                                     res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
                                 reject();
                             });
-                        }
-                        //Load remote user
-                        if(v.shared_to_id != req.user._id) {
-                            db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
-                                now(sharee);    
-                            }, function(e) {
-                                if(respond === true)
-                                    res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
-                                reject();
-                            });
-                        } else {
-                            now(req.user._id);
-                        }
+                        }, function(e) {
+                            if(respond === true)
+                                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                            reject();
+                        });
+                    }
+                    //Load remote user
+                    if(v.shared_to_id != req.user._id) {
+                        db.retrieveUser(v.shared_to_id, [req.user._id]).then(function(sharee: User) {
+                            now(sharee);    
+                        }, function(e) {
+                            if(respond === true)
+                                res.type('application/json').status(500).json({puzzle: req.user.puzzle, error: utils.i18n('internal.db', req)});
+                            reject();
+                        });
+                    } else {
+                        now(req.user._id);
                     }
                 }
-            }, function(e) {
-                if(respond === true)
-                    res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
-                reject();
-            });
+            }
         }
         //A bit of sanity check before doing
         if(got.shared_to_id.toLowerCase() == 'whigi-dev-null') {
@@ -515,7 +493,7 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
             return;
         }
         if(!!topay[got.shared_to_id]) {
-            db.retrieveUser('whigi-wissl', true).then(function(whigi) {
+            db.retrieveUser('whigi-wissl', []).then(function(whigi) {
                 if(!(('payments/' + topay[got.shared_to_id] + '/' + req.user._id) in whigi.data)) {
                     if(respond === true)
                         res.type('application/json').status(400).json({puzzle: req.user.puzzle, error: utils.i18n('client.paying', req)});
@@ -588,7 +566,7 @@ export function removeVault(req, res, respond): Promise<undefined> {
             });
         }
         //Now loading...
-        req.user.fill().then(function() {
+        req.user.fill([req.user._id]).then(function() {
             db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
                 if(!v) {
                     if(respond === true)
@@ -602,7 +580,7 @@ export function removeVault(req, res, respond): Promise<undefined> {
                     reject();
                     return;
                 }
-                db.retrieveUser(v.shared_to_id, true, [req.user._id]).then(function(sharee: User) {
+                db.retrieveUser(v.shared_to_id, [req.user._id]).then(function(sharee: User) {
                     if(!!sharee) {
                         //Fix for self grants
                         if(sharee._id == req.user._id)
@@ -684,7 +662,7 @@ export function removeStorable(req, res) {
                 });
             }
             if(v.sharer_id != req.user._id) {
-                db.retrieveUser(v.sharer_id, true).then(function(sharer: User) {
+                db.retrieveUser(v.sharer_id, []).then(function(sharer: User) {
                     if(!!sharer) {
                         now(sharer);
                     } else {
@@ -752,8 +730,8 @@ export function getVault(req, res) {
                 if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
                     //If now we stumble accros some removal process...
                     if(v.sharer_id == req.user._id) {
-                        db.retrieveUser(v.sharer_id, true, [v.sharer_id]).then(function(ufrom: User) {
-                            db.retrieveUser(req.user._id, true, [v.sharer_id]).then(function(uto: User) {
+                        db.retrieveUser(v.sharer_id, [v.sharer_id]).then(function(ufrom: User) {
+                            db.retrieveUser(req.user._id, [v.sharer_id]).then(function(uto: User) {
                                 delete ufrom.data[v.real_name].shared_to[v.shared_to_id];
                                 ufrom.persist();
                                 delete uto.shared_with_me[v.sharer_id][v.data_name];
@@ -765,7 +743,7 @@ export function getVault(req, res) {
                             });
                         });
                     } else {
-                        db.retrieveUser(req.user._id, true, [v.sharer_id]).then(function(uby: User) {
+                        db.retrieveUser(req.user._id, [v.sharer_id]).then(function(uby: User) {
                             delete uby.data[v.real_name].shared_to[v.shared_to_id];
                             delete uby.shared_with_me[v.sharer_id][v.data_name];
                             for(var i = 0; i < v.links.length; i++)
@@ -825,7 +803,7 @@ export function getVault(req, res) {
  * @param {Response} res The response.
  */
 export function accessVault(req, res) {
-    req.user.fill().then(function() {
+    req.user.fill([req.user._id]).then(function() {
         db.retrieveVault(req.params.vault_id).then(function(v: Vault) {
             if(!v) {
                 res.type('application/json').status(404).json({error: utils.i18n('client.noData', req)});
@@ -843,13 +821,13 @@ export function accessVault(req, res) {
                     u.persist();
                 }
                 if(v.shared_to_id != req.user._id) {
-                    db.retrieveUser(v.shared_to_id, true, [v.sharer_id]).then(function(u: User) {
+                    db.retrieveUser(v.shared_to_id, [v.sharer_id]).then(function(u: User) {
                         now(u);
                     });
                 } else {
                     now(req.user);
                 }
-                db.retrieveUser(req.user._id, true, [v.sharer_id]).then(function(u: User) {
+                db.retrieveUser(req.user._id, [v.sharer_id]).then(function(u: User) {
                     delete u.data[v.real_name].shared_to[v.shared_to_id];
                     u.persist();
                 });
@@ -874,7 +852,7 @@ export function accessVault(req, res) {
  * @param {Response} res The response.
  */
 export function whoTo(req, res) {
-    db.retrieveUser(req.params.id, true).then(function(u: User) {
+    db.retrieveUser(req.params.id, []).then(function(u: User) {
         if(!u) {
             res.type('application/json').status(404).json({error: utils.i18n('client.noUser', req)});
             return;
@@ -916,7 +894,7 @@ export function getAny(req, res) {
     if(req.user._id != 'whigi-wissl') {
         switch(req.params.collection) {
             case 'users':
-                db.retrieveUser(req.params.id, true).then(ok, nok);
+                db.retrieveUser(req.params.id, []).then(ok, nok);
                 break;
             case 'datas':
                 db.retrieveData(req.params.id).then(ok, nok);

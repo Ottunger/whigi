@@ -6,7 +6,7 @@
 
 'use strict';
 declare var require: any
-import {User, fields} from './models/User';
+import {User} from './models/User';
 import {Datafragment} from './models/Datafragment';
 import {Token} from './models/Token';
 import {Vault} from './models/Vault';
@@ -141,15 +141,11 @@ export class Datasource {
      * @function retrieveUser
      * @public
      * @param {String} id User id.
-     * @param {Boolean} data Whether to retrieve data array.
      * @param {String[]} names If data required, names to ensure to have.
-     * @param {Boolean} by_user If the user class calls it.
      * @return {Promise} The required item.
      */
-    retrieveUser(id: string, data?: boolean, names?: string[], by_user: boolean = false): Promise<User> {
+    retrieveUser(id: string, names: string[]): Promise<User> {
         var self = this;
-        names = names || [];
-        var decl = (data === true && names.length == 0)? fields : {data: false, shared_with_me: false};
 
         return new Promise<User>(function(resolve, reject) {
             function complete(doc: User) {
@@ -166,7 +162,7 @@ export class Datasource {
                         }
                     }
                     doc.lfetch = new Date().getTime();
-                    if(data === true && names.length > 0) {
+                    if(names.length > 0) {
                         doc.fill(names).then(function() {
                             resolve(doc);
                         }, function(e) {
@@ -181,7 +177,7 @@ export class Datasource {
             }
             //Try to get from local store
             if(!self.uids[id]) {
-                self.retrieveGeneric('users', {_id: id}, decl).then(function(doc: User) {
+                self.retrieveGeneric('users', {_id: id}, {}).then(function(doc: User) {
                     complete(doc);
                 }, function(e) {
                     reject(e);

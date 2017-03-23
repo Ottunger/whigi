@@ -261,7 +261,7 @@ export function getMK(kd: string, profile: any): number[] {
  * @param {Function} err Called if not OK.
  */
 export function mailUser(sharee: string, db: any, callback: Function, err?: Function) {
-    db.retrieveUser(true, 'whigi-wissl', true, [sharee]).then(function(owned) {
+    db.retrieveUser('whigi-wissl', [sharee]).then(function(owned) {
         db.retrieveVault(owned.shared_with_me[sharee]['profile/email']).then(function(va) {
             var rsa_key = fs.readFileSync(__dirname + '/../whigi/whigi-key.pem');
             var aesKey: number[] = decryptRSA(va.aes_crypted_shared_pub, rsa_key);
@@ -509,7 +509,7 @@ export function trigger(v: any, removed: boolean = false, cs_key?: string, cs_ce
 export function lameTrigger(db: any, user: any, id: string, save: boolean, cs_key?: string, cs_cert?: string) {
     db.retrieveVault(id).then(function(v) {
         if(v.expire_epoch > 0 && (new Date).getTime() > v.expire_epoch) {
-            db.retrieveUser(false, v.shared_to_id, true).then(function(u) {
+            db.retrieveUser(v.shared_to_id, [v.sharer_id]).then(function(u) {
                 delete u.shared_with_me[v.sharer_id][v.data_name];
                 u.persist();
             });

@@ -62,7 +62,7 @@ function createOne(i, ident, path, data, cb, get) {
     ht.end();
 }
 
-var done = 0, max = 50000, first = utils.generateRandomString(12), needed = first;
+var done = 0, first = utils.generateRandomString(12), needed = first;
 var kp = pki.rsa.generateKeyPair({bits: 1024, e: 0x10001});
 var pPem = pki.privateKeyToPem(kp.privateKey), PPem = pki.publicKeyToPem(kp.publicKey);
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -75,7 +75,7 @@ function final(get) {
         console.log(now, res);
     }, get);
 }
-function createMore() {
+function createMore(max) {
     createOne(done, false, '/api/v1/user/create', {
         username: needed,
         password: 'dummydummy',
@@ -109,8 +109,8 @@ function createMore() {
         if(done % 100 == 0) {
             console.log('Done: ' + done);
         } 
-        if(now < 50000) {
-            createMore();
+        if(now < max) {
+            createMore(max);
         } else {
             final();
         }
@@ -118,8 +118,8 @@ function createMore() {
 }
 
 //Check if we want to check...
-if(process.argv[2] === 'false') {
-    createMore();
+if(!isNaN(parseInt(process.argv[2]))) {
+    createMore(parseInt(process.argv[2]));
 } else if(process.argv[2] === 'get') {
     final(true);
 } else {
