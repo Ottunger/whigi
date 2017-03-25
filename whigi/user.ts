@@ -1149,6 +1149,9 @@ export function regUser(req, res) {
     }
     function complete() {
         var u: User = new User(user, db);
+        db.uids[proposal] = u;
+        u.dispose();
+        u.lfetch = new Date().getTime();
         try {
             pki.publicKeyFromPem(req.body.public_key);
             pki.privateKeyFromPem(req.body.private_key);
@@ -1257,6 +1260,10 @@ export function regUserDummy(req, res) {
     }
     function complete() {
         var u: User = new User({}, db);
+        db.uids[proposal] = u;
+        u.dispose();
+        u.lfetch = new Date().getTime();
+        //Fill
         u._id = proposal;
         u.puzzle = utils.generateRandomString(16);
         u.data = {};
@@ -1363,7 +1370,7 @@ export function removeToken(req, res, respond?: boolean) {
         db.retrieveToken({bearer_id: req.user._id}).then(function(t: Token) {
             if(!!t) {
                 t.unlink().then(function() {
-                    removeToken(req, res);
+                    removeToken(req, res, respond);
                 }, function(e) {
                     if(respond === true)
                         res.type('application/json').status(500).json({error: utils.i18n('internal.db', req)});
