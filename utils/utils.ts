@@ -413,7 +413,7 @@ export function pkcs1pad2(s: number[], k: number): number[] {
  * Decrypt an AES key using RSA.
  * @function decryptRSA
  * @public
- * @param {String} Encrypted data.
+ * @param {String} data Encrypted data.
  * @param {String} rsa_key Key.
  * @return {Number[]} Decrypted data, we use AES keys.
  */
@@ -441,12 +441,20 @@ export function decryptRSA(data: string, rsa_key: string): number[] {
  * Encrypt an AES key using RSA.
  * @function encryptRSA
  * @public
- * @param {Number[]} Decrypted data.
+ * @param {Number[]} data Decrypted data.
  * @param {String} rsa_key Key.
+ * @param {Boolean} undef Use undefined PKCS.
  * @return {String} Encrypted data, we use AES keys.
  */
-export function encryptRSA(data: number[], rsa_key: string): string {
-    var dec = new RSA(
+export function encryptRSA(data: number[], rsa_key: string, undef: boolean = false): string {
+    var dec = undef? new RSA(
+        rsa_key, {
+            encryptionScheme: {
+                scheme: 'pkcs1',
+                padding: constants.RSA_NO_PADDING
+            }
+        }
+    ) : new RSA(
         rsa_key, 'pkcs8-public', {
             encryptionScheme: {
                 scheme: 'pkcs1',
