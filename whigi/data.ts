@@ -323,7 +323,7 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
                 if(got.shared_to_id.toLowerCase() in req.user.data[got.real_name].shared_to) {
                     if(respond === true)
                         res.type('application/json').status(200).json({puzzle: req.user.puzzle, error: '', _id: req.user.data[got.real_name].shared_to[got.shared_to_id.toLowerCase()], new: false});
-                    reject();
+                    resolve();
                 } else {
                     //Cannot create a storable vault if we are trying to create a bound vault
                     if(storable && got.data_crypted_aes.indexOf('datafragment') == 0) {
@@ -465,7 +465,7 @@ export function regVault(req, res, respond?: boolean): Promise<undefined> {
                             reject();
                         });
                     } else {
-                        now(req.user._id);
+                        now(req.user);
                     }
                 }
             }
