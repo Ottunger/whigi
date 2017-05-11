@@ -212,7 +212,7 @@ export function mailConfig(to: string, subject: string, req: any, context?: {[id
  */
 export function parser(file: string, req: any, context?: {[id: string]: any}, userin?: any, html?: boolean): string {
     var template: string = !!html? file : fs.readFileSync(file, 'utf8'), parsed = template;
-    var rgx = /{{\s*([^}]*)\s*}}/g;
+    var rgx = /[{$]{2}\s*([^$}]*)\s*[$}]{2}/g;
     var match = rgx.exec(template);
     var shift = 0, by;
     while(match != null) {
